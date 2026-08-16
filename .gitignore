@@ -13,3 +13,4 @@ TestResults/
 *.p12
 *.pem
 *.key
+/dotnet/runfile-discovery/

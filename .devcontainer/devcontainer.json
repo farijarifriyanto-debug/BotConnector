@@ -1,0 +1,37 @@
+{
+  "name": "BotConnector Coding Sandbox",
+  "features": {
+    "ghcr.io/devcontainers/features/common-utils:2": {},
+    "ghcr.io/devcontainers/features/node:2": {
+      "version": "24"
+    },
+    "ghcr.io/devcontainers/features/python:1": {
+      "version": "3.13"
+    }
+  },
+  "remoteUser": "vscode",
+  "containerEnv": {
+    "DOTNET_CLI_TELEMETRY_OPTOUT": "1",
+    "DOTNET_NOLOGO": "1"
+  },
+  "remoteEnv": {
+    "PATH": "${containerEnv:PATH}:/home/vscode/.local/bin",
+    "BOTCONNECTOR_HERMES_BASE_URL": "http://host.docker.internal:18642/v1"
+  },
+  "runArgs": [
+    "--security-opt=no-new-privileges:true"
+  ],
+  "customizations": {
+    "vscode": {
+      "extensions": [
+        "saoudrizwan.claude-dev",
+        "ms-dotnettools.csharp"
+      ]
+    }
+  },
+  "postCreateCommand": "bash .devcontainer/post-create.sh",
+  "shutdownAction": "stopContainer",
+  "build": {
+    "dockerfile": "Dockerfile"
+  }
+}

@@ -1,0 +1,16 @@
+BOTCONNECTOR_DEVCONTAINER_CANDIDATE
+CREATED_LOCAL=2026-08-17T00:40:47.9252940+07:00
+BASE_BRANCH=main
+BASE_HEAD=ce775fedde7def812e274b82a093e8ab82630121
+CANDIDATE_BRANCH=botconnector/devcontainer-sandbox-20260817-004047
+DOTNET_DETECTED=True
+NODE_DETECTED=False
+WPF_DETECTED=True
+BASE_IMAGE=mcr.microsoft.com/devcontainers/dotnet:8.0-noble
+NODE_FEATURE=ghcr.io/devcontainers/features/node:2 version 24
+PYTHON_FEATURE=ghcr.io/devcontainers/features/python:1 version 3.13
+COMMON_UTILS_FEATURE=ghcr.io/devcontainers/features/common-utils:2
+HERMES_CONTAINER_URL=http://host.docker.internal:18642/v1
+HERMES_SECRET_WRITTEN=FALSE
+DOCKER_SOCKET_MOUNTED=FALSE
+WPF_FINAL_BUILD_POLICY=WINDOWS_HOST
