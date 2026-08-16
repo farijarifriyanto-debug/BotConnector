@@ -1,0 +1,15 @@
+bin/
+obj/
+.vs/
+node_modules/
+TestResults/
+*.user
+*.suo
+*.tmp
+*.log
+.env
+.env.*
+*.pfx
+*.p12
+*.pem
+*.key

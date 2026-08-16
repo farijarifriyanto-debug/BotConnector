@@ -1,0 +1,26 @@
+﻿{
+    "execution_profile":  "trusted-power-user",
+    "terminal":  {
+                     "local":  true,
+                     "unrestricted_shell":  true,
+                     "persistent":  true,
+                     "admin_elevation":  false
+                 },
+    "filesystem":  {
+                       "workspace_only":  false,
+                       "outside_workspace":  true,
+                       "vps_to_windows":  true
+                   },
+    "network":  {
+                    "offline_sandbox_network":  true
+                },
+    "git":  {
+                "automatic_push":  true,
+                "force_push":  false,
+                "reset_hard":  false
+            },
+    "lmstudio":  {
+                     "network_bind":  true,
+                     "authentication_required":  true
+                 }
+}

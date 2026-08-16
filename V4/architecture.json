@@ -1,0 +1,24 @@
+{
+  "release": "BotConnector Desktop V4 R1",
+  "architecture": "Codex-class agent foundation",
+  "principles": [
+    "single workspace source of truth",
+    "tool loop separated from UI",
+    "approval before mutation",
+    "parallel agents isolated",
+    "MCP transport boundary",
+    "SSH via permission boundary",
+    "local/cloud intelligent routing",
+    "no direct destructive execution"
+  ],
+  "components": {
+    "workspace_context": true,
+    "agent_runtime": true,
+    "multi_agent_supervisor": true,
+    "model_router": true,
+    "approval_policy": true,
+    "ssh_runtime": true,
+    "mcp_registry": true
+  },
+  "cutover": false
+}

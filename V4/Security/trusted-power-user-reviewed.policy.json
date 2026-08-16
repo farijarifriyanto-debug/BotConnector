@@ -1,0 +1,49 @@
+﻿{
+    "execution_profile":  "trusted-power-user-reviewed",
+    "approvals":  {
+                      "mode":  "risk-based",
+                      "auto_low_risk":  true,
+                      "allow_once":  true,
+                      "allow_for_session":  true
+                  },
+    "terminal":  {
+                     "local":  true,
+                     "unrestricted_shell":  true,
+                     "persistent":  true,
+                     "admin_elevation":  false
+                 },
+    "filesystem":  {
+                       "workspace_only":  false,
+                       "outside_workspace":  true,
+                       "vps_to_windows":  true,
+                       "destructive_requires_approval":  true
+                   },
+    "network":  {
+                    "enabled":  true,
+                    "localhost_auto":  true,
+                    "known_domains_auto":  true,
+                    "unknown_domains_require_approval":  true
+                },
+    "git":  {
+                "automatic_push":  true,
+                "protected_branch_push_requires_approval":  true,
+                "force_push_requires_approval":  true,
+                "reset_hard":  false
+            },
+    "remote":  {
+                   "ssh_read":  "auto",
+                   "ssh_normal_write":  "auto",
+                   "service_mutation":  "ask",
+                   "system_mutation":  "ask"
+               },
+    "mcp":  {
+                "read":  "auto",
+                "write":  "risk-based",
+                "first_local_server_connection":  "ask"
+            },
+    "hard_deny":  [
+                      "git reset --hard",
+                      "windows privilege elevation",
+                      "approval bypass"
+                  ]
+}

@@ -1,0 +1,200 @@
+using System;
+using System.Threading;
+using System.Threading.Tasks;
+using System.Windows;
+using System.Windows.Controls;
+using System.Windows.Media;
+
+namespace BotConnector.Desktop.V4.Security;
+
+public sealed class WpfApprovalPrompt :
+    IApprovalPrompt
+{
+    public Task<UserApproval> AskAsync(
+        ApprovalRequest request,
+        CancellationToken cancellationToken)
+    {
+        var tcs =
+            new TaskCompletionSource<UserApproval>(
+                TaskCreationOptions.RunContinuationsAsynchronously);
+
+        var dispatcher =
+            System.Windows.Application.Current?.Dispatcher;
+
+        if (dispatcher is null)
+        {
+            tcs.SetResult(UserApproval.Deny);
+            return tcs.Task;
+        }
+
+        dispatcher.Invoke(() =>
+        {
+            cancellationToken.ThrowIfCancellationRequested();
+
+            var window = new Window
+            {
+                Title = "BotConnector â€” Izin diperlukan",
+                Width = 640,
+                Height = 460,
+                WindowStartupLocation =
+                    WindowStartupLocation.CenterOwner,
+                ResizeMode =
+                    ResizeMode.CanResize,
+                ShowInTaskbar = false
+            };
+
+            if (System.Windows.Application.Current?.MainWindow is Window owner &&
+                owner != window)
+            {
+                window.Owner = owner;
+            }
+
+            var root = new DockPanel
+            {
+                Margin = new Thickness(22)
+            };
+
+            var buttons = new StackPanel
+            {
+                Orientation = Orientation.Horizontal,
+                HorizontalAlignment = HorizontalAlignment.Right,
+                Margin = new Thickness(0,18,0,0)
+            };
+
+            DockPanel.SetDock(
+                buttons,
+                Dock.Bottom);
+
+            var content = new StackPanel();
+
+            content.Children.Add(
+                new TextBlock
+                {
+                    Text = request.Title,
+                    FontSize = 20,
+                    FontWeight = FontWeights.SemiBold,
+                    TextWrapping = TextWrapping.Wrap
+                });
+
+            content.Children.Add(
+                new TextBlock
+                {
+                    Text = request.Description,
+                    Margin = new Thickness(0,12,0,12),
+                    TextWrapping = TextWrapping.Wrap
+                });
+
+            content.Children.Add(
+                new TextBlock
+                {
+                    Text =
+                        $"Kategori: {request.Category}",
+                    FontWeight = FontWeights.SemiBold
+                });
+
+            if (!string.IsNullOrWhiteSpace(
+                    request.Target))
+            {
+                content.Children.Add(
+                    new TextBlock
+                    {
+                        Text =
+                            $"Target: {request.Target}",
+                        Margin =
+                            new Thickness(0,6,0,0),
+                        TextWrapping =
+                            TextWrapping.Wrap
+                    });
+            }
+
+            if (!string.IsNullOrWhiteSpace(
+                    request.Command))
+            {
+                content.Children.Add(
+                    new TextBlock
+                    {
+                        Text = "Command:",
+                        FontWeight = FontWeights.SemiBold,
+                        Margin =
+                            new Thickness(0,14,0,4)
+                    });
+
+                content.Children.Add(
+                    new TextBox
+                    {
+                        Text = request.Command,
+                        IsReadOnly = true,
+                        TextWrapping = TextWrapping.Wrap,
+                        AcceptsReturn = true,
+                        MaxHeight = 150,
+                        VerticalScrollBarVisibility =
+                            ScrollBarVisibility.Auto
+                    });
+            }
+
+            var deny = new Button
+            {
+                Content = "Tolak",
+                MinWidth = 95,
+                Margin = new Thickness(6)
+            };
+
+            var once = new Button
+            {
+                Content = "Izinkan sekali",
+                MinWidth = 120,
+                Margin = new Thickness(6)
+            };
+
+            var session = new Button
+            {
+                Content = "Izinkan sesi ini",
+                MinWidth = 130,
+                Margin = new Thickness(6)
+            };
+
+            deny.Click += (_,__) =>
+            {
+                tcs.TrySetResult(
+                    UserApproval.Deny);
+
+                window.Close();
+            };
+
+            once.Click += (_,__) =>
+            {
+                tcs.TrySetResult(
+                    UserApproval.AllowOnce);
+
+                window.Close();
+            };
+
+            session.Click += (_,__) =>
+            {
+                tcs.TrySetResult(
+                    UserApproval.AllowSession);
+
+                window.Close();
+            };
+
+            window.Closed += (_,__) =>
+            {
+                tcs.TrySetResult(
+                    UserApproval.Deny);
+            };
+
+            buttons.Children.Add(deny);
+            buttons.Children.Add(once);
+            buttons.Children.Add(session);
+
+            root.Children.Add(buttons);
+            root.Children.Add(content);
+
+            window.Content = root;
+
+            window.ShowDialog();
+        });
+
+        return tcs.Task;
+    }
+}
