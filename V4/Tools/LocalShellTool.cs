@@ -3,12 +3,23 @@ using System.Diagnostics;
 using System.IO;
 using System.Threading;
 using System.Threading.Tasks;
+using BotConnector.Desktop.V4.Core;
 
 namespace BotConnector.Desktop.V4.Tools;
 
 public sealed class LocalShellTool :
     IBotConnectorTool
 {
+    private readonly WorkspaceContext _workspace;
+
+    public LocalShellTool(
+        WorkspaceContext workspace)
+    {
+        _workspace = workspace
+            ?? throw new ArgumentNullException(
+                nameof(workspace));
+    }
+
     public string Name =>
         "local_shell";
 
@@ -30,11 +41,68 @@ public sealed class LocalShellTool :
             "cwd",
             out var cwd);
 
+        string workingDirectory;
+
+        try
+        {
+            workingDirectory =
+                _workspace.ResolvePath(
+                    string.IsNullOrWhiteSpace(cwd)
+                        ? "."
+                        : cwd);
+        }
+        catch (InvalidOperationException)
+        {
+            return new(
+                false,
+                string.Empty,
+                "No active workspace");
+        }
+        catch (UnauthorizedAccessException)
+        {
+            return new(
+                false,
+                string.Empty,
+                "Working directory is outside the active workspace");
+        }
+        catch (ArgumentException)
+        {
+            return new(
+                false,
+                string.Empty,
+                "Working directory cannot be resolved safely");
+        }
+        catch (IOException)
+        {
+            return new(
+                false,
+                string.Empty,
+                "Working directory cannot be resolved safely");
+        }
+        catch (NotSupportedException)
+        {
+            return new(
+                false,
+                string.Empty,
+                "Working directory cannot be resolved safely");
+        }
+
+        if (!Directory.Exists(workingDirectory))
+        {
+            return new(
+                false,
+                string.Empty,
+                "Working directory does not exist");
+        }
+
         var psi =
             new ProcessStartInfo
             {
                 FileName =
                     "powershell.exe",
+
+                WorkingDirectory =
+                    workingDirectory,
 
                 UseShellExecute =
                     false,
@@ -48,15 +116,6 @@ public sealed class LocalShellTool :
                 CreateNoWindow =
                     true
             };
-
-        if (
-            !string.IsNullOrWhiteSpace(cwd)
-            &&
-            Directory.Exists(cwd))
-        {
-            psi.WorkingDirectory =
-                Path.GetFullPath(cwd);
-        }
 
         psi.ArgumentList.Add(
             "-NoLogo");

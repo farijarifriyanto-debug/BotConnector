@@ -1,3 +1,4 @@
+using System;
 using System.IO;
 using System.Threading;
 using System.Threading.Tasks;
@@ -43,10 +44,41 @@ public sealed class WorkspaceWriteTool :
                 "content is required");
         }
 
-        path = Path.GetFullPath(path);
+        string resolvedPath;
+        try
+        {
+            resolvedPath = _workspace.ResolvePath(path);
+        }
+        catch (ArgumentException)
+        {
+            return new(
+                false,
+                string.Empty,
+                "Path is outside the active workspace");
+        }
+        catch (InvalidOperationException)
+        {
+            return new(
+                false,
+                string.Empty,
+                "No active workspace");
+        }
+        catch (UnauthorizedAccessException)
+        {
+            return new(
+                false,
+                string.Empty,
+                "Path is outside the active workspace");
+        }
+        catch (IOException)
+        {
+            return new(
+                false,
+                string.Empty,
+                "Path cannot be resolved safely");
+        }
 
-        var parent =
-            Path.GetDirectoryName(path);
+        var parent = Path.GetDirectoryName(resolvedPath);
 
         if (!string.IsNullOrWhiteSpace(parent))
         {
@@ -54,12 +86,12 @@ public sealed class WorkspaceWriteTool :
         }
 
         await File.WriteAllTextAsync(
-            path,
+            resolvedPath,
             content,
             cancellationToken);
 
         return new(
             true,
-            $"Wrote {path}");
+            $"Wrote {resolvedPath}");
     }
 }

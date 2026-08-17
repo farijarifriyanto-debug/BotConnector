@@ -1,3 +1,4 @@
+using System;
 using System.IO;
 using System.Threading;
 using System.Threading.Tasks;
@@ -33,9 +34,41 @@ public sealed class WorkspaceReadTool :
                 "path is required");
         }
 
-        path = Path.GetFullPath(path);
+        string resolvedPath;
+        try
+        {
+            resolvedPath = _workspace.ResolvePath(path);
+        }
+        catch (ArgumentException)
+        {
+            return new(
+                false,
+                string.Empty,
+                "Path is outside the active workspace");
+        }
+        catch (InvalidOperationException)
+        {
+            return new(
+                false,
+                string.Empty,
+                "No active workspace");
+        }
+        catch (UnauthorizedAccessException)
+        {
+            return new(
+                false,
+                string.Empty,
+                "Path is outside the active workspace");
+        }
+        catch (IOException)
+        {
+            return new(
+                false,
+                string.Empty,
+                "Path cannot be resolved safely");
+        }
 
-        if (!File.Exists(path))
+        if (!File.Exists(resolvedPath))
         {
             return new(
                 false,
@@ -45,7 +78,7 @@ public sealed class WorkspaceReadTool :
 
         var content =
             await File.ReadAllTextAsync(
-                path,
+                resolvedPath,
                 cancellationToken);
 
         return new(

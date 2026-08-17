@@ -12,7 +12,8 @@ public enum WorkloadClass
 public enum RuntimeTarget
 {
     Local,
-    HermesCloud
+    HermesCloud,
+    CloudOrchestrator
 }
 
 public sealed class ModelRouter
@@ -30,10 +31,10 @@ public sealed class ModelRouter
                 => RuntimeTarget.HermesCloud,
 
             WorkloadClass.Coding
-                => RuntimeTarget.HermesCloud,
+                => RuntimeTarget.CloudOrchestrator,
 
             WorkloadClass.CodingHeavy
-                => RuntimeTarget.HermesCloud,
+                => RuntimeTarget.CloudOrchestrator,
 
             WorkloadClass.ToolAgent
                 => RuntimeTarget.HermesCloud,

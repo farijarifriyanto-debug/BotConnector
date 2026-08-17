@@ -20,17 +20,12 @@ public interface IAgentBrain
 
 public sealed class AgentRuntime
 {
-    private readonly IReadOnlyDictionary<string,IBotConnectorTool> _tools;
+    private readonly ReviewedToolGateway _gateway;
 
-    public AgentRuntime(IEnumerable<IBotConnectorTool> tools)
+    public AgentRuntime(ReviewedToolGateway gateway)
     {
-        var map = new Dictionary<string,IBotConnectorTool>(
-            StringComparer.OrdinalIgnoreCase);
-
-        foreach (var tool in tools)
-            map[tool.Name] = tool;
-
-        _tools = map;
+        _gateway = gateway
+            ?? throw new ArgumentNullException(nameof(gateway));
     }
 
     public int MaxIterations { get; init; } = 32;
@@ -55,22 +50,12 @@ public sealed class AgentRuntime
                 throw new InvalidOperationException(
                     "Agent returned neither completion nor tool request.");
 
-            if (!_tools.TryGetValue(
-                action.ToolRequest.Name,
-                out var tool))
-            {
-                transcript.Add(
-                    $"TOOL_ERROR unknown_tool={action.ToolRequest.Name}");
-
-                continue;
-            }
-
-            var result = await tool.ExecuteAsync(
+            var result = await _gateway.ExecuteAsync(
                 action.ToolRequest,
                 cancellationToken);
 
             transcript.Add(
-                $"TOOL_RESULT name={tool.Name} success={result.Success}\n" +
+                $"TOOL_RESULT name={action.ToolRequest.Name} success={result.Success}\n" +
                 result.Output +
                 (string.IsNullOrWhiteSpace(result.Error)
                     ? string.Empty

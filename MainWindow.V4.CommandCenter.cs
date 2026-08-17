@@ -29,6 +29,13 @@ public partial class MainWindow
     private bool _v4HermesProbing;
     private DateTime _v4LastHermesProbeUtc = DateTime.MinValue;
 
+    // Cloud Coding transcript and workspace state
+    private readonly List<string>
+        _v4CloudCodingTranscript = new();
+
+    private string?
+        _v4CloudCodingWorkspace;
+
     private async void
         V4InitializeCommandCenter()
     {
@@ -60,6 +67,13 @@ public partial class MainWindow
             {
                 Content = "Local AI",
                 Tag = "local"
+            });
+
+        ModeBox.Items.Add(
+            new ComboBoxItem
+            {
+                Content = "Coding",
+                Tag = "coding"
             });
 
         ModeBox.SelectedIndex = 0;
@@ -276,6 +290,13 @@ public partial class MainWindow
             return;
         }
 
+        if (mode == "coding")
+        {
+            LocalAiCheck.IsChecked = false;
+            StatusText.Text = "Coding · Cloud Orchestrator";
+            return;
+        }
+
         LocalAiCheck.IsChecked =
             false;
 
@@ -316,7 +337,129 @@ public partial class MainWindow
             return;
         }
 
+        if (mode == "coding")
+        {
+            await V4SendCloudCodingAsync();
+            return;
+        }
+
         await V4SendHermesAsync();
+    }
+
+    private async Task V4SendCloudCodingAsync()
+    {
+        string userPrompt = CommandBox.Text.Trim();
+
+        if (string.IsNullOrWhiteSpace(userPrompt))
+            return;
+
+        if (_agentCancellation is not null)
+            return;
+
+        if (string.IsNullOrWhiteSpace(_workspace))
+        {
+            AppendConversation(
+                "System",
+                "Select a Windows workspace before using Coding mode.");
+            SetAgentActivity("");
+            return;
+        }
+
+        string normalizedWorkspace;
+        try
+        {
+            normalizedWorkspace = Path.GetFullPath(_workspace);
+            V4SetWorkspace(normalizedWorkspace);
+        }
+        catch
+        {
+            AppendConversation(
+                "Error",
+                "Unable to activate the selected Windows workspace.");
+            return;
+        }
+
+        if (!string.IsNullOrWhiteSpace(_v4CloudCodingWorkspace) &&
+            string.Equals(normalizedWorkspace, _v4CloudCodingWorkspace, StringComparison.OrdinalIgnoreCase))
+        {
+        }
+        else
+        {
+            _v4CloudCodingTranscript.Clear();
+            _v4CloudCodingWorkspace = normalizedWorkspace;
+        }
+
+        _agentCancellation = new CancellationTokenSource();
+
+        SendButton.IsEnabled = false;
+        StopButton.IsEnabled = true;
+        CommandBox.IsEnabled = false;
+        CommandBox.Clear();
+
+        int transcriptStart = _v4CloudCodingTranscript.Count;
+
+        try
+        {
+            AppendConversation("You", userPrompt);
+
+            _v4CloudCodingTranscript.Add("USER: " + userPrompt);
+
+            var brain = V4.CreateCloudCodingBrain();
+
+            SetAgentActivity("Cloud coding...");
+
+            string answer = await V4.Agent.RunAsync(
+                brain,
+                _v4CloudCodingTranscript,
+                _agentCancellation.Token);
+
+            for (int i = transcriptStart; i < _v4CloudCodingTranscript.Count; i++)
+            {
+                if (_v4CloudCodingTranscript[i].StartsWith("TOOL_RESULT ", StringComparison.Ordinal))
+                {
+                    _v4CloudCodingTranscript.RemoveAt(i);
+                    i--;
+                }
+            }
+
+            _v4CloudCodingTranscript.Add("ASSISTANT: " + answer);
+
+            AppendConversation("BotConnector", answer);
+            SetAgentActivity("");
+            SaveChatHistory();
+        }
+        catch (OperationCanceledException)
+        {
+            while (_v4CloudCodingTranscript.Count > transcriptStart)
+            {
+                _v4CloudCodingTranscript.RemoveAt(transcriptStart);
+            }
+
+            AppendConversation("System", "Request stopped.");
+        }
+        catch (Exception ex)
+        {
+            while (_v4CloudCodingTranscript.Count > transcriptStart)
+            {
+                _v4CloudCodingTranscript.RemoveAt(transcriptStart);
+            }
+
+            AppendConversation("Error", ex.Message);
+            StatusText.Text = "Coding error";
+        }
+        finally
+        {
+            _agentCancellation?.Dispose();
+            _agentCancellation = null;
+
+            SendButton.IsEnabled = true;
+            StopButton.IsEnabled = false;
+            CommandBox.IsEnabled = true;
+            CommandBox.Focus();
+
+            SetAgentActivity("");
+            SaveChatHistory();
+        }
     }
 
     private async Task
