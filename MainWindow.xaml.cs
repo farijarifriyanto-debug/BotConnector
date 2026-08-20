@@ -884,7 +884,14 @@ StartWebDesktopJobBridge();
                     await ExecuteAgentActionsAsync(
                         actions);
 
+                P52AddActivity(
+                    "TOOLS",
+                    P52SummarizeToolResults(
+                        localResults));
+
                 RefreshFileTree();
+
+                await P52RefreshReviewAsync();
 
                 string continuation =
                     "Local workspace action results:" +
@@ -964,6 +971,10 @@ StartWebDesktopJobBridge();
         object sender,
         RoutedEventArgs e)
     {
+        // V6 OpenCode Direct: Stop natively aborts the active OpenCode session
+        // (POST /session/{id}/abort), then cancels local awaits below.
+        V6OpenCodeDirectAbort();
+
         _v3AdvisorCancellation?.Cancel();
 
         _agentCancellation?.Cancel();
@@ -996,6 +1007,2824 @@ StartWebDesktopJobBridge();
         }
     }
 
+
+
+
+
+
+
+
+    // BOTCONNECTOR_P5_5_AGENT_DIFF_REVIEW_CODE
+
+    private async System.Threading.Tasks.Task<string>
+        P55CurrentMainHeadAsync()
+    {
+        var result =
+            await P52RunGitAsync(
+                "rev-parse",
+                "HEAD");
+
+        if (
+            result.ExitCode != 0
+            ||
+            string.IsNullOrWhiteSpace(
+                result.Stdout))
+        {
+            throw new System.InvalidOperationException(
+                "Cannot resolve main HEAD: "
+                + result.Stderr.Trim());
+        }
+
+        return result.Stdout.Trim();
+    }
+
+
+    private async System.Threading.Tasks.Task
+        P55VerifyWorktreeBaseAsync(
+            P54AgentState state)
+    {
+        var result =
+            await P52RunGitAsync(
+                "-C",
+                state.WorktreePath,
+                "rev-parse",
+                "HEAD");
+
+        if (result.ExitCode != 0)
+        {
+            throw new System.InvalidOperationException(
+                "Cannot resolve worktree HEAD: "
+                + result.Stderr.Trim());
+        }
+
+        if (
+            !string.Equals(
+                result.Stdout.Trim(),
+                state.BaseHead,
+                System.StringComparison
+                    .OrdinalIgnoreCase))
+        {
+            throw new System.InvalidOperationException(
+                "Worktree HEAD differs from pinned BaseHead.");
+        }
+    }
+
+
+    private P54AgentState?
+        P55SelectedAgent()
+    {
+        int index=
+            P54AgentList.SelectedIndex;
+
+        if (
+            index<0
+            ||
+            index>=_p54Agents.Count)
+        {
+            return null;
+        }
+
+        return _p54Agents[index];
+    }
+
+
+    private bool P55Busy(
+        P54AgentState state)
+    {
+        return
+            state.Status=="QUEUED"
+            ||
+            state.Status=="CREATING"
+            ||
+            state.Status=="READY"
+            ||
+            state.Status=="RUNNING";
+    }
+
+
+    private string P55SafePath(
+        string root,
+        string relative)
+    {
+        string normalized=
+            relative.Replace(
+                '/',
+                System.IO.Path
+                    .DirectorySeparatorChar);
+
+        string fullRoot=
+            System.IO.Path
+                .GetFullPath(root)
+                .TrimEnd(
+                    System.IO.Path
+                        .DirectorySeparatorChar,
+                    System.IO.Path
+                        .AltDirectorySeparatorChar);
+
+        string target=
+            System.IO.Path.GetFullPath(
+                System.IO.Path.Combine(
+                    fullRoot,
+                    normalized));
+
+        string prefix=
+            fullRoot
+            + System.IO.Path
+                .DirectorySeparatorChar;
+
+        if (
+            !target.StartsWith(
+                prefix,
+                System.StringComparison
+                    .OrdinalIgnoreCase))
+        {
+            throw new System.UnauthorizedAccessException(
+                "Path escapes workspace: "
+                + relative);
+        }
+
+        return target;
+    }
+
+
+    private async System.Threading.Tasks.Task<
+        (
+            string MainHead,
+            string WorktreeHead,
+            string Status,
+            string Patch,
+            System.Collections.Generic.List<string>
+                Untracked
+        )>
+        P55CollectAsync(
+            P54AgentState state)
+    {
+        string mainHead=
+            await P55CurrentMainHeadAsync();
+
+        var worktreeHead=
+            await P52RunGitAsync(
+                "-C",
+                state.WorktreePath,
+                "rev-parse",
+                "HEAD");
+
+        var status=
+            await P52RunGitAsync(
+                "-C",
+                state.WorktreePath,
+                "status",
+                "--short");
+
+        var patch=
+            await P52RunGitAsync(
+                "-C",
+                state.WorktreePath,
+                "diff",
+                "--binary",
+                "--full-index",
+                state.BaseHead,
+                "--");
+
+        var untracked=
+            await P52RunGitAsync(
+                "-C",
+                state.WorktreePath,
+                "ls-files",
+                "--others",
+                "--exclude-standard",
+                "-z");
+
+        if (
+            worktreeHead.ExitCode!=0
+            ||
+            status.ExitCode!=0
+            ||
+            patch.ExitCode!=0
+            ||
+            untracked.ExitCode!=0)
+        {
+            throw new System.InvalidOperationException(
+                "Unable to collect isolated agent diff.");
+        }
+
+        var files=
+            new System.Collections.Generic
+                .List<string>();
+
+        foreach (
+            string item
+            in untracked.Stdout.Split(
+                '\0',
+                System.StringSplitOptions
+                    .RemoveEmptyEntries))
+        {
+            if (
+                !string.IsNullOrWhiteSpace(
+                    item))
+            {
+                files.Add(
+                    item.Trim());
+            }
+        }
+
+        return (
+            mainHead,
+            worktreeHead.Stdout.Trim(),
+            status.Stdout,
+            patch.Stdout,
+            files);
+    }
+
+
+    private async System.Threading.Tasks.Task
+        P55PreviewAsync()
+    {
+        var state=
+            P55SelectedAgent();
+
+        if (state is null)
+        {
+            P55DiffPreview.Text=
+                "Select an agent first.";
+
+            return;
+        }
+
+        try
+        {
+            var snapshot=
+                await P55CollectAsync(
+                    state);
+
+            var text=
+                new System.Text
+                    .StringBuilder();
+
+            text.AppendLine(
+                "AGENT="+state.Id);
+
+            text.AppendLine(
+                "BRANCH="+state.Branch);
+
+            text.AppendLine(
+                "STATUS="+state.Status);
+
+            text.AppendLine(
+                "BASE_HEAD="+state.BaseHead);
+
+            text.AppendLine(
+                "MAIN_HEAD="+snapshot.MainHead);
+
+            text.AppendLine(
+                "WORKTREE_HEAD="
+                +snapshot.WorktreeHead);
+
+            if (
+                !string.Equals(
+                    state.BaseHead,
+                    snapshot.MainHead,
+                    System.StringComparison
+                        .OrdinalIgnoreCase))
+            {
+                text.AppendLine();
+
+                text.AppendLine(
+                    "WARNING: MAIN HEAD CHANGED. APPLY BLOCKED.");
+            }
+
+            text.AppendLine();
+            text.AppendLine(
+                "===== STATUS =====");
+
+            text.AppendLine(
+                string.IsNullOrWhiteSpace(
+                    snapshot.Status)
+                    ? "(clean)"
+                    : snapshot.Status.TrimEnd());
+
+            text.AppendLine();
+            text.AppendLine(
+                "===== UNTRACKED =====");
+
+            if (
+                snapshot.Untracked.Count==0)
+            {
+                text.AppendLine("(none)");
+            }
+            else
+            {
+                foreach (
+                    string file
+                    in snapshot.Untracked)
+                {
+                    text.AppendLine(file);
+                }
+            }
+
+            text.AppendLine();
+            text.AppendLine(
+                "===== PATCH =====");
+
+            text.Append(
+                string.IsNullOrWhiteSpace(
+                    snapshot.Patch)
+                    ? "(no tracked diff)"
+                    : snapshot.Patch);
+
+            string preview=
+                text.ToString();
+
+            if (preview.Length>240000)
+            {
+                preview=
+                    preview.Substring(
+                        0,
+                        240000)
+                    + System.Environment.NewLine
+                    + "[preview truncated]";
+            }
+
+            P55DiffPreview.Text=
+                preview;
+
+            P55DiffPreview.ScrollToHome();
+
+            P52AddActivity(
+                "DIFF",
+                "Reviewed "+state.Id);
+        }
+        catch (
+            System.Exception ex)
+        {
+            P55DiffPreview.Text=
+                "Preview failed: "
+                +ex.Message;
+        }
+    }
+
+
+    private async void
+        P55_AgentSelectionChanged(
+            object sender,
+            System.Windows.Controls
+                .SelectionChangedEventArgs e)
+    {
+        await P55PreviewAsync();
+    }
+
+
+    private async void
+        P55_Preview_Click(
+            object sender,
+            System.Windows.RoutedEventArgs e)
+    {
+        await P55PreviewAsync();
+    }
+
+
+    private async void
+        P55_Apply_Click(
+            object sender,
+            System.Windows.RoutedEventArgs e)
+    {
+        var state=
+            P55SelectedAgent();
+
+        if (state is null)
+        {
+            P55DiffPreview.Text=
+                "Select an agent first.";
+
+            return;
+        }
+
+        if (P55Busy(state))
+        {
+            P55DiffPreview.Text=
+                "Agent is still active.";
+
+            return;
+        }
+
+        string? patchFile=null;
+        bool patchApplied=false;
+
+        var copied=
+            new System.Collections.Generic
+                .List<string>();
+
+        try
+        {
+            var snapshot=
+                await P55CollectAsync(
+                    state);
+
+            if (
+                !string.Equals(
+                    snapshot.MainHead,
+                    state.BaseHead,
+                    System.StringComparison
+                        .OrdinalIgnoreCase))
+            {
+                throw new System.InvalidOperationException(
+                    "Main HEAD changed since agent creation. Apply blocked.");
+            }
+
+            if (
+                string.IsNullOrWhiteSpace(
+                    snapshot.Patch)
+                &&
+                snapshot.Untracked.Count==0)
+            {
+                P55DiffPreview.Text=
+                    "No changes to apply.";
+
+                return;
+            }
+
+            var copies=
+                new System.Collections.Generic
+                    .List<
+                        (
+                            string Source,
+                            string Destination
+                        )>();
+
+            foreach (
+                string relative
+                in snapshot.Untracked)
+            {
+                string source=
+                    P55SafePath(
+                        state.WorktreePath,
+                        relative);
+
+                string destination=
+                    P55SafePath(
+                        _workspace
+                            ?? throw new System.InvalidOperationException(
+                                "No active workspace."),
+                        relative);
+
+                if (
+                    !System.IO.File.Exists(
+                        source))
+                {
+                    throw new System.IO
+                        .FileNotFoundException(
+                            source);
+                }
+
+                if (
+                    System.IO.File.Exists(
+                        destination)
+                    ||
+                    System.IO.Directory.Exists(
+                        destination))
+                {
+                    throw new System.IO.IOException(
+                        "Destination already exists: "
+                        +relative);
+                }
+
+                var attr=
+                    System.IO.File.GetAttributes(
+                        source);
+
+                if (
+                    (
+                        attr
+                        &
+                        System.IO.FileAttributes
+                            .ReparsePoint
+                    )!=0)
+                {
+                    throw new System.InvalidOperationException(
+                        "Reparse point requires manual review: "
+                        +relative);
+                }
+
+                copies.Add(
+                    (
+                        source,
+                        destination
+                    ));
+            }
+
+            if (
+                !string.IsNullOrWhiteSpace(
+                    snapshot.Patch))
+            {
+                patchFile=
+                    System.IO.Path.Combine(
+                        System.IO.Path
+                            .GetTempPath(),
+                        "bc-p55-"
+                        +System.Guid.NewGuid()
+                            .ToString("N")
+                        +".patch");
+
+                System.IO.File.WriteAllText(
+                    patchFile,
+                    snapshot.Patch,
+                    new System.Text
+                        .UTF8Encoding(false));
+
+                var precheck=
+                    await P52RunGitAsync(
+                        "apply",
+                        "--check",
+                        "--whitespace=nowarn",
+                        patchFile);
+
+                if (precheck.ExitCode!=0)
+                {
+                    throw new System.InvalidOperationException(
+                        "Patch does not apply cleanly."
+                        + System.Environment.NewLine
+                        + precheck.Stdout
+                        + System.Environment.NewLine
+                        + precheck.Stderr);
+                }
+            }
+
+            var confirm=
+                System.Windows.MessageBox.Show(
+                    this,
+                    "Apply changes from "
+                    +state.Id
+                    +" to the active workspace?"
+                    +System.Environment.NewLine
+                    +System.Environment.NewLine
+                    +"No commit or merge will be created.",
+                    "Apply agent changes",
+                    System.Windows.MessageBoxButton
+                        .YesNo,
+                    System.Windows.MessageBoxImage
+                        .Question);
+
+            if (
+                confirm
+                !=
+                System.Windows.MessageBoxResult.Yes)
+            {
+                return;
+            }
+
+            try
+            {
+                if (patchFile is not null)
+                {
+                    var apply=
+                        await P52RunGitAsync(
+                            "apply",
+                            "--whitespace=nowarn",
+                            patchFile);
+
+                    if (apply.ExitCode!=0)
+                    {
+                        throw new System.InvalidOperationException(
+                            "git apply failed."
+                            +System.Environment.NewLine
+                            +apply.Stdout
+                            +System.Environment.NewLine
+                            +apply.Stderr);
+                    }
+
+                    patchApplied=true;
+                }
+
+                foreach (
+                    var item
+                    in copies)
+                {
+                    string? parent=
+                        System.IO.Path
+                            .GetDirectoryName(
+                                item.Destination);
+
+                    if (
+                        !string.IsNullOrWhiteSpace(
+                            parent))
+                    {
+                        System.IO.Directory
+                            .CreateDirectory(
+                                parent);
+                    }
+
+                    System.IO.File.Copy(
+                        item.Source,
+                        item.Destination,
+                        false);
+
+                    copied.Add(
+                        item.Destination);
+                }
+
+                var check=
+                    await P52RunGitAsync(
+                        "diff",
+                        "--check");
+
+                if (check.ExitCode!=0)
+                {
+                    throw new System.InvalidOperationException(
+                        "Applied changes failed git diff --check."
+                        +System.Environment.NewLine
+                        +check.Stdout
+                        +System.Environment.NewLine
+                        +check.Stderr);
+                }
+
+                state.Status="APPLIED";
+
+                P54RefreshAgentRow(state);
+
+                P52AddActivity(
+                    "APPLY",
+                    state.Id
+                    +" applied");
+
+                RefreshFileTree();
+
+                await P52RefreshReviewAsync();
+
+                await P55PreviewAsync();
+            }
+            catch
+            {
+                for (
+                    int i=copied.Count-1;
+                    i>=0;
+                    i--)
+                {
+                    try
+                    {
+                        if (
+                            System.IO.File.Exists(
+                                copied[i]))
+                        {
+                            System.IO.File.Delete(
+                                copied[i]);
+                        }
+                    }
+                    catch
+                    {
+                    }
+                }
+
+                if (
+                    patchApplied
+                    &&
+                    patchFile is not null)
+                {
+                    var reverse=
+                        await P52RunGitAsync(
+                            "apply",
+                            "-R",
+                            "--whitespace=nowarn",
+                            patchFile);
+
+                    if (reverse.ExitCode!=0)
+                    {
+                        P54AppendOutput(
+                            "WARNING: reverse patch failed."
+                            +System.Environment.NewLine
+                            +reverse.Stdout
+                            +System.Environment.NewLine
+                            +reverse.Stderr);
+                    }
+                }
+
+                throw;
+            }
+        }
+        catch (
+            System.Exception ex)
+        {
+            P55DiffPreview.Text=
+                "Apply failed: "
+                +ex.Message;
+
+            P52AddActivity(
+                "ERROR",
+                "Apply: "
+                +ex.Message);
+        }
+        finally
+        {
+            if (patchFile is not null)
+            {
+                try
+                {
+                    System.IO.File.Delete(
+                        patchFile);
+                }
+                catch
+                {
+                }
+            }
+        }
+    }
+
+
+    private async void
+        P55_Discard_Click(
+            object sender,
+            System.Windows.RoutedEventArgs e)
+    {
+        var state=
+            P55SelectedAgent();
+
+        if (state is null)
+        {
+            P55DiffPreview.Text=
+                "Select an agent first.";
+
+            return;
+        }
+
+        if (P55Busy(state))
+        {
+            P55DiffPreview.Text=
+                "Agent is still active.";
+
+            return;
+        }
+
+        if (
+            string.IsNullOrWhiteSpace(
+                state.WorktreePath)
+            ||
+            !System.IO.Directory.Exists(
+                state.WorktreePath))
+        {
+            P55DiffPreview.Text=
+                "Worktree no longer exists.";
+
+            return;
+        }
+
+        try
+        {
+            string main=
+                System.IO.Path
+                    .GetFullPath(
+                        _workspace
+                            ?? throw new System.InvalidOperationException(
+                                "No active workspace."))
+                    .TrimEnd(
+                        System.IO.Path
+                            .DirectorySeparatorChar,
+                        System.IO.Path
+                            .AltDirectorySeparatorChar);
+
+            string candidate=
+                System.IO.Path
+                    .GetFullPath(
+                        state.WorktreePath)
+                    .TrimEnd(
+                        System.IO.Path
+                            .DirectorySeparatorChar,
+                        System.IO.Path
+                            .AltDirectorySeparatorChar);
+
+            if (
+                string.Equals(
+                    main,
+                    candidate,
+                    System.StringComparison
+                        .OrdinalIgnoreCase))
+            {
+                throw new System.InvalidOperationException(
+                    "Refusing to remove active workspace.");
+            }
+
+            var confirm=
+                System.Windows.MessageBox.Show(
+                    this,
+                    "Discard "
+                    +state.Id
+                    +" isolated worktree?"
+                    +System.Environment.NewLine
+                    +System.Environment.NewLine
+                    +"Uncommitted changes inside that worktree will be deleted.",
+                    "Discard worktree",
+                    System.Windows.MessageBoxButton
+                        .YesNo,
+                    System.Windows.MessageBoxImage
+                        .Warning);
+
+            if (
+                confirm
+                !=
+                System.Windows.MessageBoxResult.Yes)
+            {
+                return;
+            }
+
+            var remove=
+                await P52RunGitAsync(
+                    "worktree",
+                    "remove",
+                    "--force",
+                    state.WorktreePath);
+
+            if (remove.ExitCode!=0)
+            {
+                throw new System.InvalidOperationException(
+                    "Worktree removal failed."
+                    +System.Environment.NewLine
+                    +remove.Stdout
+                    +System.Environment.NewLine
+                    +remove.Stderr);
+            }
+
+            var branch=
+                await P52RunGitAsync(
+                    "branch",
+                    "-D",
+                    state.Branch);
+
+            state.Status=
+                branch.ExitCode==0
+                    ? "DISCARDED"
+                    : "DISCARDED_BRANCH_KEPT";
+
+            state.WorktreePath="";
+
+            P54RefreshAgentRow(state);
+
+            P55DiffPreview.Text=
+                branch.ExitCode==0
+                    ? "Worktree and branch discarded."
+                    : "Worktree discarded; branch retained.";
+
+            P52AddActivity(
+                "DISCARD",
+                state.Id+" discarded");
+
+            await P53RefreshWorktreesAsync();
+        }
+        catch (
+            System.Exception ex)
+        {
+            P55DiffPreview.Text=
+                "Discard failed: "
+                +ex.Message;
+        }
+    }
+
+    // BOTCONNECTOR_P5_4_ISOLATED_AGENTS_CODE
+    private sealed class P54AgentState
+    {
+        public string Id { get; set; } = "";
+
+        public string TaskText { get; set; } = "";
+
+        public string Branch { get; set; } = "";
+
+        public string WorktreePath { get; set; } = "";
+
+        public string BaseHead { get; set; } = "";
+
+        public string Status { get; set; } = "QUEUED";
+
+        public string Result { get; set; } = "";
+    }
+
+
+    private sealed class P54WorktreeEntry
+    {
+        public string Path { get; set; } = "";
+
+        public string Branch { get; set; } = "";
+    }
+
+
+    private System.Threading.CancellationTokenSource?
+        _p54Cancellation;
+
+    private readonly
+        System.Collections.Generic.List<P54AgentState>
+        _p54Agents =
+            new();
+
+
+    private string P54SafePrefix(
+        string? value)
+    {
+        string source =
+            string.IsNullOrWhiteSpace(value)
+                ? "bc-agent"
+                : value.Trim();
+
+        var b =
+            new System.Text.StringBuilder();
+
+        foreach (char c in source)
+        {
+            if (
+                char.IsLetterOrDigit(c)
+                ||
+                c == '-'
+                ||
+                c == '_')
+            {
+                b.Append(c);
+            }
+            else
+            {
+                b.Append('-');
+            }
+        }
+
+        string result =
+            b.ToString()
+            .Trim('-','_');
+
+        if (
+            string.IsNullOrWhiteSpace(
+                result))
+        {
+            result =
+                "bc-agent";
+        }
+
+        if (result.Length > 30)
+        {
+            result =
+                result.Substring(
+                    0,
+                    30);
+        }
+
+        return result;
+    }
+
+
+    private System.Collections.Generic.List<string>
+        P54ReadTasks()
+    {
+        var result =
+            new System.Collections.Generic
+                .List<string>();
+
+        string raw =
+            P54TasksBox.Text ?? "";
+
+        string[] lines =
+            raw.Split(
+                new[]
+                {
+                    '\r',
+                    '\n'
+                },
+                System.StringSplitOptions
+                    .RemoveEmptyEntries);
+
+        foreach (string input in lines)
+        {
+            string task =
+                input.Trim();
+
+            if (
+                string.IsNullOrWhiteSpace(
+                    task))
+            {
+                continue;
+            }
+
+            result.Add(task);
+
+            if (result.Count >= 4)
+            {
+                break;
+            }
+        }
+
+        return result;
+    }
+
+
+    private System.Collections.Generic.List<P54WorktreeEntry>
+        P54ParseWorktrees(
+            string output)
+    {
+        var result =
+            new System.Collections.Generic
+                .List<P54WorktreeEntry>();
+
+        P54WorktreeEntry? current =
+            null;
+
+        string[] lines =
+            output.Split(
+                new[]
+                {
+                    '\r',
+                    '\n'
+                },
+                System.StringSplitOptions
+                    .RemoveEmptyEntries);
+
+        foreach (string raw in lines)
+        {
+            string line =
+                raw.Trim();
+
+            if (
+                line.StartsWith(
+                    "worktree ",
+                    System.StringComparison
+                        .Ordinal))
+            {
+                current =
+                    new P54WorktreeEntry
+                    {
+                        Path =
+                            line.Substring(
+                                "worktree ".Length)
+                            .Trim()
+                    };
+
+                result.Add(current);
+
+                continue;
+            }
+
+            if (
+                current is not null
+                &&
+                line.StartsWith(
+                    "branch refs/heads/",
+                    System.StringComparison
+                        .Ordinal))
+            {
+                current.Branch =
+                    line.Substring(
+                        "branch refs/heads/"
+                            .Length)
+                    .Trim();
+            }
+        }
+
+        return result;
+    }
+
+
+    private async System.Threading.Tasks.Task<string?>
+        P54FindWorktreeAsync(
+            string branch)
+    {
+        string output =
+            await V3ExecuteGitActionAsync(
+                "git_worktree_list",
+                null,
+                null);
+
+        var entries =
+            P54ParseWorktrees(
+                output);
+
+        foreach (
+            P54WorktreeEntry entry
+            in entries)
+        {
+            if (
+                string.Equals(
+                    entry.Branch,
+                    branch,
+                    System.StringComparison
+                        .OrdinalIgnoreCase))
+            {
+                return entry.Path;
+            }
+        }
+
+        return null;
+    }
+
+
+    private void P54RefreshAgentRow(
+        P54AgentState state)
+    {
+        if (!Dispatcher.CheckAccess())
+        {
+            Dispatcher.Invoke(
+                () =>
+                    P54RefreshAgentRow(
+                        state));
+
+            return;
+        }
+
+        int index =
+            _p54Agents.IndexOf(
+                state);
+
+        if (index < 0)
+        {
+            return;
+        }
+
+        string path =
+            string.IsNullOrWhiteSpace(
+                state.WorktreePath)
+                ? "(no worktree)"
+                : state.WorktreePath;
+
+        string row =
+            state.Status
+            + " | "
+            + state.Id
+            + " | "
+            + state.Branch
+            + " | "
+            + path;
+
+        if (
+            index <
+            P54AgentList.Items.Count)
+        {
+            P54AgentList.Items[index] =
+                row;
+        }
+        else
+        {
+            while (
+                P54AgentList.Items.Count
+                < index)
+            {
+                P54AgentList.Items.Add(
+                    "");
+            }
+
+            P54AgentList.Items.Add(
+                row);
+        }
+    }
+
+
+    private void P54AppendOutput(
+        string text)
+    {
+        if (!Dispatcher.CheckAccess())
+        {
+            Dispatcher.Invoke(
+                () =>
+                    P54AppendOutput(
+                        text));
+
+            return;
+        }
+
+        if (
+            P54AgentOutput.Text.Length > 0)
+        {
+            P54AgentOutput.AppendText(
+                System.Environment.NewLine);
+        }
+
+        P54AgentOutput.AppendText(
+            text);
+
+        P54AgentOutput.ScrollToEnd();
+    }
+
+
+    private string P54AgentPrompt(
+        P54AgentState state)
+    {
+        var b =
+            new System.Text.StringBuilder();
+
+        b.AppendLine(
+            "You are an isolated background coding agent inside BotConnector.");
+
+        b.AppendLine(
+            "AGENT ID: "
+            + state.Id);
+
+        b.AppendLine(
+            "ACTIVE WORKTREE: "
+            + state.WorktreePath);
+
+        b.AppendLine(
+            "ACTIVE BRANCH: "
+            + state.Branch);
+
+        b.AppendLine();
+
+        b.AppendLine(
+            "Complete the assigned coding task end-to-end.");
+
+        b.AppendLine(
+            "Use workspace_read, workspace_write, and local_shell as needed.");
+
+        b.AppendLine(
+            "Read the relevant project instructions and source before editing.");
+
+        b.AppendLine(
+            "Keep every filesystem mutation inside this active worktree.");
+
+        b.AppendLine(
+            "Do not modify the main worktree or another agent worktree.");
+
+        b.AppendLine(
+            "Do not run git push, force push, reset --hard, or destructive cleanup.");
+
+        b.AppendLine(
+            "Do not commit automatically.");
+
+        b.AppendLine(
+            "Run appropriate tests or build checks before finishing when practical.");
+
+        b.AppendLine(
+            "If a tool fails, diagnose it and continue only when the state is truthful.");
+
+        b.AppendLine();
+
+        b.AppendLine(
+            "TASK:");
+
+        b.AppendLine(
+            state.TaskText);
+
+        return b.ToString();
+    }
+
+
+    private async System.Threading.Tasks.Task
+        P54RunOneAgentAsync(
+            P54AgentState state,
+            System.Threading.CancellationToken
+                cancellationToken)
+    {
+        try
+        {
+            state.Status =
+                "RUNNING";
+
+            P54RefreshAgentRow(
+                state);
+
+            Dispatcher.Invoke(
+                () =>
+                    P52AddActivity(
+                        "ISOLATED",
+                        state.Id
+                        + " running"));
+
+            var host =
+                new BotConnector.Desktop
+                    .V4.Core.V4RuntimeHost();
+
+            host.Runtime.Workspace
+                .SetWorkspace(
+                    state.WorktreePath,
+                    _workspace,
+                    state.Branch,
+                    state.WorktreePath);
+
+            host.Runtime.Workspace
+                .SetActiveAgent(
+                    state.Id);
+
+            var brain =
+                host.CreateCloudCodingBrain();
+
+            var transcript =
+                new System.Collections.Generic
+                    .List<string>
+                {
+                    P54AgentPrompt(
+                        state)
+                };
+
+            string result =
+                await host.Agent.RunAsync(
+                    brain,
+                    transcript,
+                    cancellationToken);
+
+            state.Result =
+                result;
+
+            state.Status =
+                "DONE";
+
+            P54RefreshAgentRow(
+                state);
+
+            P54AppendOutput(
+                "===== "
+                + state.Id
+                + " / "
+                + state.Branch
+                + " ====="
+                + System.Environment.NewLine
+                + result);
+
+            Dispatcher.Invoke(
+                () =>
+                    P52AddActivity(
+                        "ISOLATED",
+                        state.Id
+                        + " completed"));
+        }
+        catch (
+            System.OperationCanceledException)
+        {
+            state.Status =
+                "STOPPED";
+
+            state.Result =
+                "Cancelled";
+
+            P54RefreshAgentRow(
+                state);
+
+            P54AppendOutput(
+                state.Id
+                + " stopped.");
+
+            Dispatcher.Invoke(
+                () =>
+                    P52AddActivity(
+                        "ISOLATED",
+                        state.Id
+                        + " stopped"));
+        }
+        catch (
+            System.Exception ex)
+        {
+            state.Status =
+                "FAILED";
+
+            state.Result =
+                ex.Message;
+
+            P54RefreshAgentRow(
+                state);
+
+            P54AppendOutput(
+                state.Id
+                + " failed: "
+                + ex.Message);
+
+            Dispatcher.Invoke(
+                () =>
+                    P52AddActivity(
+                        "ERROR",
+                        state.Id
+                        + ": "
+                        + ex.Message));
+        }
+    }
+
+
+    private async void P54_Start_Click(
+        object sender,
+        System.Windows.RoutedEventArgs e)
+    {
+        if (_p54Cancellation is not null)
+        {
+            return;
+        }
+
+        if (
+            string.IsNullOrWhiteSpace(
+                _workspace))
+        {
+            P54AgentOutput.Text =
+                "Open a workspace first.";
+
+            return;
+        }
+
+        var tasks =
+            P54ReadTasks();
+
+        if (tasks.Count == 0)
+        {
+            P54AgentOutput.Text =
+                "Enter at least one task. Use one task per line.";
+
+            return;
+        }
+
+        var cancellation =
+            new System.Threading
+                .CancellationTokenSource();
+
+        _p54Cancellation =
+            cancellation;
+
+        P54StartButton.IsEnabled =
+            false;
+
+        P54StopButton.IsEnabled =
+            true;
+
+        P54AgentOutput.Clear();
+
+        P54AgentList.Items.Clear();
+
+        _p54Agents.Clear();
+
+        string prefix =
+            P54SafePrefix(
+                P54BranchPrefixBox.Text);
+
+        string p55BatchBaseHead =
+            await P55CurrentMainHeadAsync();
+
+        string batch =
+            System.DateTime.UtcNow
+                .ToString(
+                    "yyyyMMddHHmmss")
+            + "-"
+            + System.Guid.NewGuid()
+                .ToString("N")
+                .Substring(
+                    0,
+                    6);
+
+        try
+        {
+            P52AddActivity(
+                "ISOLATED",
+                "Preparing "
+                + tasks.Count
+                    .ToString()
+                + " worktrees");
+
+            for (
+                int i=0;
+                i<tasks.Count;
+                i++)
+            {
+                cancellation.Token
+                    .ThrowIfCancellationRequested();
+
+                string id =
+                    "agent-"
+                    + (i+1)
+                        .ToString("00");
+
+                string branch =
+                    prefix
+                    + "-"
+                    + batch
+                    + "-"
+                    + (i+1)
+                        .ToString("00");
+
+                var state =
+                    new P54AgentState
+                    {
+                        Id=id,
+                        TaskText=tasks[i],
+                        Branch=branch,
+                        BaseHead=p55BatchBaseHead,
+                        Status="CREATING"
+                    };
+
+                _p54Agents.Add(
+                    state);
+
+                P54AgentList.Items.Add(
+                    "");
+
+                P54RefreshAgentRow(
+                    state);
+
+                try
+                {
+                    string create =
+                        await V3ExecuteGitActionAsync(
+                            "git_worktree_create",
+                            branch,
+                            null);
+
+                    P54AppendOutput(
+                        "Created "
+                        + branch
+                        + System.Environment.NewLine
+                        + create);
+
+                    string? path =
+                        await P54FindWorktreeAsync(
+                            branch);
+
+                    if (
+                        string.IsNullOrWhiteSpace(
+                            path))
+                    {
+                        throw new System
+                            .InvalidOperationException(
+                                "Created worktree could not be resolved for "
+                                + branch);
+                    }
+
+                    state.WorktreePath =
+                        path;
+
+                    await P55VerifyWorktreeBaseAsync(
+                        state);
+
+                    state.Status =
+                        "READY";
+
+                    P54RefreshAgentRow(
+                        state);
+                }
+                catch (
+                    System.Exception ex)
+                {
+                    state.Status =
+                        "FAILED";
+
+                    state.Result =
+                        ex.Message;
+
+                    P54RefreshAgentRow(
+                        state);
+
+                    P54AppendOutput(
+                        id
+                        + " worktree creation failed: "
+                        + ex.Message);
+                }
+            }
+
+            var running =
+                new System.Collections.Generic
+                    .List<
+                        System.Threading.Tasks.Task>();
+
+            foreach (
+                P54AgentState state
+                in _p54Agents)
+            {
+                if (
+                    state.Status !=
+                    "READY")
+                {
+                    continue;
+                }
+
+                running.Add(
+                    P54RunOneAgentAsync(
+                        state,
+                        cancellation.Token));
+            }
+
+            if (running.Count == 0)
+            {
+                P54AppendOutput(
+                    "No isolated agent could be started.");
+
+                return;
+            }
+
+            P52AddActivity(
+                "ISOLATED",
+                running.Count.ToString()
+                + " coding agents running");
+
+            await System.Threading.Tasks
+                .Task.WhenAll(
+                    running);
+
+            P54AppendOutput(
+                "===== BATCH COMPLETE =====");
+
+            P54AppendOutput(
+                "Agent worktrees are preserved for review.");
+
+            await P53RefreshWorktreesAsync();
+
+            P52AddActivity(
+                "ISOLATED",
+                "Background coding batch completed");
+        }
+        catch (
+            System.OperationCanceledException)
+        {
+            P54AppendOutput(
+                "Batch stopped.");
+
+            P52AddActivity(
+                "ISOLATED",
+                "Batch stopped");
+        }
+        catch (
+            System.Exception ex)
+        {
+            P54AppendOutput(
+                "Batch failed: "
+                + ex.Message);
+
+            P52AddActivity(
+                "ERROR",
+                "Isolated batch: "
+                + ex.Message);
+        }
+        finally
+        {
+            if (
+                object.ReferenceEquals(
+                    _p54Cancellation,
+                    cancellation))
+            {
+                _p54Cancellation =
+                    null;
+            }
+
+            cancellation.Dispose();
+
+            P54StartButton.IsEnabled =
+                true;
+
+            P54StopButton.IsEnabled =
+                false;
+
+            await P53RefreshWorktreesAsync();
+        }
+    }
+
+
+    private void P54_Stop_Click(
+        object sender,
+        System.Windows.RoutedEventArgs e)
+    {
+        _p54Cancellation?.Cancel();
+
+        P52AddActivity(
+            "ISOLATED",
+            "Stop requested");
+    }
+
+    // BOTCONNECTOR_P5_3_PARALLEL_WORKTREE_CODE
+    private System.Threading.CancellationTokenSource?
+        _p53ParallelCancellation;
+
+    private readonly
+        System.Collections.Generic.List<string>
+        _p53WorktreePaths =
+            new();
+
+
+    private async void P53_RunParallel_Click(
+        object sender,
+        System.Windows.RoutedEventArgs e)
+    {
+        if (_p53ParallelCancellation is not null)
+        {
+            return;
+        }
+
+        string task =
+            (P53TaskBox.Text ?? "")
+            .Trim();
+
+        if (string.IsNullOrWhiteSpace(task))
+        {
+            P53ParallelResults.Text =
+                "Enter a task first.";
+
+            return;
+        }
+
+        var cancellation =
+            new System.Threading
+                .CancellationTokenSource();
+
+        _p53ParallelCancellation =
+            cancellation;
+
+        P53RunParallelButton.IsEnabled =
+            false;
+
+        P53StopParallelButton.IsEnabled =
+            true;
+
+        P53ParallelResults.Text =
+            "Planner, Coder-A, Reviewer, and Tester are running in parallel...";
+
+        P52AddActivity(
+            "PARALLEL",
+            "Started Planner · Coder-A · Reviewer · Tester");
+
+        try
+        {
+            string result =
+                await V3RunParallelAdvisorsAsync(
+                    task,
+                    cancellation.Token);
+
+            P53ParallelResults.Text =
+                result;
+
+            P52AddActivity(
+                "PARALLEL",
+                "Four advisor tasks completed");
+        }
+        catch (
+            System.OperationCanceledException)
+        {
+            P53ParallelResults.Text =
+                "Parallel task stopped.";
+
+            P52AddActivity(
+                "PARALLEL",
+                "Stopped");
+        }
+        catch (
+            System.Exception ex)
+        {
+            P53ParallelResults.Text =
+                "Parallel task failed: "
+                + ex.Message;
+
+            P52AddActivity(
+                "ERROR",
+                "Parallel task: "
+                + ex.Message);
+        }
+        finally
+        {
+            if (
+                object.ReferenceEquals(
+                    _p53ParallelCancellation,
+                    cancellation))
+            {
+                _p53ParallelCancellation =
+                    null;
+            }
+
+            cancellation.Dispose();
+
+            P53RunParallelButton.IsEnabled =
+                true;
+
+            P53StopParallelButton.IsEnabled =
+                false;
+        }
+    }
+
+
+    private void P53_StopParallel_Click(
+        object sender,
+        System.Windows.RoutedEventArgs e)
+    {
+        _p53ParallelCancellation?.Cancel();
+    }
+
+
+    private async void
+        P53_RefreshWorktrees_Click(
+            object sender,
+            System.Windows.RoutedEventArgs e)
+    {
+        await P53RefreshWorktreesAsync();
+    }
+
+
+    private async System.Threading.Tasks.Task
+        P53RefreshWorktreesAsync()
+    {
+        try
+        {
+            string output =
+                await V3ExecuteGitActionAsync(
+                    "git_worktree_list",
+                    null,
+                    null);
+
+            P53WorktreeOutput.Text =
+                output;
+
+            _p53WorktreePaths.Clear();
+
+            P53WorktreeList.Items.Clear();
+
+            string[] lines =
+                output.Split(
+                    new[]
+                    {
+                        '\r',
+                        '\n'
+                    },
+                    System.StringSplitOptions
+                        .RemoveEmptyEntries);
+
+            foreach (
+                string rawLine
+                in lines)
+            {
+                string line =
+                    rawLine.Trim();
+
+                if (
+                    !line.StartsWith(
+                        "worktree ",
+                        System.StringComparison
+                            .Ordinal))
+                {
+                    continue;
+                }
+
+                string path =
+                    line.Substring(
+                        "worktree ".Length)
+                    .Trim();
+
+                if (
+                    string.IsNullOrWhiteSpace(
+                        path))
+                {
+                    continue;
+                }
+
+                _p53WorktreePaths.Add(
+                    path);
+
+                string normalized =
+                    path.TrimEnd(
+                        System.IO.Path
+                            .DirectorySeparatorChar,
+                        System.IO.Path
+                            .AltDirectorySeparatorChar);
+
+                string leaf =
+                    System.IO.Path
+                        .GetFileName(
+                            normalized);
+
+                if (
+                    string.IsNullOrWhiteSpace(
+                        leaf))
+                {
+                    leaf =
+                        path;
+                }
+
+                P53WorktreeList.Items.Add(
+                    leaf
+                    + "  —  "
+                    + path);
+            }
+
+            P52AddActivity(
+                "WORKTREE",
+                _p53WorktreePaths.Count
+                    .ToString()
+                + " worktree"
+                + (
+                    _p53WorktreePaths.Count == 1
+                        ? ""
+                        : "s"
+                ));
+        }
+        catch (
+            System.Exception ex)
+        {
+            P53WorktreeOutput.Text =
+                "Worktree refresh failed: "
+                + ex.Message;
+
+            P52AddActivity(
+                "ERROR",
+                "Worktree refresh: "
+                + ex.Message);
+        }
+    }
+
+
+    private async void
+        P53_CreateWorktree_Click(
+            object sender,
+            System.Windows.RoutedEventArgs e)
+    {
+        string branch =
+            (P53BranchBox.Text ?? "")
+            .Trim();
+
+        if (
+            string.IsNullOrWhiteSpace(
+                branch))
+        {
+            P53WorktreeOutput.Text =
+                "Enter a branch name.";
+
+            return;
+        }
+
+        try
+        {
+            string result =
+                await V3ExecuteGitActionAsync(
+                    "git_worktree_create",
+                    branch,
+                    null);
+
+            P53WorktreeOutput.Text =
+                result;
+
+            P52AddActivity(
+                "WORKTREE",
+                "Create "
+                + branch);
+
+            await P53RefreshWorktreesAsync();
+        }
+        catch (
+            System.Exception ex)
+        {
+            P53WorktreeOutput.Text =
+                "Create failed: "
+                + ex.Message;
+
+            P52AddActivity(
+                "ERROR",
+                "Worktree create: "
+                + ex.Message);
+        }
+    }
+
+
+    private async void
+        P53_RemoveWorktree_Click(
+            object sender,
+            System.Windows.RoutedEventArgs e)
+    {
+        int index =
+            P53WorktreeList.SelectedIndex;
+
+        if (
+            index < 0
+            ||
+            index >=
+                _p53WorktreePaths.Count)
+        {
+            P53WorktreeOutput.Text =
+                "Select a worktree first.";
+
+            return;
+        }
+
+        string selected =
+            _p53WorktreePaths[index];
+
+        try
+        {
+            if (
+                !string.IsNullOrWhiteSpace(
+                    _workspace))
+            {
+                string current =
+                    System.IO.Path.GetFullPath(
+                        _workspace)
+                    .TrimEnd(
+                        System.IO.Path
+                            .DirectorySeparatorChar,
+                        System.IO.Path
+                            .AltDirectorySeparatorChar);
+
+                string candidate =
+                    System.IO.Path.GetFullPath(
+                        selected)
+                    .TrimEnd(
+                        System.IO.Path
+                            .DirectorySeparatorChar,
+                        System.IO.Path
+                            .AltDirectorySeparatorChar);
+
+                if (
+                    string.Equals(
+                        current,
+                        candidate,
+                        System.StringComparison
+                            .OrdinalIgnoreCase))
+                {
+                    P53WorktreeOutput.Text =
+                        "The active workspace cannot be removed.";
+
+                    return;
+                }
+            }
+
+            string normalized =
+                selected.TrimEnd(
+                    System.IO.Path
+                        .DirectorySeparatorChar,
+                    System.IO.Path
+                        .AltDirectorySeparatorChar);
+
+            string leaf =
+                System.IO.Path.GetFileName(
+                    normalized);
+
+            if (
+                string.IsNullOrWhiteSpace(
+                    leaf))
+            {
+                P53WorktreeOutput.Text =
+                    "Invalid worktree path.";
+
+                return;
+            }
+
+            string result =
+                await V3ExecuteGitActionAsync(
+                    "git_worktree_remove",
+                    leaf,
+                    null);
+
+            P53WorktreeOutput.Text =
+                result;
+
+            P52AddActivity(
+                "WORKTREE",
+                "Remove "
+                + leaf);
+
+            await P53RefreshWorktreesAsync();
+        }
+        catch (
+            System.Exception ex)
+        {
+            P53WorktreeOutput.Text =
+                "Remove failed: "
+                + ex.Message;
+
+            P52AddActivity(
+                "ERROR",
+                "Worktree remove: "
+                + ex.Message);
+        }
+    }
+
+    // BOTCONNECTOR_P5_2_ACTIVITY_REVIEW_CODE
+    private readonly System.Collections.Generic.List<string>
+        _p52ActivityEntries = new();
+
+    private string _p52LastReviewFingerprint = "";
+
+
+    private void P52AddActivity(
+        string kind,
+        string detail)
+    {
+        try
+        {
+            string normalized =
+                (detail ?? "")
+                .Replace("\r", " ")
+                .Replace("\n", " ")
+                .Trim();
+
+            if (normalized.Length > 240)
+            {
+                normalized =
+                    normalized.Substring(
+                        0,
+                        240)
+                    + "...";
+            }
+
+            string line =
+                System.DateTime.Now
+                    .ToString("HH:mm:ss")
+                + "  "
+                + kind
+                + "  "
+                + normalized;
+
+            _p52ActivityEntries.Add(line);
+
+            const int maxEntries = 200;
+
+            if (
+                _p52ActivityEntries.Count
+                > maxEntries)
+            {
+                _p52ActivityEntries.RemoveRange(
+                    0,
+                    _p52ActivityEntries.Count
+                    - maxEntries);
+            }
+
+            P52ActivityTimeline.Text =
+                string.Join(
+                    System.Environment.NewLine,
+                    _p52ActivityEntries);
+
+            P52ActivityTimeline.ScrollToEnd();
+        }
+        catch
+        {
+            // UI telemetry may not break an agent run.
+        }
+    }
+
+
+    private string P52SummarizeToolResults(
+        string result)
+    {
+        if (
+            string.IsNullOrWhiteSpace(
+                result))
+        {
+            return "Tool actions completed";
+        }
+
+        string normalized =
+            result
+            .Replace("\r", " ")
+            .Replace("\n", " ")
+            .Trim();
+
+        while (
+            normalized.Contains(
+                "  "))
+        {
+            normalized =
+                normalized.Replace(
+                    "  ",
+                    " ");
+        }
+
+        if (normalized.Length > 220)
+        {
+            normalized =
+                normalized.Substring(
+                    0,
+                    220)
+                + "...";
+        }
+
+        return normalized;
+    }
+
+
+    private async System.Threading.Tasks.Task<
+        (int ExitCode, string Stdout, string Stderr)>
+        P52RunGitAsync(
+            params string[] arguments)
+    {
+        if (
+            string.IsNullOrWhiteSpace(
+                _workspace))
+        {
+            return (
+                1,
+                "",
+                "No workspace");
+        }
+
+        var psi =
+            new System.Diagnostics.ProcessStartInfo
+            {
+                FileName = "git",
+                WorkingDirectory = _workspace,
+                UseShellExecute = false,
+                RedirectStandardOutput = true,
+                RedirectStandardError = true,
+                CreateNoWindow = true
+            };
+
+        foreach (
+            string argument
+            in arguments)
+        {
+            psi.ArgumentList.Add(
+                argument);
+        }
+
+        using var process =
+            new System.Diagnostics.Process
+            {
+                StartInfo = psi
+            };
+
+        process.Start();
+
+        var stdoutTask =
+            process.StandardOutput
+                .ReadToEndAsync();
+
+        var stderrTask =
+            process.StandardError
+                .ReadToEndAsync();
+
+        await process.WaitForExitAsync();
+
+        return (
+            process.ExitCode,
+            await stdoutTask,
+            await stderrTask);
+    }
+
+
+    private string P52PathFromGitStatus(
+        string line)
+    {
+        if (
+            string.IsNullOrWhiteSpace(
+                line))
+        {
+            return "";
+        }
+
+        string path =
+            line.Length > 3
+                ? line.Substring(3).Trim()
+                : line.Trim();
+
+        int rename =
+            path.LastIndexOf(
+                " -> ",
+                System.StringComparison.Ordinal);
+
+        if (rename >= 0)
+        {
+            path =
+                path.Substring(
+                    rename + 4)
+                .Trim();
+        }
+
+        if (
+            path.Length >= 2
+            && path[0] == '"'
+            && path[^1] == '"')
+        {
+            path =
+                path.Substring(
+                    1,
+                    path.Length - 2);
+        }
+
+        return path;
+    }
+
+
+    private async System.Threading.Tasks.Task
+        P52RefreshReviewAsync()
+    {
+        try
+        {
+            if (
+                string.IsNullOrWhiteSpace(
+                    _workspace)
+                ||
+                !System.IO.Directory.Exists(
+                    _workspace))
+            {
+                P52ReviewSummary.Text =
+                    "No workspace open";
+
+                V2ChangedFiles.Items.Clear();
+
+                return;
+            }
+
+            var status =
+                await P52RunGitAsync(
+                    "status",
+                    "--short");
+
+            if (status.ExitCode != 0)
+            {
+                P52ReviewSummary.Text =
+                    "Git status failed: "
+                    + status.Stderr.Trim();
+
+                return;
+            }
+
+            var diff =
+                await P52RunGitAsync(
+                    "diff",
+                    "--stat",
+                    "HEAD");
+
+            string[] statusLines =
+                status.Stdout.Split(
+                    new[]
+                    {
+                        '\r',
+                        '\n'
+                    },
+                    System.StringSplitOptions
+                        .RemoveEmptyEntries);
+
+            V2ChangedFiles.Items.Clear();
+
+            foreach (
+                string statusLine
+                in statusLines)
+            {
+                string path =
+                    P52PathFromGitStatus(
+                        statusLine);
+
+                if (
+                    !string.IsNullOrWhiteSpace(
+                        path))
+                {
+                    V2ChangedFiles.Items.Add(
+                        path);
+                }
+            }
+
+            string stat =
+                diff.ExitCode == 0
+                    ? diff.Stdout.Trim()
+                    : "";
+
+            string summary =
+                statusLines.Length.ToString()
+                + " changed file"
+                + (
+                    statusLines.Length == 1
+                        ? ""
+                        : "s"
+                );
+
+            if (
+                !string.IsNullOrWhiteSpace(
+                    stat))
+            {
+                summary +=
+                    System.Environment.NewLine
+                    + stat;
+            }
+            else if (
+                statusLines.Length == 0)
+            {
+                summary +=
+                    System.Environment.NewLine
+                    + "Working tree clean";
+            }
+
+            P52ReviewSummary.Text =
+                summary;
+
+            string fingerprint =
+                status.Stdout
+                + "\n"
+                + stat;
+
+            if (
+                !string.Equals(
+                    fingerprint,
+                    _p52LastReviewFingerprint,
+                    System.StringComparison.Ordinal))
+            {
+                _p52LastReviewFingerprint =
+                    fingerprint;
+
+                P52AddActivity(
+                    "REVIEW",
+                    statusLines.Length.ToString()
+                    + " changed file"
+                    + (
+                        statusLines.Length == 1
+                            ? ""
+                            : "s"
+                    ));
+            }
+        }
+        catch (
+            System.Exception ex)
+        {
+            P52ReviewSummary.Text =
+                "Review refresh failed: "
+                + ex.Message;
+
+            P52AddActivity(
+                "ERROR",
+                "Review refresh: "
+                + ex.Message);
+        }
+    }
+
+
+    private async void
+        P52_ReviewRefresh_Click(
+            object sender,
+            System.Windows.RoutedEventArgs e)
+    {
+        await P52RefreshReviewAsync();
+    }
+
+    // BOTCONNECTOR_MAIN_LLM_EDITOR_CODE_V1
+    private string? _codexEditorFile;
+    private bool _codexEditorLoading;
+    private bool _codexEditorDirty;
+    private string _codexEditorNewLine =
+        System.Environment.NewLine;
+
+
+    private void Codex_FileList_OpenEditor(
+        object sender,
+        System.Windows.Input.MouseButtonEventArgs e)
+    {
+        if (
+            string.IsNullOrWhiteSpace(_workspace) ||
+            FileList.SelectedItem is not string item)
+        {
+            return;
+        }
+
+        Codex_OpenWorkspaceFile(item);
+
+        e.Handled = true;
+    }
+
+
+    private void Codex_OpenWorkspaceFile(
+        string item)
+    {
+        try
+        {
+            if (
+                !Codex_TryResolveWorkspaceFile(
+                    item,
+                    out string file))
+            {
+                StatusText.Text =
+                    "Blocked: file outside workspace";
+
+                return;
+            }
+
+            if (!System.IO.File.Exists(file))
+            {
+                StatusText.Text =
+                    "File not found";
+
+                return;
+            }
+
+            var info =
+                new System.IO.FileInfo(file);
+
+            if (
+                info.Length >
+                2 * 1024 * 1024)
+            {
+                StatusText.Text =
+                    "File too large for editor (>2 MB)";
+
+                return;
+            }
+
+            byte[] raw =
+                System.IO.File.ReadAllBytes(file);
+
+            int previewLength =
+                System.Math.Min(
+                    raw.Length,
+                    4096);
+
+            for (
+                int i = 0;
+                i < previewLength;
+                i++)
+            {
+                if (raw[i] == 0)
+                {
+                    StatusText.Text =
+                        "Binary file cannot be opened in text editor";
+
+                    return;
+                }
+            }
+
+            string text =
+                System.IO.File.ReadAllText(file);
+
+            if (text.Contains("\r\n"))
+            {
+                _codexEditorNewLine =
+                    "\r\n";
+            }
+            else if (text.Contains("\n"))
+            {
+                _codexEditorNewLine =
+                    "\n";
+            }
+            else
+            {
+                _codexEditorNewLine =
+                    System.Environment.NewLine;
+            }
+
+            _codexEditorLoading =
+                true;
+
+            try
+            {
+                CodeEditorText.Text =
+                    text;
+
+                _codexEditorFile =
+                    file;
+
+                CodeEditorPath.Text =
+                    System.IO.Path.GetRelativePath(
+                        _workspace!,
+                        file);
+
+                CodeEditorState.Text =
+                    "Loaded";
+
+                CodeEditorSaveButton.IsEnabled =
+                    false;
+
+                _codexEditorDirty =
+                    false;
+            }
+            finally
+            {
+                _codexEditorLoading =
+                    false;
+            }
+
+            InspectorTabs.SelectedItem =
+                CodeEditorTab;
+
+            StatusText.Text =
+                "Editing "
+                + CodeEditorPath.Text;
+
+            AppendTerminal(
+                "[editor] opened "
+                + CodeEditorPath.Text);
+        }
+        catch (System.Exception ex)
+        {
+            AppendTerminal(
+                "[editor] "
+                + ex.Message);
+
+            StatusText.Text =
+                "Editor error";
+        }
+    }
+
+
+    private bool Codex_TryResolveWorkspaceFile(
+        string value,
+        out string file)
+    {
+        file = "";
+
+        if (
+            string.IsNullOrWhiteSpace(
+                _workspace))
+        {
+            return false;
+        }
+
+        string root =
+            System.IO.Path
+                .GetFullPath(_workspace)
+                .TrimEnd(
+                    System.IO.Path
+                        .DirectorySeparatorChar,
+                    System.IO.Path
+                        .AltDirectorySeparatorChar);
+
+        string candidate;
+
+        if (
+            System.IO.Path.IsPathRooted(
+                value))
+        {
+            candidate =
+                System.IO.Path.GetFullPath(
+                    value);
+        }
+        else
+        {
+            candidate =
+                System.IO.Path.GetFullPath(
+                    System.IO.Path.Combine(
+                        root,
+                        value));
+        }
+
+        string prefix =
+            root
+            + System.IO.Path
+                .DirectorySeparatorChar;
+
+        if (
+            !candidate.StartsWith(
+                prefix,
+                System.StringComparison
+                    .OrdinalIgnoreCase))
+        {
+            return false;
+        }
+
+        file = candidate;
+
+        return true;
+    }
+
+
+    private void Codex_EditorTextChanged(
+        object sender,
+        System.Windows.Controls
+            .TextChangedEventArgs e)
+    {
+        if (
+            _codexEditorLoading ||
+            string.IsNullOrWhiteSpace(
+                _codexEditorFile))
+        {
+            return;
+        }
+
+        _codexEditorDirty = true;
+
+        CodeEditorState.Text =
+            "Modified";
+
+        CodeEditorSaveButton.IsEnabled =
+            true;
+    }
+
+
+    private void Codex_EditorSave_Click(
+        object sender,
+        System.Windows.RoutedEventArgs e)
+    {
+        Codex_SaveEditor();
+    }
+
+
+    private void Codex_SaveEditor()
+    {
+        if (
+            string.IsNullOrWhiteSpace(
+                _codexEditorFile))
+        {
+            return;
+        }
+
+        try
+        {
+            if (
+                !Codex_TryResolveWorkspaceFile(
+                    _codexEditorFile,
+                    out string file))
+            {
+                StatusText.Text =
+                    "Blocked: write outside workspace";
+
+                return;
+            }
+
+            string text =
+                CodeEditorText.Text
+                ?? "";
+
+            text =
+                text.Replace(
+                    "\r\n",
+                    "\n")
+                .Replace(
+                    "\r",
+                    "\n");
+
+            if (
+                _codexEditorNewLine
+                != "\n")
+            {
+                text =
+                    text.Replace(
+                        "\n",
+                        _codexEditorNewLine);
+            }
+
+            System.IO.File.WriteAllText(
+                file,
+                text,
+                new System.Text.UTF8Encoding(
+                    false));
+
+            _codexEditorDirty =
+                false;
+
+            CodeEditorSaveButton.IsEnabled =
+                false;
+
+            CodeEditorState.Text =
+                "Saved";
+
+            StatusText.Text =
+                "Saved "
+                + CodeEditorPath.Text;
+
+            AppendTerminal(
+                "[editor] saved "
+                + CodeEditorPath.Text);
+
+            RefreshFileTree();
+
+            P52AddActivity(
+                "EDIT",
+                "Saved "
+                + CodeEditorPath.Text);
+
+            _ =
+                P52RefreshReviewAsync();
+        }
+        catch (System.Exception ex)
+        {
+            CodeEditorState.Text =
+                "Save failed";
+
+            AppendTerminal(
+                "[editor] "
+                + ex.Message);
+
+            StatusText.Text =
+                "Save failed";
+        }
+    }
+
+
+    private void Codex_EditorReload_Click(
+        object sender,
+        System.Windows.RoutedEventArgs e)
+    {
+        if (
+            string.IsNullOrWhiteSpace(
+                _codexEditorFile))
+        {
+            return;
+        }
+
+        if (_codexEditorDirty)
+        {
+            var result =
+                System.Windows.MessageBox.Show(
+                    "Discard unsaved editor changes?",
+                    "BotConnector Editor",
+                    System.Windows
+                        .MessageBoxButton.YesNo,
+                    System.Windows
+                        .MessageBoxImage.Question);
+
+            if (
+                result !=
+                System.Windows
+                    .MessageBoxResult.Yes)
+            {
+                return;
+            }
+        }
+
+        Codex_OpenWorkspaceFile(
+            _codexEditorFile);
+    }
+
+
+    private void Codex_EditorKeyDown(
+        object sender,
+        System.Windows.Input.KeyEventArgs e)
+    {
+        bool control =
+            (
+                System.Windows.Input.Keyboard
+                    .Modifiers
+                &
+                System.Windows.Input
+                    .ModifierKeys.Control
+            ) != 0;
+
+        if (
+            control
+            &&
+            e.Key ==
+                System.Windows.Input.Key.S)
+        {
+            e.Handled = true;
+
+            Codex_SaveEditor();
+        }
+    }
 
     private string
         BuildAgentPrompt(
@@ -2265,6 +5094,7 @@ StartWebDesktopJobBridge();
     private void SetAgentActivity(
         string activity)
     {
+        P52AddActivity("STATE", activity);
         StatusText.Text =
             activity;
 

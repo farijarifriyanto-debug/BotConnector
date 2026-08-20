@@ -219,7 +219,7 @@
             <Grid.ColumnDefinitions>
                 <ColumnDefinition Width="238"/>
                 <ColumnDefinition Width="*"/>
-                <ColumnDefinition Width="310"/>
+                <ColumnDefinition Width="500"/>
             </Grid.ColumnDefinitions>
 
             <!-- LEFT SIDEBAR -->
@@ -289,6 +289,7 @@
                              Margin="0,7,0,0"
                              Background="Transparent"
                              BorderThickness="0"
+                             PreviewMouseDoubleClick="Codex_FileList_OpenEditor"
                              MouseDoubleClick="FileList_DoubleClick"
                              ScrollViewer.HorizontalScrollBarVisibility="Auto"/>
 
@@ -635,11 +636,11 @@
                                 Padding="8,4"/>
                     </Grid>
 
-                    <TabControl Grid.Row="1"
+                    <TabControl x:Name="InspectorTabs" Grid.Row="1"
                                 Background="Transparent"
                                 BorderThickness="0"
                                 SelectedIndex="0">
-                        <TabItem Header="Activity">
+                        <TabItem x:Name="P52ActivityTab" Header="Activity">
                             <Border Background="{StaticResource Dark2}"
                                     BorderBrush="{StaticResource DarkBorder}"
                                     BorderThickness="1"
@@ -693,12 +694,42 @@
                                                            MaxWidth="230"/>
                                             </StackPanel>
                                         </StackPanel>
+
+                                        <!-- BOTCONNECTOR_P5_2_ACTIVITY_REVIEW -->
+                                        <Border Margin="0,10,0,0"
+                                                Padding="8"
+                                                Background="#0B1018"
+                                                BorderBrush="#28323F"
+                                                BorderThickness="1"
+                                                CornerRadius="8">
+                                            <StackPanel>
+                                                <TextBlock Text="RUN TIMELINE"
+                                                           FontSize="9"
+                                                           FontWeight="SemiBold"
+                                                           Foreground="#94A3B8"
+                                                           Margin="0,0,0,7"/>
+
+                                                <TextBox x:Name="P52ActivityTimeline"
+                                                         MinHeight="100"
+                                                         MaxHeight="220"
+                                                         Background="Transparent"
+                                                         Foreground="#D5DEEB"
+                                                         BorderThickness="0"
+                                                         IsReadOnly="True"
+                                                         TextWrapping="Wrap"
+                                                         VerticalScrollBarVisibility="Auto"
+                                                         HorizontalScrollBarVisibility="Disabled"
+                                                         FontFamily="Cascadia Mono, Consolas"
+                                                         FontSize="10"/>
+                                            </StackPanel>
+                                        </Border>
+
                                     </StackPanel>
                                 </ScrollViewer>
                             </Border>
                         </TabItem>
 
-                        <TabItem Header="Changes">
+                        <TabItem x:Name="P52ChangesTab" Header="Changes">
                             <Border Background="{StaticResource Dark2}"
                                     BorderBrush="{StaticResource DarkBorder}"
                                     BorderThickness="1"
@@ -708,7 +739,8 @@
                                     <Grid.RowDefinitions>
                                         <RowDefinition Height="Auto"/>
                                         <RowDefinition Height="*"/>
-                                    </Grid.RowDefinitions>
+                                                                            <RowDefinition Height="Auto"/>
+</Grid.RowDefinitions>
 
                                     <StackPanel Grid.Row="0"
                                                 Orientation="Horizontal"
@@ -745,6 +777,416 @@
                                              BorderThickness="0"
                                              MouseDoubleClick="V2_ChangedFile_DoubleClick"
                                              ScrollViewer.HorizontalScrollBarVisibility="Auto"/>
+
+                                    <!-- BOTCONNECTOR_P5_2_REVIEW_SUMMARY -->
+                                    <Border Grid.Row="2"
+                                            Margin="0,8,0,0"
+                                            Padding="8"
+                                            Background="#0B1018"
+                                            BorderBrush="#28323F"
+                                            BorderThickness="1"
+                                            CornerRadius="8">
+                                        <Grid>
+                                            <Grid.ColumnDefinitions>
+                                                <ColumnDefinition Width="*"/>
+                                                <ColumnDefinition Width="Auto"/>
+                                            </Grid.ColumnDefinitions>
+
+                                            <StackPanel>
+                                                <TextBlock Text="AUTO REVIEW"
+                                                           FontSize="9"
+                                                           FontWeight="SemiBold"
+                                                           Foreground="#94A3B8"/>
+
+                                                <TextBlock x:Name="P52ReviewSummary"
+                                                           Text="Waiting for workspace changes..."
+                                                           Margin="0,4,8,0"
+                                                           Foreground="#D5DEEB"
+                                                           FontSize="10"
+                                                           TextWrapping="Wrap"/>
+                                            </StackPanel>
+
+                                            <Button Grid.Column="1"
+                                                    Style="{StaticResource SoftButton}"
+                                                    Content="Refresh"
+                                                    Padding="7,4"
+                                                    VerticalAlignment="Top"
+                                                    Click="P52_ReviewRefresh_Click"/>
+                                        </Grid>
+                                    </Border>
+
+                                </Grid>
+                            </Border>
+                        </TabItem>
+
+
+                        <!-- BOTCONNECTOR_MAIN_LLM_EDITOR_V1 -->
+
+                        <!-- BOTCONNECTOR_P5_3_PARALLEL_WORKTREE -->
+                        <TabItem x:Name="P53TasksTab"
+                                 Header="Tasks">
+                            <ScrollViewer VerticalScrollBarVisibility="Auto"
+                                          HorizontalScrollBarVisibility="Disabled">
+                                <StackPanel Margin="2">
+
+                                    <Border Padding="9"
+                                            Background="{StaticResource Dark2}"
+                                            BorderBrush="{StaticResource DarkBorder}"
+                                            BorderThickness="1"
+                                            CornerRadius="10">
+                                        <StackPanel>
+                                            <TextBlock Text="PARALLEL REVIEW"
+                                                       Foreground="#94A3B8"
+                                                       FontSize="9"
+                                                       FontWeight="SemiBold"/>
+
+                                            <TextBlock Text="Planner · Coder-A · Reviewer · Tester"
+                                                       Foreground="#E2E8F0"
+                                                       Margin="0,4,0,8"
+                                                       FontSize="10"/>
+
+                                            <TextBox x:Name="P53TaskBox"
+                                                     MinHeight="72"
+                                                     AcceptsReturn="True"
+                                                     TextWrapping="Wrap"
+                                                     VerticalScrollBarVisibility="Auto"
+                                                     Background="#0B1018"
+                                                     Foreground="#E2E8F0"
+                                                     BorderBrush="#28323F"
+                                                     BorderThickness="1"
+                                                     Padding="8"/>
+
+                                            <StackPanel Orientation="Horizontal"
+                                                        Margin="0,8,0,0">
+                                                <Button x:Name="P53RunParallelButton"
+                                                        Style="{StaticResource PrimaryButton}"
+                                                        Content="Run Parallel"
+                                                        Padding="10,5"
+                                                        Click="P53_RunParallel_Click"/>
+
+                                                <Button x:Name="P53StopParallelButton"
+                                                        Style="{StaticResource SoftButton}"
+                                                        Content="Stop"
+                                                        Padding="10,5"
+                                                        Margin="7,0,0,0"
+                                                        IsEnabled="False"
+                                                        Click="P53_StopParallel_Click"/>
+                                            </StackPanel>
+
+                                            <TextBox x:Name="P53ParallelResults"
+                                                     MinHeight="100"
+                                                     MaxHeight="260"
+                                                     Margin="0,8,0,0"
+                                                     IsReadOnly="True"
+                                                     AcceptsReturn="True"
+                                                     TextWrapping="Wrap"
+                                                     VerticalScrollBarVisibility="Auto"
+                                                     Background="#0B1018"
+                                                     Foreground="#D5DEEB"
+                                                     BorderBrush="#28323F"
+                                                     BorderThickness="1"
+                                                     Padding="8"
+                                                     FontFamily="Cascadia Mono, Consolas"
+                                                     FontSize="10"/>
+                                        </StackPanel>
+                                    </Border>
+
+
+                                    <!-- BOTCONNECTOR_P5_4_ISOLATED_AGENTS -->
+                                    <Border Margin="0,10,0,0"
+                                            Padding="9"
+                                            Background="{StaticResource Dark2}"
+                                            BorderBrush="{StaticResource DarkBorder}"
+                                            BorderThickness="1"
+                                            CornerRadius="10">
+                                        <StackPanel>
+                                            <TextBlock Text="ISOLATED CODING AGENTS"
+                                                       Foreground="#94A3B8"
+                                                       FontSize="9"
+                                                       FontWeight="SemiBold"/>
+
+                                            <TextBlock Text="One task per line · each task gets its own Git worktree and V4 runtime"
+                                                       Foreground="#CBD5E1"
+                                                       Margin="0,4,0,8"
+                                                       FontSize="10"
+                                                       TextWrapping="Wrap"/>
+
+                                            <TextBox x:Name="P54TasksBox"
+                                                     MinHeight="88"
+                                                     MaxHeight="180"
+                                                     AcceptsReturn="True"
+                                                     TextWrapping="Wrap"
+                                                     VerticalScrollBarVisibility="Auto"
+                                                     Background="#0B1018"
+                                                     Foreground="#E2E8F0"
+                                                     BorderBrush="#28323F"
+                                                     BorderThickness="1"
+                                                     Padding="8"/>
+
+                                            <Grid Margin="0,7,0,0">
+                                                <Grid.ColumnDefinitions>
+                                                    <ColumnDefinition Width="*"/>
+                                                    <ColumnDefinition Width="Auto"/>
+                                                </Grid.ColumnDefinitions>
+
+                                                <TextBox x:Name="P54BranchPrefixBox"
+                                                         Text="bc-agent"
+                                                         ToolTip="Branch/worktree prefix"
+                                                         Background="#0B1018"
+                                                         Foreground="#E2E8F0"
+                                                         BorderBrush="#28323F"
+                                                         BorderThickness="1"
+                                                         Padding="7"/>
+
+                                                <StackPanel Grid.Column="1"
+                                                            Orientation="Horizontal"
+                                                            Margin="7,0,0,0">
+                                                    <Button x:Name="P54StartButton"
+                                                            Style="{StaticResource PrimaryButton}"
+                                                            Content="Start Isolated"
+                                                            Padding="10,5"
+                                                            Click="P54_Start_Click"/>
+
+                                                    <Button x:Name="P54StopButton"
+                                                            Style="{StaticResource SoftButton}"
+                                                            Content="Stop All"
+                                                            Padding="10,5"
+                                                            Margin="6,0,0,0"
+                                                            IsEnabled="False"
+                                                            Click="P54_Stop_Click"/>
+                                                </StackPanel>
+                                            </Grid>
+
+                                            <ListBox x:Name="P54AgentList"
+                                                     SelectionChanged="P55_AgentSelectionChanged"
+                                                     MinHeight="100"
+                                                     MaxHeight="220"
+                                                     Margin="0,8,0,0"
+                                                     Background="#0B1018"
+                                                     Foreground="#D5DEEB"
+                                                     BorderBrush="#28323F"
+                                                     BorderThickness="1"/>
+
+                                            <!-- BOTCONNECTOR_P5_5_AGENT_DIFF_REVIEW -->
+                                            <StackPanel Orientation="Horizontal"
+                                                        Margin="0,7,0,0">
+                                                <Button Style="{StaticResource SoftButton}"
+                                                        Content="Preview Diff"
+                                                        Padding="8,4"
+                                                        Click="P55_Preview_Click"/>
+
+                                                <Button Style="{StaticResource PrimaryButton}"
+                                                        Content="Apply Selected"
+                                                        Padding="8,4"
+                                                        Margin="6,0,0,0"
+                                                        Click="P55_Apply_Click"/>
+
+                                                <Button Style="{StaticResource SoftButton}"
+                                                        Content="Discard Worktree"
+                                                        Padding="8,4"
+                                                        Margin="6,0,0,0"
+                                                        Click="P55_Discard_Click"/>
+                                            </StackPanel>
+
+                                            <TextBox x:Name="P55DiffPreview"
+                                                     MinHeight="120"
+                                                     MaxHeight="320"
+                                                     Margin="0,8,0,0"
+                                                     IsReadOnly="True"
+                                                     AcceptsReturn="True"
+                                                     TextWrapping="NoWrap"
+                                                     VerticalScrollBarVisibility="Auto"
+                                                     HorizontalScrollBarVisibility="Auto"
+                                                     Background="#070B11"
+                                                     Foreground="#CBD5E1"
+                                                     BorderBrush="#28323F"
+                                                     BorderThickness="1"
+                                                     Padding="8"
+                                                     FontFamily="Cascadia Mono, Consolas"
+                                                     FontSize="9"/>
+
+
+                                            <TextBox x:Name="P54AgentOutput"
+                                                     MinHeight="90"
+                                                     MaxHeight="260"
+                                                     Margin="0,8,0,0"
+                                                     IsReadOnly="True"
+                                                     AcceptsReturn="True"
+                                                     TextWrapping="Wrap"
+                                                     VerticalScrollBarVisibility="Auto"
+                                                     Background="#0B1018"
+                                                     Foreground="#94A3B8"
+                                                     BorderBrush="#28323F"
+                                                     BorderThickness="1"
+                                                     Padding="7"
+                                                     FontFamily="Cascadia Mono, Consolas"
+                                                     FontSize="9"/>
+
+                                            <TextBlock Text="Worktrees are preserved after completion for review. No automatic commit or merge."
+                                                       Foreground="#64748B"
+                                                       Margin="0,7,0,0"
+                                                       FontSize="9"
+                                                       TextWrapping="Wrap"/>
+                                        </StackPanel>
+                                    </Border>
+
+                                    <Border Margin="0,10,0,0"
+                                            Padding="9"
+                                            Background="{StaticResource Dark2}"
+                                            BorderBrush="{StaticResource DarkBorder}"
+                                            BorderThickness="1"
+                                            CornerRadius="10">
+                                        <StackPanel>
+                                            <TextBlock Text="GIT WORKTREES"
+                                                       Foreground="#94A3B8"
+                                                       FontSize="9"
+                                                       FontWeight="SemiBold"/>
+
+                                            <TextBlock Text="Isolated working directories for independent tasks"
+                                                       Foreground="#CBD5E1"
+                                                       Margin="0,4,0,8"
+                                                       FontSize="10"
+                                                       TextWrapping="Wrap"/>
+
+                                            <TextBox x:Name="P53BranchBox"
+                                                     ToolTip="New branch name"
+                                                     Background="#0B1018"
+                                                     Foreground="#E2E8F0"
+                                                     BorderBrush="#28323F"
+                                                     BorderThickness="1"
+                                                     Padding="7"/>
+
+                                            <StackPanel Orientation="Horizontal"
+                                                        Margin="0,7,0,0">
+                                                <Button Style="{StaticResource SoftButton}"
+                                                        Content="Create"
+                                                        Padding="8,4"
+                                                        Click="P53_CreateWorktree_Click"/>
+
+                                                <Button Style="{StaticResource SoftButton}"
+                                                        Content="Refresh"
+                                                        Padding="8,4"
+                                                        Margin="6,0,0,0"
+                                                        Click="P53_RefreshWorktrees_Click"/>
+
+                                                <Button Style="{StaticResource SoftButton}"
+                                                        Content="Remove"
+                                                        Padding="8,4"
+                                                        Margin="6,0,0,0"
+                                                        Click="P53_RemoveWorktree_Click"/>
+                                            </StackPanel>
+
+                                            <ListBox x:Name="P53WorktreeList"
+                                                     MinHeight="100"
+                                                     MaxHeight="220"
+                                                     Margin="0,8,0,0"
+                                                     Background="#0B1018"
+                                                     Foreground="#D5DEEB"
+                                                     BorderBrush="#28323F"
+                                                     BorderThickness="1"/>
+
+                                            <TextBox x:Name="P53WorktreeOutput"
+                                                     MinHeight="70"
+                                                     MaxHeight="180"
+                                                     Margin="0,8,0,0"
+                                                     IsReadOnly="True"
+                                                     AcceptsReturn="True"
+                                                     TextWrapping="Wrap"
+                                                     VerticalScrollBarVisibility="Auto"
+                                                     Background="#0B1018"
+                                                     Foreground="#94A3B8"
+                                                     BorderBrush="#28323F"
+                                                     BorderThickness="1"
+                                                     Padding="7"
+                                                     FontFamily="Cascadia Mono, Consolas"
+                                                     FontSize="9"/>
+                                        </StackPanel>
+                                    </Border>
+
+                                </StackPanel>
+                            </ScrollViewer>
+                        </TabItem>
+
+                        <TabItem x:Name="CodeEditorTab"
+                                 Header="Editor">
+                            <Border Background="{StaticResource Dark2}"
+                                    BorderBrush="{StaticResource DarkBorder}"
+                                    BorderThickness="1"
+                                    CornerRadius="11"
+                                    Padding="9">
+                                <Grid>
+                                    <Grid.RowDefinitions>
+                                        <RowDefinition Height="Auto"/>
+                                        <RowDefinition Height="*"/>
+                                        <RowDefinition Height="Auto"/>
+                                    </Grid.RowDefinitions>
+
+                                    <Grid Grid.Row="0"
+                                          Margin="2,0,2,8">
+                                        <Grid.ColumnDefinitions>
+                                            <ColumnDefinition Width="*"/>
+                                            <ColumnDefinition Width="Auto"/>
+                                        </Grid.ColumnDefinitions>
+
+                                        <StackPanel>
+                                            <TextBlock Text="CODE EDITOR"
+                                                       Foreground="#94A3B8"
+                                                       FontWeight="SemiBold"
+                                                       FontSize="9"/>
+
+                                            <TextBlock x:Name="CodeEditorPath"
+                                                       Text="Double-click a file"
+                                                       Foreground="#E2E8F0"
+                                                       FontSize="10"
+                                                       Margin="0,3,0,0"
+                                                       TextTrimming="CharacterEllipsis"/>
+                                        </StackPanel>
+
+                                        <Button Grid.Column="1"
+                                                Style="{StaticResource SoftButton}"
+                                                Content="Reload"
+                                                Padding="7,4"
+                                                Click="Codex_EditorReload_Click"/>
+                                    </Grid>
+
+                                    <TextBox x:Name="CodeEditorText"
+                                             Grid.Row="1"
+                                             Background="#0B1018"
+                                             Foreground="#E2E8F0"
+                                             BorderBrush="#28323F"
+                                             BorderThickness="1"
+                                             Padding="10"
+                                             AcceptsReturn="True"
+                                             AcceptsTab="True"
+                                             TextWrapping="NoWrap"
+                                             HorizontalScrollBarVisibility="Auto"
+                                             VerticalScrollBarVisibility="Auto"
+                                             FontFamily="Cascadia Mono, Consolas"
+                                             FontSize="12"
+                                             TextChanged="Codex_EditorTextChanged"
+                                             PreviewKeyDown="Codex_EditorKeyDown"/>
+
+                                    <Grid Grid.Row="2"
+                                          Margin="0,8,0,0">
+                                        <Grid.ColumnDefinitions>
+                                            <ColumnDefinition Width="*"/>
+                                            <ColumnDefinition Width="Auto"/>
+                                        </Grid.ColumnDefinitions>
+
+                                        <TextBlock x:Name="CodeEditorState"
+                                                   Text="No file open"
+                                                   Foreground="#94A3B8"
+                                                   FontSize="9"
+                                                   VerticalAlignment="Center"/>
+
+                                        <Button x:Name="CodeEditorSaveButton"
+                                                Grid.Column="1"
+                                                Style="{StaticResource PrimaryButton}"
+                                                Content="Save"
+                                                Padding="12,5"
+                                                IsEnabled="False"
+                                                Click="Codex_EditorSave_Click"/>
+                                    </Grid>
                                 </Grid>
                             </Border>
                         </TabItem>

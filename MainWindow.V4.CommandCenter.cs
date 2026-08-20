@@ -324,6 +324,16 @@ public partial class MainWindow
             object sender,
             RoutedEventArgs e)
     {
+        // V6 OpenCode Direct: when enabled, sends go straight to the native
+        // OpenCode server (never through Hermes, Cloud Adapter, the old AI
+        // Orchestrator, or the ModelRouter). When disabled, old behavior is
+        // preserved exactly below.
+        if (V6OpenCodeDirectEnabled())
+        {
+            await V6OpenCodeDirectSendAsync();
+            return;
+        }
+
         string mode =
             V4SelectedMode();
 

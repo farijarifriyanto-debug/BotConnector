@@ -1,0 +1,68 @@
+{
+  "$schema": "https://opencode.ai/config.json",
+
+  "lsp": false,
+
+  "permission": {
+    "read": "allow",
+
+    "edit": {
+      "*": "allow",
+
+      "*MetaQuotes*Terminal*": "deny",
+      "*/opt/trading_webhook_vps/*": "deny",
+      "*trading_webhook_vps*": "deny"
+    },
+
+    "glob": "allow",
+    "grep": "allow",
+
+    "external_directory": {
+      "*": "allow",
+
+      "*MetaQuotes*Terminal*": "deny",
+      "*/opt/trading_webhook_vps/*": "deny",
+      "*trading_webhook_vps*": "deny"
+    },
+
+    "bash": {
+      "*": "allow",
+
+      "shutdown": "deny",
+      "shutdown *": "deny",
+      "shutdown.exe": "deny",
+      "shutdown.exe *": "deny",
+
+      "reboot": "deny",
+      "reboot *": "deny",
+
+      "Restart-Computer*": "deny",
+      "Stop-Computer*": "deny",
+
+      "*taskkill*terminal64*": "deny",
+      "*Stop-Process*terminal64*": "deny",
+      "*taskkill*MetaTrader*": "deny",
+      "*Stop-Process*MetaTrader*": "deny",
+
+      "*systemctl stop*trading*": "deny",
+      "*systemctl restart*trading*": "deny",
+      "*systemctl disable*trading*": "deny",
+
+      "*docker stop*trading*": "deny",
+      "*docker restart*trading*": "deny",
+      "*docker rm*trading*": "deny",
+
+      "*rm*/opt/trading_webhook_vps*": "deny",
+      "*mv*/opt/trading_webhook_vps*": "deny",
+      "*truncate*/opt/trading_webhook_vps*": "deny"
+    },
+
+    "task": "allow",
+    "skill": "allow",
+    "question": "allow",
+    "webfetch": "allow",
+    "websearch": "allow",
+    "doom_loop": "allow",
+    "lsp": "allow"
+  }
+}
