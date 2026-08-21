@@ -44,18 +44,25 @@ public partial class MainWindow
     private const string OpenCodeModelIDEnv =
         "BOTCONNECTOR_OPENCODE_MODEL_ID";
 
+    // Optional Basic auth for the OpenCode server (opencode serve --auth).
+    private const string OpenCodeUsernameEnv =
+        "BOTCONNECTOR_OPENCODE_USERNAME";
+
+    private const string OpenCodePasswordEnv =
+        "BOTCONNECTOR_OPENCODE_PASSWORD";
+
     // Optional: ask (default) | allow | always | deny.
     private const string OpenCodePermissionModeEnv =
         "BOTCONNECTOR_OPENCODE_PERMISSION";
 
     private const string OpenCodeBaseUrlDefault =
-        "http://127.0.0.1:18411";
+        "http://100.127.25.35:18420";
 
     private const string OpenCodeProviderIDDefault =
-        "deepseek";
+        "bc-mistral";
 
     private const string OpenCodeModelIDDefault =
-        "deepseek-v4-flash";
+        "mistral-medium-latest";
 
     private static string? V6Env(string name)
     {
@@ -112,6 +119,32 @@ public partial class MainWindow
             "deny" or "reject" => "deny",
             _ => "ask"
         };
+    }
+
+    // Basic auth credentials for the OpenCode server, if configured.
+    private static string? V6OpenCodeBasicAuth()
+    {
+        string? username = V6Env(OpenCodeUsernameEnv);
+        string? password = V6Env(OpenCodePasswordEnv);
+
+        if (string.IsNullOrWhiteSpace(username) ||
+            string.IsNullOrWhiteSpace(password))
+        {
+            return null;
+        }
+
+        string raw = username + ":" + password;
+        return "Basic " + Convert.ToBase64String(Encoding.UTF8.GetBytes(raw));
+    }
+
+    // Apply the Basic auth header to a request when credentials are set.
+    private void V6OpenCodeApplyAuth(HttpRequestMessage request)
+    {
+        string? auth = V6OpenCodeBasicAuth();
+        if (!string.IsNullOrWhiteSpace(auth))
+        {
+            request.Headers.TryAddWithoutValidation("Authorization", auth);
+        }
     }
 
     // ---- Client state. ----------------------------------------------------
@@ -412,15 +445,24 @@ private readonly TaskCompletionSource<bool> _readinessTcs = new(TaskCreationOpti
         {
             try
             {
+                using var request = new HttpRequestMessage(
+                    HttpMethod.Post,
+                    V6OpenCodeUri(
+                        V6OpenCodeBaseUrl(),
+                        "/session/" +
+                        Uri.EscapeDataString(sessionId) +
+                        "/abort",
+                        directory))
+                {
+                    Content = new StringContent("{}", Encoding.UTF8, "application/json")
+                };
+
+                V6OpenCodeApplyAuth(request);
+
                 using var response =
-                    await _v6OpenCodeHttp.PostAsync(
-                        V6OpenCodeUri(
-                            V6OpenCodeBaseUrl(),
-                            "/session/" +
-                            Uri.EscapeDataString(sessionId) +
-                            "/abort",
-                            directory),
-                        new StringContent("{}", Encoding.UTF8, "application/json"));
+                    await _v6OpenCodeHttp.SendAsync(
+                        request,
+                        CancellationToken.None);
             }
             catch
             {
@@ -442,6 +484,8 @@ private readonly TaskCompletionSource<bool> _readinessTcs = new(TaskCreationOpti
         {
             Content = new StringContent("{}", Encoding.UTF8, "application/json")
         };
+
+        V6OpenCodeApplyAuth(request);
 
         using HttpResponseMessage response =
             await _v6OpenCodeHttp.SendAsync(
@@ -518,6 +562,8 @@ private readonly TaskCompletionSource<bool> _readinessTcs = new(TaskCreationOpti
                 Encoding.UTF8,
                 "application/json")
         };
+
+        V6OpenCodeApplyAuth(request);
 
         using HttpResponseMessage response =
             await _v6OpenCodeHttp.SendAsync(
@@ -607,14 +653,20 @@ if (type == "server.connected")
     {
         try
         {
+            using var request = new HttpRequestMessage(
+                HttpMethod.Get,
+                V6OpenCodeUri(
+                    baseUrl,
+                    "/session/" +
+                    Uri.EscapeDataString(sessionId) +
+                    "/diff",
+                    directory));
+
+            V6OpenCodeApplyAuth(request);
+
             using var response =
-                await _v6OpenCodeHttp.GetAsync(
-                    V6OpenCodeUri(
-                        baseUrl,
-                        "/session/" +
-                        Uri.EscapeDataString(sessionId) +
-                        "/diff",
-                        directory),
+                await _v6OpenCodeHttp.SendAsync(
+                    request,
                     cancellationToken);
 
             string body =
@@ -690,14 +742,20 @@ if (type == "server.connected")
     {
         try
         {
+            using var request = new HttpRequestMessage(
+                HttpMethod.Get,
+                V6OpenCodeUri(
+                    baseUrl,
+                    "/session/" +
+                    Uri.EscapeDataString(sessionId) +
+                    "/message?limit=20",
+                    directory));
+
+            V6OpenCodeApplyAuth(request);
+
             using var response =
-                await _v6OpenCodeHttp.GetAsync(
-                    V6OpenCodeUri(
-                        baseUrl,
-                        "/session/" +
-                        Uri.EscapeDataString(sessionId) +
-                        "/message?limit=20",
-                        directory),
+                await _v6OpenCodeHttp.SendAsync(
+                    request,
                     cancellationToken);
 
             string body =
@@ -782,6 +840,8 @@ if (type == "server.connected")
         using var request = new HttpRequestMessage(
             HttpMethod.Get,
             V6OpenCodeUri(baseUrl, "/event", directory));
+
+        V6OpenCodeApplyAuth(request);
 
         using HttpResponseMessage response =
             await _v6OpenCodeHttp.SendAsync(
@@ -1369,7 +1429,7 @@ if (type == "server.connected")
         var tcs = new TaskCompletionSource<string>(
             TaskCreationOptions.RunContinuationsAsynchronously);
 
-        _ =         _ = Dispatcher.BeginInvoke(new Action(() =>
+        _ = Dispatcher.BeginInvoke(new Action(() =>
         {
             try
             {
@@ -1564,6 +1624,8 @@ if (type == "server.connected")
                     "application/json")
             };
 
+            V6OpenCodeApplyAuth(request);
+
             using HttpResponseMessage response =
                 await _v6OpenCodeHttp.SendAsync(
                     request,
@@ -1636,6 +1698,20 @@ if (type == "server.connected")
     private static string V6OpenCodeFriendlyError(Exception ex)
     {
         string message = ex.Message ?? "";
+
+        if (message.IndexOf("401", StringComparison.OrdinalIgnoreCase) >= 0 ||
+            message.IndexOf("Unauthorized", StringComparison.OrdinalIgnoreCase) >= 0)
+        {
+            return
+                "OpenCode server at " +
+                V6OpenCodeBaseUrl() +
+                " requires authentication. Set " +
+                OpenCodeUsernameEnv +
+                " and " +
+                OpenCodePasswordEnv +
+                " to the server credentials, then press Send again.\n\nDetails: " +
+                message;
+        }
 
         if (message.IndexOf("refused", StringComparison.OrdinalIgnoreCase) >= 0 ||
             message.IndexOf("target machine", StringComparison.OrdinalIgnoreCase) >= 0 ||
