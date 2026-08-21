@@ -72,8 +72,13 @@ describe('RoutingTester', () => {
 
     it('should have overallSuccess true when both providers work', async () => {
       const result = await tester.runFullTestSuite();
-      
-      if (result.primary.success && result.freeFallback.success) {
+      // Unconditional invariant: overallSuccess equals "both providers
+      // succeeded". This cannot silently pass when a provider fails.
+      const bothWork = result.primary.success && result.freeFallback.success;
+      expect(result.overallSuccess).toBe(bothWork);
+      if (bothWork) {
+        expect(result.primary.success).toBe(true);
+        expect(result.freeFallback.success).toBe(true);
         expect(result.overallSuccess).toBe(true);
       }
     }, 300000);
