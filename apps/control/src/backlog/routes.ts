@@ -4,6 +4,7 @@ import { validationError, notFoundError } from '../errors/index.js';
 import { sendSuccess, sendCreated, sendError } from '../errors/response.js';
 import { createRequestContext } from '../request-context/index.js';
 import { withTenantTransaction } from '../db/tenant.js';
+import { emitDomainEventForMutation } from '../events/service.js';
 import type { PrincipalResolver } from '../index.js';
 
 interface CreateBacklogItemBody {
@@ -64,7 +65,16 @@ export async function registerBacklogRoutes(app: FastifyInstance, resolvePrincip
             [itemId, projectId, workspaceId, body.title, body.description, body.target_phase],
           );
 
-          return result.rows[0];
+          const item = result.rows[0];
+          await emitDomainEventForMutation(tx, principal, requestCtx.requestId, {
+            projectId,
+            eventType: 'backlog.created',
+            aggregateType: 'backlog_item',
+            aggregateId: itemId,
+            payload: { backlog_item_id: itemId, title: item.title },
+          });
+
+          return item;
         });
 
         sendCreated(reply, requestCtx, item);

@@ -6,6 +6,7 @@ import { createRequestContext } from '../request-context/index.js';
 import { withTenantTransaction } from '../db/tenant.js';
 import { parseIfMatch, assertRevisionMatch, incrementRevision } from '../db/concurrency.js';
 import { fingerprintRequest, getIdempotencyResult, claimIdempotencyKey } from '../db/idempotency.js';
+import { emitDomainEventForMutation } from '../events/service.js';
 import type { PrincipalResolver } from '../index.js';
 
 interface CreateProjectBody {
@@ -72,6 +73,14 @@ export async function registerProjectRoutes(app: FastifyInstance, resolvePrincip
         );
 
         const project = insertResult.rows[0];
+
+        await emitDomainEventForMutation(tx, principal, requestCtx.requestId, {
+          projectId,
+          eventType: 'project.created',
+          aggregateType: 'project',
+          aggregateId: projectId,
+          payload: { name: project.name, revision: project.revision },
+        });
 
         if (idempotencyKey) {
           const fp = fingerprintRequest('POST', '/api/v1/projects', body);
@@ -187,7 +196,16 @@ export async function registerProjectRoutes(app: FastifyInstance, resolvePrincip
           throw notFoundError(`Project ${projectId} not found or revision changed`);
         }
 
-        return updateResult.rows[0];
+        const updated = updateResult.rows[0];
+        await emitDomainEventForMutation(tx, principal, requestCtx.requestId, {
+          projectId,
+          eventType: 'project.updated',
+          aggregateType: 'project',
+          aggregateId: projectId,
+          payload: { name: updated.name, revision: updated.revision },
+        });
+
+        return updated;
       });
 
       sendSuccess(reply, requestCtx, result, { revision: result.revision });

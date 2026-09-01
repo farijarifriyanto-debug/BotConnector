@@ -4,6 +4,7 @@ import { validationError, notFoundError } from '../errors/index.js';
 import { sendSuccess, sendCreated, sendError } from '../errors/response.js';
 import { createRequestContext } from '../request-context/index.js';
 import { withTenantTransaction } from '../db/tenant.js';
+import { emitDomainEventForMutation } from '../events/service.js';
 import type { PrincipalResolver } from '../index.js';
 
 interface CreatePhaseBody {
@@ -62,7 +63,16 @@ export async function registerPhaseRoutes(app: FastifyInstance, resolvePrincipal
             [phaseId, projectId, workspaceId, ordinal, body.name],
           );
 
-          return result.rows[0];
+          const phase = result.rows[0];
+          await emitDomainEventForMutation(tx, principal, requestCtx.requestId, {
+            projectId,
+            eventType: 'phase.created',
+            aggregateType: 'phase',
+            aggregateId: phaseId,
+            payload: { phase_id: phaseId, name: phase.name, ordinal: phase.ordinal },
+          });
+
+          return phase;
         });
 
         sendCreated(reply, requestCtx, phase, { revision: phase.revision });

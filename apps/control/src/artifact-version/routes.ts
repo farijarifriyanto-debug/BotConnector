@@ -5,6 +5,7 @@ import { sendSuccess, sendCreated, sendError } from '../errors/response.js';
 import { createRequestContext } from '../request-context/index.js';
 import { withTenantTransaction } from '../db/tenant.js';
 import { fingerprintRequest, getIdempotencyResult, claimIdempotencyKey } from '../db/idempotency.js';
+import { emitDomainEventForMutation } from '../events/service.js';
 import type { PrincipalResolver } from '../index.js';
 
 interface CreateArtifactVersionBody {
@@ -83,6 +84,19 @@ export async function registerArtifactVersionRoutes(app: FastifyInstance, resolv
           );
 
           const version = insertResult.rows[0];
+
+          await emitDomainEventForMutation(tx, principal, requestCtx.requestId, {
+            projectId,
+            eventType: 'artifact_version.created',
+            aggregateType: 'artifact_version',
+            aggregateId: versionId,
+            payload: {
+              artifact_id: artifactId,
+              version_id: versionId,
+              sequence: version.sequence,
+              source_revision: version.source_revision,
+            },
+          });
 
           if (idempotencyKey) {
             const fp = fingerprintRequest('POST', `/api/v1/artifacts/${artifactId}/versions`, body);

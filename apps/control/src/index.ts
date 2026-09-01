@@ -11,6 +11,10 @@ import { registerPhaseRoutes } from './phase/routes.js';
 import { registerBacklogRoutes } from './backlog/routes.js';
 import { registerOpenApiRoutes } from './openapi/index.js';
 import { closePool } from './db/pool.js';
+import { createTransientRedis } from './realtime/redis.js';
+import { LiveHub } from './realtime/hub.js';
+import { OutboxDispatcher } from './events/dispatcher.js';
+import { registerRealtimeGateway } from './realtime/gateway.js';
 
 export type PrincipalResolver = (headers: Record<string, string | string[] | undefined>) => PrincipalContext;
 
@@ -22,8 +26,21 @@ function createFailClosedResolver(): PrincipalResolver {
   };
 }
 
+export interface RealtimeOptions {
+  redisUrl: string;
+  dispatchIntervalMs?: number;
+  autoStartDispatcher?: boolean;
+}
+
 export interface AppOptions {
   principalResolver: PrincipalResolver;
+  realtime?: RealtimeOptions;
+}
+
+export interface RealtimeHandle {
+  hub: LiveHub;
+  dispatcher: OutboxDispatcher;
+  redis: ReturnType<typeof createTransientRedis>;
 }
 
 export async function buildApp(options: AppOptions) {
@@ -105,6 +122,30 @@ export async function buildApp(options: AppOptions) {
   await registerPhaseRoutes(app, resolvePrincipal);
   await registerBacklogRoutes(app, resolvePrincipal);
   await registerOpenApiRoutes(app);
+
+  if (options.realtime) {
+    const redis = createTransientRedis(options.realtime.redisUrl);
+    const hub = new LiveHub(redis);
+    const dispatcher = new OutboxDispatcher({
+      redis,
+      intervalMs: options.realtime.dispatchIntervalMs ?? 1000,
+    });
+    await registerRealtimeGateway(app, { principalResolver: resolvePrincipal, hub });
+    await hub.start();
+
+    const handle: RealtimeHandle = { hub, dispatcher, redis };
+    app.decorate('realtime', handle);
+
+    if (options.realtime.autoStartDispatcher !== false) {
+      dispatcher.start();
+    }
+
+    app.addHook('onClose', async () => {
+      dispatcher.stop();
+      await hub.stop();
+      await redis.close();
+    });
+  }
 
   return app;
 }

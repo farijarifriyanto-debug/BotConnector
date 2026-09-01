@@ -10,6 +10,7 @@ import { createRequestContext } from '../request-context/index.js';
 import { withTenantTransaction } from '../db/tenant.js';
 import { parseIfMatch, assertRevisionMatch, incrementRevision } from '../db/concurrency.js';
 import { fingerprintRequest, getIdempotencyResult, claimIdempotencyKey } from '../db/idempotency.js';
+import { emitDomainEventForMutation } from '../events/service.js';
 import type { PrincipalResolver } from '../index.js';
 
 interface CreateArtifactBody {
@@ -92,6 +93,14 @@ export async function registerArtifactRoutes(app: FastifyInstance, resolvePrinci
         );
 
         const artifact = insertResult.rows[0];
+
+        await emitDomainEventForMutation(tx, principal, requestCtx.requestId, {
+          projectId,
+          eventType: 'artifact.created',
+          aggregateType: 'artifact',
+          aggregateId: artifactId,
+          payload: { artifact_id: artifactId, type: artifact.type, revision: artifact.revision },
+        });
 
         if (idempotencyKey) {
           const fp = fingerprintRequest('POST', `/api/v1/projects/${projectId}/artifacts`, body);
@@ -221,7 +230,20 @@ export async function registerArtifactRoutes(app: FastifyInstance, resolvePrinci
           throw notFoundError(`Artifact ${artifactId} not found or revision changed`);
         }
 
-        return updateResult.rows[0];
+        const updated = updateResult.rows[0];
+        await emitDomainEventForMutation(tx, principal, requestCtx.requestId, {
+          projectId: updated.project_id,
+          eventType: 'artifact.updated',
+          aggregateType: 'artifact',
+          aggregateId: artifactId,
+          payload: {
+            artifact_id: artifactId,
+            lifecycle: updated.lifecycle,
+            revision: updated.revision,
+          },
+        });
+
+        return updated;
       });
 
       sendSuccess(reply, requestCtx, result, { revision: result.revision });
