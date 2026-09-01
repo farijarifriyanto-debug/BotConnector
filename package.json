@@ -5,20 +5,25 @@
   "main": "dist/src/canary/routing-test.js",
   "workspaces": [
     "packages/contracts",
-    "packages/database"
+    "packages/database",
+    "apps/control"
   ],
   "scripts": {
     "build": "tsc",
     "build:contracts": "npm run build --workspace @botconnector/contracts",
     "build:database": "npm run build --workspace @botconnector/database",
+    "build:control": "npm run build --workspace @botconnector/control",
     "typecheck:contracts": "npm run typecheck --workspace @botconnector/contracts",
     "typecheck:database": "npm run typecheck --workspace @botconnector/database",
+    "typecheck:control": "npm run typecheck --workspace @botconnector/control",
     "test:contracts": "npm run test --workspace @botconnector/contracts",
     "test:database": "npm run test --workspace @botconnector/database",
+    "test:control": "npm run test --workspace @botconnector/control",
     "schema:contracts": "npm run schema --workspace @botconnector/contracts",
     "migrate": "npm run migrate --workspace @botconnector/database",
+    "openapi": "npm run openapi --workspace @botconnector/control",
     "test": "vitest run",
-    "test:all": "npm run test:contracts && npm run test:database",
+    "test:all": "npm run test:contracts && npm run test:database && npm run test:control",
     "test:watch": "vitest",
     "canary": "./scripts/canary-build.sh"
   },

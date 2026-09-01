@@ -1,0 +1,32 @@
+{
+  "name": "@botconnector/control",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "scripts": {
+    "build": "tsc -p tsconfig.build.json",
+    "typecheck": "tsc -p tsconfig.json --noEmit",
+    "dev": "node --import tsx src/index.ts",
+    "start": "node dist/index.js",
+    "test": "vitest run --config vitest.config.ts",
+    "test:watch": "vitest --config vitest.config.ts",
+    "openapi": "node --import tsx src/openapi/export.ts"
+  },
+  "dependencies": {
+    "fastify": "^5.12.1",
+    "@fastify/cors": "^11.3.0",
+    "@fastify/swagger": "^9.8.1",
+    "@fastify/swagger-ui": "^5.2.6",
+    "pg": "^8.13.0",
+    "zod": "4.5.4",
+    "@botconnector/contracts": "*"
+  },
+  "devDependencies": {
+    "@types/pg": "^8.11.0",
+    "typescript": "^5.3.0",
+    "tsx": "^4.19.0",
+    "vitest": "^1.1.0"
+  }
+}
