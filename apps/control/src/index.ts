@@ -9,6 +9,9 @@ import { registerArtifactRoutes } from './artifact/routes.js';
 import { registerArtifactVersionRoutes } from './artifact-version/routes.js';
 import { registerPhaseRoutes } from './phase/routes.js';
 import { registerBacklogRoutes } from './backlog/routes.js';
+import { registerTaskRoutes } from './task/routes.js';
+import { registerFocusLockRoutes } from './focus-lock/routes.js';
+import { registerGenerationRunRoutes } from './generation/routes.js';
 import { registerOpenApiRoutes } from './openapi/index.js';
 import { closePool } from './db/pool.js';
 import { createTransientRedis } from './realtime/redis.js';
@@ -121,6 +124,9 @@ export async function buildApp(options: AppOptions) {
   await registerArtifactVersionRoutes(app, resolvePrincipal);
   await registerPhaseRoutes(app, resolvePrincipal);
   await registerBacklogRoutes(app, resolvePrincipal);
+  await registerTaskRoutes(app, resolvePrincipal);
+  await registerFocusLockRoutes(app, resolvePrincipal);
+  await registerGenerationRunRoutes(app, resolvePrincipal);
   await registerOpenApiRoutes(app);
 
   if (options.realtime) {

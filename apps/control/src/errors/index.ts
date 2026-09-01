@@ -6,7 +6,11 @@ export type ErrorCode =
   | 'REVISION_CONFLICT'
   | 'IDEMPOTENCY_CONFLICT'
   | 'DATABASE_UNAVAILABLE'
-  | 'INTERNAL_ERROR';
+  | 'INTERNAL_ERROR'
+  | 'INVALID_TASK_TRANSITION'
+  | 'INVALID_GENERATION_RUN_TRANSITION'
+  | 'FOCUS_LOCK_CONFLICT'
+  | 'TASK_NOT_READY';
 
 export class ControlApiError extends Error {
   constructor(
@@ -50,6 +54,10 @@ export function databaseUnavailableError(message: string): ControlApiError {
 
 export function internalError(message: string): ControlApiError {
   return new ControlApiError('INTERNAL_ERROR', message, 500);
+}
+
+export function controlApiError(code: ErrorCode, message: string, statusCode: number, details?: unknown): ControlApiError {
+  return new ControlApiError(code, message, statusCode, details);
 }
 
 export function isControlApiError(value: unknown): value is ControlApiError {
