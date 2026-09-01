@@ -14,7 +14,7 @@ PASS / LOCKED
 
 ## FINAL COMMIT
 
-`baa1274dad80fd29666e4f910e9b63aeaadccf1d` — Phase 2: establish PostgreSQL control plane
+`0b577978ebc8b128ce6a506afe50c8ff07f08af2` — Phase 2: enforce composite tenant foreign keys
 
 ## AI_CONTINUITY_SOURCE
 
