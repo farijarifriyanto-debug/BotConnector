@@ -4,15 +4,21 @@
   "description": "Canary test suite for BotConnector VPS AI infrastructure",
   "main": "dist/src/canary/routing-test.js",
   "workspaces": [
-    "packages/contracts"
+    "packages/contracts",
+    "packages/database"
   ],
   "scripts": {
     "build": "tsc",
     "build:contracts": "npm run build --workspace @botconnector/contracts",
+    "build:database": "npm run build --workspace @botconnector/database",
     "typecheck:contracts": "npm run typecheck --workspace @botconnector/contracts",
+    "typecheck:database": "npm run typecheck --workspace @botconnector/database",
     "test:contracts": "npm run test --workspace @botconnector/contracts",
+    "test:database": "npm run test --workspace @botconnector/database",
     "schema:contracts": "npm run schema --workspace @botconnector/contracts",
+    "migrate": "npm run migrate --workspace @botconnector/database",
     "test": "vitest run",
+    "test:all": "npm run test:contracts && npm run test:database",
     "test:watch": "vitest",
     "canary": "./scripts/canary-build.sh"
   },
