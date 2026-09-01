@@ -19,11 +19,12 @@
     "test:contracts": "npm run test --workspace @botconnector/contracts",
     "test:database": "npm run test --workspace @botconnector/database",
     "test:control": "npm run test --workspace @botconnector/control",
+    "test:sandbox-manager": "npm --prefix apps/sandbox-manager test",
     "schema:contracts": "npm run schema --workspace @botconnector/contracts",
     "migrate": "npm run migrate --workspace @botconnector/database",
     "openapi": "npm run openapi --workspace @botconnector/control",
     "test": "vitest run",
-    "test:all": "npm run test:contracts && npm run test:database && npm run test:control",
+    "test:all": "npm run test:contracts && npm run test:database && npm run test:control && npm run test:sandbox-manager",
     "test:watch": "vitest",
     "canary": "./scripts/canary-build.sh"
   },

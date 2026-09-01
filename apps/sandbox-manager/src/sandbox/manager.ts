@@ -6,6 +6,8 @@ import { getProfile, type SandboxProfile } from './profiles.js';
 export interface Sandbox {
   id: string;
   workspaceId: string;
+  projectId: string;
+  taskId: string;
   containerId: string;
   profile: string;
   state: 'creating' | 'ready' | 'executing' | 'stopping' | 'stopped' | 'destroyed';
@@ -31,8 +33,8 @@ export class SandboxManager {
   private readonly workspaceManager: WorkspaceManager;
   private readonly containerProvider: ContainerProvider;
 
-  constructor(workspaceRoot: string) {
-    this.workspaceManager = new WorkspaceManager(workspaceRoot);
+  constructor(workspaceManager: WorkspaceManager) {
+    this.workspaceManager = workspaceManager;
     this.containerProvider = new ContainerProvider();
   }
 
@@ -49,6 +51,8 @@ export class SandboxManager {
     const sandbox: Sandbox = {
       id: sandboxId,
       workspaceId: params.workspaceId,
+      projectId: params.projectId,
+      taskId: params.taskId,
       containerId: '',
       profile: profileId,
       state: 'creating',
@@ -58,10 +62,12 @@ export class SandboxManager {
     this.sandboxes.set(sandboxId, sandbox);
 
     try {
-      // Container will be created with workspace mount
-      // For now, just track the sandbox
-      sandbox.state = 'ready';
-      return sandbox;
+      const workspace = this.workspaceManager.get(params.workspaceId);
+      if (!workspace || workspace.projectId !== params.projectId || workspace.taskId !== params.taskId) {
+        throw new Error(`Workspace ${params.workspaceId} does not belong to the requested project/task`);
+      }
+
+      return await this.startSandbox(sandboxId, workspace);
     } catch (err) {
       sandbox.state = 'destroyed';
       throw err;
@@ -72,6 +78,14 @@ export class SandboxManager {
     const sandbox = this.sandboxes.get(sandboxId);
     if (!sandbox) {
       throw new Error(`Sandbox ${sandboxId} not found`);
+    }
+
+    if (sandbox.workspaceId !== workspace.id || sandbox.projectId !== workspace.projectId || sandbox.taskId !== workspace.taskId) {
+      throw new Error(`Workspace does not match sandbox ${sandboxId}`);
+    }
+
+    if (sandbox.containerId && sandbox.state === 'ready') {
+      return sandbox;
     }
 
     const profile = getProfile(sandbox.profile);

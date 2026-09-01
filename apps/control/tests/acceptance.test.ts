@@ -4,7 +4,7 @@ import type { FastifyInstance } from 'fastify';
 import type { PrincipalResolver } from '../src/index.js';
 import pg from 'pg';
 
-const DATABASE_URL = process.env.DATABASE_URL || 'postgres://postgres:phase2test@localhost/botconnector_phase3_test';
+const DATABASE_URL = process.env.DATABASE_URL || 'postgres://postgres:phase2test@localhost/botconnector_phase5_test';
 
 let app: FastifyInstance;
 let adminPool: pg.Pool;
@@ -44,7 +44,7 @@ describe('1. Health/Startup', () => {
     expect(res.statusCode).toBe(200);
     const body = JSON.parse(res.payload);
     expect(body.data.status).toBe('healthy');
-    expect(body.data.phase).toBe(3);
+    expect(body.data.phase).toBe(7);
     expect(body.meta.request_id).toBeDefined();
   });
 });

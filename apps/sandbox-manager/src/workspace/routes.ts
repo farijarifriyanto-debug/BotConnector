@@ -52,15 +52,15 @@ export async function registerWorkspaceRoutes(
   }>('/internal/v1/workspaces/:workspaceId', async (request, reply) => {
     const { workspaceId } = request.params;
 
-    const exists = await workspaceManager.exists(workspaceId);
-    if (!exists) {
+    const workspace = workspaceManager.get(workspaceId);
+    if (!workspace) {
       reply.code(404).send({
         error: { code: 'NOT_FOUND', message: `Workspace ${workspaceId} not found` },
       });
       return;
     }
 
-    reply.send({ data: { id: workspaceId } });
+    reply.send({ data: workspace });
   });
 
   // DESTROY workspace
@@ -79,8 +79,8 @@ export async function registerWorkspaceRoutes(
   }>('/internal/v1/workspaces/:workspaceId/diff', async (request, reply) => {
     const { workspaceId } = request.params;
 
-    const exists = await workspaceManager.exists(workspaceId);
-    if (!exists) {
+    const workspace = workspaceManager.get(workspaceId);
+    if (!workspace) {
       reply.code(404).send({
         error: { code: 'NOT_FOUND', message: `Workspace ${workspaceId} not found` },
       });

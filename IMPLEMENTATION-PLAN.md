@@ -3,21 +3,31 @@
 ## Current phase
 
 ```
-CURRENT_PHASE=PHASE_2_POSTGRESQL_CONTROL_PLANE
-CURRENT_PHASE_STATUS=ACTIVE
-NEXT_PHASE=PHASE_3_PROJECT_ARTIFACT_CONTROL_API
+CURRENT_PHASE=PHASE_7_PREVIEW_RUNTIME_AND_BRIDGE
+CURRENT_PHASE_STATUS=PASS_READY_TO_COMMIT
+NEXT_PHASE=PHASE_8_CANVAS_SELECTION_DIRECT_EDITING
 NEXT_PHASE_STATUS=NOT_STARTED
 PHASE_0_STARTED=YES
 PHASE_0_STATUS=PASS_LOCKED
 PHASE_1_STARTED=YES
 PHASE_1_STATUS=PASS_LOCKED
 PHASE_2_STARTED=YES
+PHASE_2_STATUS=PASS_LOCKED
+PHASE_3_STARTED=YES
+PHASE_3_STATUS=PASS_LOCKED
+PHASE_4_STARTED=YES
+PHASE_4_STATUS=PASS_LOCKED
+PHASE_5_STARTED=YES
+PHASE_5_STATUS=PASS_LOCKED
+PHASE_6_STARTED=YES
+PHASE_6_STATUS=PASS_LOCKED
+PHASE_7_STARTED=YES
 ```
 
-Phase 0 remains PASS/LOCKED. The project owner explicitly started Phase 1 to
-implement the shared Contracts Kernel. Phase 2 is not active and must not start
-until the Phase 1 acceptance gate passes and a separate explicit kickoff changes
-this declaration.
+Phase 7 acceptance gate has passed (33 Phase 7 tests, 105/105 sandbox-manager
+regression tests, 151/151 control tests, 47 database tests, 42 contract tests,
+and typechecks clean). Code is ready to commit. Phase 8 must not start until
+Phase 7 is committed and explicit authorization is given.
 
 ## Locked phase order
 

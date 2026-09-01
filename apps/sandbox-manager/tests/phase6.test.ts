@@ -5,6 +5,7 @@ import { join } from 'node:path';
 import { promisify } from 'node:util';
 import { randomBytes } from 'node:crypto';
 import { createSandboxManager, type SandboxManagerApp } from '../src/index.js';
+import { WorkspaceManager } from '../src/workspace/manager.js';
 
 const execFileAsync = promisify(execFile);
 
@@ -36,8 +37,10 @@ beforeAll(async () => {
   // Create sandbox manager
   app = await createSandboxManager({
     workspaceRoot: join(WORKSPACE_ROOT, 'workspaces'),
+    sourceRepoRoot: WORKSPACE_ROOT,
     port: 0,
     host: '127.0.0.1',
+    secret: 'test-secret-phase6',
   });
 
   await app.start();
@@ -104,12 +107,36 @@ describe('Phase 6: Git Workspace & Sandbox', () => {
       );
       expect(diff).toContain('Modified');
     });
+
+    it('reloads workspace metadata after manager restart', async () => {
+      const workspaceId = fixtureWorktreePath.split('/').pop()!;
+      const reloadedManager = new WorkspaceManager(
+        join(WORKSPACE_ROOT, 'workspaces'),
+        WORKSPACE_ROOT,
+      );
+      await reloadedManager.initialize();
+
+      const reloaded = reloadedManager.get(workspaceId);
+      expect(reloaded?.projectId).toBe('test-project');
+      expect(reloaded?.taskId).toBe('test-task');
+      expect(reloaded?.baseCommit).toHaveLength(40);
+
+      await reloadedManager.destroy(workspaceId);
+    });
   });
 
   describe('Sandbox Creation', () => {
     it('creates sandbox with correct security profile', async () => {
+      const workspace = await app.workspaceManager.create({
+        id: `sandbox-test-ws-${randomBytes(4).toString('hex')}`,
+        projectId: 'test-project',
+        taskId: 'test-task',
+        repoPath: fixtureRepoPath,
+        baseCommit: (await execFileAsync('git', ['rev-parse', 'HEAD'], { cwd: fixtureRepoPath })).stdout.trim(),
+      });
+
       const sandbox = await app.sandboxManager.createSandbox({
-        workspaceId: 'test-workspace',
+        workspaceId: workspace.id,
         projectId: 'test-project',
         taskId: 'test-task',
         profile: 'default',
@@ -117,7 +144,11 @@ describe('Phase 6: Git Workspace & Sandbox', () => {
 
       expect(sandbox).toBeDefined();
       expect(sandbox.state).toBe('ready');
+      expect(sandbox.containerId).not.toBe('');
       expect(sandbox.profile).toBe('default');
+
+      await app.sandboxManager.destroySandbox(sandbox.id);
+      await app.workspaceManager.destroy(workspace.id);
     });
 
     it('sandbox profile has security restrictions', async () => {
@@ -206,10 +237,18 @@ describe('Phase 6: Git Workspace & Sandbox', () => {
 
   describe('Pre-existing Container Safety', () => {
     it('reconciliation ignores unrelated containers', async () => {
-      const result = await app.sandboxManager.reconcile();
+      const name = `phase6-unrelated-${randomBytes(4).toString('hex')}`;
+      await execFileAsync('sudo', [
+        'docker', 'create', '--name', name, '--label', 'test.unrelated=true',
+        'python:3.12-slim', 'sleep', 'infinity',
+      ]);
 
-      // Should not destroy any pre-existing containers
-      expect(result.destroyed).toBe(0);
+      try {
+        await app.sandboxManager.reconcile();
+        await execFileAsync('sudo', ['docker', 'inspect', name]);
+      } finally {
+        try { await execFileAsync('sudo', ['docker', 'rm', '-f', name]); } catch { /* already removed */ }
+      }
     });
   });
 });

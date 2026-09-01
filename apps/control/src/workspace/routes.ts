@@ -1,6 +1,7 @@
 import type { FastifyInstance } from 'fastify';
 import type { SandboxManagerClient } from '../sandbox-manager/client.js';
 import type { PrincipalResolver } from '../index.js';
+import { projectBelongsToWorkspace } from '../authorization/project.js';
 
 export async function registerWorkspaceRoutes(
   app: FastifyInstance,
@@ -31,6 +32,13 @@ export async function registerWorkspaceRoutes(
       return;
     }
 
+    if (!(await projectBelongsToWorkspace(projectId, principal.workspaceId))) {
+      reply.code(404).send({
+        error: { code: 'NOT_FOUND', message: `Project ${projectId} not found` },
+      });
+      return;
+    }
+
     try {
       const workspace = await sandboxClient.createWorkspace({
         projectId,
@@ -50,7 +58,12 @@ export async function registerWorkspaceRoutes(
   // LIST workspaces for project
   app.get<{
     Params: { projectId: string };
-  }>('/api/v1/projects/:projectId/workspaces', async (_request, reply) => {
+  }>('/api/v1/projects/:projectId/workspaces', async (request, reply) => {
+    const principal = resolvePrincipal(request.headers);
+    if (!(await projectBelongsToWorkspace(request.params.projectId, principal.workspaceId))) {
+      reply.code(404).send({ error: { code: 'NOT_FOUND', message: 'Project not found' } });
+      return;
+    }
     // Workspace listing is internal - return empty for now
     reply.send({ data: [] });
   });
@@ -59,10 +72,15 @@ export async function registerWorkspaceRoutes(
   app.get<{
     Params: { workspaceId: string };
   }>('/api/v1/workspaces/:workspaceId', async (request, reply) => {
+    const principal = resolvePrincipal(request.headers);
     const { workspaceId } = request.params;
 
     try {
       const workspace = await sandboxClient.getWorkspace(workspaceId);
+      if (!(await projectBelongsToWorkspace(workspace.projectId, principal.workspaceId))) {
+        reply.code(404).send({ error: { code: 'NOT_FOUND', message: 'Workspace not found' } });
+        return;
+      }
       reply.send({ data: workspace });
     } catch (err) {
       reply.code(404).send({
@@ -75,9 +93,15 @@ export async function registerWorkspaceRoutes(
   app.delete<{
     Params: { workspaceId: string };
   }>('/api/v1/workspaces/:workspaceId', async (request, reply) => {
+    const principal = resolvePrincipal(request.headers);
     const { workspaceId } = request.params;
 
     try {
+      const workspace = await sandboxClient.getWorkspace(workspaceId);
+      if (!(await projectBelongsToWorkspace(workspace.projectId, principal.workspaceId))) {
+        reply.code(404).send({ error: { code: 'NOT_FOUND', message: 'Workspace not found' } });
+        return;
+      }
       await sandboxClient.destroyWorkspace(workspaceId);
       reply.send({ data: { destroyed: true } });
     } catch (err) {
@@ -91,9 +115,15 @@ export async function registerWorkspaceRoutes(
   app.get<{
     Params: { workspaceId: string };
   }>('/api/v1/workspaces/:workspaceId/diff', async (request, reply) => {
+    const principal = resolvePrincipal(request.headers);
     const { workspaceId } = request.params;
 
     try {
+      const workspace = await sandboxClient.getWorkspace(workspaceId);
+      if (!(await projectBelongsToWorkspace(workspace.projectId, principal.workspaceId))) {
+        reply.code(404).send({ error: { code: 'NOT_FOUND', message: 'Workspace not found' } });
+        return;
+      }
       const diff = await sandboxClient.getWorkspaceDiff(workspaceId);
       reply.send({ data: { diff } });
     } catch (err) {

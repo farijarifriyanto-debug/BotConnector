@@ -13,6 +13,10 @@ import { registerTaskRoutes } from './task/routes.js';
 import { registerFocusLockRoutes } from './focus-lock/routes.js';
 import { registerGenerationRunRoutes } from './generation/routes.js';
 import { registerOpenApiRoutes } from './openapi/index.js';
+import { registerPreviewRoutes } from './preview/routes.js';
+import { registerSandboxRoutes } from './sandbox/routes.js';
+import { registerWorkspaceRoutes } from './workspace/routes.js';
+import { SandboxManagerClient } from './sandbox-manager/client.js';
 import { closePool } from './db/pool.js';
 import { createTransientRedis } from './realtime/redis.js';
 import { LiveHub } from './realtime/hub.js';
@@ -116,7 +120,7 @@ export async function buildApp(options: AppOptions) {
       workspaceId: 'system',
     });
 
-    sendSuccess(reply, requestCtx, { status: 'healthy', phase: 3 });
+    sendSuccess(reply, requestCtx, { status: 'healthy', phase: 7 });
   });
 
   await registerProjectRoutes(app, resolvePrincipal);
@@ -128,6 +132,33 @@ export async function buildApp(options: AppOptions) {
   await registerFocusLockRoutes(app, resolvePrincipal);
   await registerGenerationRunRoutes(app, resolvePrincipal);
   await registerOpenApiRoutes(app);
+
+  // Preview routes (via SandboxManager)
+  const sandboxManagerUrl = process.env.SANDBOX_MANAGER_URL;
+  const sandboxManagerSecret = process.env.SANDBOX_MANAGER_SECRET;
+  const sandboxPreviewUrl = process.env.SANDBOX_PREVIEW_URL;
+  if (!sandboxManagerUrl || !sandboxManagerSecret) {
+    throw new Error(
+      'SANDBOX_MANAGER_URL and SANDBOX_MANAGER_SECRET must be set. ' +
+      'Preview routes are disabled without Sandbox Manager configuration.',
+    );
+  }
+  if (!sandboxPreviewUrl) {
+    throw new Error(
+      'SANDBOX_PREVIEW_URL must be set (e.g. http://127.0.0.1:4100). ' +
+      'Browser preview gateway requires the PreviewProxy URL.',
+    );
+  }
+  const sandboxManagerClient = new SandboxManagerClient({
+    url: sandboxManagerUrl,
+    secret: sandboxManagerSecret,
+  });
+  await registerPreviewRoutes(app, resolvePrincipal, sandboxManagerClient, {
+    previewProxyUrl: sandboxPreviewUrl,
+    previewProxySecret: sandboxManagerSecret,
+  });
+  await registerSandboxRoutes(app, sandboxManagerClient, resolvePrincipal);
+  await registerWorkspaceRoutes(app, sandboxManagerClient, resolvePrincipal);
 
   if (options.realtime) {
     const redis = createTransientRedis(options.realtime.redisUrl);

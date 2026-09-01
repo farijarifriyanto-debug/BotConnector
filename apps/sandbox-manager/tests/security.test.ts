@@ -36,10 +36,12 @@ beforeAll(async () => {
 
   app = await createSandboxManager({
     workspaceRoot: join(SECURITY_TEST_ROOT, 'workspaces'),
+    sourceRepoRoot: SECURITY_TEST_ROOT,
     port: 0,
     host: '127.0.0.1',
     secret: MANAGER_SECRET,
     defaultImage: 'python:3.12-slim',
+    previewPort: 0,
   });
   await app.start();
   // Get actual bound port (port 0 = random)
@@ -810,14 +812,23 @@ describe('P. Cleanup', () => {
   });
 
   it('SANDBOX_DESTROY_IDEMPOTENT=PASS', async () => {
+    const workspace = await app.workspaceManager.create({
+      id: `idemp-sandbox-ws-${randomBytes(4).toString('hex')}`,
+      projectId: 'test-project',
+      taskId: 'idemp-sandbox',
+      repoPath: fixtureRepoPath,
+      baseCommit: fixtureBaseCommit,
+    });
+
     const sandbox = await app.sandboxManager.createSandbox({
-      workspaceId: 'idemp-ws',
+      workspaceId: workspace.id,
       projectId: 'test-project',
       taskId: 'idemp-sandbox',
     });
     await app.sandboxManager.destroySandbox(sandbox.id);
     // Second destroy should not throw
     await app.sandboxManager.destroySandbox(sandbox.id);
+    await app.workspaceManager.destroy(workspace.id);
   });
 
   it('PHASE6_TEST_CONTAINERS_LEFT=0', async () => {
@@ -875,10 +886,13 @@ describe('R. Task/Tenant Association', () => {
   });
 
   it('CALLER_CANNOT_OVERRIDE_SOURCE_REPO_PATH=PASS', async () => {
-    // The control app workspace route forwards repo_path from body
-    // but the workspace manager validates paths are within workspaceRoot
-    // Direct Docker access is not possible from public routes
-    expect(true).toBe(true);
+    await expect(app.workspaceManager.create({
+      id: `outside-repo-${randomBytes(4).toString('hex')}`,
+      projectId: 'project-a',
+      taskId: 'task-a',
+      repoPath: '/etc',
+      baseCommit: fixtureBaseCommit,
+    })).rejects.toThrow('configured source repository root');
   });
 });
 

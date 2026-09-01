@@ -36,6 +36,18 @@ export const SANDBOX_PROFILES: Record<string, SandboxProfile> = {
     timeoutMs: 15000,
     maxOutputBytes: 524288,
   },
+  'preview': {
+    id: 'preview',
+    name: 'Preview Runtime',
+    image: 'python:3.12-slim',
+    cpuLimit: '1.0',
+    memoryLimit: '512m',
+    pidsLimit: 128,
+    networkDisabled: false,
+    readOnlyRootfs: true,
+    timeoutMs: 300000,
+    maxOutputBytes: 2097152,
+  },
 };
 
 export function getProfile(profileId: string): SandboxProfile {

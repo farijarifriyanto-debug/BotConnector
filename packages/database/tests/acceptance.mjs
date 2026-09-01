@@ -6,7 +6,7 @@ import { describe, it, before, after } from 'node:test';
 import assert from 'node:assert/strict';
 import pg from 'pg';
 
-const DATABASE_URL = process.env.DATABASE_URL || 'postgres://postgres:phase2test@localhost/botconnector_phase2_test';
+const DATABASE_URL = process.env.DATABASE_URL || 'postgres://postgres:phase2test@localhost/botconnector_phase5_test';
 
 let adminPool;
 

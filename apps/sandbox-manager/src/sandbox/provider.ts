@@ -14,6 +14,7 @@ export interface ContainerSpec {
   memoryLimit?: string;
   pidsLimit?: number;
   networkDisabled?: boolean;
+  networkName?: string;
   readOnlyRootfs?: boolean;
   timeoutMs?: number;
 }
@@ -40,14 +41,22 @@ export class ContainerProvider {
 
   async create(spec: ContainerSpec, labels: Record<string, string>): Promise<ContainerInfo> {
     const args = this.buildCreateArgs(spec, labels);
-    const { stdout } = await execFileAsync('sudo', ['docker', 'create', ...args]);
-    const containerId = stdout.trim();
+    let containerId = '';
+    try {
+      const { stdout } = await execFileAsync('sudo', ['docker', 'create', ...args]);
+      containerId = stdout.trim();
 
-    // Start the container
-    await execFileAsync('sudo', ['docker', 'start', containerId]);
+      // Start the container
+      await execFileAsync('sudo', ['docker', 'start', containerId]);
 
-    // Get container info
-    return this.inspect(containerId);
+      // Get container info
+      return await this.inspect(containerId);
+    } catch (err) {
+      if (containerId) {
+        await this.destroy(containerId);
+      }
+      throw err;
+    }
   }
 
   async inspect(containerId: string): Promise<ContainerInfo> {
@@ -125,18 +134,97 @@ export class ContainerProvider {
   async destroy(containerId: string): Promise<void> {
     try {
       await execFileAsync('sudo', ['docker', 'rm', '-f', containerId]);
+    } catch (err: unknown) {
+      const stderr = (err as { stderr?: string }).stderr ?? '';
+      if (/no such container|not found/i.test(stderr)) {
+        return;
+      }
+      throw err;
+    }
+  }
+
+  async createNetwork(name: string, projectId: string): Promise<void> {
+    const inspectNetwork = async (): Promise<Record<string, string> | undefined> => {
+      try {
+        const { stdout } = await execFileAsync('sudo', [
+          'docker', 'network', 'inspect', '--format', '{{json .Labels}}', name,
+        ]);
+        return JSON.parse(stdout.trim()) as Record<string, string>;
+      } catch {
+        return undefined;
+      }
+    };
+
+    const existingLabels = await inspectNetwork();
+    if (existingLabels) {
+      if (existingLabels['botconnector.preview.network'] !== 'true' ||
+          existingLabels['botconnector.preview.project_id'] !== projectId) {
+        throw new Error(`Network ${name} is not owned by this project`);
+      }
+      return;
+    }
+
+    try {
+      await execFileAsync('sudo', [
+        'docker', 'network', 'create', '--driver', 'bridge',
+        '--label', 'botconnector.preview.network=true',
+        '--label', `botconnector.preview.project_id=${projectId}`,
+        name,
+      ]);
+    } catch (err: unknown) {
+      const stderr = (err as { stderr?: string }).stderr ?? '';
+      if (stderr.includes('already exists')) {
+        const labels = await inspectNetwork();
+        if (labels?.['botconnector.preview.network'] === 'true' &&
+            labels['botconnector.preview.project_id'] === projectId) {
+          return;
+        }
+        throw new Error(`Network ${name} is not owned by this project`);
+      }
+      throw err;
+    }
+  }
+
+  async removeNetwork(name: string, projectId: string): Promise<void> {
+    try {
+      const { stdout } = await execFileAsync('sudo', [
+        'docker', 'network', 'inspect', '--format', '{{json .Labels}}', name,
+      ]);
+      const labels = JSON.parse(stdout.trim()) as Record<string, string>;
+      if (labels['botconnector.preview.network'] !== 'true' ||
+          labels['botconnector.preview.project_id'] !== projectId) {
+        return;
+      }
+      await execFileAsync('sudo', ['docker', 'network', 'rm', name]);
+    } catch (err: unknown) {
+      const stderr = (err as { stderr?: string }).stderr ?? '';
+      if (/no such network|not found/i.test(stderr)) {
+        return;
+      }
+      throw err;
+    }
+  }
+
+  async getContainerIp(containerId: string, networkName: string): Promise<string | undefined> {
+    try {
+      const { stdout } = await execFileAsync('sudo', [
+        'docker', 'inspect', '--format',
+        `{{(index .NetworkSettings.Networks "${networkName}").IPAddress}}`,
+        containerId,
+      ]);
+      const ip = stdout.trim();
+      return ip || undefined;
     } catch {
-      // Container may already be removed
+      return undefined;
     }
   }
 
   async listOwned(labels: Record<string, string>): Promise<ContainerInfo[]> {
     const filterArgs = Object.entries(labels)
-      .map(([k, v]) => `--filter=label=${k}=${v}`)
-      .join(' ');
+      .flatMap(([k, v]) => [`--filter=label=${k}=${v}`]);
 
     const { stdout } = await execFileAsync('sudo', [
-      'docker', 'ps', '-a', '--format', '{{.ID}}', ...filterArgs.split(' '),
+      'docker', 'ps', '-a', '--format', '{{.ID}}', ...filterArgs,
     ]);
 
     const containerIds = stdout.trim().split('\n').filter(Boolean);
@@ -166,7 +254,9 @@ export class ContainerProvider {
     args.push('--privileged=false');
 
     // Network
-    if (spec.networkDisabled !== false) {
+    if (spec.networkName) {
+      args.push('--network', spec.networkName);
+    } else if (spec.networkDisabled !== false) {
       args.push('--network', 'none');
     }
 
@@ -186,10 +276,12 @@ export class ContainerProvider {
       args.push('--read-only');
       // Add tmpfs for writable locations
       args.push('--tmpfs', '/tmp:rw,noexec,nosuid,size=64m');
+      args.push('--tmpfs', '/tmp/preview-exec:rw,exec,nosuid,size=256m');
     }
 
-    // Workspace mount
-    args.push('--volume', `${spec.workspaceMount}:/workspace:rw`);
+    // Workspace mount (read-only for preview containers, read-write for sandbox exec)
+    const mountMode = spec.networkDisabled === false ? 'ro' : 'rw';
+    args.push('--volume', `${spec.workspaceMount}:/workspace:${mountMode}`);
 
     // Environment
     for (const [key, value] of Object.entries(spec.env)) {
