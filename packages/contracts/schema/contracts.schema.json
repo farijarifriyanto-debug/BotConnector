@@ -18,14 +18,12 @@
           "minLength": 1
         },
         "revision": {
-          "type": "integer",
-          "minimum": 0,
-          "maximum": 9007199254740991
+          "type": "string",
+          "pattern": "^[0-9]+$"
         },
         "base_revision": {
-          "type": "integer",
-          "minimum": 0,
-          "maximum": 9007199254740991
+          "type": "string",
+          "pattern": "^[0-9]+$"
         },
         "created_at": {
           "type": "string",
@@ -90,14 +88,12 @@
           ]
         },
         "revision": {
-          "type": "integer",
-          "minimum": 0,
-          "maximum": 9007199254740991
+          "type": "string",
+          "pattern": "^[0-9]+$"
         },
         "base_revision": {
-          "type": "integer",
-          "minimum": 0,
-          "maximum": 9007199254740991
+          "type": "string",
+          "pattern": "^[0-9]+$"
         },
         "current_version_id": {
           "anyOf": [
@@ -198,14 +194,12 @@
           "minLength": 1
         },
         "revision": {
-          "type": "integer",
-          "minimum": 0,
-          "maximum": 9007199254740991
+          "type": "string",
+          "pattern": "^[0-9]+$"
         },
         "base_revision": {
-          "type": "integer",
-          "minimum": 0,
-          "maximum": 9007199254740991
+          "type": "string",
+          "pattern": "^[0-9]+$"
         },
         "source_revision": {
           "type": "string",
@@ -265,14 +259,12 @@
           "type": "boolean"
         },
         "revision": {
-          "type": "integer",
-          "minimum": 0,
-          "maximum": 9007199254740991
+          "type": "string",
+          "pattern": "^[0-9]+$"
         },
         "base_revision": {
-          "type": "integer",
-          "minimum": 0,
-          "maximum": 9007199254740991
+          "type": "string",
+          "pattern": "^[0-9]+$"
         },
         "created_at": {
           "type": "string",
@@ -333,14 +325,12 @@
           ]
         },
         "revision": {
-          "type": "integer",
-          "minimum": 0,
-          "maximum": 9007199254740991
+          "type": "string",
+          "pattern": "^[0-9]+$"
         },
         "base_revision": {
-          "type": "integer",
-          "minimum": 0,
-          "maximum": 9007199254740991
+          "type": "string",
+          "pattern": "^[0-9]+$"
         },
         "acceptance_contract_id": {
           "anyOf": [
@@ -448,14 +438,12 @@
           "minLength": 1
         },
         "revision": {
-          "type": "integer",
-          "minimum": 0,
-          "maximum": 9007199254740991
+          "type": "string",
+          "pattern": "^[0-9]+$"
         },
         "base_revision": {
-          "type": "integer",
-          "minimum": 0,
-          "maximum": 9007199254740991
+          "type": "string",
+          "pattern": "^[0-9]+$"
         },
         "acquired_at": {
           "type": "string",
@@ -561,14 +549,12 @@
           "minLength": 1
         },
         "revision": {
-          "type": "integer",
-          "minimum": 0,
-          "maximum": 9007199254740991
+          "type": "string",
+          "pattern": "^[0-9]+$"
         },
         "base_revision": {
-          "type": "integer",
-          "minimum": 0,
-          "maximum": 9007199254740991
+          "type": "string",
+          "pattern": "^[0-9]+$"
         },
         "criteria": {
           "minItems": 1,
@@ -689,14 +675,12 @@
           ]
         },
         "revision": {
-          "type": "integer",
-          "minimum": 0,
-          "maximum": 9007199254740991
+          "type": "string",
+          "pattern": "^[0-9]+$"
         },
         "base_revision": {
-          "type": "integer",
-          "minimum": 0,
-          "maximum": 9007199254740991
+          "type": "string",
+          "pattern": "^[0-9]+$"
         },
         "started_at": {
           "anyOf": [
@@ -1361,14 +1345,12 @@
           ]
         },
         "revision": {
-          "type": "integer",
-          "minimum": 0,
-          "maximum": 9007199254740991
+          "type": "string",
+          "pattern": "^[0-9]+$"
         },
         "base_revision": {
-          "type": "integer",
-          "minimum": 0,
-          "maximum": 9007199254740991
+          "type": "string",
+          "pattern": "^[0-9]+$"
         },
         "candidate_revision": {
           "type": "string",
@@ -1432,14 +1414,12 @@
           "minLength": 1
         },
         "revision": {
-          "type": "integer",
-          "minimum": 0,
-          "maximum": 9007199254740991
+          "type": "string",
+          "pattern": "^[0-9]+$"
         },
         "base_revision": {
-          "type": "integer",
-          "minimum": 0,
-          "maximum": 9007199254740991
+          "type": "string",
+          "pattern": "^[0-9]+$"
         },
         "root_node_id": {
           "type": "string",
@@ -1992,9 +1972,8 @@
           "minLength": 1
         },
         "uiir_revision": {
-          "type": "integer",
-          "minimum": 0,
-          "maximum": 9007199254740991
+          "type": "string",
+          "pattern": "^[0-9]+$"
         },
         "selected_node_ids": {
           "minItems": 1,
@@ -2069,14 +2048,12 @@
           "minLength": 1
         },
         "revision": {
-          "type": "integer",
-          "minimum": 0,
-          "maximum": 9007199254740991
+          "type": "string",
+          "pattern": "^[0-9]+$"
         },
         "base_revision": {
-          "type": "integer",
-          "minimum": 0,
-          "maximum": 9007199254740991
+          "type": "string",
+          "pattern": "^[0-9]+$"
         },
         "created_at": {
           "type": "string",
@@ -2114,14 +2091,12 @@
           "minLength": 1
         },
         "revision": {
-          "type": "integer",
-          "minimum": 0,
-          "maximum": 9007199254740991
+          "type": "string",
+          "pattern": "^[0-9]+$"
         },
         "base_revision": {
-          "type": "integer",
-          "minimum": 0,
-          "maximum": 9007199254740991
+          "type": "string",
+          "pattern": "^[0-9]+$"
         },
         "entries": {
           "type": "array",
@@ -2284,14 +2259,12 @@
           "minLength": 1
         },
         "revision": {
-          "type": "integer",
-          "minimum": 0,
-          "maximum": 9007199254740991
+          "type": "string",
+          "pattern": "^[0-9]+$"
         },
         "base_revision": {
-          "type": "integer",
-          "minimum": 0,
-          "maximum": 9007199254740991
+          "type": "string",
+          "pattern": "^[0-9]+$"
         },
         "started_at": {
           "anyOf": [
@@ -2355,9 +2328,8 @@
           "minLength": 1
         },
         "project_revision": {
-          "type": "integer",
-          "minimum": 0,
-          "maximum": 9007199254740991
+          "type": "string",
+          "pattern": "^[0-9]+$"
         },
         "checkpoint_id": {
           "anyOf": [
@@ -2423,14 +2395,12 @@
           ]
         },
         "revision": {
-          "type": "integer",
-          "minimum": 0,
-          "maximum": 9007199254740991
+          "type": "string",
+          "pattern": "^[0-9]+$"
         },
         "base_revision": {
-          "type": "integer",
-          "minimum": 0,
-          "maximum": 9007199254740991
+          "type": "string",
+          "pattern": "^[0-9]+$"
         },
         "candidates": {
           "minItems": 1,
@@ -2655,14 +2625,12 @@
           ]
         },
         "revision": {
-          "type": "integer",
-          "minimum": 0,
-          "maximum": 9007199254740991
+          "type": "string",
+          "pattern": "^[0-9]+$"
         },
         "base_revision": {
-          "type": "integer",
-          "minimum": 0,
-          "maximum": 9007199254740991
+          "type": "string",
+          "pattern": "^[0-9]+$"
         },
         "operations": {
           "minItems": 1,
@@ -2995,14 +2963,12 @@
           ]
         },
         "revision": {
-          "type": "integer",
-          "minimum": 0,
-          "maximum": 9007199254740991
+          "type": "string",
+          "pattern": "^[0-9]+$"
         },
         "base_revision": {
-          "type": "integer",
-          "minimum": 0,
-          "maximum": 9007199254740991
+          "type": "string",
+          "pattern": "^[0-9]+$"
         },
         "stages": {
           "minItems": 1,
@@ -3242,14 +3208,12 @@
           ]
         },
         "revision": {
-          "type": "integer",
-          "minimum": 0,
-          "maximum": 9007199254740991
+          "type": "string",
+          "pattern": "^[0-9]+$"
         },
         "base_revision": {
-          "type": "integer",
-          "minimum": 0,
-          "maximum": 9007199254740991
+          "type": "string",
+          "pattern": "^[0-9]+$"
         },
         "started_at": {
           "anyOf": [
@@ -3330,14 +3294,12 @@
           ]
         },
         "revision": {
-          "type": "integer",
-          "minimum": 0,
-          "maximum": 9007199254740991
+          "type": "string",
+          "pattern": "^[0-9]+$"
         },
         "base_revision": {
-          "type": "integer",
-          "minimum": 0,
-          "maximum": 9007199254740991
+          "type": "string",
+          "pattern": "^[0-9]+$"
         },
         "created_at": {
           "type": "string",

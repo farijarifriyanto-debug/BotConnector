@@ -3,6 +3,7 @@ import { z } from 'zod';
 import {
   IdentifierSchema,
   TimestampSchema,
+  RevisionSchema,
   contractFields,
   revisionFields,
   revisionedStrictObject,
@@ -174,7 +175,7 @@ export const SelectionContextSchema = z.strictObject({
   id: IdentifierSchema,
   project_id: IdentifierSchema,
   artifact_id: IdentifierSchema,
-  uiir_revision: z.number().int().nonnegative(),
+  uiir_revision: RevisionSchema,
   selected_node_ids: z.array(IdentifierSchema).min(1),
   primary_node_id: IdentifierSchema.nullable(),
   created_at: TimestampSchema,

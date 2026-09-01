@@ -3,6 +3,7 @@ import { z } from 'zod';
 import {
   IdentifierSchema,
   TimestampSchema,
+  RevisionSchema,
   contractFields,
   revisionFields,
   revisionedStrictObject,
@@ -60,7 +61,7 @@ export const ContextSnapshotSchema = z.strictObject({
   id: IdentifierSchema,
   project_id: IdentifierSchema,
   task_id: IdentifierSchema,
-  project_revision: z.number().int().nonnegative(),
+  project_revision: RevisionSchema,
   checkpoint_id: IdentifierSchema.nullable(),
   resource_refs: z.array(z.string().min(1)),
   created_at: TimestampSchema,

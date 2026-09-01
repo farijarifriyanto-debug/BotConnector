@@ -3,7 +3,13 @@ import { z } from 'zod';
 export const ContractVersionSchema = z.literal(1);
 export const IdentifierSchema = z.string().min(1);
 export const TimestampSchema = z.string().datetime({ offset: true });
-export const RevisionSchema = z.number().int().nonnegative();
+
+const NON_NEGATIVE_DECIMAL_RE = /^[0-9]+$/;
+
+export const RevisionSchema = z.string().regex(
+  NON_NEGATIVE_DECIMAL_RE,
+  'revision must be a canonical non-negative decimal string',
+);
 
 export const contractFields = {
   version: ContractVersionSchema,
@@ -20,10 +26,10 @@ export function revisionedStrictObject<
   return z.strictObject(shape).refine(
     (value) => {
       const revisionedValue = value as {
-        revision: number;
-        base_revision: number;
+        revision: string;
+        base_revision: string;
       };
-      return revisionedValue.base_revision <= revisionedValue.revision;
+      return BigInt(revisionedValue.base_revision) <= BigInt(revisionedValue.revision);
     },
     {
       path: ['base_revision'],
