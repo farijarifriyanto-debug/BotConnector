@@ -331,7 +331,7 @@ describe('Phase 2: Data Model Invariants', () => {
     await adminPool.query(`DELETE FROM core.artifacts WHERE id = 'art-same-24'`);
   });
 
-  it('25. composite FK catalog check — all 30 tables verified', async () => {
+  it('25. composite FK catalog check — all 32 tables verified', async () => {
     const expectedTables = [
       'core.artifacts', 'core.artifact_versions', 'core.checkpoints',
       'work.phases', 'work.tasks', 'work.task_dependencies', 'work.focus_locks',
@@ -347,6 +347,7 @@ describe('Phase 2: Data Model Invariants', () => {
       'resource.resources',
       'deploy.deployments',
       'event.generation_events', 'event.domain_events',
+      'event.project_sequences', 'event.outbox',
       'security.secret_bindings',
     ];
     const { rows } = await adminPool.query(`
@@ -365,7 +366,7 @@ describe('Phase 2: Data Model Invariants', () => {
     for (const t of expectedTables) {
       assert.ok(found.has(t), `Missing composite FK on: ${t}`);
     }
-    assert.equal(rows.length, 30, `Expected 30 composite FKs, found ${rows.length}`);
+    assert.equal(rows.length, 32, `Expected 32 composite FKs, found ${rows.length}`);
   });
 
   it('26. parent-side uniqueness exists on core.projects', async () => {
