@@ -1,4 +1,5 @@
 import { randomUUID } from 'node:crypto';
+import { pathToFileURL } from 'node:url';
 import Fastify from 'fastify';
 import cors from '@fastify/cors';
 import { sendSuccess, sendError } from './errors/response.js';
@@ -120,4 +121,8 @@ async function main() {
   process.exit(1);
 }
 
-main();
+// Only invoke the production entrypoint when executed directly (node dist/index.js).
+// Importing the module (tests, realtime gateway, tooling) must not exit the process.
+if (process.argv[1] && import.meta.url === pathToFileURL(process.argv[1]).href) {
+  main();
+}
