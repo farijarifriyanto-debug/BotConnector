@@ -1,0 +1,122 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>BotConnector - Permintaan Privasi</title>
+    <link rel="stylesheet" href="/static/privacy.css">
+    <meta name="description" content="Kirim permintaan privasi ke tim BotConnector">
+</head>
+<body>
+    <header class="navbar">
+        <div class="logo">
+            <i class="fa fa-shield"></i> BotConnector
+        </div>
+        <nav>
+            <a href="/"><i class="fa fa-home"></i> Beranda</a>
+            <a href="/support"><i class="fa fa-life-bouy"></i> Bantuan</a>
+            <a href="/privacy"><i class="fa fa-shield-alt"></i> Privasi</a>
+            <a href="/terms"><i class="fa fa-gavel"></i> Ketentuan</a>
+            <a href="/security"><i class="fa fa-fingerprint"></i> Keamanan</a>
+        </nav>
+    </header>
+
+    <main class="container">
+        <section class="privacy-form-section">
+            <div class="form-header">
+                <h2><i class="fa fa-shield-alt"></i> PERMINTaan PRIVASI</h2>
+                <p>Kirim permintaan privasi kepada tim BotConnector</p>
+            </div>
+
+            <form id="privacyForm" action="/support/privacy" method="POST">
+                <div class="form-group">
+                    <label for="requester_name">Nama Lengkap <span class="required">*</span></label>
+                    <input type="text" id="requester_name" name="requester_name" required maxlength="120" placeholder="Masukkan nama lengkap Anda">
+                </div>
+
+                <div class="form-group">
+                    <label for="requester_email">Email <span class="required">*</span></label>
+                    <input type="email" id="requester_email" name="requester_email" required maxlength="254" placeholder="contoh@domain.com">
+                </div>
+
+                <div class="form-group">
+                    <label for="privacy_type">Tipe Permintaan <span class="required">*</span></label>
+                    <select id="privacy_type" name="privacy_type" required>
+                        <option value="" disabled selected>Pilih tipe permintaan</option>
+                        <option value="access">Akses - Permintaan untuk melihat data pribadi</option>
+                        <option value="correction">Perbaikan - Permintaan untuk memperbaiki data yang salah</option>
+                        <option value="deletion">Penghapusan - Permintaan untuk menghapus data</option>
+                        <option value="consent">Konsent - Pertanyaan terkait izin penggunaan</option>
+                        <option value="other">Lainnya</option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label for="message">Deskripsi <span class="required">*</span></label>
+                    <textarea id="message" name="message" required maxlength="10000" rows="6" placeholder="Deskripsikan permintaan privasi Anda..."></textarea>
+                    <small>Maksimal 10.000 karakter.</small>
+                </div>
+
+                <div class="form-rules">
+                    <i class="fa fa-exclamation-triangle"></i>
+                    <strong>Penting:</strong> Identitas mungkin memerlukan verifikasi hukum. Permintaan ini adalah intake hanya — data tidak akan dihapus secara otomatis.
+                </div>
+
+                <button type="submit" class="submit-btn"><i class="fa fa-paper-plane"></i> Kirim Permintaan Privasi</button>
+            </form>
+        </section>
+    </main>
+
+    <footer class="footer">
+        <div class="footer-grid">
+            <div class="footer-col">
+                <h4>Produk</h4>
+                <ul>
+                    <li><a href="/">BotConnector</a></li>
+                    <li><a href="">Business Suite</a></li>
+                    <li><a href="">My Drive</a></li>
+                    <li><a href="">Connect</a></li>
+                </ul>
+            </div>
+            <div class="footer-col">
+                <h4>Platform</h4>
+                <ul>
+                    <li><a href="/support">Bantuan</a></li>
+                    <li><a href="/privacy">Privasi</a></li>
+                    <li><a href="/terms">Ketentuan</a></li>
+                    <li><a href="/security">Keamanan</a></li>
+                </ul>
+            </div>
+            <div class="footer-col">
+                <h4>Koneksi</h4>
+                <ul>
+                    <li><a href="">GitHub</a></li>
+                    <li><a href="">Documentation</a></li>
+                </ul>
+            </div>
+        </div>
+    </footer>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Disable form submission if required fields are empty
+            const form = document.getElementById('privacyForm');
+            if (form) {
+                form.addEventListener('submit', function(e) {
+                    const required = form.querySelectorAll('[required]');
+                    let valid = true;
+                    required.forEach(field => {
+                        if (!field.value.trim()) {
+                            valid = false;
+                        }
+                    });
+                    if (!valid) {
+                        e.preventDefault();
+                        alert('Silakan isi semua field yang ditandai dengan *');
+                    }
+                });
+            }
+        });
+    </script>
+</body>
+</html>

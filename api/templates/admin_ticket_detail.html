@@ -1,0 +1,185 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>BotConnector - Admin Ticket Detail</title>
+    <link rel="stylesheet" href="/static/style.css">
+</head>
+<body>
+    <header class="navbar">
+        <div class="logo">
+            <i class="fa fa-ticket"></i> BotConnector Admin - Ticket Detail
+        </div>
+        <nav>
+            <a href="/panel/support"><i class="fa fa-arrow-left"></i> Kembali</a>
+            <a href="/admin/logout"><i class="fa fa-sign-out"></i> Keluar</a>
+        </nav>
+    </header>
+
+    <main class="container">
+        <section class="support-form-section">
+            <div class="form-header">
+                <h2><i class="fa fa-ticket"></i> Detail Tiket: {{ ticket.public_reference }}</h2>
+                <p>{{ ticket.subject }}</p>
+            </div>
+
+            {% if mailbox_provisioning_required %}
+            <div class="form-rules" style="border-color: var(--warning); color: var(--warning);">
+                <i class="fa fa-exclamation-triangle"></i>
+                <strong>Peringatan:</strong> Konfigurasi email belum lengkap. Notifikasi email tidak akan terkirim.
+            </div>
+            {% endif %}
+
+            <div style="background: var(--card); border: 1px solid var(--border); border-radius: 8px; padding: 1.5rem; margin-bottom: 1.5rem;">
+                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 1rem;">
+                    <div>
+                        <strong>Referensi:</strong><br>
+                        <code>{{ ticket.public_reference }}</code>
+                    </div>
+                    <div>
+                        <strong>ID Internal:</strong><br>
+                        <code>{{ ticket.id }}</code>
+                    </div>
+                    <div>
+                        <strong>Kategori:</strong><br>
+                        <span class="badge">{{ ticket.category }}</span>
+                    </div>
+                    <div>
+                        <strong>Status:</strong><br>
+                        <span class="badge" style="background: {% if ticket.status == 'OPEN' %}var(--primary){% elif ticket.status == 'IN_PROGRESS' %}var(--warning){% elif ticket.status == 'WAITING_USER' %}var(--primary){% elif ticket.status == 'RESOLVED' %}var(--success){% else %}var(--muted){% endif %};">{{ ticket.status }}</span>
+                    </div>
+                    <div>
+                        <strong>Prioritas:</strong><br>
+                        {{ ticket.priority }}
+                    </div>
+                    <div>
+                        <strong>Produk/Konteks:</strong><br>
+                        {{ ticket.product_context or 'N/A' }}
+                    </div>
+                    <div>
+                        <strong>Requester:</strong><br>
+                        {{ ticket.requester_name }} <{{ ticket.requester_email }}>
+                    </div>
+                    <div>
+                        <strong>User ID:</strong><br>
+                        {{ ticket.user_id or 'Tidak terautentikasi (public)' }}
+                    </div>
+                    <div>
+                        <strong>Dibuat:</strong><br>
+                        {{ ticket.created_at[:19].replace('T', ' ') }} UTC
+                    </div>
+                    <div>
+                        <strong>Diperbarui:</strong><br>
+                        {{ ticket.updated_at[:19].replace('T', ' ') }} UTC
+                    </div>
+                    {% if ticket.resolved_at %}
+                    <div>
+                        <strong>Diselesaikan:</strong><br>
+                        {{ ticket.resolved_at[:19].replace('T', ' ') }} UTC
+                    </div>
+                    {% endif %}
+                    {% if ticket.assigned_to %}
+                    <div>
+                        <strong>Ditugaskan ke:</strong><br>
+                        {{ ticket.assigned_to }}
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+
+            <hr style="margin: 1.5rem 0; border-color: var(--border);">
+
+            <h3>Pesan Tiket</h3>
+            {% if messages %}
+            <div class="tickets-list">
+                {% for msg in messages %}
+                <div class="ticket-item" style="flex-direction: column; align-items: flex-start; gap: 0.5rem;">
+                    <div style="display: flex; gap: 1rem; flex-wrap: wrap;">
+                        <span style="font-weight: 600; text-transform: capitalize;">{{ msg.sender_type }}</span>
+                        <span style="color: var(--muted); font-size: 0.875rem;">{{ msg.sender_id or 'Sistem' }}</span>
+                        <span style="color: var(--muted); font-size: 0.875rem;">{{ msg.created_at[:19].replace('T', ' ') }}</span>
+                    </div>
+                    <div style="white-space: pre-wrap; width: 100%;">{{ msg.message }}</div>
+                </div>
+                {% endfor %}
+            </div>
+            {% else %}
+            <div class="empty-state">
+                <i class="fa fa-comments-o"></i>
+                <p>Belum ada pesan.</p>
+            </div>
+            {% endif %}
+
+            <hr style="margin: 1.5rem 0; border-color: var(--border);">
+
+            <h3>Riwayat Event</h3>
+            {% if events %}
+            <table class="ticket-table">
+                <thead>
+                    <tr>
+                        <th>Waktu</th>
+                        <th>Event</th>
+                        <th>Data</th>
+                        <th>Oleh</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for event in events %}
+                    <tr>
+                        <td>{{ event.created_at[:19].replace('T', ' ') }}</td>
+                        <td>{{ event.event_type }}</td>
+                        <td><pre style="margin: 0; font-size: 0.75rem;">{{ event.event_data }}</pre></td>
+                        <td>{{ event.performed_by or 'Sistem' }}</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+            {% else %}
+            <div class="empty-state">
+                <i class="fa fa-history"></i>
+                <p>Belum ada event.</p>
+            </div>
+            {% endif %}
+
+            <hr style="margin: 1.5rem 0; border-color: var(--border);">
+
+            <h3>Ubah Status</h3>
+            <form method="POST" action="/panel/support/ticket/{{ ticket.id }}/status" style="display: flex; gap: 1rem; align-items: end; flex-wrap: wrap;">
+                <div class="form-group" style="margin-bottom: 0;">
+                    <label>Status Baru</label>
+                    <select name="status" required>
+                        {% for status in statuses %}
+                        <option value="{{ status }}" {% if ticket.status == status %}selected{% endif %}>{{ status }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <button type="submit" class="submit-btn" style="width: auto;">Perbarui</button>
+            </form>
+        </section>
+    </main>
+
+    <footer class="footer">
+        <div class="footer-grid">
+            <div class="footer-col">
+                <h4>Produk</h4>
+                <ul>
+                    <li><a href="/">BotConnector</a></li>
+                    <li><a href="">Business Suite</a></li>
+                    <li><a href="">My Drive</a></li>
+                    <li><a href="">Connect</a></li>
+                </ul>
+            </div>
+            <div class="footer-col">
+                <h4>Platform</h4>
+                <ul>
+                    <li><a href="/support">Bantuan</a></li>
+                    <li><a href="/privacy">Privasi</a></li>
+                    <li><a href="/terms">Ketentuan</a></li>
+                    <li><a href="/security">Keamanan</a></li>
+                </ul>
+            </div>
+        </div>
+    </footer>
+</body>
+</html>

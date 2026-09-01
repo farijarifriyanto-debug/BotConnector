@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>BotConnector - Keamanan</title>
+    <link rel="stylesheet" href="/static/style.css">
+</head>
+<body>
+    <header class="navbar">
+        <div class="logo">
+            <i class="fa fa-fingerprint"></i> BotConnector
+        </div>
+        <nav>
+            <a href="/"><i class="fa fa-home"></i> Beranda</a>
+            <a href="/support"><i class="fa fa-life-bouy"></i> Bantuan</a>
+            <a href="/privacy"><i class="fa fa-shield-alt"></i> Privasi</a>
+            <a href="/terms"><i class="fa fa-gavel"></i> Ketentuan</a>
+            <a href="/security"><i class="fa fa-fingerprint"></i> Keamanan</a>
+        </nav>
+    </header>
+
+    <main class="container">
+        <section class="legal-content">
+            <h1>Keamanan BotConnector</h1>
+            <p class="last-updated">Terakhir diperbarui: Agustus 2026</p>
+
+            <section>
+                <h2>Praktik Keamanan</h2>
+                <p>Kami menerapkan enkripsi, autentikasi multi-faktor, dan pemantauan keamanan berkelanjutan.</p>
+            </section>
+
+            <section>
+                <h2>Laporan Kerentanan</h2>
+                <p>Jika Anda menemukan masalah keamanan, silakan laporkan melalui saluran resmi kami:</p>
+                <ul>
+                    <li><strong>Formulir Laporan Keamanan:</strong> <a href="/support/security-report">/support/security-report</a> atau <a href="/support?category=security">/support?category=security</a></li>
+                    {% if not mailbox_provisioning_required %}
+                    <li><strong>Email:</strong> <a href="mailto:security@botconnector.id">security@botconnector.id</a></li>
+                    {% else %}
+                    <li><strong>Email:</strong> security@botconnector.id (provisioning diperlukan)</li>
+                    {% endif %}
+                </ul>
+                <div class="form-rules">
+                    <i class="fa fa-exclamation-triangle"></i>
+                    <strong>Panduan:</strong> Identifikasi layanan yang terdampak, deskripsikan perilaku yang dapat direproduksi, hindari mengirim credential rahasia, dan jangan lakukan pengujian destruktif terhadap data pengguna lain.
+                </div>
+                <p>Kami tidak menjalankan program bug bounty resmi atau menawarkan hadiah uang saat ini.</p>
+            </section>
+
+            <section>
+                <h2>Standar Keamanan</h2>
+                <p>Platform kami mengikuti praktik terbaik industri termasuk OWASP Top 10, enkripsi TLS 1.2+, dan audit keamanan berkala.</p>
+            </section>
+
+            <section>
+                <h2>Keamanan Data</h2>
+                <p>Data pengguna disimpan dengan enkripsi saat transit dan diam. Akses dibatasi berdasarkan prinsip least privilege.</p>
+            </section>
+        </section>
+    </main>
+
+    <footer class="footer">
+        <div class="footer-grid">
+            <div class="footer-col">
+                <h4>Produk</h4>
+                <ul>
+                    <li><a href="/">BotConnector</a></li>
+                    <li><a href="">Business Suite</a></li>
+                    <li><a href="">My Drive</a></li>
+                    <li><a href="">Connect</a></li>
+                </ul>
+            </div>
+            <div class="footer-col">
+                <h4>Platform</h4>
+                <ul>
+                    <li><a href="/support">Bantuan</a></li>
+                    <li><a href="/privacy">Privasi</a></li>
+                    <li><a href="/terms">Ketentuan</a></li>
+                    <li><a href="/security">Keamanan</a></li>
+                </ul>
+            </div>
+            <div class="footer-col">
+                <h4>Koneksi</h4>
+                <ul>
+                    <li><a href="">GitHub</a></li>
+                    <li><a href="">Documentation</a></li>
+                </ul>
+            </div>
+        </div>
+    </footer>
+</body>
+</html>

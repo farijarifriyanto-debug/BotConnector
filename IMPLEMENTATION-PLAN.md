@@ -4,12 +4,13 @@
 
 ```
 CURRENT_PHASE=PHASE_0_REPOSITORY_ARCHITECTURE_GUARD
-CURRENT_PHASE_STATUS=PASS
+CURRENT_PHASE_STATUS=PASS_LOCKED
 NEXT_PHASE=PHASE_1_CONTRACTS_KERNEL
+NEXT_PHASE_STATUS=NOT_STARTED
 PHASE_1_STARTED=NO
 ```
 
-Phase 0 remains the current phase declaration after its PASS gate. Phase 1 is
+Phase 0 remains the current phase declaration after its PASS/LOCKED gate. Phase 1 is
 not active and must not start until an explicit Phase 1 kickoff changes this
 declaration. This prevents a successful guard phase from becoming implicit
 authorization for feature work.

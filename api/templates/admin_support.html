@@ -1,0 +1,146 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>BotConnector - Admin Support Panel</title>
+    <link rel="stylesheet" href="/static/style.css">
+</head>
+<body>
+    <header class="navbar">
+        <div class="logo">
+            <i class="fa fa-headphones"></i> BotConnector Admin - Support
+        </div>
+        <nav>
+            <a href="/"><i class="fa fa-home"></i> Beranda</a>
+            <a href="/support"><i class="fa fa-life-bouy"></i> Bantuan</a>
+            <a href="/admin/logout"><i class="fa fa-sign-out"></i> Keluar</a>
+        </nav>
+    </header>
+
+    <main class="container">
+        <section class="support-form-section">
+            <div class="form-header">
+                <h2><i class="fa fa-headphones"></i> Panel Dukungan Admin</h2>
+                <p>Kelola tiket dukungan pengguna</p>
+            </div>
+
+            {% if mailbox_provisioning_required %}
+            <div class="form-rules" style="border-color: var(--warning); color: var(--warning);">
+                <i class="fa fa-exclamation-triangle"></i>
+                <strong>Peringatan:</strong> Konfigurasi email belum lengkap (MAILBOX_PROVISIONING_REQUIRED=YES). Notifikasi email tidak akan terkirim.
+            </div>
+            {% endif %}
+
+            <div style="margin-bottom: 1.5rem;">
+                <form method="GET" style="display: flex; gap: 1rem; flex-wrap: wrap; align-items: end;">
+                    <div class="form-group" style="margin-bottom: 0;">
+                        <label>Filter Status</label>
+                        <select name="status">
+                            <option value="">Semua Status</option>
+                            {% for status in statuses %}
+                            <option value="{{ status }}" {% if status_filter == status %}selected{% endif %}>{{ status }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    <div class="form-group" style="margin-bottom: 0;">
+                        <label>Filter Kategori</label>
+                        <select name="category">
+                            <option value="">Semua Kategori</option>
+                            {% for cat in categories %}
+                            <option value="{{ cat }}" {% if category_filter == cat %}selected{% endif %}>{{ cat }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    <button type="submit" class="submit-btn" style="width: auto; min-width: 120px;">Filter</button>
+                    <a href="/panel/support" class="submit-btn" style="width: auto; min-width: 120px; background: var(--muted);">Reset</a>
+                </form>
+            </div>
+
+            <div style="margin-bottom: 1rem;">
+                <strong>Statistik:</strong>
+                <span style="margin-left: 1rem;">Total: {{ stats.total }}</span>
+                <span style="margin-left: 1rem;"><span class="badge" style="background: var(--primary);">OPEN: {{ stats.open }}</span></span>
+                <span style="margin-left: 0.5rem;"><span class="badge" style="background: var(--warning);">IN_PROGRESS: {{ stats.in_progress }}</span></span>
+                <span style="margin-left: 0.5rem;"><span class="badge" style="background: var(--primary);">WAITING_USER: {{ stats.waiting_user }}</span></span>
+                <span style="margin-left: 0.5rem;"><span class="badge" style="background: var(--success);">RESOLVED: {{ stats.resolved }}</span></span>
+                <span style="margin-left: 0.5rem;"><span class="badge" style="background: var(--muted);">CLOSED: {{ stats.closed }}</span></span>
+            </div>
+
+            {% if tickets %}
+            <table class="ticket-table">
+                <thead>
+                    <tr>
+                        <th>Referensi</th>
+                        <th>Subjek</th>
+                        <th>Kategori</th>
+                        <th>Status</th>
+                        <th>Prioritas</th>
+                        <th>Requester</th>
+                        <th>Dibuat</th>
+                        <th>Aksi</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for ticket in tickets %}
+                    <tr>
+                        <td>{{ ticket.public_reference }}</td>
+                        <td>{{ ticket.subject }}</td>
+                        <td><span class="badge">{{ ticket.category }}</span></td>
+                        <td><span class="badge" style="background: {% if ticket.status == 'OPEN' %}var(--primary){% elif ticket.status == 'IN_PROGRESS' %}var(--warning){% elif ticket.status == 'WAITING_USER' %}var(--primary){% elif ticket.status == 'RESOLVED' %}var(--success){% else %}var(--muted){% endif %};">{{ ticket.status }}</span></td>
+                        <td>{{ ticket.priority }}</td>
+                        <td>{{ ticket.requester_name }} <{{ ticket.requester_email }}></td>
+                        <td>{{ ticket.created_at[:16].replace('T', ' ') }}</td>
+                        <td>
+                            <a href="/panel/support/ticket/{{ ticket.id }}" style="color: var(--primary);">Lihat</a>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+
+            <div style="display: flex; justify-content: center; gap: 0.5rem; margin-top: 1rem;">
+                {% if page > 1 %}
+                <a href="/panel/support?page={{ page - 1 }}{% if status_filter %}&status={{ status_filter }}{% endif %}{% if category_filter %}&category={{ category_filter }}{% endif %}" class="submit-btn" style="width: auto;">Sebelumnya</a>
+                {% endif %}
+                <span style="align-self: center; color: var(--muted);">Halaman {{ page }}</span>
+                <a href="/panel/support?page={{ page + 1 }}{% if status_filter %}&status={{ status_filter }}{% endif %}{% if category_filter %}&category={{ category_filter }}{% endif %}" class="submit-btn" style="width: auto;">Selanjutnya</a>
+            </div>
+            {% else %}
+            <div class="empty-state">
+                <i class="fa fa-inbox"></i>
+                <p>Tidak ada tiket ditemukan.</p>
+            </div>
+            {% endif %}
+
+            <hr style="margin: 2rem 0; border-color: var(--border);">
+            <form method="POST" action="/panel/support/process-emails">
+                <button type="submit" class="submit-btn" style="width: auto; background: var(--success);">Proses Email Outbox</button>
+            </form>
+        </section>
+    </main>
+
+    <footer class="footer">
+        <div class="footer-grid">
+            <div class="footer-col">
+                <h4>Produk</h4>
+                <ul>
+                    <li><a href="/">BotConnector</a></li>
+                    <li><a href="">Business Suite</a></li>
+                    <li><a href="">My Drive</a></li>
+                    <li><a href="">Connect</a></li>
+                </ul>
+            </div>
+            <div class="footer-col">
+                <h4>Platform</h4>
+                <ul>
+                    <li><a href="/support">Bantuan</a></li>
+                    <li><a href="/privacy">Privasi</a></li>
+                    <li><a href="/terms">Ketentuan</a></li>
+                    <li><a href="/security">Keamanan</a></li>
+                </ul>
+            </div>
+        </div>
+    </footer>
+</body>
+</html>

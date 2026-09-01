@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>BotConnector - Ketentuan Layanan</title>
+    <link rel="stylesheet" href="/static/style.css">
+</head>
+<body>
+    <header class="navbar">
+        <div class="logo">
+            <i class="fa fa-gavel"></i> BotConnector
+        </div>
+        <nav>
+            <a href="/"><i class="fa fa-home"></i> Beranda</a>
+            <a href="/support"><i class="fa fa-life-bouy"></i> Bantuan</a>
+            <a href="/privacy"><i class="fa fa-shield-alt"></i> Privasi</a>
+            <a href="/terms"><i class="fa fa-gavel"></i> Ketentuan</a>
+            <a href="/security"><i class="fa fa-fingerprint"></i> Keamanan</a>
+        </nav>
+    </header>
+
+    <main class="container">
+        <section class="legal-content">
+            <h1>Ketentuan Layanan BotConnector</h1>
+            <p class="last-updated">Terakhir diperbarui: Agustus 2026</p>
+
+            <section>
+                <h2>1. Penerimaan Ketentuan</h2>
+                <p>Dengan menggunakan BotConnector, Anda menyetujui ketentuan ini sepenuhnya.</p>
+            </section>
+
+            <section>
+                <h2>2. Layanan</h2>
+                <p>BotConnector menyediakan platform otomatisasi bisnis, termasuk POS, e-commerce, dan integrasi trading.</p>
+            </section>
+
+            <section>
+                <h2>3. Akun Pengguna</h2>
+                <p>Anda bertanggung jawab atas keamanan akun dan aktivitas di akun Anda.</p>
+            </section>
+
+            <section>
+                <h2>4. Penggunaan Yang Diperbolehkan</h2>
+                <p>Layanan hanya untuk tujuan sah dan sesuai hukum serta ketentuan ini.</p>
+            </section>
+
+            <section>
+                <h2>5. Properti Intelektual</h2>
+                <p>Semua hak atas platform, kode, dan konten BotConnector dilindungi.</p>
+            </section>
+
+            <section>
+                <h2>6. Batasan Tanggung Jawab</h2>
+                <p>BotConnector disediakan "sebagaimana adanya" tanpa jaminan apa pun.</p>
+            </section>
+
+            <section>
+                <h2>7. Kontak Dukungan</h2>
+                <p>Untuk pertanyaan tentang ketentuan ini atau dukungan umum:</p>
+                <ul>
+                    <li><strong>Pusat Bantuan:</strong> <a href="/support">/support</a></li>
+                    {% if not mailbox_provisioning_required %}
+                    <li><strong>Email:</strong> <a href="mailto:support@botconnector.id">support@botconnector.id</a></li>
+                    {% else %}
+                    <li><strong>Email:</strong> support@botconnector.id (provisioning diperlukan)</li>
+                    {% endif %}
+                </ul>
+            </section>
+        </section>
+    </main>
+
+    <footer class="footer">
+        <div class="footer-grid">
+            <div class="footer-col">
+                <h4>Produk</h4>
+                <ul>
+                    <li><a href="/">BotConnector</a></li>
+                    <li><a href="">Business Suite</a></li>
+                    <li><a href="">My Drive</a></li>
+                    <li><a href="">Connect</a></li>
+                </ul>
+            </div>
+            <div class="footer-col">
+                <h4>Platform</h4>
+                <ul>
+                    <li><a href="/support">Bantuan</a></li>
+                    <li><a href="/privacy">Privasi</a></li>
+                    <li><a href="/terms">Ketentuan</a></li>
+                    <li><a href="/security">Keamanan</a></li>
+                </ul>
+            </div>
+            <div class="footer-col">
+                <h4>Koneksi</h4>
+                <ul>
+                    <li><a href="">GitHub</a></li>
+                    <li><a href="">Documentation</a></li>
+                </ul>
+            </div>
+        </div>
+    </footer>
+</body>
+</html>

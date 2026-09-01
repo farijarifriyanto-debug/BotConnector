@@ -1,0 +1,573 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Pusat Bantuan &amp; Dukungan — BotConnector</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;850;900&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bc-navy: #0B1020;
+      --bc-navy-card: #121829;
+      --bc-navy-border: #1E2640;
+      --bc-indigo: #5B5FEF;
+      --bc-indigo-hover: #4A4DE0;
+      --bc-indigo-soft: #EEF0FF;
+      --bc-ink: #101828;
+      --bc-muted: #667085;
+      --bc-muted2: #475467;
+      --bc-bg: #F6F7FB;
+      --bc-surface: #FFFFFF;
+      --bc-border: #E7E9F2;
+      --bc-border-subtle: #F0F2F7;
+      --bc-green: #10B981;
+      --bc-green-soft: #ECFDF5;
+      --bc-radius-lg: 24px;
+      --bc-radius-md: 16px;
+      --bc-radius-sm: 10px;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      font-family: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+      background: var(--bc-bg);
+      color: var(--bc-ink);
+      -webkit-font-smoothing: antialiased;
+      line-height: 1.5;
+    }
+    .bc-shell {
+      max-width: 1080px;
+      margin: 0 auto;
+      padding: 0 24px;
+    }
+
+    /* Topbar */
+    header.bc-topbar {
+      background: #ffffff;
+      border-bottom: 1px solid var(--bc-border);
+      position: sticky;
+      top: 0;
+      z-index: 100;
+    }
+    .bc-topbar-wrap {
+      max-width: 1280px;
+      margin: 0 auto;
+      padding: 0 24px;
+      height: 70px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 20px;
+    }
+    .bc-brand {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      text-decoration: none;
+      color: var(--bc-ink);
+      font-size: 16px;
+      font-weight: 850;
+      letter-spacing: -0.03em;
+    }
+    .bc-brand .bc-plug {
+      width: 32px;
+      height: 32px;
+      border-radius: 9px;
+      background: var(--bc-navy);
+      color: #fff;
+      display: grid;
+      place-items: center;
+      font-size: 12px;
+      font-weight: 850;
+    }
+    .bc-nav-links {
+      display: flex;
+      align-items: center;
+      gap: 28px;
+      font-size: 14px;
+      font-weight: 650;
+      color: var(--bc-muted2);
+    }
+    .bc-nav-links a { text-decoration: none; color: inherit; transition: 0.15s; }
+    .bc-nav-links a:hover { color: var(--bc-indigo); }
+    .bc-nav-links a.active { color: var(--bc-indigo); font-weight: 750; }
+
+    .bc-top-actions {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+    .bc-btn {
+      min-height: 42px;
+      padding: 0 18px;
+      border-radius: 11px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      font-size: 13.5px;
+      font-weight: 750;
+      border: 1px solid transparent;
+      cursor: pointer;
+      transition: 0.18s ease;
+      text-decoration: none;
+    }
+    .bc-btn.primary {
+      color: #fff;
+      background: var(--bc-indigo);
+      box-shadow: 0 6px 16px rgba(91, 95, 239, 0.22);
+    }
+    .bc-btn.primary:hover {
+      background: var(--bc-indigo-hover);
+      transform: translateY(-1px);
+      box-shadow: 0 8px 22px rgba(91, 95, 239, 0.32);
+    }
+    .bc-btn.line {
+      color: #344054;
+      background: #fff;
+      border-color: var(--bc-border);
+    }
+    .bc-btn.line:hover {
+      border-color: #b9bdcb;
+      background: #fafafa;
+    }
+
+    /* Layout */
+    main.bc-main {
+      padding: 40px 0 80px;
+    }
+
+    /* Hero Banner (Signature Navy Card) */
+    .bc-hero-card {
+      background: var(--bc-navy);
+      color: #fff;
+      border-radius: var(--bc-radius-lg);
+      padding: 36px 40px;
+      margin-bottom: 32px;
+      position: relative;
+      overflow: hidden;
+      box-shadow: 0 16px 40px rgba(11, 16, 32, 0.12);
+    }
+    .bc-hero-card::after {
+      content: "";
+      position: absolute;
+      top: -120px;
+      right: -80px;
+      width: 320px;
+      height: 320px;
+      border-radius: 50%;
+      background: radial-gradient(circle, rgba(91, 95, 239, 0.35) 0%, rgba(91, 95, 239, 0) 70%);
+      pointer-events: none;
+    }
+    .bc-eyebrow {
+      font-size: 11px;
+      font-weight: 850;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      color: #8E92FC;
+      margin-bottom: 8px;
+    }
+    .bc-hero-card h1 {
+      font-size: 28px;
+      font-weight: 850;
+      letter-spacing: -0.03em;
+      margin: 0 0 10px;
+    }
+    .bc-hero-card p {
+      font-size: 14.5px;
+      color: #94A3B8;
+      max-width: 600px;
+      margin: 0;
+      line-height: 1.6;
+    }
+
+    /* Content Cards */
+    .bc-card {
+      background: #ffffff;
+      border: 1px solid var(--bc-border);
+      border-radius: var(--bc-radius-lg);
+      padding: 32px;
+      margin-bottom: 28px;
+      box-shadow: 0 4px 20px rgba(11, 16, 32, 0.03);
+    }
+
+    /* Forms */
+    .form-group {
+      margin-bottom: 20px;
+    }
+    .form-group label {
+      display: block;
+      font-size: 13.5px;
+      font-weight: 750;
+      color: var(--bc-ink);
+      margin-bottom: 8px;
+    }
+    .form-group input, .form-group select, .form-group textarea {
+      width: 100%;
+      padding: 12px 14px;
+      font-family: inherit;
+      font-size: 14px;
+      color: var(--bc-ink);
+      background: #FFFFFF;
+      border: 1px solid var(--bc-border);
+      border-radius: var(--bc-radius-sm);
+      transition: 0.15s ease;
+      outline: none;
+    }
+    .form-group input:focus, .form-group select:focus, .form-group textarea:focus {
+      border-color: var(--bc-indigo);
+      box-shadow: 0 0 0 3px rgba(91, 95, 239, 0.15);
+    }
+    .form-row {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 16px;
+    }
+
+    /* Alerts */
+    .bc-alert-success {
+      background: #ECFDF5;
+      border: 1px solid #A7F3D0;
+      border-radius: var(--bc-radius-md);
+      padding: 20px 24px;
+      margin-bottom: 24px;
+      color: #065F46;
+    }
+    .bc-alert-error {
+      background: #FEF2F2;
+      border: 1px solid #FECACA;
+      border-radius: var(--bc-radius-md);
+      padding: 16px 20px;
+      margin-bottom: 24px;
+      color: #991B1B;
+      font-size: 14px;
+      font-weight: 600;
+    }
+    .ref-badge {
+      display: inline-block;
+      background: #047857;
+      color: #ffffff;
+      font-family: monospace;
+      font-weight: 800;
+      font-size: 16px;
+      padding: 6px 14px;
+      border-radius: 8px;
+      letter-spacing: 0.06em;
+      margin: 8px 0;
+    }
+
+    /* Ticket History Table */
+    .ticket-table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 13.5px;
+      margin-top: 12px;
+    }
+    .ticket-table th {
+      text-align: left;
+      padding: 12px 14px;
+      background: #F8FAFC;
+      color: var(--bc-muted2);
+      font-size: 11px;
+      font-weight: 800;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+      border-bottom: 1px solid var(--bc-border);
+    }
+    .ticket-table td {
+      padding: 14px;
+      border-bottom: 1px solid var(--bc-border);
+    }
+    .status-pill {
+      font-size: 11px;
+      font-weight: 800;
+      padding: 4px 10px;
+      border-radius: 99px;
+      display: inline-block;
+    }
+    .status-pill.OPEN { background: #EEF2FF; color: #4F46E5; }
+    .status-pill.IN_PROGRESS { background: #FEF3C7; color: #D97706; }
+    .status-pill.RESOLVED { background: #ECFDF5; color: #059669; }
+    .status-pill.CLOSED { background: #F1F5F9; color: #64748B; }
+
+    /* Footer */
+    footer.bc-footer {
+      background: #ffffff;
+      border-top: 1px solid var(--bc-border);
+      padding: 56px 0 32px;
+    }
+    .bc-footer-grid {
+      display: grid;
+      grid-template-columns: 2fr 1fr 1fr 1fr;
+      gap: 40px;
+      margin-bottom: 48px;
+    }
+    .bc-footer-col h4 {
+      font-size: 12px;
+      font-weight: 850;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: var(--bc-muted2);
+      margin: 0 0 16px;
+    }
+    .bc-footer-links {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+      font-size: 13.5px;
+      font-weight: 600;
+      color: #475467;
+    }
+    .bc-footer-links a { text-decoration: none; color: inherit; transition: 0.15s; }
+    .bc-footer-links a:hover { color: var(--bc-indigo); }
+    .bc-footer-bottom {
+      border-top: 1px solid var(--bc-border);
+      padding-top: 28px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 16px;
+      font-size: 12px;
+      color: var(--bc-muted);
+    }
+    @media(max-width: 860px) {
+      .bc-nav-links { display: none; }
+      .bc-footer-grid { grid-template-columns: 1fr 1fr; }
+      .form-row { grid-template-columns: 1fr; }
+    }
+    @media(max-width: 600px) {
+      .bc-top-actions .bc-btn.line:not([title="Keluar"]) { display: none; }
+      .bc-btn { min-height: 36px; padding: 0 12px; font-size: 12.5px; }
+      .bc-topbar-wrap { padding: 0 14px; }
+    }
+    @media(max-width: 540px) {
+      .bc-footer-grid { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Topbar -->
+  <header class="bc-topbar">
+    <div class="bc-topbar-wrap">
+      <a class="bc-brand" href="/">
+        <div class="bc-plug">BC</div>
+        <span>BotConnector</span>
+      </a>
+
+      <nav class="bc-nav-links">
+        <a href="/products">Produk</a>
+        <a href="/bisnis/">Business Suite</a>
+        <a href="/connect-v2">Connect</a>
+        <a href="/docs">Panduan</a>
+        <a href="/status">Status</a>
+        <a href="/support" class="active">Bantuan</a>
+      </nav>
+
+      <div class="bc-top-actions">
+        {% if is_logged_in %}
+          <a class="bc-btn line" href="/my-products">Produk Saya</a>
+          <a class="bc-btn primary" href="/bisnis/">Buka Bisnis &rarr;</a>
+          <a class="bc-btn line" href="/logout" style="font-size:12px;min-height:36px;padding:0 10px" title="Keluar"><svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2.2" style="display:block"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4M16 17l5-5-5-5M21 12H9"/></svg></a>
+        {% else %}
+          <a class="bc-btn line" href="/login">Masuk</a>
+          <a class="bc-btn primary" href="/register">Mulai Gratis &rarr;</a>
+        {% endif %}
+      </div>
+    </div>
+  </header>
+
+  <!-- Main Content -->
+  <main class="bc-main">
+    <div class="bc-shell">
+
+      <!-- Hero Banner -->
+      <div class="bc-hero-card">
+        <div class="bc-eyebrow">PUSAT BANTUAN &amp; DUKUNGAN RESMI</div>
+        <h1>Pusat Bantuan BotConnector</h1>
+        <p>Kirim pertanyaan teknis, kendala akun, permintaan privasi data, atau laporan keamanan ke tim BotConnector. Setiap permintaan akan menerima nomor referensi resmi.</p>
+      </div>
+
+      <!-- Success Notification -->
+      {% if public_reference %}
+      <div class="bc-alert-success">
+        <div style="font-size:16px;font-weight:850;margin-bottom:6px">✓ Permintaan Berhasil Dikirim!</div>
+        <p style="margin:0 0 8px;font-size:14px;line-height:1.6">Permintaan Anda telah tercatat pada sistem kami. Simpan nomor referensi berikut untuk korespondensi:</p>
+        <div><span class="ref-badge">{{ public_reference }}</span></div>
+        <p style="margin:8px 0 0;font-size:12.5px;opacity:0.9">Tim kami akan menindaklanjuti permintaan Anda sesuai dengan prioritas dan kategori layanan.</p>
+      </div>
+      {% endif %}
+
+      <!-- Error Notification -->
+      {% if error_message %}
+      <div class="bc-alert-error">
+        {{ error_message }}
+      </div>
+      {% endif %}
+
+      <!-- Authenticated Ticket History Section -->
+      {% if is_logged_in and tickets %}
+      <div class="bc-card">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;flex-wrap:wrap;gap:12px">
+          <div>
+            <div class="bc-eyebrow" style="color:var(--bc-indigo)">AKUN TERDAFTAR</div>
+            <h2 style="font-size:20px;font-weight:850;color:var(--bc-ink);margin:0">Riwayat Tiket Bantuan Anda</h2>
+          </div>
+          <span style="font-size:12px;font-weight:800;background:var(--bc-indigo-soft);color:var(--bc-indigo);padding:4px 12px;border-radius:99px">{{ tickets|length }} Tiket</span>
+        </div>
+
+        <div style="overflow-x:auto">
+          <table class="ticket-table">
+            <thead>
+              <tr>
+                <th>Referensi</th>
+                <th>Kategori</th>
+                <th>Subjek</th>
+                <th>Status</th>
+                <th>Waktu</th>
+              </tr>
+            </thead>
+            <tbody>
+              {% for t in tickets %}
+              <tr>
+                <td style="font-family:monospace;font-weight:800;color:var(--bc-indigo)">{{ t.public_reference }}</td>
+                <td style="font-weight:700">{{ t.category }}</td>
+                <td>{{ t.subject }}</td>
+                <td><span class="status-pill {{ t.status }}">{{ t.status }}</span></td>
+                <td style="color:var(--bc-muted);font-size:12px">{{ t.created_at[:10] }}</td>
+              </tr>
+              {% endfor %}
+            </tbody>
+          </table>
+        </div>
+      </div>
+      {% endif %}
+
+      <!-- Support Form Card -->
+      <div class="bc-card">
+        <div style="margin-bottom:24px">
+          <div class="bc-eyebrow" style="color:var(--bc-indigo)">FORMULIR PERMINTAAN</div>
+          <h2 style="font-size:22px;font-weight:850;color:var(--bc-ink);margin:0 0 6px">Kirim Permintaan Baru</h2>
+          <p style="font-size:14px;color:var(--bc-muted);margin:0">Lengkapi formulir di bawah ini dengan jelas agar tim kami dapat membantu lebih cepat.</p>
+        </div>
+
+        <form action="/support" method="POST">
+
+          <!-- Honeypot Field (Abuse Protection) -->
+          <div style="position:absolute;left:-9999px;top:-9999px;opacity:0" aria-hidden="true">
+            <input type="text" name="website" tabindex="-1" autocomplete="off">
+            <input type="text" name="url" tabindex="-1" autocomplete="off">
+          </div>
+
+          <div class="form-row">
+            <div class="form-group">
+              <label for="requester_name">Nama Lengkap <span style="color:#E11D48">*</span></label>
+              <input type="text" id="requester_name" name="requester_name" required maxlength="120" placeholder="Nama Anda" value="{{ user_name or (form_data.requester_name if form_data else '') }}">
+            </div>
+            <div class="form-group">
+              <label for="requester_email">Alamat Email <span style="color:#E11D48">*</span></label>
+              <input type="email" id="requester_email" name="requester_email" required maxlength="254" placeholder="nama@domain.com" value="{{ user_email or (form_data.requester_email if form_data else '') }}">
+            </div>
+          </div>
+
+          <div class="form-row">
+            <div class="form-group">
+              <label for="category">Kategori Permintaan <span style="color:#E11D48">*</span></label>
+              <select id="category" name="category" required>
+                <option value="GENERAL" {% if selected_category == 'GENERAL' %}selected{% endif %}>GENERAL — Pertanyaan Umum</option>
+                <option value="ACCOUNT_LOGIN" {% if selected_category == 'ACCOUNT_LOGIN' %}selected{% endif %}>ACCOUNT_LOGIN — Masalah Akun &amp; Autentikasi</option>
+                <option value="BUSINESS_SUITE" {% if selected_category == 'BUSINESS_SUITE' %}selected{% endif %}>BUSINESS_SUITE — POS, Restoran &amp; Inventori</option>
+                <option value="CONNECT" {% if selected_category == 'CONNECT' %}selected{% endif %}>CONNECT — BotConnector Connect &amp; Webhook</option>
+                <option value="MY_DRIVE" {% if selected_category == 'MY_DRIVE' %}selected{% endif %}>MY_DRIVE — Penyimpanan Cloud My Drive</option>
+                <option value="TELEGRAM" {% if selected_category == 'TELEGRAM' %}selected{% endif %}>TELEGRAM — Integrasi Bot &amp; Notifikasi Telegram</option>
+                <option value="PRIVACY_REQUEST" {% if selected_category == 'PRIVACY_REQUEST' %}selected{% endif %}>PRIVACY_REQUEST — Permintaan Privasi &amp; Data Pengguna</option>
+                <option value="SECURITY_REPORT" {% if selected_category == 'SECURITY_REPORT' %}selected{% endif %}>SECURITY_REPORT — Laporan Kerentanan &amp; Keamanan</option>
+                <option value="OTHER" {% if selected_category == 'OTHER' %}selected{% endif %}>OTHER — Topik Lainnya</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label for="product_context">Konteks Produk / Cabang (Opsional)</label>
+              <input type="text" id="product_context" name="product_context" maxlength="120" placeholder="Contoh: Cabang Jakarta, Modul POS, MT5" value="{{ form_data.product_context if form_data else '' }}">
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label for="subject">Subjek Permintaan <span style="color:#E11D48">*</span></label>
+            <input type="text" id="subject" name="subject" required maxlength="200" placeholder="Ringkasan singkat kendala atau pertanyaan Anda" value="{{ form_data.subject if form_data else '' }}">
+          </div>
+
+          <div class="form-group">
+            <label for="message">Deskripsi Pesan <span style="color:#E11D48">*</span></label>
+            <textarea id="message" name="message" required rows="6" maxlength="10000" placeholder="Jelaskan kendala, pertanyaan, atau langkah reproduksi secara detail...">{{ form_data.message if form_data else '' }}</textarea>
+            <div style="font-size:12px;color:var(--bc-muted);margin-top:4px">Maksimal 10.000 karakter.</div>
+          </div>
+
+          <div style="background:#FFFBEB;border:1px solid #FDE68A;border-radius:12px;padding:14px 18px;margin-bottom:24px;font-size:13px;color:#92400E;line-height:1.5">
+            <strong>Keamanan Kredensial:</strong> Demi keamanan akun Anda, jangan pernah mencantumkan kata sandi, bot token Telegram, atau kunci API pribadi di dalam formulir ini.
+          </div>
+
+          <button type="submit" class="bc-btn primary" style="font-size:15px;padding:0 28px;min-height:46px">
+            Kirim Permintaan Bantuan &rarr;
+          </button>
+        </form>
+      </div>
+
+    </div>
+  </main>
+
+  <!-- Platform Footer -->
+  <footer class="bc-footer">
+    <div class="bc-shell">
+      <div class="bc-footer-grid">
+        <div class="bc-footer-col">
+          <a class="bc-brand" href="/" style="margin-bottom:14px">
+            <div class="bc-plug">BC</div>
+            <span>BotConnector</span>
+          </a>
+          <p style="font-size:13.5px;color:var(--bc-muted);line-height:1.6;margin:0;max-width:280px">
+            Platform pusat operasional retail, POS kasir, manajemen multi-cabang, dan otomatisasi bisnis terhubung.
+          </p>
+        </div>
+        <div class="bc-footer-col">
+          <h4>Produk</h4>
+          <div class="bc-footer-links">
+            <a href="/bisnis/">Business Suite</a>
+            <a href="/connect-v2">BotConnector Connect</a>
+            <a href="/drive">My Drive</a>
+            <a href="/products">Semua Solusi</a>
+          </div>
+        </div>
+        <div class="bc-footer-col">
+          <h4>Dukungan &amp; Sistem</h4>
+          <div class="bc-footer-links">
+            <a href="/docs">Panduan &amp; Dokumentasi</a>
+            <a href="/support">Pusat Bantuan</a>
+            <a href="/status">Status Layanan</a>
+          </div>
+        </div>
+        <div class="bc-footer-col">
+          <h4>Legal &amp; Keamanan</h4>
+          <div class="bc-footer-links">
+            <a href="/privacy">Kebijakan Privasi</a>
+            <a href="/terms">Ketentuan Layanan</a>
+            <a href="/security">Keamanan Platform</a>
+          </div>
+        </div>
+      </div>
+      <div class="bc-footer-bottom">
+        <div>&copy; 2026 BotConnector. Hak cipta dilindungi undang-undang.</div>
+        <div style="display:flex;gap:16px">
+          <a href="/privacy" style="color:inherit;text-decoration:none">Privasi</a>
+          <a href="/terms" style="color:inherit;text-decoration:none">Ketentuan</a>
+          <a href="/security" style="color:inherit;text-decoration:none">Keamanan</a>
+          <a href="/support" style="color:inherit;text-decoration:none">Bantuan</a>
+        </div>
+      </div>
+    </div>
+  </footer>
+
+</body>
+</html>

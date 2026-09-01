@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>BotConnector - Admin Login</title>
+    <link rel="stylesheet" href="/static/style.css">
+</head>
+<body>
+    <header class="navbar">
+        <div class="logo">
+            <i class="fa fa-lock"></i> BotConnector Admin
+        </div>
+    </header>
+
+    <main class="container">
+        <section class="privacy-form-section">
+            <div class="form-header">
+                <h2><i class="fa fa-lock"></i> Admin Panel Login</h2>
+                <p>Masuk untuk mengakses panel dukungan admin</p>
+            </div>
+
+            <form method="POST">
+                <div class="form-group">
+                    <label for="password">Kata Sandi Admin <span class="required">*</span></label>
+                    <input type="password" id="password" name="password" required autocomplete="current-password" placeholder="Masukkan kata sandi admin">
+                </div>
+
+                {% if error %}
+                <div class="form-rules" style="border-color: var(--danger); color: var(--danger);">
+                    <i class="fa fa-exclamation-circle"></i>
+                    <strong>Error:</strong> {{ error }}
+                </div>
+                {% endif %}
+
+                <button type="submit" class="submit-btn"><i class="fa fa-sign-in"></i> Masuk</button>
+            </form>
+        </section>
+    </main>
+
+    <footer class="footer">
+        <div class="footer-grid">
+            <div class="footer-col">
+                <h4>Produk</h4>
+                <ul>
+                    <li><a href="/">BotConnector</a></li>
+                    <li><a href="">Business Suite</a></li>
+                    <li><a href="">My Drive</a></li>
+                    <li><a href="">Connect</a></li>
+                </ul>
+            </div>
+            <div class="footer-col">
+                <h4>Platform</h4>
+                <ul>
+                    <li><a href="/support">Bantuan</a></li>
+                    <li><a href="/privacy">Privasi</a></li>
+                    <li><a href="/terms">Ketentuan</a></li>
+                    <li><a href="/security">Keamanan</a></li>
+                </ul>
+            </div>
+        </div>
+    </footer>
+</body>
+</html>

@@ -2,6 +2,8 @@ bin/
 obj/
 .vs/
 node_modules/
+__pycache__/
+*.py[cod]
 dist/
 TestResults/
 *.user
@@ -17,3 +19,8 @@ TestResults/
 /dotnet/runfile-discovery/
 
 /.serena/
+/.opencode/
+/.playwright-mcp/
+/api/support/data/*.db
+/api/support/data/*.db-shm
+/api/support/data/*.db-wal

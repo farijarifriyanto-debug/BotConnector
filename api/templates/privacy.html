@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>BotConnector - Kebijakan Privasi</title>
+    <link rel="stylesheet" href="/static/style.css">
+</head>
+<body>
+    <header class="navbar">
+        <div class="logo">
+            <i class="fa fa-shield"></i> BotConnector
+        </div>
+        <nav>
+            <a href="/"><i class="fa fa-home"></i> Beranda</a>
+            <a href="/support"><i class="fa fa-life-bouy"></i> Bantuan</a>
+            <a href="/privacy"><i class="fa fa-shield-alt"></i> Privasi</a>
+            <a href="/terms"><i class="fa fa-gavel"></i> Ketentuan</a>
+            <a href="/security"><i class="fa fa-fingerprint"></i> Keamanan</a>
+        </nav>
+    </header>
+
+    <main class="container">
+        <section class="legal-content">
+            <h1>Kebijakan Privasi BotConnector</h1>
+            <p class="last-updated">Terakhir diperbarui: Agustus 2026</p>
+
+            <section>
+                <h2>1. Pengumpulan Data</h2>
+                <p>Kami mengumpulkan data yang Anda berikan secara langsung saat mendaftar, menggunakan layanan, atau menghubungi kami.</p>
+            </section>
+
+            <section>
+                <h2>2. Penggunaan Data</h2>
+                <p>Data digunakan untuk menyediakan, memelihara, dan meningkatkan layanan kami, serta untuk keamanan dan kepatuhan hukum.</p>
+            </section>
+
+            <section>
+                <h2>3. Berbagi Data</h2>
+                <p>Kami tidak menjual data pribadi Anda. Data hanya dibagikan kepada penyedia layanan tepercaya dan sesuai hukum.</p>
+            </section>
+
+            <section>
+                <h2>4. Hak Anda</h2>
+                <p>Anda memiliki hak untuk mengakses, memperbaiki, menghapus, atau membatasi pemrosesan data pribadi Anda.</p>
+            </section>
+
+            <section>
+                <h2>5. Keamanan</h2>
+                <p>Kami menerapkan langkah keamanan teknis dan organisasional untuk melindungi data Anda.</p>
+            </section>
+
+            <section>
+                <h2>6. Kontak Privasi</h2>
+                <p>Untuk pertanyaan atau permintaan terkait privasi, silakan kirim melalui:</p>
+                <ul>
+                    <li><strong>Formulir Permintaan Privasi:</strong> <a href="/support?category=privacy">/support?category=privacy</a></li>
+                    {% if not mailbox_provisioning_required %}
+                    <li><strong>Email:</strong> <a href="mailto:privacy@botconnector.id">privacy@botconnector.id</a></li>
+                    {% else %}
+                    <li><strong>Email:</strong> privacy@botconnector.id (provisioning diperlukan)</li>
+                    {% endif %}
+                </ul>
+                <p>Permintaan privasi termasuk: akses data, koreksi, penghapusan, konsent, dan pertanyaan privasi lainnya.</p>
+            </section>
+        </section>
+    </main>
+
+    <footer class="footer">
+        <div class="footer-grid">
+            <div class="footer-col">
+                <h4>Produk</h4>
+                <ul>
+                    <li><a href="/">BotConnector</a></li>
+                    <li><a href="">Business Suite</a></li>
+                    <li><a href="">My Drive</a></li>
+                    <li><a href="">Connect</a></li>
+                </ul>
+            </div>
+            <div class="footer-col">
+                <h4>Platform</h4>
+                <ul>
+                    <li><a href="/support">Bantuan</a></li>
+                    <li><a href="/privacy">Privasi</a></li>
+                    <li><a href="/terms">Ketentuan</a></li>
+                    <li><a href="/security">Keamanan</a></li>
+                </ul>
+            </div>
+            <div class="footer-col">
+                <h4>Koneksi</h4>
+                <ul>
+                    <li><a href="">GitHub</a></li>
+                    <li><a href="">Documentation</a></li>
+                </ul>
+            </div>
+        </div>
+    </footer>
+</body>
+</html>

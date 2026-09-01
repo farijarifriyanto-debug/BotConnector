@@ -1,0 +1,124 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>BotConnector - Lapor Keamanan</title>
+    <link rel="stylesheet" href="/static/security.css">
+    <meta name="description" content="Laporkan masalah keamanan ke tim BotConnector">
+</head>
+<body>
+    <header class="navbar">
+        <div class="logo">
+            <i class="fa fa-fingerprint"></i> BotConnector
+        </div>
+        <nav>
+            <a href="/"><i class="fa fa-home"></i> Beranda</a>
+            <a href="/support"><i class="fa fa-life-bouy"></i> Bantuan</a>
+            <a href="/privacy"><i class="fa fa-shield-alt"></i> Privasi</a>
+            <a href="/terms"><i class="fa fa-gavel"></i> Ketentuan</a>
+            <a href="/security"><i class="fa fa-fingerprint"></i> Keamanan</a>
+        </nav>
+    </header>
+
+    <main class="container">
+        <section class="security-form-section">
+            <div class="form-header">
+                <h2><i class="fa fa-fingerprint"></i> LAPOR KEAMANAN</h2>
+                <p>Laporkan masalah keamanan kepada tim BotConnector</p>
+            </div>
+
+            <form id="securityForm" action="/support/security-report" method="POST">
+                <div class="form-group">
+                    <label for="reporter_name">Nama (Opsional)</label>
+                    <input type="text" id="reporter_name" name="reporter_name" maxlength="120" placeholder="Masukkan nama Anda (opsional)">
+                </div>
+
+                <div class="form-group">
+                    <label for="reporter_email">Email (Opsional)</label>
+                    <input type="email" id="reporter_email" name="reporter_email" maxlength="254" placeholder="contoh@domain.com">
+                </div>
+
+                <div class="form-group">
+                    <label for="affected_service">Layanan yang Terjebak <span class="required">*</span></label>
+                    <input type="text" id="affected_service" name="affected_service" required maxlength="100" placeholder="Contoh: Akun login, Business Suite, Connect, dll">
+                </div>
+
+                <div class="form-group">
+                    <label for="description">Deskripsi Masalah <span class="required">*</span></label>
+                    <textarea id="description" name="description" required maxlength="10000" rows="6" placeholder="Deskripsikan masalah keamanan dengan detail... Jangan kirim password, token, atau API key."</textarea>
+                    <small>Maksimal 10.000 karakter. Jangan lakukan destructive testing terhadap data lain.</small>
+                </div>
+
+                <div class="form-group">
+                    <label for="reproducible">Bisnis Dapat Direproduksi <span class="required">*</span></label>
+                    <select id="reproducible" name="reproducible" required>
+                        <option value="" disabled selected>Pilih opsi</option>
+                        <option value="yes">Ya - Saya dapat mereproduksi masalah ini</option>
+                        <option value="no">Tidak - Masalah ini tidak dapat saya direproduksi</option>
+                        <option value="partial">Sebab - Bisa direproduksi bajo kondisi tertentu</option>
+                    </select>
+                </div>
+
+                <div class="form-rules">
+                    <i class="fa fa-exclamation-triangle"></i>
+                    <strong>Penting:</strong> Jangan kirim password, token, API key, atau credential rahasia melalui formulir ini. Jangan lakukan destructive testing terhadap data pengguna lain.
+                </div>
+
+                <button type="submit" class="submit-btn"><i class="fa fa-paper-plane"></i> Kirim Laporan Keamanan</button>
+            </form>
+        </section>
+    </main>
+
+    <footer class="footer">
+        <div class="footer-grid">
+            <div class="footer-col">
+                <h4>Produk</h4>
+                <ul>
+                    <li><a href="/">BotConnector</a></li>
+                    <li><a href="">Business Suite</a></li>
+                    <li><a href="">My Drive</a></li>
+                    <li><a href="">Connect</a></li>
+                </ul>
+            </div>
+            <div class="footer-col">
+                <h4>Platform</h4>
+                <ul>
+                    <li><a href="/support">Bantuan</a></li>
+                    <li><a href="/privacy">Privasi</a></li>
+                    <li><a href="/terms">Ketentuan</a></li>
+                    <li><a href="/security">Keamanan</a></li>
+                </ul>
+            </div>
+            <div class="footer-col">
+                <h4>Koneksi</h4>
+                <ul>
+                    <li><a href="">GitHub</a></li>
+                    <li><a href="">Documentation</a></li>
+                </ul>
+            </div>
+        </div>
+    </footer>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const form = document.getElementById('securityForm');
+            if (form) {
+                form.addEventListener('submit', function(e) {
+                    const required = form.querySelectorAll('[required]');
+                    let valid = true;
+                    required.forEach(field => {
+                        if (!field.value.trim()) {
+                            valid = false;
+                        }
+                    });
+                    if (!valid) {
+                        e.preventDefault();
+                        alert('Silakan isi semua field yang wajib diisi.');
+                    }
+                });
+            }
+        });
+    </script>
+</body>
+</html>
