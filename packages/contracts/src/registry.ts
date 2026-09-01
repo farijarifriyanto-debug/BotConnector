@@ -33,6 +33,7 @@ import {
   ApiMetadataSchema,
   ApiResponseEnvelopeSchema,
   ChatMessageSchema,
+  DomainEventSchema,
   ErrorEnvelopeSchema,
   EventEnvelopeSchema,
 } from './transport/index.js';
@@ -88,6 +89,7 @@ export const contractSchemas = {
   Deployment: DeploymentSchema,
   ChatMessage: ChatMessageSchema,
   EventEnvelope: EventEnvelopeSchema,
+  DomainEvent: DomainEventSchema,
   ErrorEnvelope: ErrorEnvelopeSchema,
   ApiMetadata: ApiMetadataSchema,
   ApiResponseEnvelope: ApiResponseEnvelopeSchema,

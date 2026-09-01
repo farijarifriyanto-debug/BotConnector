@@ -3406,496 +3406,481 @@
       },
       "EventEnvelope": {
         "$schema": "https://json-schema.org/draft/2020-12/schema",
-        "type": "object",
-        "properties": {
-          "version": {
-            "type": "number",
-            "const": 1
-          },
-          "type": {
-            "type": "string",
-            "const": "generation_event"
-          },
-          "event": {
+        "oneOf": [
+          {
             "type": "object",
             "properties": {
               "version": {
                 "type": "number",
                 "const": 1
               },
-              "id": {
+              "type": {
                 "type": "string",
-                "minLength": 1
+                "const": "generation_event"
               },
-              "sequence": {
-                "type": "integer",
-                "minimum": 0,
-                "maximum": 9007199254740991
-              },
-              "project_id": {
-                "type": "string",
-                "minLength": 1
-              },
-              "correlation_id": {
-                "type": "string",
-                "minLength": 1
-              },
-              "causation_id": {
-                "anyOf": [
-                  {
-                    "type": "string",
-                    "minLength": 1
-                  },
-                  {
-                    "type": "null"
-                  }
-                ]
-              },
-              "actor": {
+              "event": {
                 "type": "object",
                 "properties": {
-                  "type": {
-                    "type": "string",
-                    "enum": [
-                      "user",
-                      "agent",
-                      "system"
-                    ]
+                  "version": {
+                    "type": "number",
+                    "const": 1
                   },
                   "id": {
                     "type": "string",
                     "minLength": 1
-                  }
-                },
-                "required": [
-                  "type",
-                  "id"
-                ],
-                "additionalProperties": false
-              },
-              "timestamp": {
-                "type": "string",
-                "format": "date-time",
-                "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))T(?:(?:[01]\\d|2[0-3]):[0-5]\\d:[0-5]\\d(?:\\.\\d+)?(?:Z|([+-](?:[01]\\d|2[0-3]):[0-5]\\d)))$"
-              },
-              "payload": {
-                "oneOf": [
-                  {
-                    "type": "object",
-                    "properties": {
-                      "version": {
-                        "type": "number",
-                        "const": 1
-                      },
-                      "family": {
-                        "type": "string",
-                        "const": "generation"
-                      },
-                      "run_id": {
+                  },
+                  "sequence": {
+                    "type": "integer",
+                    "minimum": 0,
+                    "maximum": 9007199254740991
+                  },
+                  "project_id": {
+                    "type": "string",
+                    "minLength": 1
+                  },
+                  "correlation_id": {
+                    "type": "string",
+                    "minLength": 1
+                  },
+                  "causation_id": {
+                    "anyOf": [
+                      {
                         "type": "string",
                         "minLength": 1
                       },
-                      "state": {
-                        "type": "string",
-                        "enum": [
-                          "planning",
-                          "running",
-                          "pausing",
-                          "paused",
-                          "stopping",
-                          "stopped",
-                          "validating",
-                          "repairing",
-                          "completed",
-                          "failed"
-                        ]
+                      {
+                        "type": "null"
                       }
-                    },
-                    "required": [
-                      "version",
-                      "family",
-                      "run_id",
-                      "state"
-                    ],
-                    "additionalProperties": false
+                    ]
                   },
-                  {
+                  "actor": {
                     "type": "object",
                     "properties": {
-                      "version": {
-                        "type": "number",
-                        "const": 1
-                      },
-                      "family": {
+                      "type": {
                         "type": "string",
-                        "const": "plan"
+                        "enum": [
+                          "user",
+                          "agent",
+                          "system"
+                        ]
                       },
-                      "plan_id": {
+                      "id": {
                         "type": "string",
                         "minLength": 1
-                      },
-                      "action": {
-                        "type": "string",
-                        "enum": [
-                          "created",
-                          "updated",
-                          "approved"
-                        ]
                       }
                     },
                     "required": [
-                      "version",
-                      "family",
-                      "plan_id",
-                      "action"
+                      "type",
+                      "id"
                     ],
                     "additionalProperties": false
                   },
-                  {
-                    "type": "object",
-                    "properties": {
-                      "version": {
-                        "type": "number",
-                        "const": 1
-                      },
-                      "family": {
-                        "type": "string",
-                        "const": "focus"
-                      },
-                      "focus_lock_id": {
-                        "type": "string",
-                        "minLength": 1
-                      },
-                      "action": {
-                        "type": "string",
-                        "enum": [
-                          "acquired",
-                          "released"
-                        ]
-                      }
-                    },
-                    "required": [
-                      "version",
-                      "family",
-                      "focus_lock_id",
-                      "action"
-                    ],
-                    "additionalProperties": false
+                  "timestamp": {
+                    "type": "string",
+                    "format": "date-time",
+                    "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))T(?:(?:[01]\\d|2[0-3]):[0-5]\\d:[0-5]\\d(?:\\.\\d+)?(?:Z|([+-](?:[01]\\d|2[0-3]):[0-5]\\d)))$"
                   },
-                  {
-                    "type": "object",
-                    "properties": {
-                      "version": {
-                        "type": "number",
-                        "const": 1
+                  "payload": {
+                    "oneOf": [
+                      {
+                        "type": "object",
+                        "properties": {
+                          "version": {
+                            "type": "number",
+                            "const": 1
+                          },
+                          "family": {
+                            "type": "string",
+                            "const": "generation"
+                          },
+                          "run_id": {
+                            "type": "string",
+                            "minLength": 1
+                          },
+                          "state": {
+                            "type": "string",
+                            "enum": [
+                              "planning",
+                              "running",
+                              "pausing",
+                              "paused",
+                              "stopping",
+                              "stopped",
+                              "validating",
+                              "repairing",
+                              "completed",
+                              "failed"
+                            ]
+                          }
+                        },
+                        "required": [
+                          "version",
+                          "family",
+                          "run_id",
+                          "state"
+                        ],
+                        "additionalProperties": false
                       },
-                      "family": {
-                        "type": "string",
-                        "const": "frame"
+                      {
+                        "type": "object",
+                        "properties": {
+                          "version": {
+                            "type": "number",
+                            "const": 1
+                          },
+                          "family": {
+                            "type": "string",
+                            "const": "plan"
+                          },
+                          "plan_id": {
+                            "type": "string",
+                            "minLength": 1
+                          },
+                          "action": {
+                            "type": "string",
+                            "enum": [
+                              "created",
+                              "updated",
+                              "approved"
+                            ]
+                          }
+                        },
+                        "required": [
+                          "version",
+                          "family",
+                          "plan_id",
+                          "action"
+                        ],
+                        "additionalProperties": false
                       },
-                      "frame_id": {
-                        "type": "string",
-                        "minLength": 1
+                      {
+                        "type": "object",
+                        "properties": {
+                          "version": {
+                            "type": "number",
+                            "const": 1
+                          },
+                          "family": {
+                            "type": "string",
+                            "const": "focus"
+                          },
+                          "focus_lock_id": {
+                            "type": "string",
+                            "minLength": 1
+                          },
+                          "action": {
+                            "type": "string",
+                            "enum": [
+                              "acquired",
+                              "released"
+                            ]
+                          }
+                        },
+                        "required": [
+                          "version",
+                          "family",
+                          "focus_lock_id",
+                          "action"
+                        ],
+                        "additionalProperties": false
                       },
-                      "action": {
-                        "type": "string",
-                        "enum": [
-                          "created",
-                          "updated",
-                          "removed"
-                        ]
-                      }
-                    },
-                    "required": [
-                      "version",
-                      "family",
-                      "frame_id",
-                      "action"
-                    ],
-                    "additionalProperties": false
-                  },
-                  {
-                    "type": "object",
-                    "properties": {
-                      "version": {
-                        "type": "number",
-                        "const": 1
+                      {
+                        "type": "object",
+                        "properties": {
+                          "version": {
+                            "type": "number",
+                            "const": 1
+                          },
+                          "family": {
+                            "type": "string",
+                            "const": "frame"
+                          },
+                          "frame_id": {
+                            "type": "string",
+                            "minLength": 1
+                          },
+                          "action": {
+                            "type": "string",
+                            "enum": [
+                              "created",
+                              "updated",
+                              "removed"
+                            ]
+                          }
+                        },
+                        "required": [
+                          "version",
+                          "family",
+                          "frame_id",
+                          "action"
+                        ],
+                        "additionalProperties": false
                       },
-                      "family": {
-                        "type": "string",
-                        "const": "section"
+                      {
+                        "type": "object",
+                        "properties": {
+                          "version": {
+                            "type": "number",
+                            "const": 1
+                          },
+                          "family": {
+                            "type": "string",
+                            "const": "section"
+                          },
+                          "section_id": {
+                            "type": "string",
+                            "minLength": 1
+                          },
+                          "action": {
+                            "type": "string",
+                            "enum": [
+                              "created",
+                              "updated",
+                              "removed"
+                            ]
+                          }
+                        },
+                        "required": [
+                          "version",
+                          "family",
+                          "section_id",
+                          "action"
+                        ],
+                        "additionalProperties": false
                       },
-                      "section_id": {
-                        "type": "string",
-                        "minLength": 1
+                      {
+                        "type": "object",
+                        "properties": {
+                          "version": {
+                            "type": "number",
+                            "const": 1
+                          },
+                          "family": {
+                            "type": "string",
+                            "const": "component"
+                          },
+                          "component_id": {
+                            "type": "string",
+                            "minLength": 1
+                          },
+                          "action": {
+                            "type": "string",
+                            "enum": [
+                              "created",
+                              "updated",
+                              "removed"
+                            ]
+                          }
+                        },
+                        "required": [
+                          "version",
+                          "family",
+                          "component_id",
+                          "action"
+                        ],
+                        "additionalProperties": false
                       },
-                      "action": {
-                        "type": "string",
-                        "enum": [
-                          "created",
-                          "updated",
-                          "removed"
-                        ]
-                      }
-                    },
-                    "required": [
-                      "version",
-                      "family",
-                      "section_id",
-                      "action"
-                    ],
-                    "additionalProperties": false
-                  },
-                  {
-                    "type": "object",
-                    "properties": {
-                      "version": {
-                        "type": "number",
-                        "const": 1
+                      {
+                        "type": "object",
+                        "properties": {
+                          "version": {
+                            "type": "number",
+                            "const": 1
+                          },
+                          "family": {
+                            "type": "string",
+                            "const": "style"
+                          },
+                          "target_id": {
+                            "type": "string",
+                            "minLength": 1
+                          },
+                          "action": {
+                            "type": "string",
+                            "const": "updated"
+                          }
+                        },
+                        "required": [
+                          "version",
+                          "family",
+                          "target_id",
+                          "action"
+                        ],
+                        "additionalProperties": false
                       },
-                      "family": {
-                        "type": "string",
-                        "const": "component"
+                      {
+                        "type": "object",
+                        "properties": {
+                          "version": {
+                            "type": "number",
+                            "const": 1
+                          },
+                          "family": {
+                            "type": "string",
+                            "const": "asset"
+                          },
+                          "asset_id": {
+                            "type": "string",
+                            "minLength": 1
+                          },
+                          "action": {
+                            "type": "string",
+                            "enum": [
+                              "created",
+                              "updated",
+                              "removed"
+                            ]
+                          }
+                        },
+                        "required": [
+                          "version",
+                          "family",
+                          "asset_id",
+                          "action"
+                        ],
+                        "additionalProperties": false
                       },
-                      "component_id": {
-                        "type": "string",
-                        "minLength": 1
+                      {
+                        "type": "object",
+                        "properties": {
+                          "version": {
+                            "type": "number",
+                            "const": 1
+                          },
+                          "family": {
+                            "type": "string",
+                            "const": "transaction"
+                          },
+                          "transaction_id": {
+                            "type": "string",
+                            "minLength": 1
+                          },
+                          "state": {
+                            "type": "string",
+                            "enum": [
+                              "open",
+                              "validating",
+                              "committed",
+                              "rejected"
+                            ]
+                          }
+                        },
+                        "required": [
+                          "version",
+                          "family",
+                          "transaction_id",
+                          "state"
+                        ],
+                        "additionalProperties": false
                       },
-                      "action": {
-                        "type": "string",
-                        "enum": [
-                          "created",
-                          "updated",
-                          "removed"
-                        ]
-                      }
-                    },
-                    "required": [
-                      "version",
-                      "family",
-                      "component_id",
-                      "action"
-                    ],
-                    "additionalProperties": false
-                  },
-                  {
-                    "type": "object",
-                    "properties": {
-                      "version": {
-                        "type": "number",
-                        "const": 1
+                      {
+                        "type": "object",
+                        "properties": {
+                          "version": {
+                            "type": "number",
+                            "const": 1
+                          },
+                          "family": {
+                            "type": "string",
+                            "const": "validation"
+                          },
+                          "validation_result_id": {
+                            "type": "string",
+                            "minLength": 1
+                          },
+                          "outcome": {
+                            "type": "string",
+                            "enum": [
+                              "pass",
+                              "fail"
+                            ]
+                          }
+                        },
+                        "required": [
+                          "version",
+                          "family",
+                          "validation_result_id",
+                          "outcome"
+                        ],
+                        "additionalProperties": false
                       },
-                      "family": {
-                        "type": "string",
-                        "const": "style"
+                      {
+                        "type": "object",
+                        "properties": {
+                          "version": {
+                            "type": "number",
+                            "const": 1
+                          },
+                          "family": {
+                            "type": "string",
+                            "const": "repair"
+                          },
+                          "repair_run_id": {
+                            "type": "string",
+                            "minLength": 1
+                          },
+                          "state": {
+                            "type": "string",
+                            "enum": [
+                              "queued",
+                              "running",
+                              "completed",
+                              "failed"
+                            ]
+                          }
+                        },
+                        "required": [
+                          "version",
+                          "family",
+                          "repair_run_id",
+                          "state"
+                        ],
+                        "additionalProperties": false
                       },
-                      "target_id": {
-                        "type": "string",
-                        "minLength": 1
+                      {
+                        "type": "object",
+                        "properties": {
+                          "version": {
+                            "type": "number",
+                            "const": 1
+                          },
+                          "family": {
+                            "type": "string",
+                            "const": "preview"
+                          },
+                          "preview_id": {
+                            "type": "string",
+                            "minLength": 1
+                          },
+                          "state": {
+                            "type": "string",
+                            "enum": [
+                              "preparing",
+                              "ready",
+                              "failed"
+                            ]
+                          }
+                        },
+                        "required": [
+                          "version",
+                          "family",
+                          "preview_id",
+                          "state"
+                        ],
+                        "additionalProperties": false
                       },
-                      "action": {
-                        "type": "string",
-                        "const": "updated"
-                      }
-                    },
-                    "required": [
-                      "version",
-                      "family",
-                      "target_id",
-                      "action"
-                    ],
-                    "additionalProperties": false
-                  },
-                  {
-                    "type": "object",
-                    "properties": {
-                      "version": {
-                        "type": "number",
-                        "const": 1
-                      },
-                      "family": {
-                        "type": "string",
-                        "const": "asset"
-                      },
-                      "asset_id": {
-                        "type": "string",
-                        "minLength": 1
-                      },
-                      "action": {
-                        "type": "string",
-                        "enum": [
-                          "created",
-                          "updated",
-                          "removed"
-                        ]
-                      }
-                    },
-                    "required": [
-                      "version",
-                      "family",
-                      "asset_id",
-                      "action"
-                    ],
-                    "additionalProperties": false
-                  },
-                  {
-                    "type": "object",
-                    "properties": {
-                      "version": {
-                        "type": "number",
-                        "const": 1
-                      },
-                      "family": {
-                        "type": "string",
-                        "const": "transaction"
-                      },
-                      "transaction_id": {
-                        "type": "string",
-                        "minLength": 1
-                      },
-                      "state": {
-                        "type": "string",
-                        "enum": [
-                          "open",
-                          "validating",
-                          "committed",
-                          "rejected"
-                        ]
-                      }
-                    },
-                    "required": [
-                      "version",
-                      "family",
-                      "transaction_id",
-                      "state"
-                    ],
-                    "additionalProperties": false
-                  },
-                  {
-                    "type": "object",
-                    "properties": {
-                      "version": {
-                        "type": "number",
-                        "const": 1
-                      },
-                      "family": {
-                        "type": "string",
-                        "const": "validation"
-                      },
-                      "validation_result_id": {
-                        "type": "string",
-                        "minLength": 1
-                      },
-                      "outcome": {
-                        "type": "string",
-                        "enum": [
-                          "pass",
-                          "fail"
-                        ]
-                      }
-                    },
-                    "required": [
-                      "version",
-                      "family",
-                      "validation_result_id",
-                      "outcome"
-                    ],
-                    "additionalProperties": false
-                  },
-                  {
-                    "type": "object",
-                    "properties": {
-                      "version": {
-                        "type": "number",
-                        "const": 1
-                      },
-                      "family": {
-                        "type": "string",
-                        "const": "repair"
-                      },
-                      "repair_run_id": {
-                        "type": "string",
-                        "minLength": 1
-                      },
-                      "state": {
-                        "type": "string",
-                        "enum": [
-                          "queued",
-                          "running",
-                          "completed",
-                          "failed"
-                        ]
-                      }
-                    },
-                    "required": [
-                      "version",
-                      "family",
-                      "repair_run_id",
-                      "state"
-                    ],
-                    "additionalProperties": false
-                  },
-                  {
-                    "type": "object",
-                    "properties": {
-                      "version": {
-                        "type": "number",
-                        "const": 1
-                      },
-                      "family": {
-                        "type": "string",
-                        "const": "preview"
-                      },
-                      "preview_id": {
-                        "type": "string",
-                        "minLength": 1
-                      },
-                      "state": {
-                        "type": "string",
-                        "enum": [
-                          "preparing",
-                          "ready",
-                          "failed"
-                        ]
-                      }
-                    },
-                    "required": [
-                      "version",
-                      "family",
-                      "preview_id",
-                      "state"
-                    ],
-                    "additionalProperties": false
-                  },
-                  {
-                    "type": "object",
-                    "properties": {
-                      "version": {
-                        "type": "number",
-                        "const": 1
-                      },
-                      "family": {
-                        "type": "string",
-                        "const": "state"
-                      },
-                      "state": {
-                        "type": "string",
-                        "enum": [
-                          "planning",
-                          "running",
-                          "pausing",
-                          "paused",
-                          "stopping",
-                          "stopped",
-                          "validating",
-                          "repairing",
-                          "completed",
-                          "failed"
-                        ]
-                      },
-                      "previous_state": {
-                        "anyOf": [
-                          {
+                      {
+                        "type": "object",
+                        "properties": {
+                          "version": {
+                            "type": "number",
+                            "const": 1
+                          },
+                          "family": {
+                            "type": "string",
+                            "const": "state"
+                          },
+                          "state": {
                             "type": "string",
                             "enum": [
                               "planning",
@@ -3910,43 +3895,314 @@
                               "failed"
                             ]
                           },
-                          {
-                            "type": "null"
+                          "previous_state": {
+                            "anyOf": [
+                              {
+                                "type": "string",
+                                "enum": [
+                                  "planning",
+                                  "running",
+                                  "pausing",
+                                  "paused",
+                                  "stopping",
+                                  "stopped",
+                                  "validating",
+                                  "repairing",
+                                  "completed",
+                                  "failed"
+                                ]
+                              },
+                              {
+                                "type": "null"
+                              }
+                            ]
                           }
-                        ]
+                        },
+                        "required": [
+                          "version",
+                          "family",
+                          "state",
+                          "previous_state"
+                        ],
+                        "additionalProperties": false
                       }
-                    },
-                    "required": [
-                      "version",
-                      "family",
-                      "state",
-                      "previous_state"
-                    ],
-                    "additionalProperties": false
+                    ]
                   }
-                ]
+                },
+                "required": [
+                  "version",
+                  "id",
+                  "sequence",
+                  "project_id",
+                  "correlation_id",
+                  "causation_id",
+                  "actor",
+                  "timestamp",
+                  "payload"
+                ],
+                "additionalProperties": false
               }
             },
             "required": [
               "version",
-              "id",
-              "sequence",
-              "project_id",
-              "correlation_id",
-              "causation_id",
-              "actor",
-              "timestamp",
-              "payload"
+              "type",
+              "event"
             ],
             "additionalProperties": false
+          },
+          {
+            "type": "object",
+            "properties": {
+              "version": {
+                "type": "number",
+                "const": 1
+              },
+              "type": {
+                "type": "string",
+                "const": "domain_event"
+              },
+              "event": {
+                "type": "object",
+                "properties": {
+                  "version": {
+                    "type": "number",
+                    "const": 1
+                  },
+                  "id": {
+                    "type": "string",
+                    "minLength": 1
+                  },
+                  "type": {
+                    "type": "string",
+                    "minLength": 1
+                  },
+                  "sequence": {
+                    "type": "string",
+                    "pattern": "^[0-9]+$"
+                  },
+                  "project_id": {
+                    "type": "string",
+                    "minLength": 1
+                  },
+                  "correlation_id": {
+                    "type": "string",
+                    "minLength": 1
+                  },
+                  "causation_id": {
+                    "anyOf": [
+                      {
+                        "type": "string",
+                        "minLength": 1
+                      },
+                      {
+                        "type": "null"
+                      }
+                    ]
+                  },
+                  "actor": {
+                    "type": "object",
+                    "properties": {
+                      "type": {
+                        "type": "string",
+                        "enum": [
+                          "user",
+                          "agent",
+                          "system"
+                        ]
+                      },
+                      "id": {
+                        "type": "string",
+                        "minLength": 1
+                      }
+                    },
+                    "required": [
+                      "type",
+                      "id"
+                    ],
+                    "additionalProperties": false
+                  },
+                  "timestamp": {
+                    "type": "string",
+                    "format": "date-time",
+                    "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))T(?:(?:[01]\\d|2[0-3]):[0-5]\\d:[0-5]\\d(?:\\.\\d+)?(?:Z|([+-](?:[01]\\d|2[0-3]):[0-5]\\d)))$"
+                  },
+                  "payload": {
+                    "$ref": "#/components/schemas/EventEnvelope/$defs/__schema0"
+                  }
+                },
+                "required": [
+                  "version",
+                  "id",
+                  "type",
+                  "sequence",
+                  "project_id",
+                  "correlation_id",
+                  "causation_id",
+                  "actor",
+                  "timestamp",
+                  "payload"
+                ],
+                "additionalProperties": false
+              }
+            },
+            "required": [
+              "version",
+              "type",
+              "event"
+            ],
+            "additionalProperties": false
+          }
+        ],
+        "$defs": {
+          "__schema0": {
+            "anyOf": [
+              {
+                "type": "null"
+              },
+              {
+                "type": "boolean"
+              },
+              {
+                "type": "number"
+              },
+              {
+                "type": "string"
+              },
+              {
+                "type": "array",
+                "items": {
+                  "$ref": "#/components/schemas/EventEnvelope/$defs/__schema0"
+                }
+              },
+              {
+                "type": "object",
+                "propertyNames": {
+                  "type": "string"
+                },
+                "additionalProperties": {
+                  "$ref": "#/components/schemas/EventEnvelope/$defs/__schema0"
+                }
+              }
+            ]
+          }
+        }
+      },
+      "DomainEvent": {
+        "$schema": "https://json-schema.org/draft/2020-12/schema",
+        "type": "object",
+        "properties": {
+          "version": {
+            "type": "number",
+            "const": 1
+          },
+          "id": {
+            "type": "string",
+            "minLength": 1
+          },
+          "type": {
+            "type": "string",
+            "minLength": 1
+          },
+          "sequence": {
+            "type": "string",
+            "pattern": "^[0-9]+$"
+          },
+          "project_id": {
+            "type": "string",
+            "minLength": 1
+          },
+          "correlation_id": {
+            "type": "string",
+            "minLength": 1
+          },
+          "causation_id": {
+            "anyOf": [
+              {
+                "type": "string",
+                "minLength": 1
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "actor": {
+            "type": "object",
+            "properties": {
+              "type": {
+                "type": "string",
+                "enum": [
+                  "user",
+                  "agent",
+                  "system"
+                ]
+              },
+              "id": {
+                "type": "string",
+                "minLength": 1
+              }
+            },
+            "required": [
+              "type",
+              "id"
+            ],
+            "additionalProperties": false
+          },
+          "timestamp": {
+            "type": "string",
+            "format": "date-time",
+            "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))T(?:(?:[01]\\d|2[0-3]):[0-5]\\d:[0-5]\\d(?:\\.\\d+)?(?:Z|([+-](?:[01]\\d|2[0-3]):[0-5]\\d)))$"
+          },
+          "payload": {
+            "$ref": "#/components/schemas/DomainEvent/$defs/__schema0"
           }
         },
         "required": [
           "version",
+          "id",
           "type",
-          "event"
+          "sequence",
+          "project_id",
+          "correlation_id",
+          "causation_id",
+          "actor",
+          "timestamp",
+          "payload"
         ],
-        "additionalProperties": false
+        "additionalProperties": false,
+        "$defs": {
+          "__schema0": {
+            "anyOf": [
+              {
+                "type": "null"
+              },
+              {
+                "type": "boolean"
+              },
+              {
+                "type": "number"
+              },
+              {
+                "type": "string"
+              },
+              {
+                "type": "array",
+                "items": {
+                  "$ref": "#/components/schemas/DomainEvent/$defs/__schema0"
+                }
+              },
+              {
+                "type": "object",
+                "propertyNames": {
+                  "type": "string"
+                },
+                "additionalProperties": {
+                  "$ref": "#/components/schemas/DomainEvent/$defs/__schema0"
+                }
+              }
+            ]
+          }
+        }
       },
       "ErrorEnvelope": {
         "$schema": "https://json-schema.org/draft/2020-12/schema",

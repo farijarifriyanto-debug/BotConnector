@@ -4,7 +4,9 @@ import {
   CONTRACT_COUNT,
   ChatMessageSchema,
   DeploymentSchema,
+  DomainEventSchema,
   ErrorEnvelopeSchema,
+  EventEnvelopeSchema,
   FailureSignatureSchema,
   RepairRunSchema,
   ValidationResultSchema,
@@ -155,6 +157,48 @@ describe('transport contracts', () => {
     expect(validateWebSocketPayload(envelope)).toEqual(envelope);
   });
 
+  it('accepts the canonical domain_event envelope variant', () => {
+    const envelope = {
+      version: 1,
+      type: 'domain_event',
+      event: {
+        version: 1,
+        id: 'event-1',
+        type: 'project.updated',
+        sequence: '3',
+        project_id: 'project-1',
+        correlation_id: 'correlation-1',
+        causation_id: 'causation-1',
+        actor: { type: 'system', id: 'control-plane' },
+        timestamp,
+        payload: { name: 'updated' },
+      },
+    };
+    expect(validateWebSocketPayload(envelope)).toEqual(envelope);
+    expect(EventEnvelopeSchema.parse(envelope)).toEqual(envelope);
+    expect(DomainEventSchema.parse(envelope.event)).toEqual(envelope.event);
+  });
+
+  it('rejects a malformed domain_event envelope', () => {
+    const envelope = {
+      version: 1,
+      type: 'domain_event',
+      event: {
+        version: 1,
+        id: 'event-1',
+        type: 'project.updated',
+        sequence: 'not-a-number',
+        project_id: 'project-1',
+        correlation_id: 'correlation-1',
+        causation_id: null,
+        actor: { type: 'system', id: 'control-plane' },
+        timestamp,
+        payload: {},
+      },
+    };
+    expect(EventEnvelopeSchema.safeParse(envelope).success).toBe(false);
+  });
+
   it('validates ErrorEnvelope and rejects missing errors', () => {
     const envelope = {
       version: 1,
@@ -195,7 +239,7 @@ describe('schema exports', () => {
   it('exports all canonical contracts as deterministic JSON Schema', () => {
     const first = exportJsonSchemaBundle();
     const second = exportJsonSchemaBundle();
-    expect(CONTRACT_COUNT).toBe(38);
+    expect(CONTRACT_COUNT).toBe(39);
     expect(Object.keys(first.$defs)).toHaveLength(CONTRACT_COUNT);
     expect(first.$defs.Project.additionalProperties).toBe(false);
     expect(JSON.stringify(first.$defs.UIIRNode)).toContain('propertyNames');

@@ -11,6 +11,11 @@ export const RevisionSchema = z.string().regex(
   'revision must be a canonical non-negative decimal string',
 );
 
+export const SequenceSchema = z.string().regex(
+  NON_NEGATIVE_DECIMAL_RE,
+  'sequence must be a canonical non-negative decimal string',
+);
+
 export const contractFields = {
   version: ContractVersionSchema,
 } as const;

@@ -3,10 +3,11 @@ import { z } from 'zod';
 import {
   IdentifierSchema,
   JsonValueSchema,
+  SequenceSchema,
   TimestampSchema,
   contractFields,
 } from '../common.js';
-import { GenerationEventSchema } from '../generation/index.js';
+import { ActorSchema, GenerationEventSchema } from '../generation/index.js';
 
 export const ChatMessageSchema = z.strictObject({
   ...contractFields,
@@ -21,11 +22,31 @@ export const ChatMessageSchema = z.strictObject({
   created_at: TimestampSchema,
 });
 
-export const EventEnvelopeSchema = z.strictObject({
+export const DomainEventSchema = z.strictObject({
   ...contractFields,
-  type: z.literal('generation_event'),
-  event: GenerationEventSchema,
+  id: IdentifierSchema,
+  type: z.string().min(1),
+  sequence: SequenceSchema,
+  project_id: IdentifierSchema,
+  correlation_id: IdentifierSchema,
+  causation_id: IdentifierSchema.nullable(),
+  actor: ActorSchema,
+  timestamp: TimestampSchema,
+  payload: JsonValueSchema,
 });
+
+export const EventEnvelopeSchema = z.discriminatedUnion('type', [
+  z.strictObject({
+    ...contractFields,
+    type: z.literal('generation_event'),
+    event: GenerationEventSchema,
+  }),
+  z.strictObject({
+    ...contractFields,
+    type: z.literal('domain_event'),
+    event: DomainEventSchema,
+  }),
+]);
 
 export const ApiMetadataSchema = z.strictObject({
   ...contractFields,
@@ -56,6 +77,7 @@ export function validateWebSocketPayload(input: unknown): EventEnvelope {
 }
 
 export type EventEnvelope = z.infer<typeof EventEnvelopeSchema>;
+export type DomainEvent = z.infer<typeof DomainEventSchema>;
 export type ChatMessage = z.infer<typeof ChatMessageSchema>;
 export type ApiMetadata = z.infer<typeof ApiMetadataSchema>;
 export type ApiResponseEnvelope = z.infer<typeof ApiResponseEnvelopeSchema>;
