@@ -4,21 +4,22 @@
  * - application_role: runtime role, NOSUPERUSER, NOBYPASSRLS
  */
 exports.up = (pgm) => {
-  pgm.createRole('migration_owner', {
-    login: false,
-    superuser: false,
-    bypassrls: false,
-    createDb: false,
-    inherit: true,
-  });
+  // Use raw SQL for idempotent role creation (roles are cluster-wide)
+  pgm.sql(`
+    DO $$ BEGIN
+      IF NOT EXISTS (SELECT FROM pg_roles WHERE rolname = 'migration_owner') THEN
+        CREATE ROLE migration_owner WITH NOSUPERUSER NOCREATEDB NOCREATEROLE INHERIT NOLOGIN NOREPLICATION NOBYPASSRLS;
+      END IF;
+    END $$;
+  `);
 
-  pgm.createRole('application_role', {
-    login: false,
-    superuser: false,
-    bypassrls: false,
-    createDb: false,
-    inherit: true,
-  });
+  pgm.sql(`
+    DO $$ BEGIN
+      IF NOT EXISTS (SELECT FROM pg_roles WHERE rolname = 'application_role') THEN
+        CREATE ROLE application_role WITH NOSUPERUSER NOCREATEDB NOCREATEROLE INHERIT NOLOGIN NOREPLICATION NOBYPASSRLS;
+      END IF;
+    END $$;
+  `);
 
   // Grant schema usage to application_role
   const schemas = [

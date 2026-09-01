@@ -311,26 +311,91 @@ describe('Phase 2: Data Model Invariants', () => {
     try {
       await asApp('ws-b', async (client) => {
         // Try to reference proj-a (ws-a project) from ws-b context
-        // RLS WITH CHECK should block because workspace_id='ws-b' but proj-a is in ws-a
+        // Composite FK should block: (ws-b, proj-a) not in core.projects
         await client.query(`INSERT INTO core.artifacts (id, project_id, workspace_id, type, lifecycle) VALUES ('art-cross-23', 'proj-a', 'ws-b', 'web', 'draft')`);
       });
-      assert.fail('Should have thrown RLS violation');
+      assert.fail('Should have thrown FK violation');
     } catch (e) {
-      assert.ok(e.code === '42501' || e.message.includes('policy') || e.code === '23503' || e.code === 'P0001' || e.message.includes('Cross-tenant'), `Expected RLS/FK violation, got ${e.code}: ${e.message}`);
+      // Composite FK violation (23503) or RLS (42501)
+      assert.ok(e.code === '23503' || e.code === '42501', `Expected FK/RLS violation, got ${e.code}: ${e.message}`);
     }
     await adminPool.query(`DELETE FROM core.artifacts WHERE id = 'art-cross-23'`);
+  });
+
+  it('24. same-tenant valid reference accepted', async () => {
+    await adminPool.query(`DELETE FROM core.artifacts WHERE id = 'art-same-24'`);
+    // proj-a belongs to ws-a — same-tenant reference should work
+    await adminPool.query(`INSERT INTO core.artifacts (id, project_id, workspace_id, type, lifecycle) VALUES ('art-same-24', 'proj-a', 'ws-a', 'web', 'draft')`);
+    const { rows } = await adminPool.query(`SELECT id FROM core.artifacts WHERE id = 'art-same-24'`);
+    assert.equal(rows.length, 1);
+    await adminPool.query(`DELETE FROM core.artifacts WHERE id = 'art-same-24'`);
+  });
+
+  it('25. composite FK catalog check — all 30 tables verified', async () => {
+    const expectedTables = [
+      'core.artifacts', 'core.artifact_versions', 'core.checkpoints',
+      'work.phases', 'work.tasks', 'work.task_dependencies', 'work.focus_locks',
+      'work.backlog_items', 'work.acceptance_contracts',
+      'design.design_systems', 'design.design_tokens', 'design.design_decisions',
+      'design.canvases', 'design.frames',
+      'memory.project_memory_revisions',
+      'ai.model_routes', 'ai.generation_runs', 'ai.steering_events',
+      'ai.render_transactions', 'ai.agent_runs', 'ai.context_snapshots',
+      'change.changesets',
+      'validation.validation_runs', 'validation.repair_runs',
+      'build.artifact_builds',
+      'resource.resources',
+      'deploy.deployments',
+      'event.generation_events', 'event.domain_events',
+      'security.secret_bindings',
+    ];
+    const { rows } = await adminPool.query(`
+      SELECT
+        n.nspname || '.' || c.relname as table_name,
+        con.conname
+      FROM pg_constraint con
+      JOIN pg_class c ON con.conrelid = c.oid
+      JOIN pg_namespace n ON c.relnamespace = n.oid
+      WHERE con.contype = 'f'
+      AND pg_get_constraintdef(con.oid) LIKE '%workspace_id%project_id%'
+      AND pg_get_constraintdef(con.oid) LIKE '%core.projects(workspace_id, id)%'
+      ORDER BY n.nspname, c.relname
+    `);
+    const found = new Set(rows.map(r => r.table_name));
+    for (const t of expectedTables) {
+      assert.ok(found.has(t), `Missing composite FK on: ${t}`);
+    }
+    assert.equal(rows.length, 30, `Expected 30 composite FKs, found ${rows.length}`);
+  });
+
+  it('26. parent-side uniqueness exists on core.projects', async () => {
+    const { rows } = await adminPool.query(`
+      SELECT conname, pg_get_constraintdef(oid) as def
+      FROM pg_constraint
+      WHERE conrelid = 'core.projects'::regclass AND contype = 'u'
+    `);
+    assert.ok(rows.length >= 1, 'Should have unique constraint');
+    const hasComposite = rows.some(r => r.def.includes('workspace_id') && r.def.includes('id'));
+    assert.ok(hasComposite, 'Should have UNIQUE(workspace_id, id)');
+  });
+
+  it('27. no enforce_workspace_project_consistency trigger remains', async () => {
+    const { rows } = await adminPool.query(`
+      SELECT proname FROM pg_proc WHERE proname = 'enforce_workspace_project_consistency'
+    `);
+    assert.equal(rows.length, 0, 'Trigger function should be removed');
   });
 });
 
 describe('Phase 2: Migration Repeatability', () => {
-  it('24. second migration application is safe (idempotent)', async () => {
+  it('28. second migration application is safe (idempotent)', async () => {
     const { rows } = await adminPool.query(`SELECT count(*) FROM public.pgmigrations`);
     assert.ok(parseInt(rows[0].count) > 0, 'Migrations should be recorded');
   });
 });
 
 describe('Phase 2: Index Verification', () => {
-  it('25. expected indexes exist', async () => {
+  it('29. expected indexes exist', async () => {
     const expectedIndexes = [
       'idx_projects_workspace',
       'idx_artifacts_project',
@@ -355,7 +420,7 @@ describe('Phase 2: Index Verification', () => {
 });
 
 describe('Phase 2: security.current_workspace_id() helper', () => {
-  it('26. returns current setting value', async () => {
+  it('30. returns current setting value', async () => {
     const result = await asApp('helper-test', async (client) => {
       const { rows } = await client.query(`SELECT security.current_workspace_id()`);
       return rows[0].current_workspace_id;
@@ -363,7 +428,7 @@ describe('Phase 2: security.current_workspace_id() helper', () => {
     assert.equal(result, 'helper-test');
   });
 
-  it('27. returns empty string when not set', async () => {
+  it('31. returns empty string when not set', async () => {
     const { rows } = await adminPool.query(`SELECT current_setting('app.workspace_id', true)`);
     // When not set with missing_ok=true, returns '' (empty string)
     assert.equal(rows[0].current_setting, '');
