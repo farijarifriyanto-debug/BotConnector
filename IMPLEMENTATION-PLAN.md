@@ -3,17 +3,18 @@
 ## Current phase
 
 ```
-CURRENT_PHASE=PHASE_0_REPOSITORY_ARCHITECTURE_GUARD
+CURRENT_PHASE=PHASE_1_CONTRACTS_KERNEL
 CURRENT_PHASE_STATUS=PASS_LOCKED
-NEXT_PHASE=PHASE_1_CONTRACTS_KERNEL
+NEXT_PHASE=PHASE_2_POSTGRESQL_CONTROL_PLANE
 NEXT_PHASE_STATUS=NOT_STARTED
-PHASE_1_STARTED=NO
+PHASE_1_STARTED=YES
+PHASE_2_STARTED=NO
 ```
 
-Phase 0 remains the current phase declaration after its PASS/LOCKED gate. Phase 1 is
-not active and must not start until an explicit Phase 1 kickoff changes this
-declaration. This prevents a successful guard phase from becoming implicit
-authorization for feature work.
+Phase 0 remains PASS/LOCKED. The project owner explicitly started Phase 1 to
+implement the shared Contracts Kernel. Phase 2 is not active and must not start
+until the Phase 1 acceptance gate passes and a separate explicit kickoff changes
+this declaration.
 
 ## Locked phase order
 
@@ -38,14 +39,14 @@ The order is locked. Only one phase may be active. A phase transition requires
 a PASS acceptance gate and explicit authorization. Out-of-phase ideas are
 Backlog items. Passing work is not repeated without regression evidence.
 
-## Phase 0 scope
+## Phase 1 scope
 
-Phase 0 establishes repository governance only. It does not implement website
-builder features, Contracts Kernel code, schemas, APIs, event infrastructure,
-sandboxes, previews, UI, agents, deployment, or application scaffolding.
+Phase 1 implements shared TypeScript contract types, runtime validation schemas,
+JSON Schema and OpenAPI-compatible schema exports, event payload schemas, and
+contract version metadata. It does not implement persistence, HTTP or WebSocket
+servers, scheduling, sandboxes, previews, Canvas, AI providers, or deployment.
 
-Phase 0 acceptance is recorded in `phase-handoffs/PHASE-0.md`. The detailed
-Implementation Master Plan v1 was declared approved but its full source document
-was not present in this repository at the Phase 0 baseline. Its inventory status
-is explicit in `docs/architecture/README.md`; missing details must not be
-reconstructed from memory or prior chat.
+Phase 0 acceptance is recorded in `phase-handoffs/PHASE-0.md`. Phase 1 acceptance
+will be recorded in `phase-handoffs/PHASE-1.md`. Missing architecture references
+listed in `docs/architecture/README.md` must not be reconstructed from memory or
+prior chat.
