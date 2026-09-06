@@ -2,6 +2,9 @@
 # Python: 3.12.3
 # Purpose: reproducible production baseline
 # Source provenance: see docs/provenance/SOURCE-MAP.md
+# Live source: /opt/botconnector-ai-chat/releases/ai-chat-core-r170-specialists-20260815T004633Z
+# (systemd unit botconnector-ai-chat-core.service, WorkingDirectory overridden by
+#  drop-in r17-specialists.conf; confirmed against running process cwd, PID-verified 2026-09-06)
 annotated-doc==0.0.5
 annotated-types==0.8.0
 anyio==4.14.2
@@ -20,6 +23,6 @@ pydantic==2.13.4
 pydantic_core==2.46.4
 python-multipart==0.0.32
 starlette==1.6.0
-typing_extensions==4.16.0
 typing-inspection==0.4.4
+typing_extensions==4.16.0
 uvicorn==0.52.3

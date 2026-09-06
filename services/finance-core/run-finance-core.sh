@@ -24,16 +24,24 @@ if [ -f "$ENVFILE" ]; then
   set +a
 fi
 
-# FINANCE_DB_HOST: either set directly in the env file above, or resolved
-# dynamically from a named Postgres container (production's current
-# pattern). Both are documented config choices, not source dependencies.
-if [ -z "${FINANCE_DB_HOST:-}" ] && [ -n "${FINANCE_CORE_POSTGRES_CONTAINER:-}" ]; then
-  FINANCE_DB_HOST="$(
+# FINANCE_DB_HOST: this process runs on the host, not inside the Docker
+# network, so it cannot resolve a bare container name via DNS the way a
+# container could. Production sets FINANCE_DB_HOST to a Docker container
+# name (e.g. "botconnector-core-postgres") — if the configured value isn't
+# already a real IP address, resolve it via `docker inspect` using that
+# exact name (no hardcoded container name, no new env var required: this
+# reuses whatever FINANCE_DB_HOST is already set to). If it's already an
+# IP (a different deployment might set one directly), leave it alone.
+if [ -n "${FINANCE_DB_HOST:-}" ] && ! [[ "$FINANCE_DB_HOST" =~ ^[0-9]+\.[0-9]+\.[0-9]+\.[0-9]+$ ]]; then
+  RESOLVED_IP="$(
     docker inspect \
       -f '{{range .NetworkSettings.Networks}}{{.IPAddress}}{{end}}' \
-      "$FINANCE_CORE_POSTGRES_CONTAINER"
+      "$FINANCE_DB_HOST" 2>/dev/null || true
   )"
-  export FINANCE_DB_HOST
+  if [ -n "$RESOLVED_IP" ]; then
+    FINANCE_DB_HOST="$RESOLVED_IP"
+    export FINANCE_DB_HOST
+  fi
 fi
 
 test -n "${FINANCE_DB_HOST:-}"
