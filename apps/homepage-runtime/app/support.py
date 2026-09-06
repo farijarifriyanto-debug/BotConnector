@@ -27,10 +27,28 @@ SUPPORT_ADMIN_RECIPIENT = os.environ.get("SUPPORT_ADMIN_RECIPIENT", "admin@botco
 SMTP_HOST = os.environ.get("SMTP_HOST", "smtp.hostinger.com").strip()
 SMTP_PORT = int(os.environ.get("SMTP_PORT", "465"))
 SMTP_USERNAME = os.environ.get("SMTP_USERNAME", "admin@botconnector.id").strip()
-SMTP_PASSWORD = os.environ.get("SMTP_PASSWORD", "").strip()
 SMTP_FROM_EMAIL = os.environ.get("SMTP_FROM_EMAIL", "admin@botconnector.id").strip()
 SMTP_FROM_NAME = os.environ.get("SMTP_FROM_NAME", "BOTCONNECTOR").strip()
 SMTP_SSL = os.environ.get("SMTP_SSL", "true").lower() in ("true", "1", "yes")
+
+
+def _read_smtp_password() -> str:
+    """Resolve the SMTP password from a protected file or env var. No default.
+
+    Same pattern as _read_pg_password()/_read_redis_password() above: a
+    missing credential must fail closed for email sending, not silently
+    fall back to a hardcoded literal.
+    """
+    password_file = os.environ.get("SMTP_PASSWORD_FILE", "").strip()
+    if password_file:
+        return open(password_file, "r", encoding="utf-8").read().strip()
+    password = os.environ.get("SMTP_PASSWORD", "").strip()
+    if password:
+        return password
+    raise RuntimeError(
+        "No SMTP credential configured: set SMTP_PASSWORD_FILE "
+        "(preferred) or SMTP_PASSWORD."
+    )
 
 # Enums
 class TicketCategory(str, Enum):
@@ -436,7 +454,7 @@ def queue_and_send_outbox_email(
         try:
             client.ehlo()
             if SMTP_USERNAME:
-                client.login(SMTP_USERNAME, SMTP_PASSWORD)
+                client.login(SMTP_USERNAME, _read_smtp_password())
             client.send_message(msg)
         finally:
             try:
