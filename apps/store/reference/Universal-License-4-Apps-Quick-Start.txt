@@ -1,0 +1,141 @@
+UNIVERSAL LICENSE ENGINE — 4 APLIKASI
+Restaurant • Vehicle Wash • Workshop • Retail
+
+TUJUAN
+Mulai release ini, status lisensi tidak membutuhkan APK berbeda.
+Satu APK per produk menerima kode:
+- TRIAL 3 HARI
+- FULL
+- UPGRADE PAKET
+
+Paket yang didukung:
+- Essential
+- Lengkap
+- Professional
+- Multi Outlet
+
+============================================================
+1. UPDATE APLIKASI
+============================================================
+
+VEHICLE WASH
+File: Vehicle-Wash-2.0.0-Universal-License.apk
+Bisa dipasang sebagai update di atas Vehicle Wash 1.0/1.1 yang sebelumnya dibuat.
+Data aplikasi tidak perlu dihapus.
+
+WORKSHOP
+File: Workshop-2.0.0-Universal-License.apk
+Bisa dipasang sebagai update di atas Workshop 1.0/1.1 yang sebelumnya dibuat.
+Data aplikasi tidak perlu dihapus.
+
+RETAIL
+File: Retail-2.0.0-Universal-License.apk
+Bisa dipasang sebagai update di atas Retail 1.0/1.1 yang sebelumnya dibuat.
+Data aplikasi tidak perlu dihapus.
+
+RESTAURANT
+File: Restaurant-All-in-One-R8-Universal-License.apk
+PENTING:
+R5/R6/R7 sebelumnya memakai signing certificate uji yang private key-nya tidak tersimpan.
+R8 menggunakan signing certificate production yang private key-nya masih tersedia dan harus menjadi jalur tetap seterusnya.
+Karena certificate berbeda, Android tidak dapat memasang R8 sebagai update langsung di atas R5/R6/R7.
+
+Jika Restaurant R5/R6/R7 masih berisi data penting:
+1. Jangan uninstall dulu.
+2. Catat/export data penting terlebih dahulu.
+3. Setelah data aman, uninstall R5/R6/R7 satu kali.
+4. Install R8.
+5. Mulai R8, pertahankan signing line ini untuk semua update berikutnya.
+
+============================================================
+2. PASANG UNIVERSAL LICENSE ENGINE DI SELLER CONTROL
+============================================================
+
+Upload file:
+universal-license-seller-patch-v1.sh
+
+Ke VPS /home/botadmin, lalu:
+
+cd /home/botadmin
+sha256sum universal-license-seller-patch-v1.sh
+sudo bash universal-license-seller-patch-v1.sh
+
+SHA-256 script yang benar:
+ee1000fce4b0ef7bd7369b0af3ccc390a95a775e3f3dedc7ec9715bf5ebb1066
+
+Target akhir:
+UNIVERSAL LICENSE ENGINE = PASS
+
+Patch hanya memperbarui Seller Control.
+Tidak mengganti private license signing key, Nginx, atau Admin Gate.
+
+============================================================
+3. MEMBUAT KODE
+============================================================
+
+Buka Seller Control di panel admin.
+Pilih:
+- Produk: Restaurant / Vehicle Wash / Workshop / Retail
+- Jenis Lisensi: Trial 3 Hari / Full / Upgrade
+- Paket: Essential / Lengkap / Professional / Multi Outlet
+- Nama customer
+- ID Perangkat yang tampil pada aplikasi produk tersebut
+
+Lalu klik BUAT KODE AKTIVASI.
+
+PENTING:
+ID Perangkat bersifat khusus per aplikasi. Gunakan ID yang ditampilkan oleh APK yang akan diaktifkan.
+Jangan memakai ID Vehicle Wash untuk Workshop, Retail, atau Restaurant.
+
+============================================================
+4. TRIAL 3 HARI
+============================================================
+
+Pilih Jenis Lisensi: Trial 3 Hari.
+Kode yang dibuat berlaku 72 jam sesuai waktu yang ditandatangani di lisensi.
+Setelah habis, pengguna cukup memasukkan kode Full atau Upgrade.
+Tidak perlu mengganti APK.
+
+============================================================
+5. FULL
+============================================================
+
+Pilih Jenis Lisensi: Full.
+Pilih paket yang dibeli.
+Customer memasukkan kode pada layar Lisensi / Aktivasi.
+Aplikasi menjadi aktif permanen pada paket tersebut.
+
+============================================================
+6. UPGRADE
+============================================================
+
+Contoh:
+Essential -> Lengkap
+Lengkap -> Professional
+Professional -> Multi Outlet
+
+Buat kode baru dengan Jenis Lisensi: Upgrade dan paket tujuan.
+Customer cukup memasukkan kode baru.
+Aplikasi menolak downgrade ke paket yang lebih rendah.
+Tidak perlu install APK lain.
+
+============================================================
+7. BATASAN YANG PERLU DIPAHAMI
+============================================================
+
+Universal License Engine menghilangkan kebutuhan APK berbeda untuk:
+- Trial
+- Full
+- Upgrade paket
+
+Jika suatu hari ada fitur software baru, perbaikan bug, atau perubahan sistem Android,
+APK tetap dapat menerima update aplikasi biasa. Yang tidak perlu APK baru adalah perubahan status lisensi/paket.
+
+============================================================
+8. KEAMANAN
+============================================================
+
+- Private license signing key hanya berada di Seller Control/VPS.
+- APK hanya memverifikasi kode yang sudah ditandatangani.
+- Jangan pernah membagikan private signing key APK atau private license key kepada customer.
+- Pertahankan signing key release masing-masing produk untuk seluruh umur aplikasi.

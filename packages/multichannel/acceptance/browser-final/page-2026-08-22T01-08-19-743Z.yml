@@ -1,0 +1,64 @@
+- generic [ref=f11e1]:
+  - banner [ref=f11e2]:
+    - generic [ref=f11e3]: BC Bisnis
+    - navigation [ref=f11e4]:
+      - link "Dashboard" [ref=f11e5] [cursor=pointer]:
+        - /url: "#/dashboard"
+      - link "POS" [ref=f11e6] [cursor=pointer]:
+        - /url: "#/pos"
+      - link "Orders" [ref=f11e7] [cursor=pointer]:
+        - /url: "#/orders"
+      - link "Products" [ref=f11e8] [cursor=pointer]:
+        - /url: "#/products"
+      - link "Inventory" [ref=f11e9] [cursor=pointer]:
+        - /url: "#/inventory"
+      - link "Transfers" [ref=f11e10] [cursor=pointer]:
+        - /url: "#/transfers"
+      - link "Restaurant" [ref=f11e11] [cursor=pointer]:
+        - /url: "#/restaurant"
+      - link "Kitchen" [ref=f11e12] [cursor=pointer]:
+        - /url: "#/kitchen"
+      - link "Reports" [ref=f11e13] [cursor=pointer]:
+        - /url: "#/reports"
+      - link "Integrasi" [active] [ref=f11e14] [cursor=pointer]:
+        - /url: "#/integrasi"
+  - main [ref=f11e15]:
+    - generic [ref=f11e252]:
+      - heading "Integrasi" [level=1] [ref=f11e253]
+      - generic [ref=f11e254]: Status integrasi operasional (tanpa membuka rahasia)
+    - generic [ref=f11e255]:
+      - heading "Food Delivery" [level=2] [ref=f11e256]
+      - table [ref=f11e257]:
+        - rowgroup [ref=f11e258]:
+          - row [ref=f11e259]:
+            - columnheader "Provider" [ref=f11e260]
+            - columnheader "Status" [ref=f11e261]
+            - columnheader "Auth" [ref=f11e262]
+          - row [ref=f11e263]:
+            - cell "GOFOOD" [ref=f11e264]
+            - cell "Segera Hadir" [ref=f11e265]
+            - cell "oauth2" [ref=f11e267]
+          - row [ref=f11e268]:
+            - cell "GRABFOOD" [ref=f11e269]
+            - cell "Segera Hadir" [ref=f11e270]
+            - cell "oauth2_client_credentials" [ref=f11e272]
+          - row [ref=f11e273]:
+            - cell "SHOPEEFOOD" [ref=f11e274]
+            - cell "Segera Hadir" [ref=f11e275]
+            - cell "token_signature" [ref=f11e277]
+    - generic [ref=f11e278]:
+      - heading "POS" [level=2] [ref=f11e279]
+      - table [ref=f11e280]:
+        - rowgroup [ref=f11e281]:
+          - row [ref=f11e282]:
+            - columnheader "Provider" [ref=f11e283]
+            - columnheader "Status" [ref=f11e284]
+            - columnheader "Auth" [ref=f11e285]
+          - row [ref=f11e286]:
+            - cell "MOKA" [ref=f11e287]
+            - cell "Segera Hadir" [ref=f11e288]
+            - cell "oauth2" [ref=f11e290]
+          - row [ref=f11e291]:
+            - cell "PAWOON" [ref=f11e292]
+            - cell "Segera Hadir" [ref=f11e293]
+            - cell "api_key" [ref=f11e295]

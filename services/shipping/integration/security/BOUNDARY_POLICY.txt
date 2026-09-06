@@ -1,0 +1,19 @@
+============================================================
+BOTCONNECTOR
+SHIPPING INTEGRATION V1
+BOUNDARY POLICY
+============================================================
+
+Integration Facade owns orchestration only.
+
+It MUST NOT own:
+
+- provider API key
+- provider API schema
+- Shipping Core lifecycle semantics
+- marketplace semantics
+
+provider_location_id may exist internally for reconciliation
+but MUST NOT appear in upstream/public response.
+
+============================================================

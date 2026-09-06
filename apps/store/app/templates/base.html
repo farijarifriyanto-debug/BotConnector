@@ -1,0 +1,40 @@
+<!doctype html>
+<html lang="id">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <meta name="description" content="{% if p is defined %}{{ p.intro }}{% else %}BotConnector Store{% endif %}">
+  <meta name="robots" content="{% if noindex|default(false) %}noindex,nofollow{% else %}index,follow,max-image-preview:large{% endif %}">
+  <meta name="theme-color" content="#ffffff">
+  <link rel="canonical" href="{{ canonical }}">
+  <meta property="og:type" content="website">
+  <meta property="og:site_name" content="BotConnector">
+  <meta property="og:title" content="{{ title }}">
+  <meta property="og:description" content="{% if p is defined %}{{ p.short }}{% else %}BotConnector Store{% endif %}">
+  <title>{{ title }}</title>
+  <link rel="stylesheet" href="/store/static/store.css?v=6">
+</head>
+<body>
+<header class="site-header">
+  <div class="wrap nav">
+    <a class="brand" href="/store/" aria-label="BotConnector Store">
+      <span class="logo">B</span><span>BotConnector</span><span class="tag">Store</span>
+    </a>
+    <nav class="navlinks" aria-label="Navigasi utama">
+      <a href="/store/" {% if canonical.endswith('/store/') %}class="active"{% endif %}>Store</a>
+      <a href="/store/panduan/">Panduan</a>
+      <a href="/store/status/">Status</a>
+      <a class="support" href="/store/panduan/#bantuan">Dukungan</a>
+    </nav>
+  </div>
+</header>
+<main>{% block content %}{% endblock %}</main>
+<footer class="footer">
+  <div class="wrap foot">
+    <div class="footbrand"><span class="minilogo">B</span>BotConnector Store</div>
+    <div class="footlinks"><a href="/privacy">Privasi</a><a href="/terms">Ketentuan</a><span>© 2026 BotConnector</span></div>
+  </div>
+</footer>
+<script src="/store/static/store.js?v=6" defer></script>
+</body>
+</html>

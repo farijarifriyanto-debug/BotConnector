@@ -1,0 +1,110 @@
+{
+  "restaurant": {
+    "slug": "restaurant",
+    "license_product": "restaurant",
+    "display_name": "Restoran & Kafe",
+    "technical_name": "Restaurant",
+    "category": "Kasir dan operasional restoran",
+    "icon": "/store/static/icons/restaurant.png",
+    "apk": "Restaurant-All-in-One-R8-Universal-License.apk",
+    "version": "8.0.0",
+    "package": "com.restaurant.allinone",
+    "short": "Pesanan, meja, dapur, stok, dan penjualan.",
+    "intro": "Terima pesanan, atur meja, kirim pesanan ke dapur, cek stok, dan lihat penjualan harian dari satu aplikasi.",
+    "recommended": "Professional",
+    "trial_edition": "Professional",
+    "chips": ["Pesanan", "Meja", "Dapur", "Stok", "Laporan"],
+    "feature_groups": [
+      {"title": "Kasir", "items": ["Pesanan makan di tempat dan bawa pulang", "Menu dan harga", "Pembayaran tunai, QRIS, dan kartu", "Cetak tagihan"]},
+      {"title": "Meja & dapur", "items": ["Status meja", "Kirim pesanan ke dapur", "Kitchen Display", "Printer dapur"]},
+      {"title": "Stok & laporan", "items": ["Stok menu dan bahan", "Kas dan shift", "Laporan penjualan", "Akses Owner, Manager, Kasir, Waiter, dan Kitchen"]}
+    ],
+    "editions": {
+      "Essential": {"label": "Dasar", "price": 179000, "sellable": true, "features": ["Kasir & takeaway", "Menu dan harga", "Pembayaran", "Laporan dasar"]},
+      "Lengkap": {"label": "Lengkap", "price": 299000, "sellable": true, "features": ["Semua fitur Dasar", "Meja & dine-in", "Kitchen Display", "Pengguna dan printer dapur"]},
+      "Professional": {"label": "Profesional", "price": 499000, "sellable": true, "features": ["Semua fitur Lengkap", "Pesanan delivery", "Diskon lanjutan", "Stok bahan"]},
+      "Multi Outlet": {"label": "Multi Lokasi", "price": 799000, "sellable": true, "features": ["Semua fitur Profesional", "Pengelolaan outlet", "Pilihan koneksi data", "Akses multi lokasi"]}
+    }
+  },
+  "vehicle-wash": {
+    "slug": "vehicle-wash",
+    "license_product": "vehicle_wash",
+    "display_name": "Cuci Kendaraan",
+    "technical_name": "Vehicle Wash",
+    "category": "Antrean dan layanan kendaraan",
+    "icon": "/store/static/icons/vehicle-wash.png",
+    "apk": "Vehicle-Wash-2.0.0-Universal-License.apk",
+    "version": "2.0.0",
+    "package": "com.carwash.allinoneapp",
+    "short": "Antrean, layanan, pembayaran, dan pelanggan.",
+    "intro": "Catat kendaraan yang masuk, atur antrean dan area kerja, simpan data pelanggan, lalu selesaikan pembayaran.",
+    "recommended": "Lengkap",
+    "trial_edition": "Lengkap",
+    "chips": ["Antrean", "Layanan", "Pelanggan", "Pembayaran"],
+    "feature_groups": [
+      {"title": "Antrean", "items": ["Kendaraan masuk sampai selesai", "Status pekerjaan", "Nomor polisi dan data kendaraan", "Layanan dan harga"]},
+      {"title": "Pelanggan", "items": ["Data pelanggan", "Membership", "Riwayat layanan", "Pembayaran"]},
+      {"title": "Operasional", "items": ["Bay atau area kerja", "Stok bahan", "Pegawai", "Laporan omzet"]}
+    ],
+    "editions": {
+      "Essential": {"label": "Dasar", "price": 99000, "sellable": true, "features": ["Antrean", "Kendaraan & layanan", "Pelanggan", "Laporan dasar"]},
+      "Lengkap": {"label": "Lengkap", "price": 179000, "sellable": true, "features": ["Semua fitur Dasar", "Area kerja", "Membership", "Stok & pegawai"]},
+      "Professional": {"label": "Profesional", "price": 279000, "sellable": false, "features": ["Dicadangkan untuk pengembangan fitur berikutnya"]},
+      "Multi Outlet": {"label": "Multi Lokasi", "price": 449000, "sellable": false, "features": ["Dicadangkan untuk pengembangan fitur berikutnya"]}
+    }
+  },
+  "workshop": {
+    "slug": "workshop",
+    "license_product": "workshop",
+    "display_name": "Bengkel",
+    "technical_name": "Workshop",
+    "category": "Servis dan pekerjaan bengkel",
+    "icon": "/store/static/icons/workshop.png",
+    "apk": "Workshop-2.0.0-Universal-License.apk",
+    "version": "2.0.0",
+    "package": "com.workshop.allinoneap",
+    "short": "Servis, kendaraan, suku cadang, dan pembayaran.",
+    "intro": "Catat kendaraan pelanggan, buat pekerjaan servis, kelola suku cadang, dan simpan riwayat servis sampai pembayaran selesai.",
+    "recommended": "Professional",
+    "trial_edition": "Professional",
+    "chips": ["Servis", "Kendaraan", "Suku Cadang", "Pembayaran"],
+    "feature_groups": [
+      {"title": "Penerimaan", "items": ["Data pelanggan dan kendaraan", "Work Order", "Keluhan dan kilometer", "Invoice"]},
+      {"title": "Pengerjaan", "items": ["Booking", "Estimasi jasa dan parts", "Persetujuan pelanggan", "Riwayat servis"]},
+      {"title": "Kontrol", "items": ["Parts dan inventory", "Inspeksi digital", "Papan kerja teknisi", "Laporan"]}
+    ],
+    "editions": {
+      "Essential": {"label": "Dasar", "price": 149000, "sellable": true, "features": ["Work Order", "Pelanggan & kendaraan", "Invoice", "Laporan dasar"]},
+      "Lengkap": {"label": "Lengkap", "price": 249000, "sellable": true, "features": ["Semua fitur Dasar", "Booking", "Estimasi", "Parts & inventory", "Riwayat servis"]},
+      "Professional": {"label": "Profesional", "price": 399000, "sellable": true, "features": ["Semua fitur Lengkap", "Inspeksi digital", "Papan kerja teknisi", "Alur persetujuan"]},
+      "Multi Outlet": {"label": "Multi Lokasi", "price": 649000, "sellable": false, "features": ["Dicadangkan untuk pengembangan fitur berikutnya"]}
+    }
+  },
+  "retail": {
+    "slug": "retail",
+    "license_product": "retail",
+    "display_name": "Toko & Retail",
+    "technical_name": "Retail",
+    "category": "Kasir dan persediaan toko",
+    "icon": "/store/static/icons/retail.png",
+    "apk": "Retail-2.0.0-Universal-License.apk",
+    "version": "2.0.0",
+    "package": "com.retail.allinoneappx",
+    "short": "Kasir, produk, stok, dan penjualan.",
+    "intro": "Catat transaksi, scan barcode, kelola barang dan stok, lalu lihat penjualan toko tanpa berpindah aplikasi.",
+    "recommended": "Professional",
+    "trial_edition": "Professional",
+    "chips": ["Kasir", "Produk", "Stok", "Penjualan", "Laporan"],
+    "feature_groups": [
+      {"title": "Kasir", "items": ["POS", "Scanner barcode", "Keranjang dan pembayaran", "Laporan dasar"]},
+      {"title": "Stok", "items": ["Barang dan kategori", "Supplier", "Purchase order", "Receiving dan stock opname"]},
+      {"title": "Pelanggan", "items": ["Retur / tukar barang", "Data pelanggan", "Pegawai", "Laporan penjualan"]}
+    ],
+    "editions": {
+      "Essential": {"label": "Dasar", "price": 129000, "sellable": true, "features": ["Kasir & barcode", "Barang & kategori", "Pembayaran", "Laporan dasar"]},
+      "Lengkap": {"label": "Lengkap", "price": 229000, "sellable": true, "features": ["Semua fitur Dasar", "Stok", "Supplier", "PO & receiving", "Stock opname"]},
+      "Professional": {"label": "Profesional", "price": 349000, "sellable": true, "features": ["Semua fitur Lengkap", "Retur / tukar barang", "Pelanggan", "Kontrol operasional lanjut"]},
+      "Multi Outlet": {"label": "Multi Lokasi", "price": 549000, "sellable": false, "features": ["Dicadangkan untuk pengembangan fitur berikutnya"]}
+    }
+  }
+}

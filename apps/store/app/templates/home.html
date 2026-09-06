@@ -1,0 +1,37 @@
+{% extends "base.html" %}
+{% block content %}
+<section class="store-home">
+  <div class="wrap">
+    <h1 class="store-title">BotConnector Store</h1>
+    <section class="catalog" id="top-products" aria-label="Daftar aplikasi">
+      {% for p in products %}
+      <article class="product-card">
+        <div class="product-top">
+          <div class="product-identity">
+            <span class="app-icon"><img src="{{ p.icon }}" alt=""></span>
+            <div><h2>{{ p.display_name }}</h2><p class="category">{{ p.category }}</p></div>
+          </div>
+        </div>
+        <p class="product-short">{{ p.short }}</p>
+        <div class="chips">{% for chip in p.chips %}<span>{{ chip }}</span>{% endfor %}</div>
+        <div class="price-row">
+          <div><span class="from">Mulai dari</span><strong>{{ money(p.starting_price) }}</strong><small>sekali bayar</small></div>
+          <a class="btn primary" href="/store/{{ p.slug }}/">Lihat Detail</a>
+        </div>
+      </article>
+      {% endfor %}
+    </section>
+
+    <section class="quick-info" aria-label="Informasi pembelian">
+      <div><strong>Coba gratis 3 hari</strong><span>Coba aplikasi sebelum membeli paket.</span></div>
+      <div><strong>Sekali bayar</strong><span>Harga ditampilkan jelas pada setiap aplikasi.</span></div>
+      <div><strong>Bisa ditingkatkan</strong><span>Pindah ke paket yang lebih tinggi saat diperlukan.</span></div>
+    </section>
+
+    <section class="trial-strip">
+      <div><h2>Coba gratis selama 3 hari.</h2><p>Pilih aplikasi, pasang, dan coba langsung di perangkat Android.</p></div>
+      <a class="btn white" href="#top-products" id="chooseApp">Pilih Aplikasi</a>
+    </section>
+  </div>
+</section>
+{% endblock %}

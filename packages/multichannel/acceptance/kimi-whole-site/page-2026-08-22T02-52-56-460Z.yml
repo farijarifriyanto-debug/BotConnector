@@ -1,0 +1,79 @@
+- generic [active] [ref=f30e1]:
+  - banner [ref=f30e2]:
+    - generic [ref=f30e3]:
+      - link "BC BotConnector" [ref=f30e4] [cursor=pointer]:
+        - /url: /
+        - generic [ref=f30e5]: BC
+        - text: BotConnector
+      - navigation [ref=f30e6]:
+        - link "Business Suite" [ref=f30e7] [cursor=pointer]:
+          - /url: /bisnis/
+        - link "Konektor" [ref=f30e8] [cursor=pointer]:
+          - /url: /konektor/
+        - link "Integrasi" [ref=f30e9] [cursor=pointer]:
+          - /url: /integrasi/
+        - link "Template" [ref=f30e10] [cursor=pointer]:
+          - /url: /resep/
+  - main [ref=f30e11]:
+    - generic [ref=f30e13]:
+      - heading "Integrasi BotConnector" [level=1] [ref=f30e14]
+      - paragraph [ref=f30e15]: Hubungkan operasional bisnis, POS, restoran, marketplace, dan food delivery dari satu tempat.
+    - generic [ref=f30e17]:
+      - generic [ref=f30e18]:
+        - generic [ref=f30e19]: Integrasi
+        - heading "Shopee" [level=2] [ref=f30e20]
+        - paragraph [ref=f30e21]: Konektor marketplace dengan proyeksi stok dari inventori pusat.
+        - paragraph [ref=f30e22]: Segera Hadir
+      - generic [ref=f30e23]:
+        - generic [ref=f30e24]: Integrasi
+        - heading "Tokopedia" [level=2] [ref=f30e25]
+        - paragraph [ref=f30e26]: Konektor marketplace dengan proyeksi stok dari inventori pusat.
+        - paragraph [ref=f30e27]: Segera Hadir
+      - generic [ref=f30e28]:
+        - generic [ref=f30e29]: Integrasi
+        - heading "TikTok Shop" [level=2] [ref=f30e30]
+        - paragraph [ref=f30e31]: Konektor marketplace dengan proyeksi stok dari inventori pusat.
+        - paragraph [ref=f30e32]: Segera Hadir
+      - generic [ref=f30e33]:
+        - generic [ref=f30e34]: Integrasi
+        - heading "Blibli" [level=2] [ref=f30e35]
+        - paragraph [ref=f30e36]: Konektor marketplace dengan proyeksi stok dari inventori pusat.
+        - paragraph [ref=f30e37]: Segera Hadir
+      - generic [ref=f30e38]:
+        - generic [ref=f30e39]: Integrasi
+        - heading "Lazada" [level=2] [ref=f30e40]
+        - paragraph [ref=f30e41]: Konektor marketplace dengan proyeksi stok dari inventori pusat.
+        - paragraph [ref=f30e42]: Segera Hadir
+      - generic [ref=f30e43]:
+        - generic [ref=f30e44]: Integrasi
+        - heading "GoFood" [level=2] [ref=f30e45]
+        - paragraph [ref=f30e46]: Integrasi food delivery — menu, order, KDS, dan settlement.
+        - paragraph [ref=f30e47]: Segera Hadir
+      - generic [ref=f30e48]:
+        - generic [ref=f30e49]: Integrasi
+        - heading "GrabFood" [level=2] [ref=f30e50]
+        - paragraph [ref=f30e51]: Integrasi food delivery — order, mark ready, dan settlement.
+        - paragraph [ref=f30e52]: Segera Hadir
+      - generic [ref=f30e53]:
+        - generic [ref=f30e54]: Integrasi
+        - heading "ShopeeFood" [level=2] [ref=f30e55]
+        - paragraph [ref=f30e56]: Integrasi food delivery — menu sync dan order.
+        - paragraph [ref=f30e57]: Segera Hadir
+    - paragraph [ref=f30e60]: Status integrasi ditampilkan berdasarkan kemampuan yang tersedia saat ini. Integrasi yang membutuhkan kredensial atau persetujuan pihak ketiga ditandai "Segera Hadir" sampai koneksi eksternal benar-benar aktif.
+  - contentinfo [ref=f30e61]:
+    - generic [ref=f30e62]:
+      - generic [ref=f30e63]:
+        - link "BC BotConnector" [ref=f30e64] [cursor=pointer]:
+          - /url: /
+          - generic [ref=f30e65]: BC
+          - text: BotConnector
+        - generic [ref=f30e66]: Hubungkan sistem. Jalankan bisnis dari satu tempat.
+      - generic [ref=f30e67]:
+        - link "Business Suite" [ref=f30e68] [cursor=pointer]:
+          - /url: /bisnis/
+        - link "Konektor" [ref=f30e69] [cursor=pointer]:
+          - /url: /konektor/
+        - link "Integrasi" [ref=f30e70] [cursor=pointer]:
+          - /url: /integrasi/
+        - link "Template" [ref=f30e71] [cursor=pointer]:
+          - /url: /resep/

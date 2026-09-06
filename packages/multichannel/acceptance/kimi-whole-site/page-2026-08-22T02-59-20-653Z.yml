@@ -1,0 +1,38 @@
+- generic [active] [ref=f34e1]:
+  - banner [ref=f34e2]:
+    - generic [ref=f34e3]: BC Bisnis
+    - navigation [ref=f34e4]:
+      - link "Dashboard" [ref=f34e5] [cursor=pointer]:
+        - /url: "#/dashboard"
+      - link "POS" [ref=f34e6] [cursor=pointer]:
+        - /url: "#/pos"
+      - link "Orders" [ref=f34e7] [cursor=pointer]:
+        - /url: "#/orders"
+      - link "Products" [ref=f34e8] [cursor=pointer]:
+        - /url: "#/products"
+      - link "Inventory" [ref=f34e9] [cursor=pointer]:
+        - /url: "#/inventory"
+      - link "Transfers" [ref=f34e10] [cursor=pointer]:
+        - /url: "#/transfers"
+      - link "Restaurant" [ref=f34e11] [cursor=pointer]:
+        - /url: "#/restaurant"
+      - link "Kitchen" [ref=f34e12] [cursor=pointer]:
+        - /url: "#/kitchen"
+      - link "Reports" [ref=f34e13] [cursor=pointer]:
+        - /url: "#/reports"
+      - link "Integrasi" [ref=f34e14] [cursor=pointer]:
+        - /url: "#/integrasi"
+  - main [ref=f34e15]:
+    - generic [ref=f34e254]:
+      - heading "Restaurant" [level=1] [ref=f34e255]
+      - generic [ref=f34e256]: Menu & resep — satu sumber kebenaran
+    - table [ref=f34e258]:
+      - rowgroup [ref=f34e259]:
+        - row [ref=f34e260]:
+          - columnheader "Menu" [ref=f34e261]
+          - columnheader "Harga" [ref=f34e262]
+          - columnheader "Kategori" [ref=f34e263]
+        - row [ref=f34e264]:
+          - cell "NASI_GORENG" [ref=f34e265]
+          - cell "15000" [ref=f34e266]
+          - cell "Makanan" [ref=f34e267]

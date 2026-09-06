@@ -1,0 +1,272 @@
+- generic [active] [ref=f7e1]:
+  - banner [ref=f7e2]:
+    - generic [ref=f7e3]:
+      - link "BC BotConnector" [ref=f7e4] [cursor=pointer]:
+        - /url: /
+        - generic [ref=f7e5]: BC
+        - text: BotConnector
+      - navigation [ref=f7e6]:
+        - link "Konektor" [ref=f7e7] [cursor=pointer]:
+          - /url: /konektor/
+        - link "Integrasi" [ref=f7e8] [cursor=pointer]:
+          - /url: /integrasi/
+        - link "Template" [ref=f7e9] [cursor=pointer]:
+          - /url: /resep/
+        - link "Solusi" [ref=f7e10] [cursor=pointer]:
+          - /url: /solusi/
+        - link "Docs" [ref=f7e11] [cursor=pointer]:
+          - /url: /docs/
+      - generic [ref=f7e12]:
+        - link "Status sistem" [ref=f7e13] [cursor=pointer]:
+          - /url: /status
+        - link "Buat otomasi →" [ref=f7e15] [cursor=pointer]:
+          - /url: /otomasi/
+  - generic [ref=f7e16]:
+    - link "Automation Platform" [ref=f7e17] [cursor=pointer]:
+      - /url: /
+    - text: / Konektor
+  - main [ref=f7e18]:
+    - generic [ref=f7e20]:
+      - generic [ref=f7e21]:
+        - generic [ref=f7e22]: Connector Marketplace
+        - heading "Hubungkan sistem yang sudah Anda gunakan." [level=1] [ref=f7e23]
+        - paragraph [ref=f7e24]: Jadikan event dari aplikasi, API, payment, messaging, commerce, dan sistem internal sebagai bagian dari satu workflow.
+        - generic [ref=f7e25]:
+          - link "Buat otomasi →" [ref=f7e26] [cursor=pointer]:
+            - /url: /otomasi/
+          - link "Jelajahi konektor" [ref=f7e27] [cursor=pointer]:
+            - /url: "#marketplace"
+        - generic [ref=f7e28]:
+          - generic [ref=f7e29]: Webhook universal
+          - generic [ref=f7e31]: HTTP / API
+          - generic [ref=f7e32]: Retry & idempotency
+          - generic [ref=f7e33]: Credential server-side
+      - generic [ref=f7e34]:
+        - generic [ref=f7e35]:
+          - generic [ref=f7e36]: Workflow connection
+          - generic [ref=f7e37]: Active
+        - generic [ref=f7e39]:
+          - generic [ref=f7e40]:
+            - generic [ref=f7e41]: Incoming events
+            - generic [ref=f7e43]:
+              - generic [ref=f7e44]:
+                - generic [ref=f7e45]: payment.paid
+                - generic [ref=f7e46]: 16:42:18
+              - generic [ref=f7e47]:
+                - generic [ref=f7e48]: order.created
+                - generic [ref=f7e49]: 16:42:21
+              - generic [ref=f7e50]:
+                - generic [ref=f7e51]: alert.triggered
+                - generic [ref=f7e52]: 16:42:23
+          - generic [ref=f7e55]:
+            - generic [ref=f7e56]: Connected actions
+            - generic [ref=f7e58]:
+              - generic [ref=f7e59]:
+                - generic [ref=f7e60]: TG
+                - generic [ref=f7e61]:
+                  - strong [ref=f7e62]: Telegram
+                  - generic [ref=f7e63]: Kirim alert
+                - generic [ref=f7e64]: READY
+              - generic [ref=f7e65]:
+                - generic [ref=f7e66]: API
+                - generic [ref=f7e67]:
+                  - strong [ref=f7e68]: HTTP API
+                  - generic [ref=f7e69]: Teruskan data
+                - generic [ref=f7e70]: READY
+              - generic [ref=f7e71]:
+                - generic [ref=f7e72]: WH
+                - generic [ref=f7e73]:
+                  - strong [ref=f7e74]: Webhook
+                  - generic [ref=f7e75]: Terima event
+                - generic [ref=f7e76]: READY
+        - generic [ref=f7e77]:
+          - generic [ref=f7e78]:
+            - strong [ref=f7e79]: Trigger
+            - generic [ref=f7e80]: Event masuk
+          - generic [ref=f7e81]:
+            - strong [ref=f7e82]: Workflow
+            - generic [ref=f7e83]: Validasi & proses
+          - generic [ref=f7e84]:
+            - strong [ref=f7e85]: Action
+            - generic [ref=f7e86]: Sistem tujuan
+    - generic [ref=f7e88]:
+      - generic [ref=f7e89]:
+        - generic [ref=f7e90]:
+          - generic [ref=f7e91]: Semua konektor
+          - heading "Pilih titik awal workflow Anda." [level=2] [ref=f7e92]
+          - paragraph [ref=f7e93]: Konektor aktif bisa digunakan sekarang. Item berstatus roadmap menunjukkan integrasi yang belum dinyatakan tersedia sebagai konektor native.
+        - link "Baca dokumentasi" [ref=f7e94] [cursor=pointer]:
+          - /url: /docs/#connectors
+      - generic [ref=f7e95]:
+        - generic [ref=f7e96]: ⌕
+        - searchbox "Cari konektor" [ref=f7e97]
+      - generic [ref=f7e98]:
+        - button "Semua" [ref=f7e99] [cursor=pointer]
+        - button "Developer" [ref=f7e100] [cursor=pointer]
+        - button "Messaging" [ref=f7e101] [cursor=pointer]
+        - button "Payment" [ref=f7e102] [cursor=pointer]
+        - button "Accounting" [ref=f7e103] [cursor=pointer]
+        - button "Commerce" [ref=f7e104] [cursor=pointer]
+        - button "Network" [ref=f7e105] [cursor=pointer]
+      - generic [ref=f7e106]:
+        - link "WH ● Aktif Webhook Terima event JSON melalui HTTPS dari aplikasi, form, server, atau sistem Anda sendiri. Event → Workflow" [ref=f7e107] [cursor=pointer]:
+          - /url: /otomasi/
+          - generic [ref=f7e108]:
+            - generic [ref=f7e109]: WH
+            - generic [ref=f7e110]: ● Aktif
+          - heading "Webhook" [level=3] [ref=f7e111]
+          - paragraph [ref=f7e112]: Terima event JSON melalui HTTPS dari aplikasi, form, server, atau sistem Anda sendiri.
+          - generic [ref=f7e113]: Event → Workflow
+        - link "API ● Aktif HTTP / API Teruskan data workflow ke endpoint HTTPS menggunakan request API. Workflow → API" [ref=f7e114] [cursor=pointer]:
+          - /url: /otomasi/
+          - generic [ref=f7e115]:
+            - generic [ref=f7e116]: API
+            - generic [ref=f7e117]: ● Aktif
+          - heading "HTTP / API" [level=3] [ref=f7e118]
+          - paragraph [ref=f7e119]: Teruskan data workflow ke endpoint HTTPS menggunakan request API.
+          - generic [ref=f7e120]: Workflow → API
+        - link "TG ● Aktif Telegram Kirim alert dan notifikasi workflow ke chat atau grup Telegram. Event → Telegram" [ref=f7e121] [cursor=pointer]:
+          - /url: /otomasi/
+          - generic [ref=f7e122]:
+            - generic [ref=f7e123]: TG
+            - generic [ref=f7e124]: ● Aktif
+          - heading "Telegram" [level=3] [ref=f7e125]
+          - paragraph [ref=f7e126]: Kirim alert dan notifikasi workflow ke chat atau grup Telegram.
+          - generic [ref=f7e127]: Event → Telegram
+        - link "GS Roadmap Google Sheets Rancang workflow yang menggunakan perubahan data spreadsheet sebagai pemicu atau tujuan. Buka detail →" [ref=f7e128] [cursor=pointer]:
+          - /url: /konektor/google-sheets/
+          - generic [ref=f7e129]:
+            - generic [ref=f7e130]: GS
+            - generic [ref=f7e131]: Roadmap
+          - heading "Google Sheets" [level=3] [ref=f7e132]
+          - paragraph [ref=f7e133]: Rancang workflow yang menggunakan perubahan data spreadsheet sebagai pemicu atau tujuan.
+          - generic [ref=f7e134]: Buka detail →
+        - article [ref=f7e135]:
+          - generic [ref=f7e136]:
+            - generic [ref=f7e137]: WA
+            - generic [ref=f7e138]: Roadmap
+          - heading "WhatsApp" [level=3] [ref=f7e139]
+          - paragraph [ref=f7e140]: Kanal messaging untuk workflow pelanggan dan notifikasi bisnis.
+          - generic [ref=f7e141]: Messaging connector
+        - article [ref=f7e142]:
+          - generic [ref=f7e143]:
+            - generic [ref=f7e144]: MT
+            - generic [ref=f7e145]: Roadmap
+          - heading "Midtrans" [level=3] [ref=f7e146]
+          - paragraph [ref=f7e147]: Gunakan perubahan status transaksi sebagai pemicu workflow bisnis.
+          - generic [ref=f7e148]: Payment → Workflow
+        - article [ref=f7e149]:
+          - generic [ref=f7e150]:
+            - generic [ref=f7e151]: XD
+            - generic [ref=f7e152]: Roadmap
+          - heading "Xendit" [level=3] [ref=f7e153]
+          - paragraph [ref=f7e154]: Hubungkan event pembayaran ke proses operasional atau sistem tujuan.
+          - generic [ref=f7e155]: Payment → Action
+        - article [ref=f7e156]:
+          - generic [ref=f7e157]:
+            - generic [ref=f7e158]: AC
+            - generic [ref=f7e159]: Roadmap
+          - heading "Accurate" [level=3] [ref=f7e160]
+          - paragraph [ref=f7e161]: Sinkronkan event transaksi dengan alur accounting dan reporting.
+          - generic [ref=f7e162]: Transaction → Accounting
+        - article [ref=f7e163]:
+          - generic [ref=f7e164]:
+            - generic [ref=f7e165]: WC
+            - generic [ref=f7e166]: Roadmap
+          - heading "WooCommerce" [level=3] [ref=f7e167]
+          - paragraph [ref=f7e168]: Gunakan order dan event toko sebagai bagian dari workflow bisnis.
+          - generic [ref=f7e169]: Order → Workflow
+        - article [ref=f7e170]:
+          - generic [ref=f7e171]:
+            - generic [ref=f7e172]: MK
+            - generic [ref=f7e173]: Roadmap
+          - heading "MikroTik" [level=3] [ref=f7e174]
+          - paragraph [ref=f7e175]: Hubungkan proses billing dan event bisnis ke kebutuhan jaringan ISP.
+          - generic [ref=f7e176]: Billing → Network
+    - generic [ref=f7e178]:
+      - generic [ref=f7e180]:
+        - generic [ref=f7e181]: Workflow patterns
+        - heading "Yang penting bukan aplikasinya. Yang penting pekerjaan yang selesai." [level=2] [ref=f7e182]
+        - paragraph [ref=f7e183]: Mulai dari hasil yang Anda butuhkan, kemudian pilih sistem yang terlibat.
+      - generic [ref=f7e184]:
+        - link "GS WA Preview workflow Google Sheets → WhatsApp Perubahan data spreadsheet digunakan untuk membentuk pesan otomatis. Spreadsheet · Messaging Lihat alur →" [ref=f7e185] [cursor=pointer]:
+          - /url: /konektor/google-sheets/
+          - generic [ref=f7e186]:
+            - generic [ref=f7e187]: GS
+            - generic [ref=f7e188]: WA
+          - generic [ref=f7e189]: Preview workflow
+          - heading "Google Sheets → WhatsApp" [level=3] [ref=f7e190]
+          - paragraph [ref=f7e191]: Perubahan data spreadsheet digunakan untuk membentuk pesan otomatis.
+          - generic [ref=f7e192]:
+            - generic [ref=f7e193]: Spreadsheet · Messaging
+            - generic [ref=f7e194]: Lihat alur →
+        - article [ref=f7e195]:
+          - generic [ref=f7e196]:
+            - generic [ref=f7e197]: WH
+            - generic [ref=f7e198]: TG
+          - generic [ref=f7e199]: Available pattern
+          - heading "Webhook → Telegram" [level=3] [ref=f7e200]
+          - paragraph [ref=f7e201]: Terima event JSON kemudian kirim notifikasi menuju Telegram.
+          - generic [ref=f7e202]:
+            - generic [ref=f7e203]: Developer · Messaging
+            - generic [ref=f7e204]: Workflow
+        - article [ref=f7e205]:
+          - generic [ref=f7e206]:
+            - generic [ref=f7e207]: WH
+            - generic [ref=f7e208]: API
+          - generic [ref=f7e209]: Available pattern
+          - heading "Webhook → HTTP API" [level=3] [ref=f7e210]
+          - paragraph [ref=f7e211]: Gunakan webhook sebagai trigger dan teruskan payload ke sistem tujuan.
+          - generic [ref=f7e212]:
+            - generic [ref=f7e213]: Developer · API
+            - generic [ref=f7e214]: Workflow
+    - generic [ref=f7e216]:
+      - generic [ref=f7e218]:
+        - generic [ref=f7e219]: Connection model
+        - heading "Trigger. Workflow. Action." [level=2] [ref=f7e220]
+        - paragraph [ref=f7e221]: Satu bahasa yang sama untuk konektor sederhana maupun integrasi sistem yang lebih kompleks.
+      - generic [ref=f7e222]:
+        - generic [ref=f7e223]:
+          - text: "01"
+          - heading "Trigger" [level=3] [ref=f7e224]
+          - paragraph [ref=f7e225]: Event dari webhook, payment, order, alert, atau sistem Anda.
+        - generic [ref=f7e227]:
+          - text: "02"
+          - heading "Workflow" [level=3] [ref=f7e228]
+          - paragraph [ref=f7e229]: Validasi, routing dan logika menentukan apa yang dilakukan berikutnya.
+        - generic [ref=f7e231]:
+          - text: "03"
+          - heading "Action" [level=3] [ref=f7e232]
+          - paragraph [ref=f7e233]: Telegram, HTTP API, atau sistem tujuan lainnya.
+    - generic [ref=f7e236]:
+      - generic [ref=f7e237]: Mulai dengan yang sudah tersedia
+      - heading "Tidak perlu menunggu setiap aplikasi memiliki konektor native." [level=2] [ref=f7e238]
+      - paragraph [ref=f7e239]: Webhook dan HTTP/API menyediakan jalur universal untuk menghubungkan sistem ketika konektor khusus belum tersedia.
+      - generic [ref=f7e240]:
+        - link "Buat workflow →" [ref=f7e241] [cursor=pointer]:
+          - /url: /otomasi/
+        - link "Buka dokumentasi" [ref=f7e242] [cursor=pointer]:
+          - /url: /docs/
+  - contentinfo [ref=f7e243]:
+    - generic [ref=f7e244]:
+      - generic [ref=f7e245]:
+        - link "BC BotConnector" [ref=f7e246] [cursor=pointer]:
+          - /url: /
+          - generic [ref=f7e247]: BC
+          - text: BotConnector
+        - generic [ref=f7e248]: Connector & automation platform.
+      - generic [ref=f7e249]:
+        - link "Konektor" [ref=f7e250] [cursor=pointer]:
+          - /url: /konektor/
+        - link "Integrasi" [ref=f7e251] [cursor=pointer]:
+          - /url: /integrasi/
+        - link "Template" [ref=f7e252] [cursor=pointer]:
+          - /url: /resep/
+        - link "Solusi" [ref=f7e253] [cursor=pointer]:
+          - /url: /solusi/
+        - link "Docs" [ref=f7e254] [cursor=pointer]:
+          - /url: /docs/
+        - link "Status" [ref=f7e255] [cursor=pointer]:
+          - /url: /status
+        - link "Security" [ref=f7e256] [cursor=pointer]:
+          - /url: /security

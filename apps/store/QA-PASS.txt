@@ -1,0 +1,9 @@
+BOTCONNECTOR STORE PRODUCTION V6R3 FINAL
+QA focus:
+- V6 production application payload preserved
+- V6R3 Nginx repair inserts immediately after exact server_name botconnector.id;
+- HTTPS apex candidate requires listen 443 before next server declaration
+- No raw brace counting
+- Local HTTPS validation uses --noproxy '*' + --resolve 127.0.0.1
+- APK checks use GET
+- nginx -t + rollback guard retained

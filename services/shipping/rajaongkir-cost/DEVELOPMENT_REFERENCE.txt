@@ -1,0 +1,40 @@
+============================================================
+BOTCONNECTOR
+RAJAONGKIR COST ADAPTER V1
+DEVELOPMENT REFERENCE
+============================================================
+
+THIS RELEASE IS FROZEN.
+
+DO NOT MODIFY IN PLACE:
+
+/opt/botconnector-shipping-providers/rajaongkir-cost/releases/rajaongkir-cost-adapter-v1-20260813T115940Z
+
+
+NEXT DEVELOPMENT MUST USE A NEW CANDIDATE.
+
+NEXT TARGET:
+
+SHIPPING CORE
+    |
+    v
+PROVIDER ROUTER / WIRING CANDIDATE
+    |
+    v
+RAJAONGKIR COST ADAPTER V1
+
+
+IMPORTANT:
+
+Do NOT add RajaOngkir-specific API calls directly
+into Shipping Core V1.
+
+Do NOT add API key into source.
+
+Do NOT modify frozen Shipping Core.
+
+Do NOT modify frozen Business Core.
+
+Do NOT expose provider-specific response to Commerce Core.
+
+============================================================

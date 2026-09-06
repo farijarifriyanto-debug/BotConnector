@@ -1,0 +1,93 @@
+- generic [active] [ref=f2e1]:
+  - banner [ref=f2e2]:
+    - link "Beranda BotConnector" [ref=f2e3] [cursor=pointer]:
+      - /url: /
+      - generic [ref=f2e7]: BOTCONNECTOR
+    - navigation "Navigasi utama" [ref=f2e8]:
+      - group [ref=f2e9]:
+        - generic "Produk" [ref=f2e10] [cursor=pointer]
+      - group [ref=f2e13]:
+        - generic "Panduan" [ref=f2e14] [cursor=pointer]
+      - group [ref=f2e17]:
+        - generic "Status" [ref=f2e18] [cursor=pointer]
+    - generic [ref=f2e21]:
+      - link "Masuk" [ref=f2e22] [cursor=pointer]:
+        - /url: /login
+      - link "Buat akun" [ref=f2e23] [cursor=pointer]:
+        - /url: /register
+  - main [ref=f2e24]:
+    - main [ref=f2e25]:
+      - generic [ref=f2e26]:
+        - complementary [ref=f2e27]:
+          - link "B BOTCONNECTOR" [ref=f2e28] [cursor=pointer]:
+            - /url: /
+            - generic [ref=f2e29]: B
+            - strong [ref=f2e30]: BOTCONNECTOR
+          - generic [ref=f2e31]:
+            - generic [ref=f2e32]: ONE CONNECTED PLATFORM
+            - heading "Satu akun. Semua workspace Anda." [level=1] [ref=f2e33]:
+              - text: Satu akun.
+              - generic [ref=f2e34]: Semua workspace Anda.
+            - paragraph [ref=f2e35]: Gunakan satu identitas BotConnector untuk bekerja dengan presentasi, foto, dokumen, spreadsheet, AI, file, dan koneksi.
+          - generic [ref=f2e36]:
+            - generic [ref=f2e37]: Presentation
+            - generic [ref=f2e38]: AI Workspace
+            - generic [ref=f2e39]: Photo
+            - generic [ref=f2e40]: Document
+            - generic [ref=f2e41]: Spreadsheet
+            - generic [ref=f2e42]: Drive
+        - generic [ref=f2e44]:
+          - generic [ref=f2e45]:
+            - generic [ref=f2e46]:
+              - text: SATU AKUN BOTCONNECTOR
+              - heading "Masuk ke akun BotConnector." [level=1] [ref=f2e47]
+              - paragraph [ref=f2e48]: Pilih dan kelola produk sesuai kebutuhan Anda.
+            - generic [ref=f2e49]:
+              - generic [ref=f2e50]: Akun terhubung ke BotConnector Core. Data akun disimpan pada layanan production.
+              - heading "Masuk" [level=2] [ref=f2e51]
+              - generic [ref=f2e52]:
+                - generic [ref=f2e53]:
+                  - text: Email
+                  - textbox "Email" [ref=f2e54]:
+                    - /placeholder: nama@email.com
+                - generic [ref=f2e55]:
+                  - text: Password
+                  - textbox "Password" [ref=f2e56]:
+                    - /placeholder: Minimal 10 karakter
+                - button "Masuk dan lanjutkan" [ref=f2e57]
+              - paragraph [ref=f2e58]:
+                - text: Belum punya akun?
+                - link "Buat akun" [ref=f2e59] [cursor=pointer]:
+                  - /url: /register
+              - paragraph [ref=f2e60]:
+                - link "Lupa password?" [ref=f2e61] [cursor=pointer]:
+                  - /url: /forgot-password
+              - paragraph [ref=f2e62]:
+                - link "Belum menerima email verifikasi?" [ref=f2e63] [cursor=pointer]:
+                  - /url: /verify-email
+          - generic [ref=f2e64]:
+            - strong [ref=f2e65]: Hanya ingin mencoba?
+            - paragraph [ref=f2e66]: Gunakan Automation Brain tanpa membuat akun. Hasil uji coba tidak disimpan.
+            - link "Coba tanpa login" [ref=f2e67] [cursor=pointer]:
+              - /url: /try
+  - contentinfo [ref=f2e68]:
+    - generic [ref=f2e69]:
+      - link "BOTCONNECTOR" [ref=f2e70] [cursor=pointer]:
+        - /url: /
+      - paragraph [ref=f2e75]: Connect what matters.
+    - generic [ref=f2e76]:
+      - link "Produk" [ref=f2e77] [cursor=pointer]:
+        - /url: /products
+      - link "Panduan" [ref=f2e78] [cursor=pointer]:
+        - /url: /docs
+      - link "Status" [ref=f2e79] [cursor=pointer]:
+        - /url: /status
+      - link "Privasi" [ref=f2e80] [cursor=pointer]:
+        - /url: /privacy
+      - link "Ketentuan" [ref=f2e81] [cursor=pointer]:
+        - /url: /terms
+      - link "Keamanan" [ref=f2e82] [cursor=pointer]:
+        - /url: /security
+      - link "Masuk" [ref=f2e83] [cursor=pointer]:
+        - /url: /login
+    - generic [ref=f2e84]: © 2026 BotConnector.

@@ -1,0 +1,30 @@
+============================================================
+BOTCONNECTOR
+RAJAONGKIR COST ADAPTER V1
+ACCEPTANCE STATE EVIDENCE
+============================================================
+
+STATE_SOURCE=/var/lib/botconnector-rajaongkir-cost-candidate/state.sqlite3
+
+STATE_SHA256=694906eac1132990c431da0718e0fcc09f9e3f535335c3369aa4f337364af0b6
+
+SQLITE_INTEGRITY=ok
+
+RATE_REQUEST_ROWS=2
+PROVIDER_CALL_ROWS=1
+
+PROVIDER_SOURCE_ROWS=1
+CACHE_SOURCE_ROWS=1
+
+SUCCESS_PROVIDER_CALLS=1
+
+STATE_DB_INCLUDED_IN_RELEASE=NO
+
+IMPORTANT:
+
+Runtime acceptance SQLite is deliberately NOT copied
+into this release.
+
+This release contains source and acceptance evidence only.
+
+============================================================

@@ -1,0 +1,72 @@
+- generic [active] [ref=f13e1]:
+  - banner [ref=f13e2]:
+    - generic [ref=f13e3]: BC Bisnis
+    - navigation [ref=f13e4]:
+      - link "Dashboard" [ref=f13e5] [cursor=pointer]:
+        - /url: "#/dashboard"
+      - link "POS" [ref=f13e6] [cursor=pointer]:
+        - /url: "#/pos"
+      - link "Orders" [ref=f13e7] [cursor=pointer]:
+        - /url: "#/orders"
+      - link "Products" [ref=f13e8] [cursor=pointer]:
+        - /url: "#/products"
+      - link "Inventory" [ref=f13e9] [cursor=pointer]:
+        - /url: "#/inventory"
+      - link "Transfers" [ref=f13e10] [cursor=pointer]:
+        - /url: "#/transfers"
+      - link "Restaurant" [ref=f13e11] [cursor=pointer]:
+        - /url: "#/restaurant"
+      - link "Kitchen" [ref=f13e12] [cursor=pointer]:
+        - /url: "#/kitchen"
+      - link "Reports" [ref=f13e13] [cursor=pointer]:
+        - /url: "#/reports"
+      - link "Integrasi" [ref=f13e14] [cursor=pointer]:
+        - /url: "#/integrasi"
+  - main [ref=f13e15]:
+    - generic [ref=f13e72]:
+      - heading "Inventory" [level=1] [ref=f13e73]
+      - generic [ref=f13e74]: Stok per lokasi (location-aware)
+    - table [ref=f13e76]:
+      - rowgroup [ref=f13e77]:
+        - row [ref=f13e78]:
+          - columnheader "Cabang" [ref=f13e79]
+          - columnheader "SKU" [ref=f13e80]
+          - columnheader "On Hand" [ref=f13e81]
+          - columnheader "Reserved" [ref=f13e82]
+          - columnheader "In Transit" [ref=f13e83]
+          - columnheader "Stok Tersedia" [ref=f13e84]
+        - row [ref=f13e85]:
+          - cell "A" [ref=f13e86]
+          - cell "WATER-600" [ref=f13e87]
+          - cell "50" [ref=f13e88]
+          - cell "0" [ref=f13e89]
+          - cell "0" [ref=f13e90]
+          - cell "50" [ref=f13e91]
+        - row [ref=f13e92]:
+          - cell "B" [ref=f13e93]
+          - cell "CHICKEN" [ref=f13e94]
+          - cell "10000" [ref=f13e95]
+          - cell "0" [ref=f13e96]
+          - cell "0" [ref=f13e97]
+          - cell "10000" [ref=f13e98]
+        - row [ref=f13e99]:
+          - cell "B" [ref=f13e100]
+          - cell "EGG" [ref=f13e101]
+          - cell "100" [ref=f13e102]
+          - cell "0" [ref=f13e103]
+          - cell "0" [ref=f13e104]
+          - cell "100" [ref=f13e105]
+        - row [ref=f13e106]:
+          - cell "B" [ref=f13e107]
+          - cell "OIL" [ref=f13e108]
+          - cell "10000" [ref=f13e109]
+          - cell "0" [ref=f13e110]
+          - cell "0" [ref=f13e111]
+          - cell "10000" [ref=f13e112]
+        - row [ref=f13e113]:
+          - cell "B" [ref=f13e114]
+          - cell "RICE" [ref=f13e115]
+          - cell "20000" [ref=f13e116]
+          - cell "0" [ref=f13e117]
+          - cell "0" [ref=f13e118]
+          - cell "20000" [ref=f13e119]

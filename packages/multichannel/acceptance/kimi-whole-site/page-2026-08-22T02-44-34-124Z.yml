@@ -1,0 +1,237 @@
+- generic [active] [ref=f20e1]:
+  - banner [ref=f20e2]:
+    - generic [ref=f20e3]:
+      - link "BC BotConnector" [ref=f20e4] [cursor=pointer]:
+        - /url: /
+        - generic [ref=f20e5]: BC
+        - text: BotConnector
+      - navigation [ref=f20e6]:
+        - link "Konektor" [ref=f20e7] [cursor=pointer]:
+          - /url: /konektor/
+        - link "Integrasi" [ref=f20e8] [cursor=pointer]:
+          - /url: /integrasi/
+        - link "Template" [ref=f20e9] [cursor=pointer]:
+          - /url: /resep/
+        - link "Solusi" [ref=f20e10] [cursor=pointer]:
+          - /url: /solusi/
+        - link "Docs" [ref=f20e11] [cursor=pointer]:
+          - /url: /docs/
+      - generic [ref=f20e12]:
+        - link "Status sistem" [ref=f20e13] [cursor=pointer]:
+          - /url: /status
+        - link "Buat otomasi →" [ref=f20e15] [cursor=pointer]:
+          - /url: /otomasi/
+  - generic [ref=f20e16]:
+    - link "Automation Platform" [ref=f20e17] [cursor=pointer]:
+      - /url: /
+    - text: / Template Workflow
+  - main [ref=f20e18]:
+    - generic [ref=f20e20]:
+      - generic [ref=f20e21]:
+        - generic [ref=f20e22]: Workflow Templates
+        - heading "Mulai dari pekerjaan yang ingin diselesaikan." [level=1] [ref=f20e23]
+        - paragraph [ref=f20e24]: Tidak perlu memulai dari kanvas kosong. Pilih pola workflow yang paling dekat dengan kebutuhan Anda, lalu sesuaikan trigger, data, dan action.
+        - generic [ref=f20e25]:
+          - link "Jelajahi template →" [ref=f20e26] [cursor=pointer]:
+            - /url: "#templates"
+          - link "Lihat konektor" [ref=f20e27] [cursor=pointer]:
+            - /url: /konektor/
+        - generic [ref=f20e28]:
+          - generic [ref=f20e29]: Pola siap digunakan
+          - generic [ref=f20e31]: Blueprint integrasi
+          - generic [ref=f20e32]: Trigger → Action
+      - generic [ref=f20e33]:
+        - generic [ref=f20e34]:
+          - generic [ref=f20e35]: Workflow recipe / live pattern
+          - generic [ref=f20e36]: Ready
+        - generic [ref=f20e38]:
+          - generic [ref=f20e39]:
+            - generic [ref=f20e40]: WH
+            - generic [ref=f20e41]: TRIGGER
+            - strong [ref=f20e42]: Webhook event
+          - generic [ref=f20e45]:
+            - generic [ref=f20e46]: IF
+            - generic [ref=f20e47]: WORKFLOW
+            - strong [ref=f20e48]: Validate & route
+          - generic [ref=f20e51]:
+            - generic [ref=f20e52]: TG
+            - generic [ref=f20e53]: ACTION
+            - strong [ref=f20e54]: Telegram alert
+        - generic [ref=f20e55]:
+          - generic [ref=f20e56]:
+            - strong [ref=f20e57]: Input
+            - generic [ref=f20e58]: JSON event
+          - generic [ref=f20e59]:
+            - strong [ref=f20e60]: Process
+            - generic [ref=f20e61]: Rule matched
+          - generic [ref=f20e62]:
+            - strong [ref=f20e63]: Output
+            - generic [ref=f20e64]: Notification
+    - generic [ref=f20e66]:
+      - generic [ref=f20e67]:
+        - generic [ref=f20e68]:
+          - generic [ref=f20e69]: Template library
+          - heading "Pilih hasil yang Anda butuhkan." [level=2] [ref=f20e70]
+          - paragraph [ref=f20e71]: Template berstatus Siap menggunakan konektor yang tersedia sekarang. Blueprint menunjukkan pola integrasi untuk konektor yang masih dalam roadmap.
+        - link "Baca dokumentasi" [ref=f20e72] [cursor=pointer]:
+          - /url: /docs/
+      - generic [ref=f20e73]:
+        - generic [ref=f20e74]: ⌕
+        - searchbox "Cari template workflow" [ref=f20e75]
+      - generic [ref=f20e76]:
+        - button "Semua" [ref=f20e77] [cursor=pointer]
+        - button "Siap" [ref=f20e78] [cursor=pointer]
+        - button "Messaging" [ref=f20e79] [cursor=pointer]
+        - button "Developer" [ref=f20e80] [cursor=pointer]
+        - button "Bisnis" [ref=f20e81] [cursor=pointer]
+        - button "Network" [ref=f20e82] [cursor=pointer]
+      - generic [ref=f20e83]:
+        - link "WH TG ● Siap Notification Webhook → Telegram alert Terima event JSON dan kirim notifikasi ke Telegram saat kondisi yang Anda tentukan terpenuhi. Developer · Messaging Gunakan →" [ref=f20e84] [cursor=pointer]:
+          - /url: /otomasi/
+          - generic [ref=f20e85]:
+            - generic [ref=f20e86]:
+              - generic [ref=f20e87]: WH
+              - generic [ref=f20e88]: TG
+            - generic [ref=f20e89]: ● Siap
+          - generic [ref=f20e90]: Notification
+          - heading "Webhook → Telegram alert" [level=3] [ref=f20e91]
+          - paragraph [ref=f20e92]: Terima event JSON dan kirim notifikasi ke Telegram saat kondisi yang Anda tentukan terpenuhi.
+          - generic [ref=f20e93]:
+            - generic [ref=f20e94]: Developer · Messaging
+            - generic [ref=f20e95]: Gunakan →
+        - link "WH API ● Siap API relay Webhook → HTTP API Gunakan event masuk sebagai trigger, validasi payload, lalu teruskan data ke endpoint HTTPS tujuan. Developer · API Gunakan →" [ref=f20e96] [cursor=pointer]:
+          - /url: /otomasi/
+          - generic [ref=f20e97]:
+            - generic [ref=f20e98]:
+              - generic [ref=f20e99]: WH
+              - generic [ref=f20e100]: API
+            - generic [ref=f20e101]: ● Siap
+          - generic [ref=f20e102]: API relay
+          - heading "Webhook → HTTP API" [level=3] [ref=f20e103]
+          - paragraph [ref=f20e104]: Gunakan event masuk sebagai trigger, validasi payload, lalu teruskan data ke endpoint HTTPS tujuan.
+          - generic [ref=f20e105]:
+            - generic [ref=f20e106]: Developer · API
+            - generic [ref=f20e107]: Gunakan →
+        - link "GS WA Blueprint Customer update Google Sheets → WhatsApp Gunakan perubahan data spreadsheet sebagai dasar untuk membentuk pesan pelanggan. Spreadsheet · Messaging Lihat pola →" [ref=f20e108] [cursor=pointer]:
+          - /url: /konektor/google-sheets/
+          - generic [ref=f20e109]:
+            - generic [ref=f20e110]:
+              - generic [ref=f20e111]: GS
+              - generic [ref=f20e112]: WA
+            - generic [ref=f20e113]: Blueprint
+          - generic [ref=f20e114]: Customer update
+          - heading "Google Sheets → WhatsApp" [level=3] [ref=f20e115]
+          - paragraph [ref=f20e116]: Gunakan perubahan data spreadsheet sebagai dasar untuk membentuk pesan pelanggan.
+          - generic [ref=f20e117]:
+            - generic [ref=f20e118]: Spreadsheet · Messaging
+            - generic [ref=f20e119]: Lihat pola →
+        - article [ref=f20e120]:
+          - generic [ref=f20e121]:
+            - generic [ref=f20e122]:
+              - generic [ref=f20e123]: PAY
+              - generic [ref=f20e124]: TG
+            - generic [ref=f20e125]: Blueprint
+          - generic [ref=f20e126]: Payment alert
+          - heading "Pembayaran → Telegram" [level=3] [ref=f20e127]
+          - paragraph [ref=f20e128]: Gunakan perubahan status pembayaran untuk memberi tahu tim operasional secara otomatis.
+          - generic [ref=f20e129]:
+            - generic [ref=f20e130]: Payment · Messaging
+            - generic [ref=f20e131]: Blueprint
+        - article [ref=f20e132]:
+          - generic [ref=f20e133]:
+            - generic [ref=f20e134]:
+              - generic [ref=f20e135]: PAY
+              - generic [ref=f20e136]: AC
+            - generic [ref=f20e137]: Blueprint
+          - generic [ref=f20e138]: Finance
+          - heading "Pembayaran → Accounting" [level=3] [ref=f20e139]
+          - paragraph [ref=f20e140]: Jadikan transaksi yang sudah selesai sebagai pemicu proses pencatatan dan rekonsiliasi.
+          - generic [ref=f20e141]:
+            - generic [ref=f20e142]: Payment · Finance
+            - generic [ref=f20e143]: Blueprint
+        - article [ref=f20e144]:
+          - generic [ref=f20e145]:
+            - generic [ref=f20e146]:
+              - generic [ref=f20e147]: PAY
+              - generic [ref=f20e148]: MK
+            - generic [ref=f20e149]: Blueprint
+          - generic [ref=f20e150]: ISP automation
+          - heading "Pembayaran → MikroTik" [level=3] [ref=f20e151]
+          - paragraph [ref=f20e152]: Hubungkan event billing dengan proses jaringan dan pemberitahuan pelanggan.
+          - generic [ref=f20e153]:
+            - generic [ref=f20e154]: Billing · Network
+            - generic [ref=f20e155]: Blueprint
+    - generic [ref=f20e157]:
+      - generic [ref=f20e158]:
+        - generic [ref=f20e159]: Template status
+        - heading "Jelas mana yang siap, jelas mana yang blueprint." [level=2] [ref=f20e160]
+        - paragraph [ref=f20e161]: Template tidak boleh membuat integrasi roadmap terlihat seolah sudah aktif. Karena itu status konektor ditampilkan sebelum Anda mulai membangun workflow.
+        - link "Cek status konektor →" [ref=f20e163] [cursor=pointer]:
+          - /url: /konektor/
+      - generic [ref=f20e164]:
+        - generic [ref=f20e165]:
+          - generic [ref=f20e166]: "01"
+          - generic [ref=f20e167]:
+            - strong [ref=f20e168]: Siap digunakan
+            - generic [ref=f20e169]: Konektor yang dibutuhkan tersedia.
+          - generic [ref=f20e170]: READY
+        - generic [ref=f20e171]:
+          - generic [ref=f20e172]: "02"
+          - generic [ref=f20e173]:
+            - strong [ref=f20e174]: Blueprint
+            - generic [ref=f20e175]: Pola workflow dapat dipelajari, tetapi ada konektor yang masih roadmap.
+          - generic [ref=f20e176]: ROADMAP
+        - generic [ref=f20e177]:
+          - generic [ref=f20e178]: "03"
+          - generic [ref=f20e179]:
+            - strong [ref=f20e180]: Universal fallback
+            - generic [ref=f20e181]: Webhook dan HTTP/API dapat menghubungkan sistem khusus.
+          - generic [ref=f20e182]: API
+    - generic [ref=f20e184]:
+      - generic [ref=f20e186]:
+        - generic [ref=f20e187]: How templates work
+        - heading "Template adalah titik awal, bukan batas workflow." [level=2] [ref=f20e188]
+        - paragraph [ref=f20e189]: Pilih pola yang paling dekat, sesuaikan datanya, lalu aktifkan setelah pengujian selesai.
+      - generic [ref=f20e190]:
+        - generic [ref=f20e191]:
+          - generic [ref=f20e192]: "01"
+          - heading "Pilih template" [level=3] [ref=f20e193]
+          - paragraph [ref=f20e194]: Mulai dari pekerjaan yang ingin Anda selesaikan.
+        - generic [ref=f20e196]:
+          - generic [ref=f20e197]: "02"
+          - heading "Hubungkan sistem" [level=3] [ref=f20e198]
+          - paragraph [ref=f20e199]: Gunakan konektor yang tersedia atau Webhook dan HTTP/API.
+        - generic [ref=f20e201]:
+          - generic [ref=f20e202]: "03"
+          - heading "Uji & aktifkan" [level=3] [ref=f20e203]
+          - paragraph [ref=f20e204]: Validasi payload dan action sebelum workflow digunakan.
+    - generic [ref=f20e207]:
+      - generic [ref=f20e208]: Build from result
+      - heading "Pekerjaan Anda unik. Template hanya mempercepat awalnya." [level=2] [ref=f20e209]
+      - paragraph [ref=f20e210]: Gunakan template ketika polanya cocok. Gunakan Webhook atau HTTP/API ketika workflow Anda membutuhkan integrasi khusus.
+      - generic [ref=f20e211]:
+        - link "Buat workflow →" [ref=f20e212] [cursor=pointer]:
+          - /url: /otomasi/
+        - link "Buka dokumentasi" [ref=f20e213] [cursor=pointer]:
+          - /url: /docs/
+  - contentinfo [ref=f20e214]:
+    - generic [ref=f20e215]:
+      - generic [ref=f20e216]:
+        - link "BC BotConnector" [ref=f20e217] [cursor=pointer]:
+          - /url: /
+          - generic [ref=f20e218]: BC
+          - text: BotConnector
+        - generic [ref=f20e219]: Connector & automation platform.
+      - generic [ref=f20e220]:
+        - link "Konektor" [ref=f20e221] [cursor=pointer]:
+          - /url: /konektor/
+        - link "Integrasi" [ref=f20e222] [cursor=pointer]:
+          - /url: /integrasi/
+        - link "Template" [ref=f20e223] [cursor=pointer]:
+          - /url: /resep/
+        - link "Solusi" [ref=f20e224] [cursor=pointer]:
+          - /url: /solusi/
+        - link "Docs" [ref=f20e225] [cursor=pointer]:
+          - /url: /docs/
+        - link "Status" [ref=f20e226] [cursor=pointer]:
+          - /url: /status

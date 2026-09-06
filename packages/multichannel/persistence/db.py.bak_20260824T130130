@@ -1,0 +1,72 @@
+"""Akses basis data `botconnector` untuk persistence multichannel.
+
+Memakai psycopg3. Semua akses lewat fungsi ini; tidak ada SQL tersebar
+di lapisan lain. Idempotensi dipegang oleh kunci unik di schema.
+"""
+
+from __future__ import annotations
+
+import psycopg
+from psycopg.rows import dict_row
+
+from .runtime import DB_NAME, DB_USER, db_password, pg_ip
+
+
+def koneksi():
+    return psycopg.connect(
+        host=pg_ip(),
+        port=5432,
+        dbname=DB_NAME,
+        user=DB_USER,
+        password=db_password(),
+        row_factory=dict_row,
+        connect_timeout=8,
+    )
+
+
+def jalankan(sql: str, params: tuple | None = None) -> None:
+    with koneksi() as c:
+        with c.cursor() as cur:
+            cur.execute(sql, params or ())
+        c.commit()
+
+
+def ambil(sql: str, params: tuple | None = None):
+    """Ambil satu baris (dict) atau None."""
+    with koneksi() as c:
+        with c.cursor() as cur:
+            cur.execute(sql, params or ())
+            return cur.fetchone()
+
+
+def semua(sql: str, params: tuple | None = None):
+    with koneksi() as c:
+        with c.cursor() as cur:
+            cur.execute(sql, params or ())
+            return cur.fetchall()
+
+
+def tabel_ada(nama: str) -> bool:
+    r = ambil(
+        "SELECT to_regclass(%s) AS x", (f"multichannel.{nama}",)
+    )
+    return bool(r and r["x"])
+
+
+def migrasi() -> list[str]:
+    """Jalankan schema.sql secara utuh; kembalikan log sederhana."""
+    from pathlib import Path
+    sql = Path(__file__).resolve().parent / "schema.sql"
+    teks = sql.read_text(encoding="utf-8")
+    log = []
+    try:
+        with koneksi() as c:
+            with c.cursor() as cur:
+                cur.execute(teks)
+            c.commit()
+        log.append("schema.sql ok")
+    except psycopg.errors.DuplicateTable:
+        log.append("schema sudah ada (skip)")
+    except Exception as e:
+        log.append(f"skip:{type(e).__name__}:{str(e)[:120]}")
+    return log

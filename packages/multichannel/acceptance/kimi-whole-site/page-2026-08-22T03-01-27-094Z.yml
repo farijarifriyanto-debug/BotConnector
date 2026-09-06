@@ -1,0 +1,185 @@
+- generic [active] [ref=f48e1]:
+  - banner [ref=f48e2]:
+    - generic [ref=f48e3]:
+      - link "BC BotConnector" [ref=f48e4] [cursor=pointer]:
+        - /url: /
+        - generic [ref=f48e5]: BC
+        - text: BotConnector
+      - navigation "Navigasi utama" [ref=f48e6]:
+        - link "Business Suite" [ref=f48e7] [cursor=pointer]:
+          - /url: /business-suite/
+        - link "Retail" [ref=f48e8] [cursor=pointer]:
+          - /url: /retail/
+        - link "Restaurant" [ref=f48e9] [cursor=pointer]:
+          - /url: /restaurant/
+        - link "Integrasi" [ref=f48e10] [cursor=pointer]:
+          - /url: /integrations/
+        - link "Resep" [ref=f48e11] [cursor=pointer]:
+          - /url: /resep/
+        - link "Solusi" [ref=f48e12] [cursor=pointer]:
+          - /url: /solusi/
+        - link "Docs" [ref=f48e13] [cursor=pointer]:
+          - /url: /docs/
+      - link "Buka Bisnis →" [ref=f48e15] [cursor=pointer]:
+        - /url: /bisnis/
+  - generic [ref=f48e16]:
+    - link "BotConnector" [ref=f48e17] [cursor=pointer]:
+      - /url: /
+    - text: /
+    - link "Business Suite" [ref=f48e18] [cursor=pointer]:
+      - /url: /business-suite/
+    - text: / Retail & Toko
+  - main [ref=f48e19]:
+    - generic [ref=f48e21]:
+      - generic [ref=f48e22]:
+        - generic [ref=f48e23]: Retail & Toko
+        - heading "POS retail dengan stok yang selalu benar." [level=1] [ref=f48e24]
+        - paragraph [ref=f48e25]: Kasir, barcode, inventori pusat, multi-lokasi, gudang, transfer cabang, retur, opname, dan offline — dengan satu sumber kebenaran stok.
+        - generic [ref=f48e26]:
+          - link "Buka POS Retail →" [ref=f48e27] [cursor=pointer]:
+            - /url: /bisnis/
+          - link "Lihat Integrasi" [ref=f48e28] [cursor=pointer]:
+            - /url: /integrations/
+        - generic [ref=f48e29]:
+          - generic [ref=f48e30]: POS
+          - generic [ref=f48e31]: Barcode
+          - generic [ref=f48e32]: Central Inventory
+          - generic [ref=f48e33]: Multi-Lokasi
+          - generic [ref=f48e34]: Warehouse
+          - generic [ref=f48e35]: Offline
+      - generic [ref=f48e36]:
+        - generic [ref=f48e37]:
+          - generic [ref=f48e38]: Retail flow
+          - generic [ref=f48e39]: ● Aktif
+        - generic [ref=f48e40]:
+          - generic [ref=f48e41]:
+            - generic [ref=f48e42]: POS
+            - generic [ref=f48e43]: KASIR
+            - strong [ref=f48e44]: Penjualan
+          - generic [ref=f48e46]:
+            - generic [ref=f48e47]: INV
+            - generic [ref=f48e48]: STOK
+            - strong [ref=f48e49]: Stok terpusat
+          - generic [ref=f48e51]:
+            - generic [ref=f48e52]: FIN
+            - generic [ref=f48e53]: FINANCE
+            - strong [ref=f48e54]: Pembukuan
+        - generic [ref=f48e55]:
+          - generic [ref=f48e56]:
+            - strong [ref=f48e57]: Kasir
+            - generic [ref=f48e58]: Barcode · Retur
+          - generic [ref=f48e59]:
+            - strong [ref=f48e60]: Stok
+            - generic [ref=f48e61]: Lokasi · Transfer
+          - generic [ref=f48e62]:
+            - strong [ref=f48e63]: Finance
+            - generic [ref=f48e64]: COGS · Laporan
+    - generic [ref=f48e66]:
+      - generic [ref=f48e67]:
+        - generic [ref=f48e68]:
+          - generic [ref=f48e69]: Retail & Toko
+          - heading "Stok yang selalu benar di setiap lokasi." [level=2] [ref=f48e70]
+          - paragraph [ref=f48e71]: Penjualan di satu cabang tidak pernah mengurangi stok cabang lain. Semua tercatat sebagai gerakan stok yang bisa diaudit.
+        - link "Buka aplikasi →" [ref=f48e72] [cursor=pointer]:
+          - /url: /bisnis/
+      - generic [ref=f48e73]:
+        - link "POS Aktif POS POS retail. Kasir, cart, quantity, diskon, tender, receipt, dan sale history. POS · Kasir · Receipt Buka →" [ref=f48e74] [cursor=pointer]:
+          - /url: /bisnis/
+          - generic [ref=f48e75]:
+            - generic [ref=f48e76]: POS
+            - generic [ref=f48e77]: Aktif
+          - generic [ref=f48e78]: POS
+          - heading "POS retail." [level=3] [ref=f48e79]
+          - paragraph [ref=f48e80]: Kasir, cart, quantity, diskon, tender, receipt, dan sale history.
+          - generic [ref=f48e81]:
+            - generic [ref=f48e82]: POS · Kasir · Receipt
+            - generic [ref=f48e83]: Buka →
+        - link "BC Aktif Barcode Barcode scanner langsung jalan. Barcode → SKU, alias barcode, penanganan barcode tak dikenal. Barcode · SKU · Alias Buka →" [ref=f48e84] [cursor=pointer]:
+          - /url: /bisnis/
+          - generic [ref=f48e85]:
+            - generic [ref=f48e86]: BC
+            - generic [ref=f48e87]: Aktif
+          - generic [ref=f48e88]: Barcode
+          - heading "Barcode scanner langsung jalan." [level=3] [ref=f48e89]
+          - paragraph [ref=f48e90]: Barcode → SKU, alias barcode, penanganan barcode tak dikenal.
+          - generic [ref=f48e91]:
+            - generic [ref=f48e92]: Barcode · SKU · Alias
+            - generic [ref=f48e93]: Buka →
+        - link "INV Aktif Central Inventory Stok pusat location-aware. Produk/SKU master, stok per lokasi, dan ketersediaan per cabang. SKU · Lokasi · Stok Tersedia Buka →" [ref=f48e94] [cursor=pointer]:
+          - /url: /bisnis/
+          - generic [ref=f48e95]:
+            - generic [ref=f48e96]: INV
+            - generic [ref=f48e97]: Aktif
+          - generic [ref=f48e98]: Central Inventory
+          - heading "Stok pusat location-aware." [level=3] [ref=f48e99]
+          - paragraph [ref=f48e100]: Produk/SKU master, stok per lokasi, dan ketersediaan per cabang.
+          - generic [ref=f48e101]:
+            - generic [ref=f48e102]: SKU · Lokasi · Stok Tersedia
+            - generic [ref=f48e103]: Buka →
+        - link "TRF Aktif Transfer Cabang Transfer stok antar cabang. Lifecycle DRAFT → APPROVED → SHIPPED → IN_TRANSIT → RECEIVED, dengan konservasi. Transfer · In-transit · Konservasi Buka →" [ref=f48e104] [cursor=pointer]:
+          - /url: /bisnis/
+          - generic [ref=f48e105]:
+            - generic [ref=f48e106]: TRF
+            - generic [ref=f48e107]: Aktif
+          - generic [ref=f48e108]: Transfer Cabang
+          - heading "Transfer stok antar cabang." [level=3] [ref=f48e109]
+          - paragraph [ref=f48e110]: Lifecycle DRAFT → APPROVED → SHIPPED → IN_TRANSIT → RECEIVED, dengan konservasi.
+          - generic [ref=f48e111]:
+            - generic [ref=f48e112]: Transfer · In-transit · Konservasi
+            - generic [ref=f48e113]: Buka →
+        - link "RTN Aktif Retur & Opname Retur, void, dan stock opname. Retur mengembalikan stok, void membatalkan, opname mengoreksi dengan audit. Retur · Void · Opname Buka →" [ref=f48e114] [cursor=pointer]:
+          - /url: /bisnis/
+          - generic [ref=f48e115]:
+            - generic [ref=f48e116]: RTN
+            - generic [ref=f48e117]: Aktif
+          - generic [ref=f48e118]: Retur & Opname
+          - heading "Retur, void, dan stock opname." [level=3] [ref=f48e119]
+          - paragraph [ref=f48e120]: Retur mengembalikan stok, void membatalkan, opname mengoreksi dengan audit.
+          - generic [ref=f48e121]:
+            - generic [ref=f48e122]: Retur · Void · Opname
+            - generic [ref=f48e123]: Buka →
+        - link "OFF Aktif Offline POS tetap jalan saat offline. Antrean offline, allowance stok, dan sinkronisasi idempoten. Offline · Sync · Idempoten Buka →" [ref=f48e124] [cursor=pointer]:
+          - /url: /bisnis/
+          - generic [ref=f48e125]:
+            - generic [ref=f48e126]: "OFF"
+            - generic [ref=f48e127]: Aktif
+          - generic [ref=f48e128]: Offline
+          - heading "POS tetap jalan saat offline." [level=3] [ref=f48e129]
+          - paragraph [ref=f48e130]: Antrean offline, allowance stok, dan sinkronisasi idempoten.
+          - generic [ref=f48e131]:
+            - generic [ref=f48e132]: Offline · Sync · Idempoten
+            - generic [ref=f48e133]: Buka →
+    - generic [ref=f48e135]:
+      - generic [ref=f48e136]: Mulai sekarang
+      - heading "Jalankan toko Anda dari satu tempat." [level=2] [ref=f48e137]
+      - paragraph [ref=f48e138]: Buka Business Suite untuk melihat POS retail, inventori, transfer, dan laporan yang sudah berjalan.
+      - generic [ref=f48e139]:
+        - link "Buka Business Suite →" [ref=f48e140] [cursor=pointer]:
+          - /url: /bisnis/
+        - link "Lihat integrasi" [ref=f48e141] [cursor=pointer]:
+          - /url: /integrations/
+  - contentinfo [ref=f48e142]:
+    - generic [ref=f48e143]:
+      - generic [ref=f48e144]:
+        - link "BC BotConnector" [ref=f48e145] [cursor=pointer]:
+          - /url: /
+          - generic [ref=f48e146]: BC
+          - text: BotConnector
+        - generic [ref=f48e147]: Hubungkan sistem. Jalankan bisnis dari satu tempat.
+      - generic [ref=f48e148]:
+        - link "Business Suite" [ref=f48e149] [cursor=pointer]:
+          - /url: /business-suite/
+        - link "Retail" [ref=f48e150] [cursor=pointer]:
+          - /url: /retail/
+        - link "Restaurant" [ref=f48e151] [cursor=pointer]:
+          - /url: /restaurant/
+        - link "Integrasi" [ref=f48e152] [cursor=pointer]:
+          - /url: /integrations/
+        - link "Resep" [ref=f48e153] [cursor=pointer]:
+          - /url: /resep/
+        - link "Solusi" [ref=f48e154] [cursor=pointer]:
+          - /url: /solusi/
+        - link "Docs" [ref=f48e155] [cursor=pointer]:
+          - /url: /docs/
+        - link "Status" [ref=f48e156] [cursor=pointer]:
+          - /url: /status

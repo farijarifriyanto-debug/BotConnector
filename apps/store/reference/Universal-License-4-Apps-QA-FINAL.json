@@ -1,0 +1,89 @@
+{
+  "result": "PASS",
+  "apps": [
+    {
+      "app": "Vehicle Wash",
+      "file": "Vehicle-Wash-2.0.0-Universal-License.apk",
+      "versionCode": 2000,
+      "versionName": "2.0.0",
+      "package": "com.carwash.allinoneapp",
+      "certSHA256": "15:3F:DD:8C:8A:7D:32:C4:8F:1B:9A:B7:FD:6F:ED:67:AB:A0:60:80:1A:44:EF:FF:E0:66:46:06:4C:B8:0A:72",
+      "sha256": "2daa8ed707b71a87f36c5392bec844ee9b546c54140fe4bd961b8a295378cb47",
+      "bytes": 41360,
+      "checks": {
+        "package_ok": true,
+        "version_code_2000": true,
+        "universal_engine": true,
+        "anti_downgrade": true,
+        "cert_expected": true,
+        "v1_verify": true
+      }
+    },
+    {
+      "app": "Workshop",
+      "file": "Workshop-2.0.0-Universal-License.apk",
+      "versionCode": 2000,
+      "versionName": "2.0.0",
+      "package": "com.workshop.allinoneap",
+      "certSHA256": "15:3F:DD:8C:8A:7D:32:C4:8F:1B:9A:B7:FD:6F:ED:67:AB:A0:60:80:1A:44:EF:FF:E0:66:46:06:4C:B8:0A:72",
+      "sha256": "19a59250a4c0a4725577ede93617ce1cf01bdd3c3137b2b324985c35f0104e71",
+      "bytes": 39128,
+      "checks": {
+        "package_ok": true,
+        "version_code_2000": true,
+        "universal_engine": true,
+        "anti_downgrade": true,
+        "cert_expected": true,
+        "v1_verify": true
+      }
+    },
+    {
+      "app": "Retail",
+      "file": "Retail-2.0.0-Universal-License.apk",
+      "versionCode": 2000,
+      "versionName": "2.0.0",
+      "package": "com.retail.allinoneappx",
+      "certSHA256": "15:3F:DD:8C:8A:7D:32:C4:8F:1B:9A:B7:FD:6F:ED:67:AB:A0:60:80:1A:44:EF:FF:E0:66:46:06:4C:B8:0A:72",
+      "sha256": "48c7d6c3cdc6c2ace97d6673f40c5ed84caf26b6861ebdb9e3a64f185658bb8b",
+      "bytes": 39675,
+      "checks": {
+        "package_ok": true,
+        "version_code_2000": true,
+        "universal_engine": true,
+        "anti_downgrade": true,
+        "cert_expected": true,
+        "v1_verify": true
+      }
+    },
+    {
+      "app": "Restaurant",
+      "file": "Restaurant-All-in-One-R8-Universal-License.apk",
+      "versionCode": 2000,
+      "versionName": "8.0.0",
+      "package": "com.restaurant.allinone",
+      "certSHA256": "A5:2F:17:FE:60:CC:CC:28:8C:59:F0:EF:6B:89:32:7E:47:19:60:A7:96:30:66:99:8C:1A:E2:DF:73:91:58:CB",
+      "sha256": "4f0598ea53e4ccbcb54ad1e22254d663fe9023e02ab91897dd351d4777d54256",
+      "bytes": 232692,
+      "checks": {
+        "package_ok": true,
+        "version_code_2000": true,
+        "universal_engine": true,
+        "anti_downgrade": true,
+        "cert_expected": true,
+        "v1_verify": true
+      }
+    }
+  ],
+  "seller_patch": {
+    "file": "universal-license-seller-patch-v1.sh",
+    "sha256": "ee1000fce4b0ef7bd7369b0af3ccc390a95a775e3f3dedc7ec9715bf5ebb1066",
+    "simulated_patch": "PASS",
+    "token_matrix": "PASS: 4 products x 3 license types"
+  },
+  "restaurant_migration": {
+    "current_test_line_cert": "87:79:0B:E4:78:56:37:2E:49:0C:7E:D8:72:F2:FC:69:CF:74:34:51:7C:26:4A:E6:3E:DC:A1:33:2C:45:AC:4E",
+    "preserved_production_cert": "A5:2F:17:FE:60:CC:CC:28:8C:59:F0:EF:6B:89:32:7E:47:19:60:A7:96:30:66:99:8C:1A:E2:DF:73:91:58:CB",
+    "seamless_from_R5_R6_R7": false,
+    "reason": "historical test signing key for cert 87:79... was not preserved; final line uses preserved production signing key"
+  }
+}

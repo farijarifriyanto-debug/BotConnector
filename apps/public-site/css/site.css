@@ -1,0 +1,177 @@
+/* BotConnector — full-site POC design system.
+   Base tokens/components reused verbatim from the real production shared
+   design system (/__bc_shared_design_v1/v2/site.css, live on business-suite,
+   retail, restaurant, integrations, solusi, konektor, resep, docs) so this
+   POC stays visually native to the real product instead of inventing a new
+   brand. Extensions below (marked BC_POC_EXT) add: nav dropdowns (the real
+   nav has none — needed once Parking/My Drive/Konektor join it), an
+   ecosystem grid for the homepage, a status-badge row, and wide-desktop
+   density fixes for the two-column boards (same "dead space" issue found
+   in the earlier Website Builder V2 pass). */
+
+:root{
+  --ink:#101828;--muted:#667085;--muted2:#98a2b3;--bg:#F6F7FB;--white:#FFFFFF;--soft:#F6F7FB;
+  --line:#E7E9F2;--line2:#d4d8e6;
+  --brand:#5B5FEF;--brand2:#4a4edb;--brand-soft:#EEF0FF;
+  --ok:#22C55E;--ok-soft:#e8f9ef;--amber:#F59E0B;--amber-soft:#fff6e0;--err:#ef4444;--err-soft:#fee2e2;
+  --dark:#0B1020;--dark-2:#111a33;--max:1240px;
+  --shadow:0 20px 55px rgba(11,16,32,.07),0 2px 8px rgba(11,16,32,.04);
+  --radius-lg:24px;--radius-md:18px;--radius-sm:14px;
+}
+*{box-sizing:border-box}html{scroll-behavior:smooth}
+body{margin:0;color:var(--ink);background-color:var(--bg);
+  font-family:Inter,ui-sans-serif,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;-webkit-font-smoothing:antialiased}
+a{color:inherit;text-decoration:none}
+img,svg{max-width:100%}
+.wrap{width:min(calc(100% - 40px),var(--max));margin-inline:auto}
+.top{position:sticky;top:0;z-index:50;border-bottom:1px solid var(--line);background:rgba(255,255,255,.92);backdrop-filter:blur(16px)}
+.top-in{height:72px;display:flex;align-items:center;justify-content:space-between;gap:26px}
+.brand{display:flex;align-items:center;gap:10px;font-size:15px;font-weight:850;letter-spacing:-.03em}
+.plug{width:30px;height:30px;border-radius:9px;background:var(--dark);color:#fff;display:grid;place-items:center;font-size:11px;font-weight:850}
+.top nav{display:flex;align-items:center;gap:26px;color:#475467;font-size:14px;font-weight:600}
+.top nav a:hover{color:var(--ink)}
+.top nav a.active{color:var(--brand)}
+.top-actions{display:flex;align-items:center;gap:10px}
+.btn{min-height:44px;padding:0 17px;border-radius:11px;display:inline-flex;align-items:center;justify-content:center;gap:8px;font-size:14px;font-weight:750;border:1px solid transparent;cursor:pointer;transition:.18s ease}
+.btn-main{color:#fff;background:var(--brand);box-shadow:0 7px 18px rgba(91,95,239,.22)}
+.btn-main:hover{background:var(--brand2);transform:translateY(-1px)}
+.btn-line{color:#344054;background:#fff;border-color:var(--line2)}
+.btn-line:hover{border-color:#b9bdcb;background:#fafafa}
+.mobile-menu{display:none;width:42px;height:42px;border:1px solid var(--line);background:#fff;border-radius:10px;cursor:pointer}
+.crumb{padding:22px 0 0;color:var(--muted);font-size:13px}
+.crumb a{color:var(--brand);font-weight:650}
+.hero{padding:70px 0 60px}
+.hero-grid{display:grid;grid-template-columns:1.05fr .95fr;gap:60px;align-items:center}
+.label{color:var(--brand);font-size:11px;font-weight:850;letter-spacing:.12em;text-transform:uppercase}
+h1{margin:16px 0 0;font-size:clamp(38px,4.6vw,60px);line-height:1.05;letter-spacing:-.05em;font-weight:850}
+.hero-copy{margin:22px 0 0;max-width:600px;color:var(--muted);font-size:17px;line-height:1.65}
+.hero-actions{display:flex;flex-wrap:wrap;gap:12px;margin-top:30px}
+.chips{display:flex;flex-wrap:wrap;gap:8px;margin-top:24px}
+.chip{padding:7px 12px;border:1px solid var(--line);border-radius:99px;background:#fff;color:#667085;font-size:11px;font-weight:750}
+.board{border:1px solid var(--line);background:rgba(255,255,255,.94);border-radius:var(--radius-md);box-shadow:var(--shadow);overflow:hidden}
+.board-top{min-height:56px;border-bottom:1px solid var(--line);display:flex;align-items:center;justify-content:space-between;padding:0 18px}
+.mono{font-size:12px;font-weight:750;color:#475467}
+.board-active{font-size:10px;font-weight:850;letter-spacing:.06em;color:var(--ok);background:var(--ok-soft);padding:6px 10px;border-radius:99px;text-transform:uppercase}
+.solution-flow{padding:26px;display:grid;grid-template-columns:1fr 40px 1fr 40px 1fr;align-items:center}
+.flow-node{min-height:96px;padding:14px;border:1px solid var(--line);border-radius:14px;background:#fff}
+.flow-icon{width:31px;height:31px;border-radius:9px;display:grid;place-items:center;background:var(--brand-soft);color:var(--brand);font-weight:850;font-size:10px;margin-bottom:10px}
+.flow-node small{display:block;color:#98a2b3;font-size:9px;font-weight:800;letter-spacing:.08em}
+.flow-node strong{display:block;font-size:12px;margin-top:3px}
+.line{position:relative;height:2px;background:#dfe2eb;overflow:hidden}
+.line:after{content:"";position:absolute;width:14px;height:2px;background:var(--brand);animation:travel 2.2s linear infinite}
+@keyframes travel{from{left:-14px}to{left:100%}}
+.board-foot{display:grid;grid-template-columns:repeat(3,1fr);border-top:1px solid var(--line)}
+.board-cell{padding:16px 20px}
+.board-cell + .board-cell{border-left:1px solid var(--line)}
+.board-cell strong{display:block;font-size:12px}
+.board-cell span{display:block;margin-top:4px;color:var(--muted);font-size:11px}
+.section{padding:80px 0}
+.section.white{background:#fff}
+.section-head{display:flex;justify-content:space-between;align-items:end;gap:40px;margin-bottom:36px}
+.section-head-copy{max-width:700px}
+h2{margin:10px 0 0;font-size:clamp(30px,3.6vw,44px);line-height:1.08;letter-spacing:-.045em}
+.section-intro{margin:14px 0 0;max-width:640px;color:var(--muted);font-size:15px;line-height:1.65}
+.grid{display:grid;grid-template-columns:repeat(3,1fr);gap:16px}
+.card{padding:24px;border:1px solid var(--line);background:#fff;border-radius:var(--radius-md);transition:.18s ease;display:flex;flex-direction:column}
+.card:hover{transform:translateY(-3px);border-color:#d0d3e1;box-shadow:0 16px 36px rgba(25,32,56,.06)}
+.card-head{display:flex;justify-content:space-between;align-items:flex-start}
+.icon{width:39px;height:39px;border-radius:11px;background:var(--brand-soft);color:var(--brand);display:grid;place-items:center;font-size:10px;font-weight:900}
+.badge{padding:5px 8px;border-radius:99px;font-size:9px;text-transform:uppercase;font-weight:900;letter-spacing:.06em}
+.badge.ready{color:var(--ok);background:var(--ok-soft)}
+.badge.beta{color:var(--brand);background:var(--brand-soft)}
+.badge.soon{color:var(--amber);background:var(--amber-soft)}
+.badge.roadmap{color:#667085;background:#eef0f4}
+.card-label{margin-top:18px;color:var(--brand);font-size:10px;font-weight:850;letter-spacing:.1em;text-transform:uppercase}
+.card h3{margin:8px 0 0;font-size:17px;letter-spacing:-.02em}
+.card p{margin:8px 0 0;color:var(--muted);font-size:13px;line-height:1.6}
+.card-foot{margin-top:auto;padding-top:18px;display:flex;justify-content:space-between;align-items:center;color:#667085;font-size:10px;font-weight:750}
+.card-foot b{color:var(--brand)}
+.band{padding:56px;border-radius:var(--radius-lg);background:var(--dark);color:#fff}
+.band .label{color:#aeb1ff}
+.band h2{margin-top:12px}
+.band p{color:#98a2b3;line-height:1.65;max-width:640px}
+.band .btn-main{background:#fff;color:var(--brand)}
+.band .btn-line{color:#fff;background:transparent;border-color:#4b566b}
+footer{border-top:1px solid var(--line);padding:44px 0;background:#fff}
+.footer-grid{display:flex;justify-content:space-between;gap:40px}
+.footer-copy{margin-top:12px;color:var(--muted);font-size:12px}
+.footer-links{display:flex;flex-wrap:wrap;gap:24px;color:#667085;font-size:12px;font-weight:650}
+.footer-links a:hover{color:var(--ink)}
+.footer-col{display:flex;flex-direction:column;gap:11px}
+.footer-col-label{color:var(--ink);font-size:11px;font-weight:850;letter-spacing:.08em;text-transform:uppercase;margin-bottom:2px}
+.group-label{margin:34px 0 14px;color:var(--brand);font-size:11px;font-weight:850;letter-spacing:.12em;text-transform:uppercase}
+.note{padding:18px 22px;border:1px solid var(--line);border-radius:14px;background:#fff;color:var(--muted);font-size:13px;line-height:1.6;margin-top:30px}
+/* ============ BC_POC_EXT: nav dropdowns ============
+   The live nav (business-suite etc.) is flat and tops out at 7 links.
+   This POC's IA needs 9 real products in nav, so top-level items group
+   related products under a hover/click dropdown instead of adding more
+   flat links. Kept BEFORE the responsive blocks below so the mobile
+   overrides (equal specificity, later in source) win at narrow widths. */
+.top nav{position:relative}
+.has-dd{position:relative}
+.dd-trigger{display:inline-flex;align-items:center;gap:5px;cursor:pointer;background:none;border:none;font:inherit;color:inherit;padding:0}
+.dd-trigger:after{content:"";width:6px;height:6px;border-right:1.5px solid currentColor;border-bottom:1.5px solid currentColor;transform:rotate(45deg);margin-top:-3px;opacity:.6}
+.dd-panel{position:absolute;top:calc(100% + 14px);left:50%;transform:translateX(-50%) translateY(6px);min-width:230px;background:#fff;border:1px solid var(--line);border-radius:var(--radius-sm);box-shadow:var(--shadow);padding:8px;opacity:0;pointer-events:none;transition:.16s ease}
+.has-dd:hover .dd-panel,.has-dd:focus-within .dd-panel,.has-dd.dd-open .dd-panel{opacity:1;pointer-events:auto;transform:translateX(-50%) translateY(0)}
+.dd-panel a{display:flex;flex-direction:column;gap:2px;padding:10px 12px;border-radius:10px;color:var(--ink);font-weight:650}
+.dd-panel a:hover{background:var(--soft)}
+.dd-panel a small{color:var(--muted);font-weight:500;font-size:11.5px}
+
+@media(max-width:1000px){
+  .hero-grid{grid-template-columns:1fr;gap:40px}.grid{grid-template-columns:repeat(2,1fr)}
+  .solution-flow{grid-template-columns:1fr;gap:8px}.line{width:2px;height:24px;margin:auto}.line:after{width:2px;height:8px;animation:none}
+}
+@media(max-width:780px){
+  .wrap{width:min(calc(100% - 28px),var(--max))} .top nav,.top-actions .btn-line{display:none}
+  .mobile-menu{display:grid;place-items:center} .grid{grid-template-columns:1fr}
+  .section-head{display:block}.section-head .btn{display:inline-block;margin-top:18px}
+  .band{padding:38px 26px}.footer-grid{flex-direction:column}
+  /* Mobile nav panel toggled by js/site.js via body.menu-open (ported from
+     the real production per-page inline <style>, moved here so every page
+     gets it from one place instead of duplicating the block on each). */
+  .top nav{position:absolute;top:72px;left:0;right:0;background:#fff;border-bottom:1px solid var(--line);flex-direction:column;align-items:stretch;padding:12px 20px 20px;display:none;gap:4px}
+  .menu-open .top nav{display:flex}
+  .top nav > a{padding:12px 4px;border-bottom:1px solid var(--line)}
+  .has-dd{flex-direction:column}
+  .dd-trigger{padding:12px 4px;width:100%;justify-content:space-between;border-bottom:1px solid var(--line)}
+  .dd-panel{position:static;transform:none;opacity:1;pointer-events:auto;box-shadow:none;border:none;padding:0 0 4px 12px;display:none;min-width:0}
+  .has-dd.dd-open .dd-panel{display:flex;flex-direction:column}
+  .dd-trigger:after{margin-left:auto}
+}
+
+/* ============ BC_POC_EXT: homepage ecosystem grid ============ */
+.eco-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:16px}
+@media(max-width:1000px){.eco-grid{grid-template-columns:repeat(2,1fr)}}
+@media(max-width:780px){.eco-grid{grid-template-columns:1fr}}
+
+/* ============ BC_POC_EXT: wide-desktop density ============
+   Same lesson as the earlier V2 pass: on very wide viewports the
+   two-column .hero-grid / .board leaves a dead margin next to the board.
+   Give it an ambient backdrop instead of leaving it bare, and let card
+   grids breathe with a touch more gap at wide sizes rather than just
+   stretching. */
+@media(min-width:1440px){
+  .hero{position:relative}
+  .hero .wrap{position:relative;z-index:1}
+  .hero:before{
+    content:"";position:absolute;inset:0;pointer-events:none;
+    background:
+      radial-gradient(560px 420px at 82% 30%, rgba(91,95,239,.08), transparent 70%),
+      repeating-linear-gradient(0deg, rgba(16,24,40,.035) 0 1px, transparent 1px 44px),
+      repeating-linear-gradient(90deg, rgba(16,24,40,.035) 0 1px, transparent 1px 44px);
+    -webkit-mask-image:linear-gradient(to right, transparent, #000 45%, #000 100%);
+    mask-image:linear-gradient(to right, transparent, #000 45%, #000 100%);
+  }
+  .grid{gap:20px}
+  .eco-grid{gap:20px}
+}
+
+/* ============ BC_POC_EXT: status row (product inventory legend) ============ */
+.status-row{display:flex;flex-wrap:wrap;gap:10px;align-items:center;margin-top:18px}
+.status-row .badge{padding:6px 10px;font-size:10px}
+
+/* ============ BC_POC_EXT: stat pair (fills board-foot-style empty columns) ============ */
+.kv-row{display:flex;gap:28px;margin-top:32px;padding-top:24px;border-top:1px solid var(--line)}
+.kv{display:flex;flex-direction:column;gap:3px}
+.kv b{font-size:22px;letter-spacing:-.02em}
+.kv span{color:var(--muted);font-size:11.5px;max-width:16ch}

@@ -1,0 +1,75 @@
+============================================================
+BOTCONNECTOR
+SHIPPING LOCATION RESOLVER V1
+CANONICAL BOUNDARY
+============================================================
+
+PURPOSE:
+
+Translate human/canonical location search
+into provider-specific location references.
+
+
+INPUT:
+
+provider
+query
+limit
+idempotency_key
+
+
+EXAMPLE INPUT:
+
+Bandung
+Batununggal Bandung
+40266
+Jakarta Selatan
+
+
+OUTPUT:
+
+provider
+provider_location_id
+label
+province
+city
+district
+subdistrict
+postal_code
+
+
+IMPORTANT:
+
+provider_location_id is INTERNAL ONLY.
+
+It must NOT become:
+
+- Commerce Core order field
+- Business Core field
+- public Shipping Core canonical identity
+
+
+FINAL FLOW:
+
+Commerce / Checkout
+        |
+        v
+Canonical shipping address/location
+        |
+        v
+Location Resolver
+        |
+        v
+provider_location_id
+        |
+        v
+Provider Router
+        |
+        v
+RajaOngkir Cost Adapter
+
+
+RajaOngkir API key remains outside resolver source
+and outside Commerce/Shipping Core.
+
+============================================================

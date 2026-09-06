@@ -1,0 +1,78 @@
+- generic [ref=f2e1]:
+  - complementary [ref=f2e2]:
+    - link "BC Bisnis" [ref=f2e3] [cursor=pointer]:
+      - /url: /
+      - generic [ref=f2e4]: BC
+      - text: Bisnis
+    - generic [ref=f2e5]:
+      - generic [ref=f2e6]: Cabang / Lokasi
+      - combobox [ref=f2e7]:
+        - option "Cabang A (RETAIL)" [selected]
+        - option "Cabang B (RESTAURANT)"
+    - navigation [ref=f2e8]:
+      - link "Dashboard" [ref=f2e9] [cursor=pointer]:
+        - /url: "#/dashboard"
+      - link "POS" [ref=f2e15] [cursor=pointer]:
+        - /url: "#/pos"
+      - link "Orders" [ref=f2e19] [cursor=pointer]:
+        - /url: "#/orders"
+      - link "Products" [ref=f2e22] [cursor=pointer]:
+        - /url: "#/products"
+      - link "Inventory" [ref=f2e27] [cursor=pointer]:
+        - /url: "#/inventory"
+      - link "Transfers" [ref=f2e30] [cursor=pointer]:
+        - /url: "#/transfers"
+      - link "Restaurant" [ref=f2e36] [cursor=pointer]:
+        - /url: "#/restaurant"
+      - link "Kitchen" [ref=f2e39] [cursor=pointer]:
+        - /url: "#/kitchen"
+      - link "Reports" [ref=f2e42] [cursor=pointer]:
+        - /url: "#/reports"
+      - link "Integrasi" [active] [ref=f2e44] [cursor=pointer]:
+        - /url: "#/integrasi"
+  - main [ref=f2e48]:
+    - generic [ref=f2e49]:
+      - generic [ref=f2e51]:
+        - generic [ref=f2e52]: Reports
+        - generic [ref=f2e53]: Business Suite
+      - generic [ref=f2e54]:
+        - button "Sync Offline" [ref=f2e55] [cursor=pointer]
+        - link "BotConnector.id" [ref=f2e56] [cursor=pointer]:
+          - /url: /
+    - generic [ref=f2e57]:
+      - generic [ref=f2e277]:
+        - heading "Reports" [level=1] [ref=f2e278]
+        - generic [ref=f2e279]: Laporan bisnis (Retail + Restoran)
+      - generic [ref=f2e280]:
+        - generic [ref=f2e281]:
+          - generic [ref=f2e282]: Gross Sales Restoran
+          - generic [ref=f2e283]: Rp 0
+        - generic [ref=f2e284]:
+          - generic [ref=f2e285]: COGS Restoran
+          - generic [ref=f2e286]: Rp 0
+        - generic [ref=f2e287]:
+          - generic [ref=f2e288]: Gross Profit
+          - generic [ref=f2e289]: Rp 0
+        - generic [ref=f2e290]:
+          - generic [ref=f2e291]: Gross Margin
+          - generic [ref=f2e292]: 0%
+        - generic [ref=f2e293]:
+          - generic [ref=f2e294]: Penjualan Retail
+          - generic [ref=f2e295]: Rp 0
+      - generic [ref=f2e296]:
+        - heading "Penjualan per Kategori" [level=2] [ref=f2e297]
+        - table [ref=f2e298]:
+          - rowgroup [ref=f2e299]:
+            - row [ref=f2e300]:
+              - columnheader "Kategori" [ref=f2e301]
+              - columnheader "Penjualan" [ref=f2e302]
+              - columnheader "Qty" [ref=f2e303]
+      - generic [ref=f2e304]:
+        - heading "Penjualan per Kanal" [level=2] [ref=f2e305]
+        - table [ref=f2e306]:
+          - rowgroup [ref=f2e307]:
+            - row [ref=f2e308]:
+              - columnheader "Kanal" [ref=f2e309]
+              - columnheader "Order" [ref=f2e310]
+              - columnheader "Penjualan" [ref=f2e311]
+              - columnheader "Biaya Provider" [ref=f2e312]

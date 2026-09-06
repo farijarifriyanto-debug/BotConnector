@@ -1,0 +1,70 @@
+============================================================
+BOTCONNECTOR
+RAJAONGKIR SHIPPING COST ADAPTER V1
+FROZEN BOUNDARY
+============================================================
+
+THIS COMPONENT IS A PROVIDER ADAPTER.
+
+IT IS NOT:
+
+- Business Core
+- Shipping Core
+- Commerce Core
+- Shipment Delivery Engine
+
+
+INPUT:
+
+origin_id
+destination_id
+weight_grams
+courier
+idempotency_key
+
+
+OUTPUT:
+
+provider
+courier
+service
+cost
+currency
+etd
+
+
+PROVIDER ID:
+
+rajaongkir
+
+
+SUPPORTED DOMAIN:
+
+SHIPPING COST ONLY
+
+
+NOT INCLUDED:
+
+shipment creation
+pickup
+delivery order
+shipping label
+shipment cancellation
+
+
+RELIABILITY:
+
+persistent request ledger
+provider call ledger
+idempotency
+request fingerprint cache
+provider error normalization
+timeout normalization
+network error normalization
+
+
+Shipping Core V1 owns canonical shipment semantics.
+
+RajaOngkir-specific semantics must stay inside adapter.
+
+============================================================

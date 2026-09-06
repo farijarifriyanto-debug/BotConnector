@@ -1,0 +1,31 @@
+============================================================
+BOTCONNECTOR CONNECTOR CORE
+GOOGLE SHEETS NATIVE V1 — ADMIN MANAGED
+============================================================
+
+BUILD_UTC=2026-08-13 09:04:16 UTC
+
+SOURCE_CANDIDATE=/opt/botconnector-connector-core/candidates/google-sheets-native-v1-20260813T061429Z
+MAIN_SHA256=cb784df1466b002be14528cc75356dba0d3c7c006b177f7b8959b7f4d922265f
+
+PREVIOUS_RELEASE=/opt/botconnector-connector-core/releases/connector-core-v1-20260812T154906Z
+
+CENTRAL_GOOGLE_ACCOUNT=admin@botconnector.id
+
+GOOGLE_SHEETS_MODE=ADMIN_MANAGED
+USER_GOOGLE_OAUTH_REQUIRED=NO
+
+PRODUCTION_BRIDGE=http://127.0.0.1:19221
+BRIDGE_VERSION=google-sheets-admin-bridge-v1
+BRIDGE_APP_SHA256=9755fe6f7c7fb363f73485383000703709e3ff4465c0d1e999bcc4337b313e73
+
+GATE_A=PASS
+GATE_B=PASS
+GATE_C_REAL_APPEND=PASS
+
+GOOGLE_WRITE_DURING_PROMOTION=NONE
+
+PRODUCTION_DB_MIGRATION=NONE
+
+ROLLBACK_RELEASE=/opt/botconnector-connector-core/releases/connector-core-v1-20260812T154906Z
+============================================================

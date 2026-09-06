@@ -1,0 +1,39 @@
+587:@app.get("/api/v1/ledger/trial-balance")
+588:def trial_balance():
+4309:            "trial-balance",
+4310:            "general-ledger",
+4311:            "profit-loss",
+4312:            "balance-sheet",
+4317:@app.get("/api/v1/reports/trial-balance")
+4318:def r8_trial_balance(as_of: _r8_date | None = None):
+4433:@app.get("/api/v1/reports/general-ledger")
+4434:def r8_general_ledger(
+4436:    date_from: _r8_date | None = None,
+4437:    date_to: _r8_date | None = None,
+4439:    if date_to is None:
+4440:        date_to = _r8_date.today()
+4442:    if date_from is None:
+4443:        date_from = _r8_date(1900, 1, 1)
+4445:    if date_from > date_to:
+4448:            detail="date_from must be <= date_to",
+4457:                date_from,
+4459:                date_from,
+4460:                date_to,
+4613:                "date_from": date_from.isoformat(),
+4614:                "date_to": date_to.isoformat(),
+4630:@app.get("/api/v1/reports/profit-loss")
+4631:def r8_profit_loss(
+4632:    date_from: _r8_date | None = None,
+4633:    date_to: _r8_date | None = None,
+4635:    if date_to is None:
+4636:        date_to = _r8_date.today()
+4638:    if date_from is None:
+4639:        date_from = _r8_date(date_to.year, 1, 1)
+4641:    if date_from > date_to:
+4644:            detail="date_from must be <= date_to",
+4687:                    date_from,
+4688:                    date_to,
+4724:                "date_from": date_from.isoformat(),
+4725:                "date_to": date_to.isoformat(),
+4746:@app.get("/api/v1/reports/balance-sheet")
+4747:def r8_balance_sheet(as_of: _r8_date | None = None):

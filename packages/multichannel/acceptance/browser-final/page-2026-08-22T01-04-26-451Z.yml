@@ -1,0 +1,89 @@
+- generic [active] [ref=f9e1]:
+  - link "Lewati ke konten" [ref=f9e2] [cursor=pointer]:
+    - /url: "#main"
+  - banner [ref=f9e3]:
+    - generic [ref=f9e4]:
+      - link "BC BOTCONNECTOR Connect" [ref=f9e5] [cursor=pointer]:
+        - /url: https://botconnector.id/
+        - generic [ref=f9e6]: BC
+        - generic [ref=f9e7]:
+          - text: BOTCONNECTOR
+          - generic [ref=f9e8]: Connect
+      - navigation [ref=f9e9]:
+        - link "Cara Pakai" [ref=f9e10] [cursor=pointer]:
+          - /url: /connect-v2/guide
+        - link "Dashboard" [ref=f9e11] [cursor=pointer]:
+          - /url: /connect-v2/sso
+      - generic [ref=f9e12]:
+        - generic "Language" [ref=f9e13]:
+          - link "ID" [ref=f9e14] [cursor=pointer]:
+            - /url: /connect-v2/language/id?next=/connect-v2/terms
+          - generic [ref=f9e15]: "|"
+          - link "EN" [ref=f9e16] [cursor=pointer]:
+            - /url: /connect-v2/language/en?next=/connect-v2/terms
+        - link "Masuk" [ref=f9e17] [cursor=pointer]:
+          - /url: /login?product=webhook
+        - link "Mulai" [ref=f9e18] [cursor=pointer]:
+          - /url: /register?product=webhook
+  - main [ref=f9e19]:
+    - generic [ref=f9e21]:
+      - generic [ref=f9e22]: Botconnector
+      - heading "Ketentuan Layanan" [level=1] [ref=f9e23]
+      - generic [ref=f9e24]:
+        - heading "1. Tentang layanan" [level=2] [ref=f9e25]
+        - paragraph [ref=f9e26]: Botconnector menyediakan koneksi otomatis antara TradingView dan MetaTrader. Instruksi diproses berdasarkan alert dan pengaturan yang dibuat oleh pengguna.
+        - heading "2. Penggunaan layanan" [level=2] [ref=f9e27]
+        - paragraph [ref=f9e28]: Pengguna bertanggung jawab untuk memeriksa webhook, mapping simbol, terminal MetaTrader, lot, trailing, dan status LIVE sebelum digunakan.
+        - paragraph [ref=f9e29]: Mode CAPTURE disediakan untuk memeriksa alur tanpa meneruskan instruksi ke MetaTrader.
+        - heading "3. Hasil penggunaan" [level=2] [ref=f9e30]
+        - paragraph [ref=f9e31]:
+          - strong [ref=f9e32]: Hasil trading bergantung pada strategi dan pengaturan masing-masing pengguna. Botconnector hanya meneruskan instruksi yang diterima dan tidak bertanggung jawab atas keuntungan atau kerugian yang timbul dari penggunaannya.
+        - heading "4. Gangguan teknis" [level=2] [ref=f9e33]
+        - paragraph [ref=f9e34]: Pemrosesan dapat dipengaruhi oleh koneksi internet, VPS, TradingView, MetaTrader, broker, pusat data, pemeliharaan, latensi, spread, slippage, atau layanan pihak ketiga. Instruksi dapat terlambat, ditolak, atau gagal pada kondisi tersebut.
+        - heading "5. Keamanan" [level=2] [ref=f9e35]
+        - paragraph [ref=f9e36]: Pengguna wajib menjaga kerahasiaan URL webhook, token Agent, akses VPS, dan akun yang digunakan. Gunakan Ganti secret atau Pause LIVE bila akses diduga tidak aman.
+        - heading "6. Perubahan layanan" [level=2] [ref=f9e37]
+        - paragraph [ref=f9e38]: Fitur dan ketentuan dapat diperbarui untuk meningkatkan keamanan, stabilitas, dan pengalaman penggunaan.
+  - contentinfo [ref=f9e39]:
+    - generic [ref=f9e40]:
+      - generic [ref=f9e41]:
+        - generic [ref=f9e42]:
+          - link "BC Botconnector Connecting Strategies" [ref=f9e43] [cursor=pointer]:
+            - /url: /connect-v2/
+            - generic [ref=f9e44]: BC
+            - generic [ref=f9e45]:
+              - text: Botconnector
+              - generic [ref=f9e46]: Connecting Strategies
+          - paragraph [ref=f9e47]: Botconnector menghubungkan alert TradingView ke MetaTrader secara otomatis.
+        - generic [ref=f9e48]:
+          - strong [ref=f9e49]: Informasi
+          - generic [ref=f9e50]:
+            - link "Cara Pakai" [ref=f9e51] [cursor=pointer]:
+              - /url: /connect-v2/guide
+            - link "Webhook TradingView" [ref=f9e52] [cursor=pointer]:
+              - /url: /connect-v2/webhook-tradingview
+            - link "CAPTURE vs LIVE" [ref=f9e53] [cursor=pointer]:
+              - /url: /connect-v2/capture-vs-live
+            - link "Botconnector EA" [ref=f9e54] [cursor=pointer]:
+              - /url: /connect-v2/guide
+            - link "Format Alert" [ref=f9e55] [cursor=pointer]:
+              - /url: /connect-v2/format-alert-tradingview
+            - link "Troubleshooting" [ref=f9e56] [cursor=pointer]:
+              - /url: /connect-v2/troubleshooting-alert
+            - link "Tentang" [ref=f9e57] [cursor=pointer]:
+              - /url: /connect-v2/about
+            - link "Keamanan" [ref=f9e58] [cursor=pointer]:
+              - /url: /connect-v2/security
+        - generic [ref=f9e59]:
+          - strong [ref=f9e60]: Legal
+          - generic [ref=f9e61]:
+            - link "Privacy" [ref=f9e62] [cursor=pointer]:
+              - /url: /connect-v2/privacy
+            - link "Terms" [ref=f9e63] [cursor=pointer]:
+              - /url: /connect-v2/terms
+            - link "Risiko" [ref=f9e64] [cursor=pointer]:
+              - /url: /connect-v2/risk-disclosure
+      - generic [ref=f9e65]: Hasil trading bergantung pada strategi dan pengaturan masing-masing pengguna. Botconnector hanya meneruskan instruksi yang diterima dan tidak bertanggung jawab atas keuntungan atau kerugian yang timbul dari penggunaannya.
+      - generic [ref=f9e66]:
+        - generic [ref=f9e67]: © 2026 Botconnector.
+        - generic [ref=f9e68]: Connecting Strategies

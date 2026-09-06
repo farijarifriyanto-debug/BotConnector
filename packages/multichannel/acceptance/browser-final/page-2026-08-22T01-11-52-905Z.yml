@@ -1,0 +1,177 @@
+- generic [active] [ref=f17e1]:
+  - banner [ref=f17e2]:
+    - generic [ref=f17e3]:
+      - link "BC BotConnector" [ref=f17e4] [cursor=pointer]:
+        - /url: /
+        - generic [ref=f17e5]: BC
+        - text: BotConnector
+      - navigation [ref=f17e6]:
+        - link "Konektor" [ref=f17e7] [cursor=pointer]:
+          - /url: /konektor/
+        - link "Integrasi" [ref=f17e8] [cursor=pointer]:
+          - /url: /integrasi/
+        - link "Business Suite" [ref=f17e9] [cursor=pointer]:
+          - /url: /bisnis/
+        - link "Solusi" [ref=f17e10] [cursor=pointer]:
+          - /url: /solusi/
+        - link "Docs" [ref=f17e11] [cursor=pointer]:
+          - /url: /docs/
+      - link "Buka Business Suite →" [ref=f17e13] [cursor=pointer]:
+        - /url: /bisnis/
+  - generic [ref=f17e14]:
+    - link "BotConnector" [ref=f17e15] [cursor=pointer]:
+      - /url: /
+    - text: /
+    - link "Business Suite" [ref=f17e16] [cursor=pointer]:
+      - /url: /bisnis/
+    - text: / Restaurant & Cafe
+  - main [ref=f17e17]:
+    - generic [ref=f17e19]:
+      - generic [ref=f17e20]:
+        - generic [ref=f17e21]: Restaurant & Cafe
+        - heading "POS restoran yang memahami resep & stok." [level=1] [ref=f17e22]
+        - paragraph [ref=f17e23]: Kelola menu, resep/BOM, ingredient inventory, meja, KDS/KOT, dine-in & takeaway, dan laporan penjualan dengan COGS — dari satu tempat.
+        - generic [ref=f17e24]:
+          - link "Buka POS Restoran →" [ref=f17e25] [cursor=pointer]:
+            - /url: /bisnis/
+          - link "Lihat integrasi" [ref=f17e26] [cursor=pointer]:
+            - /url: /integrasi/
+        - generic [ref=f17e27]:
+          - generic [ref=f17e28]: POS
+          - generic [ref=f17e29]: Dine-in & Takeaway
+          - generic [ref=f17e30]: Meja
+          - generic [ref=f17e31]: KDS/KOT
+          - generic [ref=f17e32]: Resep & BOM
+          - generic [ref=f17e33]: Ingredient Inventory
+      - generic [ref=f17e34]:
+        - generic [ref=f17e35]:
+          - generic [ref=f17e36]: Restaurant flow
+          - generic [ref=f17e37]: ● Aktif
+        - generic [ref=f17e38]:
+          - generic [ref=f17e39]:
+            - generic [ref=f17e40]: ORD
+            - generic [ref=f17e41]: ORDER
+            - strong [ref=f17e42]: Order masuk
+          - generic [ref=f17e44]:
+            - generic [ref=f17e45]: KDS
+            - generic [ref=f17e46]: DAPUR
+            - strong [ref=f17e47]: KDS/KOT
+          - generic [ref=f17e49]:
+            - generic [ref=f17e50]: INV
+            - generic [ref=f17e51]: STOK
+            - strong [ref=f17e52]: Ingredient terpakai
+        - generic [ref=f17e53]:
+          - generic [ref=f17e54]:
+            - strong [ref=f17e55]: Order
+            - generic [ref=f17e56]: Dine-in · Takeaway
+          - generic [ref=f17e57]:
+            - strong [ref=f17e58]: Dapur
+            - generic [ref=f17e59]: KDS · KOT
+          - generic [ref=f17e60]:
+            - strong [ref=f17e61]: Stok
+            - generic [ref=f17e62]: Resep · COGS
+    - generic [ref=f17e64]:
+      - generic [ref=f17e65]:
+        - generic [ref=f17e66]:
+          - generic [ref=f17e67]: Restaurant & Cafe
+          - heading "Dari order hingga laporan." [level=2] [ref=f17e68]
+          - paragraph [ref=f17e69]: Setiap order restoran tersambung ke resep, ingredient inventory, dan pembukuan — tanpa sistem terpisah.
+        - link "Buka aplikasi →" [ref=f17e70] [cursor=pointer]:
+          - /url: /bisnis/
+      - generic [ref=f17e71]:
+        - link "POS Aktif POS POS restoran & cafe. Dine-in, takeaway, meja, guest count, order line, notes, dan pencatatan pembayaran. POS · Meja · Order Buka →" [ref=f17e72] [cursor=pointer]:
+          - /url: /bisnis/
+          - generic [ref=f17e73]:
+            - generic [ref=f17e74]: POS
+            - generic [ref=f17e75]: Aktif
+          - generic [ref=f17e76]: POS
+          - heading "POS restoran & cafe." [level=3] [ref=f17e77]
+          - paragraph [ref=f17e78]: Dine-in, takeaway, meja, guest count, order line, notes, dan pencatatan pembayaran.
+          - generic [ref=f17e79]:
+            - generic [ref=f17e80]: POS · Meja · Order
+            - generic [ref=f17e81]: Buka →
+        - link "RCP Aktif Resep & BOM Resep berbasis ingredient. Recipe/BOM, versi resep, komponen, unit, yield, dan waste factor. Resep · BOM · Ingredient Buka →" [ref=f17e82] [cursor=pointer]:
+          - /url: /bisnis/
+          - generic [ref=f17e83]:
+            - generic [ref=f17e84]: RCP
+            - generic [ref=f17e85]: Aktif
+          - generic [ref=f17e86]: Resep & BOM
+          - heading "Resep berbasis ingredient." [level=3] [ref=f17e87]
+          - paragraph [ref=f17e88]: Recipe/BOM, versi resep, komponen, unit, yield, dan waste factor.
+          - generic [ref=f17e89]:
+            - generic [ref=f17e90]: Resep · BOM · Ingredient
+            - generic [ref=f17e91]: Buka →
+        - link "KDS Aktif KDS / KOT Kitchen Display System. KOT dengan status NEW → PREPARING → READY → SERVED, terlihat di dapur. KDS · KOT · Status Buka →" [ref=f17e92] [cursor=pointer]:
+          - /url: /bisnis/
+          - generic [ref=f17e93]:
+            - generic [ref=f17e94]: KDS
+            - generic [ref=f17e95]: Aktif
+          - generic [ref=f17e96]: KDS / KOT
+          - heading "Kitchen Display System." [level=3] [ref=f17e97]
+          - paragraph [ref=f17e98]: KOT dengan status NEW → PREPARING → READY → SERVED, terlihat di dapur.
+          - generic [ref=f17e99]:
+            - generic [ref=f17e100]: KDS · KOT · Status
+            - generic [ref=f17e101]: Buka →
+        - link "INV Aktif Ingredient Inventory Stok bahan terpusat. Konsumsi ingredient dari resep, waste/spoilage, dan ketersediaan menu. Ingredient · Waste · ATP Buka →" [ref=f17e102] [cursor=pointer]:
+          - /url: /bisnis/
+          - generic [ref=f17e103]:
+            - generic [ref=f17e104]: INV
+            - generic [ref=f17e105]: Aktif
+          - generic [ref=f17e106]: Ingredient Inventory
+          - heading "Stok bahan terpusat." [level=3] [ref=f17e107]
+          - paragraph [ref=f17e108]: Konsumsi ingredient dari resep, waste/spoilage, dan ketersediaan menu.
+          - generic [ref=f17e109]:
+            - generic [ref=f17e110]: Ingredient · Waste · ATP
+            - generic [ref=f17e111]: Buka →
+        - link "RPT Aktif Laporan Penjualan & COGS. Food/beverage sales, COGS, gross profit, margin, per kategori & kanal. Sales · COGS · Margin Buka →" [ref=f17e112] [cursor=pointer]:
+          - /url: /bisnis/
+          - generic [ref=f17e113]:
+            - generic [ref=f17e114]: RPT
+            - generic [ref=f17e115]: Aktif
+          - generic [ref=f17e116]: Laporan
+          - heading "Penjualan & COGS." [level=3] [ref=f17e117]
+          - paragraph [ref=f17e118]: Food/beverage sales, COGS, gross profit, margin, per kategori & kanal.
+          - generic [ref=f17e119]:
+            - generic [ref=f17e120]: Sales · COGS · Margin
+            - generic [ref=f17e121]: Buka →
+        - link "QR Aktif QR Self-order Menu QR & self-order. Pelanggan memesan lewat QR, order masuk ke KDS, stok & finance ikut tercatat. QR · Self-order · Antrean Buka →" [ref=f17e122] [cursor=pointer]:
+          - /url: /bisnis/
+          - generic [ref=f17e123]:
+            - generic [ref=f17e124]: QR
+            - generic [ref=f17e125]: Aktif
+          - generic [ref=f17e126]: QR Self-order
+          - heading "Menu QR & self-order." [level=3] [ref=f17e127]
+          - paragraph [ref=f17e128]: Pelanggan memesan lewat QR, order masuk ke KDS, stok & finance ikut tercatat.
+          - generic [ref=f17e129]:
+            - generic [ref=f17e130]: QR · Self-order · Antrean
+            - generic [ref=f17e131]: Buka →
+    - generic [ref=f17e133]:
+      - generic [ref=f17e134]: Mulai sekarang
+      - heading "Jalankan restoran Anda dari satu tempat." [level=2] [ref=f17e135]
+      - paragraph [ref=f17e136]: Buka Business Suite untuk melihat POS restoran, resep, KDS, dan laporan yang sudah berjalan.
+      - generic [ref=f17e137]:
+        - link "Buka Business Suite →" [ref=f17e138] [cursor=pointer]:
+          - /url: /bisnis/
+        - link "Lihat integrasi" [ref=f17e139] [cursor=pointer]:
+          - /url: /integrasi/
+  - contentinfo [ref=f17e140]:
+    - generic [ref=f17e141]:
+      - generic [ref=f17e142]:
+        - link "BC BotConnector" [ref=f17e143] [cursor=pointer]:
+          - /url: /
+          - generic [ref=f17e144]: BC
+          - text: BotConnector
+        - generic [ref=f17e145]: Hubungkan sistem. Jalankan bisnis dari satu tempat.
+      - generic [ref=f17e146]:
+        - link "Konektor" [ref=f17e147] [cursor=pointer]:
+          - /url: /konektor/
+        - link "Integrasi" [ref=f17e148] [cursor=pointer]:
+          - /url: /integrasi/
+        - link "Business Suite" [ref=f17e149] [cursor=pointer]:
+          - /url: /bisnis/
+        - link "Solusi" [ref=f17e150] [cursor=pointer]:
+          - /url: /solusi/
+        - link "Docs" [ref=f17e151] [cursor=pointer]:
+          - /url: /docs/
+        - link "Status" [ref=f17e152] [cursor=pointer]:
+          - /url: /status

@@ -1,0 +1,193 @@
+{
+  "as_of": "2026-08-13",
+  "date_from": "2026-01-01",
+  "date_to": "2026-08-13",
+  "global": {
+    "posted_journals": 29,
+    "posted_lines": 62,
+    "debit": "9258000.00",
+    "credit": "9258000.00"
+  },
+  "trial_balance": [
+    {
+      "code": "1101",
+      "name": "Kas",
+      "type": "ASSET",
+      "normal_balance": "DEBIT",
+      "debit": "1230000.00",
+      "credit": "0.00"
+    },
+    {
+      "code": "1102",
+      "name": "Bank",
+      "type": "ASSET",
+      "normal_balance": "DEBIT",
+      "debit": "575000.00",
+      "credit": "985500.00"
+    },
+    {
+      "code": "1103",
+      "name": "Payment Clearing",
+      "type": "ASSET",
+      "normal_balance": "DEBIT",
+      "debit": "250000.00",
+      "credit": "75000.00"
+    },
+    {
+      "code": "1201",
+      "name": "Piutang Usaha",
+      "type": "ASSET",
+      "normal_balance": "DEBIT",
+      "debit": "1797000.00",
+      "credit": "250000.00"
+    },
+    {
+      "code": "1301",
+      "name": "Persediaan Barang",
+      "type": "ASSET",
+      "normal_balance": "DEBIT",
+      "debit": "2950000.00",
+      "credit": "840000.00"
+    },
+    {
+      "code": "2101",
+      "name": "Utang Usaha",
+      "type": "LIABILITY",
+      "normal_balance": "CREDIT",
+      "debit": "610500.00",
+      "credit": "3260500.00"
+    },
+    {
+      "code": "2102",
+      "name": "PPN Keluaran",
+      "type": "LIABILITY",
+      "normal_balance": "CREDIT",
+      "debit": "0.00",
+      "credit": "46775.00"
+    },
+    {
+      "code": "2109",
+      "name": "Penerimaan Belum Dialokasikan",
+      "type": "LIABILITY",
+      "normal_balance": "CREDIT",
+      "debit": "250000.00",
+      "credit": "250000.00"
+    },
+    {
+      "code": "2201",
+      "name": "PPN Masukan",
+      "type": "ASSET",
+      "normal_balance": "DEBIT",
+      "debit": "60500.00",
+      "credit": "0.00"
+    },
+    {
+      "code": "3101",
+      "name": "Modal",
+      "type": "EQUITY",
+      "normal_balance": "CREDIT",
+      "debit": "0.00",
+      "credit": "1000000.00"
+    },
+    {
+      "code": "3201",
+      "name": "Laba Ditahan",
+      "type": "EQUITY",
+      "normal_balance": "CREDIT",
+      "debit": "0",
+      "credit": "0"
+    },
+    {
+      "code": "4101",
+      "name": "Penjualan",
+      "type": "REVENUE",
+      "normal_balance": "CREDIT",
+      "debit": "0.00",
+      "credit": "1675225.00"
+    },
+    {
+      "code": "4201",
+      "name": "Pendapatan Lain-lain",
+      "type": "REVENUE",
+      "normal_balance": "CREDIT",
+      "debit": "0.00",
+      "credit": "575000.00"
+    },
+    {
+      "code": "5101",
+      "name": "Harga Pokok Penjualan",
+      "type": "EXPENSE",
+      "normal_balance": "DEBIT",
+      "debit": "740000.00",
+      "credit": "100000.00"
+    },
+    {
+      "code": "6101",
+      "name": "Beban Operasional",
+      "type": "EXPENSE",
+      "normal_balance": "DEBIT",
+      "debit": "695000.00",
+      "credit": "0.00"
+    },
+    {
+      "code": "6190",
+      "name": "Selisih Persediaan",
+      "type": "EXPENSE",
+      "normal_balance": "DEBIT",
+      "debit": "100000.00",
+      "credit": "200000.00"
+    },
+    {
+      "code": "6201",
+      "name": "Biaya Payment Gateway",
+      "type": "EXPENSE",
+      "normal_balance": "DEBIT",
+      "debit": "0",
+      "credit": "0"
+    }
+  ],
+  "profit_loss": [
+    {
+      "code": "4101",
+      "name": "Penjualan",
+      "type": "REVENUE",
+      "debit": "0.00",
+      "credit": "1675225.00"
+    },
+    {
+      "code": "4201",
+      "name": "Pendapatan Lain-lain",
+      "type": "REVENUE",
+      "debit": "0.00",
+      "credit": "575000.00"
+    },
+    {
+      "code": "5101",
+      "name": "Harga Pokok Penjualan",
+      "type": "EXPENSE",
+      "debit": "740000.00",
+      "credit": "100000.00"
+    },
+    {
+      "code": "6101",
+      "name": "Beban Operasional",
+      "type": "EXPENSE",
+      "debit": "695000.00",
+      "credit": "0.00"
+    },
+    {
+      "code": "6190",
+      "name": "Selisih Persediaan",
+      "type": "EXPENSE",
+      "debit": "100000.00",
+      "credit": "200000.00"
+    },
+    {
+      "code": "6201",
+      "name": "Biaya Payment Gateway",
+      "type": "EXPENSE",
+      "debit": "0",
+      "credit": "0"
+    }
+  ]
+}

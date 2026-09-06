@@ -1,0 +1,369 @@
+- generic [active] [ref=f22e1]:
+  - banner [ref=f22e2]:
+    - navigation [ref=f22e3]:
+      - link "OlahDokumen" [ref=f22e4] [cursor=pointer]:
+        - /url: https://olahdokumen.com/
+        - generic [ref=f22e10]:
+          - strong [ref=f22e11]: OLAHDOKUMEN
+          - generic [ref=f22e13]: Alat PDF & Dokumen
+      - generic [ref=f22e14]:
+        - link "Atur PDF" [ref=f22e15] [cursor=pointer]:
+          - /url: "#organize"
+        - link "Optimasi" [ref=f22e16] [cursor=pointer]:
+          - /url: "#optimize"
+        - link "Konversi" [ref=f22e17] [cursor=pointer]:
+          - /url: "#convert"
+        - link "Edit" [ref=f22e18] [cursor=pointer]:
+          - /url: "#edit"
+        - link "Keamanan" [ref=f22e19] [cursor=pointer]:
+          - /url: "#security"
+      - link "Coba gratis sekarang" [ref=f22e20] [cursor=pointer]:
+        - /url: "#organize"
+  - generic [ref=f22e21]:
+    - generic [ref=f22e22]: SEMUA ALAT PDF
+    - heading "Semua alat PDF dan dokumen, dalam satu tempat." [level=1] [ref=f22e23]: Semua alat PDF dan dokumen,dalam satu tempat.
+    - paragraph [ref=f22e24]: Gabungkan, kompres, dan konversi PDF. Ubah tulisan tangan menjadi Word atau Excel, jalankan OCR Bahasa Indonesia, dan ringkas dokumen dengan AI — tanpa perlu mendaftar.
+    - generic [ref=f22e25]:
+      - generic [ref=f22e26]: ✓ Gratis digunakan
+      - generic [ref=f22e27]: ✓ 27 alat siap digunakan
+      - generic [ref=f22e28]: Tanpa pendaftaran
+      - generic [ref=f22e29]: Pemrosesan aman
+      - generic [ref=f22e30]: Maks. 25 MB per file
+      - generic [ref=f22e31]: File dihapus otomatis
+  - main [ref=f22e32]:
+    - generic [ref=f22e33]:
+      - generic [ref=f22e34]:
+        - heading "🧠 Tanya Dokumen" [level=2] [ref=f22e35]
+        - paragraph [ref=f22e36]: Unggah PDF, Word, atau TXT untuk mendapatkan ringkasan dan jawaban berdasarkan isi dokumen beserta halaman atau paragraf sumber.
+        - generic [ref=f22e37]:
+          - generic [ref=f22e38]: Ringkasan otomatis
+          - generic [ref=f22e39]: Tanya dokumen
+          - generic [ref=f22e40]: Kutipan sumber
+          - generic [ref=f22e41]: Deteksi kebutuhan OCR
+      - link "Buka Tanya Dokumen" [ref=f22e42] [cursor=pointer]:
+        - /url: intelligence/
+    - generic [ref=f22e43]:
+      - generic [ref=f22e44]:
+        - generic [ref=f22e45]: 📊 Fitur baru
+        - heading "Spreadsheet Assistant" [level=2] [ref=f22e46]
+        - paragraph [ref=f22e47]: Unggah Excel atau CSV untuk menganalisis data, membersihkan duplikasi, menghitung otomatis, dan membuat laporan bisnis gabungan.
+        - generic [ref=f22e48]:
+          - generic [ref=f22e49]: Analisa Excel
+          - generic [ref=f22e50]: Rapikan data
+          - generic [ref=f22e51]: Sales & Finance
+          - generic [ref=f22e52]: Inventory
+          - generic [ref=f22e53]: Project / RAB
+      - link "Buka Spreadsheet Assistant" [ref=f22e54] [cursor=pointer]:
+        - /url: spreadsheet/
+    - region "OlahDokumen Workspace" [ref=f22e55]:
+      - generic [ref=f22e56]:
+        - generic [ref=f22e57]:
+          - generic [ref=f22e58]: Document Workspace
+          - heading "Mulai dari pekerjaan yang ingin Anda selesaikan" [level=2] [ref=f22e59]
+          - paragraph [ref=f22e60]: Pilih tindakan yang paling sering digunakan, atau buka semua alat dokumen di bawah. File tetap diproses melalui engine OlahDokumen yang sama.
+        - link "Semua alat" [ref=f22e61] [cursor=pointer]:
+          - /url: "#bc-all-tools"
+      - generic [ref=f22e62]:
+        - button "W PDF ke Word Ubah PDF digital atau hasil scan menjadi DOCX." [ref=f22e63] [cursor=pointer]:
+          - generic [ref=f22e64]: W
+          - strong [ref=f22e65]: PDF ke Word
+          - generic [ref=f22e66]: Ubah PDF digital atau hasil scan menjadi DOCX.
+        - button "X PDF ke Excel Ekstrak tabel dan data ke workbook Excel." [ref=f22e67] [cursor=pointer]:
+          - generic [ref=f22e68]: X
+          - strong [ref=f22e69]: PDF ke Excel
+          - generic [ref=f22e70]: Ekstrak tabel dan data ke workbook Excel.
+        - button "OCR OCR dokumen Jadikan dokumen hasil scan dapat dicari dan dibaca." [ref=f22e71] [cursor=pointer]:
+          - generic [ref=f22e72]: OCR
+          - strong [ref=f22e73]: OCR dokumen
+          - generic [ref=f22e74]: Jadikan dokumen hasil scan dapat dicari dan dibaca.
+        - button "AI Ringkas dengan AI Dapatkan ringkasan dokumen tanpa membuka banyak alat." [ref=f22e75] [cursor=pointer]:
+          - generic [ref=f22e76]: AI
+          - strong [ref=f22e77]: Ringkas dengan AI
+          - generic [ref=f22e78]: Dapatkan ringkasan dokumen tanpa membuka banyak alat.
+        - button "↓ Kompres PDF Kurangi ukuran file untuk dibagikan atau disimpan." [ref=f22e79] [cursor=pointer]:
+          - generic [ref=f22e80]: ↓
+          - strong [ref=f22e81]: Kompres PDF
+          - generic [ref=f22e82]: Kurangi ukuran file untuk dibagikan atau disimpan.
+        - button "＋ Gabungkan PDF Satukan beberapa dokumen menjadi satu PDF." [ref=f22e83] [cursor=pointer]:
+          - generic [ref=f22e84]: ＋
+          - strong [ref=f22e85]: Gabungkan PDF
+          - generic [ref=f22e86]: Satukan beberapa dokumen menjadi satu PDF.
+        - button "✎ Dokumen ke Tulisan Tangan Ubah PDF, Word, atau TXT menjadi tulisan tangan natural." [ref=f22e87] [cursor=pointer]:
+          - generic [ref=f22e88]: ✎
+          - strong [ref=f22e89]: Dokumen ke Tulisan Tangan
+          - generic [ref=f22e90]: Ubah PDF, Word, atau TXT menjadi tulisan tangan natural.
+        - button "文 Terjemahkan dokumen Terjemahkan isi PDF atau TXT melalui Document Intelligence." [ref=f22e91] [cursor=pointer]:
+          - generic [ref=f22e92]: 文
+          - strong [ref=f22e93]: Terjemahkan dokumen
+          - generic [ref=f22e94]: Terjemahkan isi PDF atau TXT melalui Document Intelligence.
+      - generic [ref=f22e95]:
+        - link "Tanya Dokumen Unggah dokumen, buat ringkasan, lalu tanyakan isi dokumen. →" [ref=f22e96] [cursor=pointer]:
+          - /url: /intelligence/
+          - generic [ref=f22e97]:
+            - strong [ref=f22e98]: Tanya Dokumen
+            - generic [ref=f22e99]: Unggah dokumen, buat ringkasan, lalu tanyakan isi dokumen.
+          - generic [ref=f22e100]: →
+        - link "Spreadsheet Assistant Kerjakan file spreadsheet di workspace khusus. →" [ref=f22e101] [cursor=pointer]:
+          - /url: /spreadsheet/
+          - generic [ref=f22e102]:
+            - strong [ref=f22e103]: Spreadsheet Assistant
+            - generic [ref=f22e104]: Kerjakan file spreadsheet di workspace khusus.
+          - generic [ref=f22e105]: →
+    - generic [ref=f22e107]:
+      - generic [ref=f22e108]:
+        - heading "Atur PDF" [level=2] [ref=f22e109]
+        - generic [ref=f22e110]: Susun dan pilih halaman
+      - generic [ref=f22e111]:
+        - link "⇲ Gabungkan PDF Satukan beberapa PDF menjadi satu dokumen." [ref=f22e112] [cursor=pointer]:
+          - /url: /gabungkan-pdf
+          - generic [ref=f22e113]: ⇲
+          - generic [ref=f22e114]:
+            - heading "Gabungkan PDF" [level=3] [ref=f22e115]
+            - paragraph [ref=f22e116]: Satukan beberapa PDF menjadi satu dokumen.
+        - link "⇱ Pisahkan PDF Pisahkan per halaman atau rentang pilihan." [ref=f22e117] [cursor=pointer]:
+          - /url: /pisahkan-pdf
+          - generic [ref=f22e118]: ⇱
+          - generic [ref=f22e119]:
+            - heading "Pisahkan PDF" [level=3] [ref=f22e120]
+            - paragraph [ref=f22e121]: Pisahkan per halaman atau rentang pilihan.
+        - link "× Hapus Halaman Buang halaman yang tidak diperlukan." [ref=f22e122] [cursor=pointer]:
+          - /url: /hapus-halaman
+          - generic [ref=f22e123]: ×
+          - generic [ref=f22e124]:
+            - heading "Hapus Halaman" [level=3] [ref=f22e125]
+            - paragraph [ref=f22e126]: Buang halaman yang tidak diperlukan.
+        - link "↗ Ekstrak Halaman Buat PDF baru dari halaman pilihan." [ref=f22e127] [cursor=pointer]:
+          - /url: /ekstrak-halaman
+          - generic [ref=f22e128]: ↗
+          - generic [ref=f22e129]:
+            - heading "Ekstrak Halaman" [level=3] [ref=f22e130]
+            - paragraph [ref=f22e131]: Buat PDF baru dari halaman pilihan.
+        - link "↕ Atur Urutan Susun ulang halaman dengan nomor urutan." [ref=f22e132] [cursor=pointer]:
+          - /url: /atur-urutan-halaman
+          - generic [ref=f22e133]: ↕
+          - generic [ref=f22e134]:
+            - heading "Atur Urutan" [level=3] [ref=f22e135]
+            - paragraph [ref=f22e136]: Susun ulang halaman dengan nomor urutan.
+        - link "▣ Gambar ke PDF Gabungkan JPG/PNG scan menjadi PDF." [ref=f22e137] [cursor=pointer]:
+          - /url: /gambar-ke-pdf
+          - generic [ref=f22e138]: ▣
+          - generic [ref=f22e139]:
+            - heading "Gambar ke PDF" [level=3] [ref=f22e140]
+            - paragraph [ref=f22e141]: Gabungkan JPG/PNG scan menjadi PDF.
+    - generic [ref=f22e142]:
+      - generic [ref=f22e143]:
+        - heading "Optimasi PDF" [level=2] [ref=f22e144]
+        - generic [ref=f22e145]: Lebih ringan dan dapat dicari
+      - generic [ref=f22e146]:
+        - link "↙ Kompres PDF Kurangi ukuran dengan profil layar, seimbang, atau cetak." [ref=f22e147] [cursor=pointer]:
+          - /url: /kompres-pdf
+          - generic [ref=f22e148]: ↙
+          - generic [ref=f22e149]:
+            - heading "Kompres PDF" [level=3] [ref=f22e150]
+            - paragraph [ref=f22e151]: Kurangi ukuran dengan profil layar, seimbang, atau cetak.
+        - link "⌁ Perbaiki PDF Tulis ulang struktur dan bersihkan objek rusak." [ref=f22e152] [cursor=pointer]:
+          - /url: /perbaiki-pdf
+          - generic [ref=f22e153]: ⌁
+          - generic [ref=f22e154]:
+            - heading "Perbaiki PDF" [level=3] [ref=f22e155]
+            - paragraph [ref=f22e156]: Tulis ulang struktur dan bersihkan objek rusak.
+        - link "OCR OCR PDF Jadikan hasil scan dapat dicari dengan Bahasa Indonesia." [ref=f22e157] [cursor=pointer]:
+          - /url: /ocr-pdf
+          - generic [ref=f22e158]: OCR
+          - generic [ref=f22e159]:
+            - heading "OCR PDF" [level=3] [ref=f22e160]
+            - paragraph [ref=f22e161]: Jadikan hasil scan dapat dicari dengan Bahasa Indonesia.
+    - generic [ref=f22e162]:
+      - generic [ref=f22e163]:
+        - heading "Konversi Dokumen" [level=2] [ref=f22e164]
+        - generic [ref=f22e165]: Ke dan dari PDF
+      - generic [ref=f22e166]:
+        - link "W PDF ke Word Digital atau scan menjadi DOCX." [ref=f22e167] [cursor=pointer]:
+          - /url: /pdf-ke-word
+          - generic [ref=f22e168]: W
+          - generic [ref=f22e169]:
+            - heading "PDF ke Word" [level=3] [ref=f22e170]
+            - paragraph [ref=f22e171]: Digital atau scan menjadi DOCX.
+        - link "✍ Ubah Tulisan Tangan ke Word, Excel, atau PDF Ubah PDF atau foto tulisan tangan menjadi Word, Excel, PDF searchable, JSON, atau ZIP." [ref=f22e172] [cursor=pointer]:
+          - /url: /tulisan-tangan-ke-word
+          - generic [ref=f22e173]: ✍
+          - generic [ref=f22e174]:
+            - heading "Ubah Tulisan Tangan ke Word, Excel, atau PDF" [level=3] [ref=f22e175]
+            - paragraph [ref=f22e176]: Ubah PDF atau foto tulisan tangan menjadi Word, Excel, PDF searchable, JSON, atau ZIP.
+        - link "✎ Dokumen ke Tulisan Tangan Ubah PDF, Word, atau TXT menjadi PDF tulisan tangan natural dan searchable." [ref=f22e177] [cursor=pointer]:
+          - /url: /dokumen-ke-tulisan-tangan
+          - generic [ref=f22e178]: ✎
+          - generic [ref=f22e179]:
+            - heading "Dokumen ke Tulisan Tangan" [level=3] [ref=f22e180]
+            - paragraph [ref=f22e181]: Ubah PDF, Word, atau TXT menjadi PDF tulisan tangan natural dan searchable.
+        - link "X PDF ke Excel Ekstrak tabel menjadi workbook XLSX." [ref=f22e182] [cursor=pointer]:
+          - /url: /pdf-ke-excel
+          - generic [ref=f22e183]: X
+          - generic [ref=f22e184]:
+            - heading "PDF ke Excel" [level=3] [ref=f22e185]
+            - paragraph [ref=f22e186]: Ekstrak tabel menjadi workbook XLSX.
+        - link "J PDF ke JPG Unduh seluruh halaman sebagai ZIP gambar." [ref=f22e187] [cursor=pointer]:
+          - /url: /pdf-ke-jpg
+          - generic [ref=f22e188]: J
+          - generic [ref=f22e189]:
+            - heading "PDF ke JPG" [level=3] [ref=f22e190]
+            - paragraph [ref=f22e191]: Unduh seluruh halaman sebagai ZIP gambar.
+        - link "W→ Word ke PDF Ubah dokumen Word menjadi PDF dengan tata letak yang terjaga." [ref=f22e192] [cursor=pointer]:
+          - /url: /word-ke-pdf
+          - generic [ref=f22e193]: W→
+          - generic [ref=f22e194]:
+            - heading "Word ke PDF" [level=3] [ref=f22e195]
+            - paragraph [ref=f22e196]: Ubah dokumen Word menjadi PDF dengan tata letak yang terjaga.
+        - link "→P PDF ke PowerPoint Ubah setiap halaman PDF menjadi slide PPTX." [ref=f22e197] [cursor=pointer]:
+          - /url: /pdf-ke-powerpoint
+          - generic [ref=f22e198]: →P
+          - generic [ref=f22e199]:
+            - heading "PDF ke PowerPoint" [level=3] [ref=f22e200]
+            - paragraph [ref=f22e201]: Ubah setiap halaman PDF menjadi slide PPTX.
+        - link "P→ PowerPoint ke PDF Konversi PPT/PPTX menjadi PDF." [ref=f22e202] [cursor=pointer]:
+          - /url: /powerpoint-ke-pdf
+          - generic [ref=f22e203]: P→
+          - generic [ref=f22e204]:
+            - heading "PowerPoint ke PDF" [level=3] [ref=f22e205]
+            - paragraph [ref=f22e206]: Konversi PPT/PPTX menjadi PDF.
+        - link "X→ Excel ke PDF Konversi XLS/XLSX menjadi PDF." [ref=f22e207] [cursor=pointer]:
+          - /url: /excel-ke-pdf
+          - generic [ref=f22e208]: X→
+          - generic [ref=f22e209]:
+            - heading "Excel ke PDF" [level=3] [ref=f22e210]
+            - paragraph [ref=f22e211]: Konversi XLS/XLSX menjadi PDF.
+        - link "MD PDF ke Markdown Ekstrak teks per halaman menjadi Markdown." [ref=f22e212] [cursor=pointer]:
+          - /url: /pdf-ke-markdown
+          - generic [ref=f22e213]: MD
+          - generic [ref=f22e214]:
+            - heading "PDF ke Markdown" [level=3] [ref=f22e215]
+            - paragraph [ref=f22e216]: Ekstrak teks per halaman menjadi Markdown.
+    - generic [ref=f22e217]:
+      - generic [ref=f22e218]:
+        - heading "Edit PDF" [level=2] [ref=f22e219]
+        - generic [ref=f22e220]: Perubahan dasar yang aman
+      - generic [ref=f22e221]:
+        - link "↻ Putar PDF Rotasi semua halaman 90, 180, atau 270°." [ref=f22e222] [cursor=pointer]:
+          - /url: /putar-pdf
+          - generic [ref=f22e223]: ↻
+          - generic [ref=f22e224]:
+            - heading "Putar PDF" [level=3] [ref=f22e225]
+            - paragraph [ref=f22e226]: Rotasi semua halaman 90, 180, atau 270°.
+        - link "# Nomor Halaman Tambahkan nomor otomatis di bagian bawah." [ref=f22e227] [cursor=pointer]:
+          - /url: /nomor-halaman
+          - generic [ref=f22e228]: "#"
+          - generic [ref=f22e229]:
+            - heading "Nomor Halaman" [level=3] [ref=f22e230]
+            - paragraph [ref=f22e231]: Tambahkan nomor otomatis di bagian bawah.
+        - link "W Watermark Tambahkan teks transparan pada setiap halaman." [ref=f22e232] [cursor=pointer]:
+          - /url: /watermark-pdf
+          - generic [ref=f22e233]: W
+          - generic [ref=f22e234]:
+            - heading "Watermark" [level=3] [ref=f22e235]
+            - paragraph [ref=f22e236]: Tambahkan teks transparan pada setiap halaman.
+        - link "⌗ Crop PDF Potong margin yang berlebih." [ref=f22e237] [cursor=pointer]:
+          - /url: /crop-pdf
+          - generic [ref=f22e238]: ⌗
+          - generic [ref=f22e239]:
+            - heading "Crop PDF" [level=3] [ref=f22e240]
+            - paragraph [ref=f22e241]: Potong margin yang berlebih.
+    - generic [ref=f22e242]:
+      - generic [ref=f22e243]:
+        - heading "Keamanan PDF" [level=2] [ref=f22e244]
+        - generic [ref=f22e245]: Password dan kontrol akses
+      - generic [ref=f22e246]:
+        - link "🔒 Lindungi PDF Enkripsi AES-256 dengan password." [ref=f22e247] [cursor=pointer]:
+          - /url: /lindungi-pdf
+          - generic [ref=f22e248]: 🔒
+          - generic [ref=f22e249]:
+            - heading "Lindungi PDF" [level=3] [ref=f22e250]
+            - paragraph [ref=f22e251]: Enkripsi AES-256 dengan password.
+        - link "🔓 Buka Kunci PDF Hapus password dengan kredensial yang benar." [ref=f22e252] [cursor=pointer]:
+          - /url: /buka-kunci-pdf
+          - generic [ref=f22e253]: 🔓
+          - generic [ref=f22e254]:
+            - heading "Buka Kunci PDF" [level=3] [ref=f22e255]
+            - paragraph [ref=f22e256]: Hapus password dengan kredensial yang benar.
+    - generic [ref=f22e257]:
+      - generic [ref=f22e258]:
+        - heading "PDF Intelligence" [level=2] [ref=f22e259]
+        - generic [ref=f22e260]: Fitur cerdas untuk dokumen
+      - generic [ref=f22e261]:
+        - link "AI Ringkasan AI Ringkas PDF, Word, atau TXT secara otomatis." [ref=f22e262] [cursor=pointer]:
+          - /url: /ringkasan-ai
+          - generic [ref=f22e263]: AI
+          - generic [ref=f22e264]:
+            - heading "Ringkasan AI" [level=3] [ref=f22e265]
+            - paragraph [ref=f22e266]: Ringkas PDF, Word, atau TXT secara otomatis.
+        - link "文 Terjemahkan PDF Terjemahkan PDF atau TXT dengan AI." [ref=f22e267] [cursor=pointer]:
+          - /url: /terjemahkan-pdf
+          - generic [ref=f22e268]: 文
+          - generic [ref=f22e269]:
+            - heading "Terjemahkan PDF" [level=3] [ref=f22e270]
+            - paragraph [ref=f22e271]: Terjemahkan PDF atau TXT dengan AI.
+  - contentinfo [ref=f22e272]:
+    - generic [ref=f22e273]:
+      - generic [ref=f22e274]:
+        - generic [ref=f22e275]:
+          - heading "Atur PDF" [level=4] [ref=f22e276]
+          - link "Gabungkan PDF" [ref=f22e277] [cursor=pointer]:
+            - /url: /gabungkan-pdf
+          - link "Pisahkan PDF" [ref=f22e278] [cursor=pointer]:
+            - /url: /pisahkan-pdf
+          - link "Hapus Halaman" [ref=f22e279] [cursor=pointer]:
+            - /url: /hapus-halaman
+          - link "Ekstrak Halaman" [ref=f22e280] [cursor=pointer]:
+            - /url: /ekstrak-halaman
+          - link "Atur Urutan" [ref=f22e281] [cursor=pointer]:
+            - /url: /atur-urutan-halaman
+          - link "Gambar ke PDF" [ref=f22e282] [cursor=pointer]:
+            - /url: /gambar-ke-pdf
+        - generic [ref=f22e283]:
+          - heading "Optimasi & Konversi" [level=4] [ref=f22e284]
+          - link "Kompres PDF" [ref=f22e285] [cursor=pointer]:
+            - /url: /kompres-pdf
+          - link "Perbaiki PDF" [ref=f22e286] [cursor=pointer]:
+            - /url: /perbaiki-pdf
+          - link "OCR PDF" [ref=f22e287] [cursor=pointer]:
+            - /url: /ocr-pdf
+          - link "PDF ke Word" [ref=f22e288] [cursor=pointer]:
+            - /url: /pdf-ke-word
+          - link "Tulisan Tangan ke Word" [ref=f22e289] [cursor=pointer]:
+            - /url: /tulisan-tangan-ke-word
+          - link "Dokumen ke Tulisan Tangan" [ref=f22e290] [cursor=pointer]:
+            - /url: /dokumen-ke-tulisan-tangan
+          - link "PDF ke Excel" [ref=f22e291] [cursor=pointer]:
+            - /url: /pdf-ke-excel
+          - link "PDF ke JPG" [ref=f22e292] [cursor=pointer]:
+            - /url: /pdf-ke-jpg
+        - generic [ref=f22e293]:
+          - heading "Konversi & Edit" [level=4] [ref=f22e294]
+          - link "Word ke PDF" [ref=f22e295] [cursor=pointer]:
+            - /url: /word-ke-pdf
+          - link "PDF ke PowerPoint" [ref=f22e296] [cursor=pointer]:
+            - /url: /pdf-ke-powerpoint
+          - link "PowerPoint ke PDF" [ref=f22e297] [cursor=pointer]:
+            - /url: /powerpoint-ke-pdf
+          - link "Excel ke PDF" [ref=f22e298] [cursor=pointer]:
+            - /url: /excel-ke-pdf
+          - link "PDF ke Markdown" [ref=f22e299] [cursor=pointer]:
+            - /url: /pdf-ke-markdown
+          - link "Putar PDF" [ref=f22e300] [cursor=pointer]:
+            - /url: /putar-pdf
+          - link "Nomor Halaman" [ref=f22e301] [cursor=pointer]:
+            - /url: /nomor-halaman
+        - generic [ref=f22e302]:
+          - heading "Keamanan & AI" [level=4] [ref=f22e303]
+          - link "Watermark" [ref=f22e304] [cursor=pointer]:
+            - /url: /watermark-pdf
+          - link "Crop PDF" [ref=f22e305] [cursor=pointer]:
+            - /url: /crop-pdf
+          - link "Lindungi PDF" [ref=f22e306] [cursor=pointer]:
+            - /url: /lindungi-pdf
+          - link "Buka Kunci PDF" [ref=f22e307] [cursor=pointer]:
+            - /url: /buka-kunci-pdf
+          - link "Ringkasan AI" [ref=f22e308] [cursor=pointer]:
+            - /url: /ringkasan-ai
+          - link "Terjemahkan PDF" [ref=f22e309] [cursor=pointer]:
+            - /url: /terjemahkan-pdf
+      - generic [ref=f22e310]: OlahDokumen · Pemrosesan dokumen aman · File sementara dihapus otomatis

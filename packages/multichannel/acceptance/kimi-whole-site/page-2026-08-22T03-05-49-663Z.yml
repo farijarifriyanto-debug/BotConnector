@@ -1,0 +1,41 @@
+- generic [active] [ref=e1]:
+  - complementary [ref=e2]:
+    - generic [ref=e3]:
+      - generic [ref=e4]: BC
+      - text: Bisnis
+    - generic [ref=e5]:
+      - generic [ref=e6]: Cabang / Lokasi
+      - combobox [ref=e7]:
+        - option "Cabang A (RETAIL)" [selected]
+        - option "Cabang B (RESTAURANT)"
+    - navigation [ref=e8]:
+      - link "Dashboard" [ref=e9] [cursor=pointer]:
+        - /url: "#/dashboard"
+      - link "POS" [ref=e15] [cursor=pointer]:
+        - /url: "#/pos"
+      - link "Orders" [ref=e19] [cursor=pointer]:
+        - /url: "#/orders"
+      - link "Products" [ref=e22] [cursor=pointer]:
+        - /url: "#/products"
+      - link "Inventory" [ref=e27] [cursor=pointer]:
+        - /url: "#/inventory"
+      - link "Transfers" [ref=e30] [cursor=pointer]:
+        - /url: "#/transfers"
+      - link "Restaurant" [ref=e36] [cursor=pointer]:
+        - /url: "#/restaurant"
+      - link "Kitchen" [ref=e39] [cursor=pointer]:
+        - /url: "#/kitchen"
+      - link "Reports" [ref=e42] [cursor=pointer]:
+        - /url: "#/reports"
+      - link "Integrasi" [ref=e44] [cursor=pointer]:
+        - /url: "#/integrasi"
+  - main [ref=e48]:
+    - generic [ref=e49]:
+      - generic [ref=e51]:
+        - generic [ref=e52]: Integrasi
+        - generic [ref=e53]: Business Suite
+      - generic [ref=e54]:
+        - button "Sync Offline" [ref=e55] [cursor=pointer]
+        - link "BotConnector.id" [ref=e56] [cursor=pointer]:
+          - /url: /
+    - generic [ref=e57]: Memuat...

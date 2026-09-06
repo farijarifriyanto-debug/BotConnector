@@ -1,0 +1,81 @@
+- generic [ref=f2e1]:
+  - complementary [ref=f2e2]:
+    - link "BC Bisnis" [ref=f2e3] [cursor=pointer]:
+      - /url: /
+      - generic [ref=f2e4]: BC
+      - text: Bisnis
+    - generic [ref=f2e5]:
+      - generic [ref=f2e6]: Cabang / Lokasi
+      - combobox [ref=f2e7]:
+        - option "Cabang A (RETAIL)" [selected]
+        - option "Cabang B (RESTAURANT)"
+    - navigation [ref=f2e8]:
+      - link "Dashboard" [ref=f2e9] [cursor=pointer]:
+        - /url: "#/dashboard"
+      - link "POS" [ref=f2e15] [cursor=pointer]:
+        - /url: "#/pos"
+      - link "Orders" [ref=f2e19] [cursor=pointer]:
+        - /url: "#/orders"
+      - link "Products" [ref=f2e22] [cursor=pointer]:
+        - /url: "#/products"
+      - link "Inventory" [ref=f2e27] [cursor=pointer]:
+        - /url: "#/inventory"
+      - link "Transfers" [ref=f2e30] [cursor=pointer]:
+        - /url: "#/transfers"
+      - link "Restaurant" [ref=f2e36] [cursor=pointer]:
+        - /url: "#/restaurant"
+      - link "Kitchen" [ref=f2e39] [cursor=pointer]:
+        - /url: "#/kitchen"
+      - link "Reports" [ref=f2e42] [cursor=pointer]:
+        - /url: "#/reports"
+      - link "Integrasi" [active] [ref=f2e44] [cursor=pointer]:
+        - /url: "#/integrasi"
+  - main [ref=f2e48]:
+    - generic [ref=f2e49]:
+      - generic [ref=f2e51]:
+        - generic [ref=f2e52]: Integrasi
+        - generic [ref=f2e53]: Business Suite
+      - generic [ref=f2e54]:
+        - button "Sync Offline" [ref=f2e55] [cursor=pointer]
+        - link "BotConnector.id" [ref=f2e56] [cursor=pointer]:
+          - /url: /
+    - generic [ref=f2e57]:
+      - generic [ref=f2e314]:
+        - heading "Integrasi" [level=1] [ref=f2e315]
+        - generic [ref=f2e316]: Status integrasi operasional (tanpa membuka rahasia)
+      - generic [ref=f2e317]:
+        - heading "Food Delivery" [level=2] [ref=f2e318]
+        - table [ref=f2e319]:
+          - rowgroup [ref=f2e320]:
+            - row [ref=f2e321]:
+              - columnheader "Provider" [ref=f2e322]
+              - columnheader "Status" [ref=f2e323]
+              - columnheader "Auth" [ref=f2e324]
+            - row [ref=f2e325]:
+              - cell "GOFOOD" [ref=f2e326]
+              - cell "Segera Hadir" [ref=f2e327]
+              - cell "oauth2" [ref=f2e329]
+            - row [ref=f2e330]:
+              - cell "GRABFOOD" [ref=f2e331]
+              - cell "Segera Hadir" [ref=f2e332]
+              - cell "oauth2_client_credentials" [ref=f2e334]
+            - row [ref=f2e335]:
+              - cell "SHOPEEFOOD" [ref=f2e336]
+              - cell "Segera Hadir" [ref=f2e337]
+              - cell "token_signature" [ref=f2e339]
+      - generic [ref=f2e340]:
+        - heading "POS" [level=2] [ref=f2e341]
+        - table [ref=f2e342]:
+          - rowgroup [ref=f2e343]:
+            - row [ref=f2e344]:
+              - columnheader "Provider" [ref=f2e345]
+              - columnheader "Status" [ref=f2e346]
+              - columnheader "Auth" [ref=f2e347]
+            - row [ref=f2e348]:
+              - cell "MOKA" [ref=f2e349]
+              - cell "Segera Hadir" [ref=f2e350]
+              - cell "oauth2" [ref=f2e352]
+            - row [ref=f2e353]:
+              - cell "PAWOON" [ref=f2e354]
+              - cell "Segera Hadir" [ref=f2e355]
+              - cell "api_key" [ref=f2e357]

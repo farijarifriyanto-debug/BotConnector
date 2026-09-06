@@ -1,0 +1,157 @@
+<!doctype html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="theme-color" content="#F6F7FB">
+<title>Integrasi — BotConnector</title>
+<meta name="description" content="Integrasi lokal, POS, marketplace, dan food delivery. Status ditampilkan jujur: Tersedia, Beta, Segera Hadir, atau Roadmap.">
+<meta name="robots" content="index, follow">
+<link rel="canonical" href="https://botconnector.id/integrations/">
+<link rel="icon" href="../favicon.svg" type="image/svg+xml">
+<link rel="stylesheet" href="../css/site.css">
+<style>.hero{padding:70px 0 50px}</style>
+</head>
+<body>
+
+<header class="top">
+  <div class="wrap top-in">
+    <a class="brand" href="../"><span class="plug">BC</span>BotConnector</a>
+    <nav aria-label="Navigasi utama">
+      <div class="has-dd">
+        <button class="dd-trigger" aria-haspopup="true">Produk</button>
+        <div class="dd-panel">
+          <a href="../business-suite/">Business Suite<small>POS ritel, resto &amp; multi-cabang</small></a>
+          <a href="../retail/">Retail<small>Kasir &amp; stok toko</small></a>
+          <a href="../restaurant/">Restaurant<small>Kasir &amp; dapur resto/kafe</small></a>
+          <a href="../parking/">Parking<small>Gerbang, tarif, ANPR</small></a>
+          <a href="../my-drive/">My Drive<small>Penyimpanan file terhubung</small></a>
+        </div>
+      </div>
+      <div class="has-dd">
+        <button class="dd-trigger active" aria-haspopup="true">Integrasi</button>
+        <div class="dd-panel">
+          <a href="../integrations/" class="active">Integrasi<small>Hubungkan sistem yang Anda pakai</small></a>
+          <a href="../konektor/">Konektor<small>Marketplace koneksi siap pakai</small></a>
+          <a href="../resep/">Resep<small>Template alur kerja operasional</small></a>
+        </div>
+      </div>
+      <a href="../solusi/">Solusi</a>
+      <a href="../docs/">Docs</a>
+    </nav>
+    <div class="top-actions">
+      <a class="btn btn-line" href="https://botconnector.id/login">Masuk</a>
+      <a class="btn btn-main" href="https://botconnector.id/bisnis/">Buka Bisnis →</a>
+      <button class="mobile-menu" aria-label="Buka menu navigasi">☰</button>
+    </div>
+  </div>
+</header>
+
+<div class="wrap crumb"><a href="../">BotConnector</a> &nbsp;/&nbsp; Integrasi</div>
+
+<main>
+
+<section class="hero">
+  <div class="wrap">
+    <div class="label">Integrations</div>
+    <h1>Hubungkan sistem yang Anda pakai.</h1>
+    <p class="hero-copy">
+      Integrasi lokal, POS, marketplace, dan food delivery. Status ditampilkan jujur: Tersedia, Segera Hadir, atau Roadmap — tidak ada yang dipromosikan sebelum benar-benar aktif.
+    </p>
+  </div>
+</section>
+
+<section class="section white">
+  <div class="wrap">
+
+    <div class="group-label">Lokal / Zero-Approval — Tersedia</div>
+    <div class="grid">
+      <div class="card"><div class="card-head"><span class="icon">CSV</span><span class="badge ready">Tersedia</span></div><div class="card-label">File</div><h3>CSV &amp; Excel</h3><p>Impor/ekspor penjualan, produk, stok. Mapping kolom, dry-run, deteksi duplikat.</p><div class="card-foot"><span>CSV · XLSX · Mapping</span></div></div>
+      <div class="card"><div class="card-head"><span class="icon">BC</span><span class="badge ready">Tersedia</span></div><div class="card-label">Barcode</div><h3>Barcode</h3><p>Scanner keyboard-wedge langsung jalan. Barcode → SKU, alias, barcode tak dikenal.</p><div class="card-foot"><span>Barcode · SKU · Alias</span></div></div>
+      <div class="card"><div class="card-head"><span class="icon">PR</span><span class="badge ready">Tersedia</span></div><div class="card-label">Receipt / Printer</div><h3>Receipt / Printer</h3><p>Cetak receipt 58mm/80mm dari browser. Adapter ESC/POS disiapkan.</p><div class="card-foot"><span>Receipt · 58mm · 80mm</span></div></div>
+      <div class="card"><div class="card-head"><span class="icon">SC</span><span class="badge ready">Tersedia</span></div><div class="card-label">Digital Scale</div><h3>Digital Scale</h3><p>Bridge timbangan digital. Berat → kuantitas → SKU priced-by-weight.</p><div class="card-foot"><span>Scale · Berat · Tare</span></div></div>
+      <div class="card"><div class="card-head"><span class="icon">QR</span><span class="badge ready">Tersedia</span></div><div class="card-label">Self-order</div><h3>QR Self Order</h3><p>Menu QR, keranjang, modifier, submit ke KDS, dan antrean pelanggan.</p><div class="card-foot"><span>QR · Self-order · KDS</span></div></div>
+      <a class="card" href="../konektor/"><div class="card-head"><span class="icon">WH</span><span class="badge ready">Tersedia</span></div><div class="card-label">Webhook &amp; API</div><h3>Webhook &amp; API</h3><p>Webhook inbound/outbound, REST pull/push, signature, retry, idempotency — dikelola lewat Konektor.</p><div class="card-foot"><span>Webhook · REST · Retry</span><b>Buka Konektor →</b></div></a>
+    </div>
+
+    <div class="group-label">POS</div>
+    <div class="grid">
+      <div class="card"><div class="card-head"><span class="icon">MK</span><span class="badge soon">Segera Hadir</span></div><div class="card-label">POS Adapter</div><h3>Moka</h3><p>Adapter POS Moka untuk outlet, item sales, COGS, dan gross profit.</p><div class="card-foot"><span>POS · Sales · COGS</span></div></div>
+      <div class="card"><div class="card-head"><span class="icon">PW</span><span class="badge soon">Segera Hadir</span></div><div class="card-label">POS Adapter</div><h3>Pawoon</h3><p>Adapter POS Pawoon, dengan dukungan file ekspor melalui Universal File Connector.</p><div class="card-foot"><span>POS · Sales · File</span></div></div>
+      <div class="card"><div class="card-head"><span class="icon">POS</span><span class="badge roadmap">Roadmap</span></div><div class="card-label">POS Adapter</div><h3>POS Lainnya</h3><p>Olsera, Majoo, Qasir, Kasir Pintar — diteliti, dengan file connector sebagai jalur universal.</p><div class="card-foot"><span>Olsera · Majoo · Qasir</span></div></div>
+    </div>
+
+    <div class="group-label">Marketplace &amp; Food Delivery</div>
+    <div class="grid">
+      <div class="card"><div class="card-head"><span class="icon">SP</span><span class="badge soon">Segera Hadir</span></div><div class="card-label">Marketplace</div><h3>Shopee, Tokopedia, TikTok Shop</h3><p>Konektor marketplace dengan proyeksi stok dari inventori pusat.</p><div class="card-foot"><span>Marketplace · Stok</span></div></div>
+      <div class="card"><div class="card-head"><span class="icon">GF</span><span class="badge soon">Segera Hadir</span></div><div class="card-label">Food Delivery</div><h3>GoFood &amp; GrabFood</h3><p>Sinkronisasi menu, order, dan status siap saji dari satu dashboard.</p><div class="card-foot"><span>Order · Menu · Status</span></div></div>
+      <div class="card"><div class="card-head"><span class="icon">SF</span><span class="badge soon">Segera Hadir</span></div><div class="card-label">Food Delivery</div><h3>ShopeeFood</h3><p>Sinkronisasi menu, order masuk, tandai siap, dan pembatalan.</p><div class="card-foot"><span>ShopeeFood · Order</span></div></div>
+    </div>
+
+    <div class="group-label">Automation</div>
+    <div class="grid">
+      <a class="card" href="../konektor/">
+        <div class="card-head"><span class="icon">WH</span><span class="badge ready">Tersedia</span></div>
+        <div class="card-label">Automation</div>
+        <h3>Webhook &amp; HTTP/API.</h3>
+        <p>Inbound/outbound webhook, REST pull/push, retry, idempotency, kredensial sisi server.</p>
+        <div class="card-foot"><span>Webhook · REST · Retry</span><b>Buat otomasi →</b></div>
+      </a>
+      <a class="card" href="https://botconnector.id/bisnis/#/integrasi">
+        <div class="card-head"><span class="icon">TG</span><span class="badge ready">Tersedia</span></div>
+        <div class="card-label">Automation</div>
+        <h3>Telegram.</h3>
+        <p>Kirim alert dan notifikasi workflow ke chat atau grup Telegram.</p>
+        <div class="card-foot"><span>Messaging · Alert</span><b>Buat otomasi →</b></div>
+      </a>
+    </div>
+
+    <div class="note">
+      Status integrasi ditampilkan berdasarkan kemampuan yang tersedia saat ini.
+      Integrasi yang membutuhkan kredensial atau persetujuan pihak ketiga ditandai <strong>Segera Hadir</strong> sampai koneksi eksternal benar-benar aktif.
+    </div>
+
+  </div>
+</section>
+
+</main>
+
+<footer>
+  <div class="wrap footer-grid">
+    <div>
+      <a class="brand" href="../"><span class="plug">BC</span>BotConnector</a>
+      <div class="footer-copy">Satu platform untuk kasir, stok, parkir, dan otomasi bisnis Anda.</div>
+    </div>
+    <div class="footer-col">
+      <div class="footer-col-label">Produk</div>
+      <div class="footer-links">
+        <a href="../business-suite/">Business Suite</a>
+        <a href="../retail/">Retail</a>
+        <a href="../restaurant/">Restaurant</a>
+        <a href="../parking/">Parking</a>
+        <a href="../my-drive/">My Drive</a>
+      </div>
+    </div>
+    <div class="footer-col">
+      <div class="footer-col-label">Ekosistem</div>
+      <div class="footer-links">
+        <a href="../integrations/">Integrasi</a>
+        <a href="../konektor/">Konektor</a>
+        <a href="../resep/">Resep</a>
+        <a href="../solusi/">Solusi</a>
+      </div>
+    </div>
+    <div class="footer-col">
+      <div class="footer-col-label">Sumber Daya</div>
+      <div class="footer-links">
+        <a href="../docs/">Docs</a>
+        <a href="https://botconnector.id/status">Status</a>
+        <a href="https://botconnector.id/support">Bantuan</a>
+      </div>
+    </div>
+  </div>
+</footer>
+
+<script src="../js/site.js"></script>
+</body>
+</html>

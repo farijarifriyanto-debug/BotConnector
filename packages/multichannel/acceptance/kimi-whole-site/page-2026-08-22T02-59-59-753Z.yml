@@ -1,0 +1,50 @@
+- generic [active] [ref=f36e1]:
+  - banner [ref=f36e2]:
+    - generic [ref=f36e3]: BC Bisnis
+    - navigation [ref=f36e4]:
+      - link "Dashboard" [ref=f36e5] [cursor=pointer]:
+        - /url: "#/dashboard"
+      - link "POS" [ref=f36e6] [cursor=pointer]:
+        - /url: "#/pos"
+      - link "Orders" [ref=f36e7] [cursor=pointer]:
+        - /url: "#/orders"
+      - link "Products" [ref=f36e8] [cursor=pointer]:
+        - /url: "#/products"
+      - link "Inventory" [ref=f36e9] [cursor=pointer]:
+        - /url: "#/inventory"
+      - link "Transfers" [ref=f36e10] [cursor=pointer]:
+        - /url: "#/transfers"
+      - link "Restaurant" [ref=f36e11] [cursor=pointer]:
+        - /url: "#/restaurant"
+      - link "Kitchen" [ref=f36e12] [cursor=pointer]:
+        - /url: "#/kitchen"
+      - link "Reports" [ref=f36e13] [cursor=pointer]:
+        - /url: "#/reports"
+      - link "Integrasi" [ref=f36e14] [cursor=pointer]:
+        - /url: "#/integrasi"
+  - main [ref=f36e15]:
+    - generic [ref=f36e16]:
+      - heading "Dashboard" [level=1] [ref=f36e17]
+      - generic [ref=f36e18]: Metrik bisnis langsung dari data operasional
+    - generic [ref=f36e19]:
+      - generic [ref=f36e20]:
+        - generic [ref=f36e21]: Penjualan Hari Ini
+        - generic [ref=f36e22]: "0"
+      - generic [ref=f36e23]:
+        - generic [ref=f36e24]: Transaksi
+        - generic [ref=f36e25]: "0"
+      - generic [ref=f36e26]:
+        - generic [ref=f36e27]: Rata-rata Ticket
+        - generic [ref=f36e28]: "0"
+      - generic [ref=f36e29]:
+        - generic [ref=f36e30]: Order Restoran Terbuka
+        - generic [ref=f36e31]: "0"
+      - generic [ref=f36e32]:
+        - generic [ref=f36e33]: KOT Pending
+        - generic [ref=f36e34]: "0"
+      - generic [ref=f36e35]:
+        - generic [ref=f36e36]: Sync Offline Pending
+        - generic [ref=f36e37]: "0"
+      - generic [ref=f36e38]:
+        - generic [ref=f36e39]: Transfer Aktif
+        - generic [ref=f36e40]: "0"

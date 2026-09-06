@@ -1,0 +1,18 @@
+# BotConnector Parking — Central systemd unit template (deployment artifact).
+# NOT installed/enabled automatically. Copy to /etc/systemd/system/ and enable
+# only under controlled testing.
+[Unit]
+Description=BotConnector Parking Central API
+After=network.target postgresql.service
+
+[Service]
+Type=simple
+User=botadmin
+WorkingDirectory=/home/botadmin/ai-workspaces/BotConnector-Parking
+EnvironmentFile=/etc/botconnector/parking.env
+ExecStart=/home/botadmin/ai-workspaces/BotConnector-Parking/.venv/bin/python -m parking.api.run
+Restart=on-failure
+RestartSec=5
+
+[Install]
+WantedBy=multi-user.target

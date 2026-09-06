@@ -1,0 +1,31 @@
+============================================================
+BOTCONNECTOR
+SHIPPING LOCATION RESOLVER V1
+FROZEN RELEASE
+============================================================
+
+FREEZE_UTC=2026-08-13 12:23:33 UTC
+
+STATUS=FROZEN_INTEGRATION_COMPONENT
+RESULT=PASS
+
+RELEASE=/opt/botconnector-shipping-location-resolver/releases/shipping-location-resolver-v1-20260813T122333Z
+
+SOURCE=/opt/botconnector-shipping-location-resolver/candidates/shipping-location-resolver-v1-20260813T120649Z
+
+APP_SHA256=9db840dab0f9cbdd5dac8eff7700f5e248588204d6170ab9b6087a46aa807d00
+ACCEPTANCE_SHA256=ed8c837173ab7d4cd6906666a0d141e7d2c3b134301d8c0ab129adc4de680fe3
+
+REAL_LOCATION_SEARCH=PASS
+CANONICAL_LOCATION_RESULT=PASS
+LOCATION_IDEMPOTENCY=PASS
+LOCATION_CACHE=PASS
+POSTAL_CODE_SEARCH=PASS
+
+PROVIDER_LOCATION_ID=INTERNAL_ONLY
+SECRET_INCLUDED_IN_RELEASE=NO
+
+PRODUCTION_SERVICE=NOT_INSTALLED
+PRODUCTION_CURRENT=NOT_REPOINTED
+
+============================================================

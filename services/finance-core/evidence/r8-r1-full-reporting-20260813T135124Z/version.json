@@ -1,0 +1,1 @@
+{"service":"botconnector-finance-core","reporting_version":"0.8.1-r8-r1","contract":"reporting-v1","database_mode":"read-only","current_earnings_mode":"virtual-before-close","reports":["trial-balance","general-ledger","profit-loss","balance-sheet"]}

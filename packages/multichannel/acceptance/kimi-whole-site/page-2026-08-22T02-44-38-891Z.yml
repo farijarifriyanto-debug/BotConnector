@@ -1,0 +1,241 @@
+- generic [active] [ref=f21e1]:
+  - banner [ref=f21e2]:
+    - generic [ref=f21e3]:
+      - link "BC BotConnector" [ref=f21e4] [cursor=pointer]:
+        - /url: /
+        - generic [ref=f21e5]: BC
+        - text: BotConnector
+      - navigation [ref=f21e6]:
+        - link "Konektor" [ref=f21e7] [cursor=pointer]:
+          - /url: /konektor/
+        - link "Integrasi" [ref=f21e8] [cursor=pointer]:
+          - /url: /integrasi/
+        - link "Template" [ref=f21e9] [cursor=pointer]:
+          - /url: /resep/
+        - link "Solusi" [ref=f21e10] [cursor=pointer]:
+          - /url: /solusi/
+        - link "Docs" [ref=f21e11] [cursor=pointer]:
+          - /url: /docs/
+      - generic [ref=f21e12]:
+        - link "Status sistem" [ref=f21e13] [cursor=pointer]:
+          - /url: /status
+        - link "Buat otomasi →" [ref=f21e15] [cursor=pointer]:
+          - /url: /otomasi/
+  - generic [ref=f21e16]:
+    - link "Automation Platform" [ref=f21e17] [cursor=pointer]:
+      - /url: /
+    - text: / Solusi
+  - main [ref=f21e18]:
+    - generic [ref=f21e20]:
+      - generic [ref=f21e21]:
+        - generic [ref=f21e22]: Business solutions
+        - heading "Selesaikan pekerjaan, bukan sekadar menghubungkan aplikasi." [level=1] [ref=f21e23]
+        - paragraph [ref=f21e24]: "Mulai dari pekerjaan yang berulang: menerima event, memberi tahu tim, meneruskan data, atau menjalankan proses setelah transaksi terjadi."
+        - generic [ref=f21e25]:
+          - link "Lihat solusi →" [ref=f21e26] [cursor=pointer]:
+            - /url: "#use-cases"
+          - link "Buka template" [ref=f21e27] [cursor=pointer]:
+            - /url: /resep/
+        - generic [ref=f21e28]:
+          - generic [ref=f21e29]: Operasional
+          - generic [ref=f21e30]: Customer workflow
+          - generic [ref=f21e31]: Finance
+          - generic [ref=f21e32]: Internal systems
+      - generic [ref=f21e33]:
+        - generic [ref=f21e34]:
+          - generic [ref=f21e35]: Business workflow
+          - generic [ref=f21e36]: Active pattern
+        - generic [ref=f21e38]:
+          - generic [ref=f21e39]:
+            - generic [ref=f21e40]: EVT
+            - generic [ref=f21e41]: PERUBAHAN
+            - strong [ref=f21e42]: Sesuatu terjadi
+          - generic [ref=f21e44]:
+            - generic [ref=f21e45]: WF
+            - generic [ref=f21e46]: KEPUTUSAN
+            - strong [ref=f21e47]: Workflow memproses
+          - generic [ref=f21e49]:
+            - generic [ref=f21e50]: ACT
+            - generic [ref=f21e51]: HASIL
+            - strong [ref=f21e52]: Pekerjaan berjalan
+        - generic [ref=f21e53]:
+          - generic [ref=f21e54]:
+            - strong [ref=f21e55]: Trigger
+            - generic [ref=f21e56]: Event bisnis
+          - generic [ref=f21e57]:
+            - strong [ref=f21e58]: Workflow
+            - generic [ref=f21e59]: Rule & routing
+          - generic [ref=f21e60]:
+            - strong [ref=f21e61]: Action
+            - generic [ref=f21e62]: Output sistem
+    - generic [ref=f21e64]:
+      - generic [ref=f21e65]:
+        - generic [ref=f21e66]:
+          - generic [ref=f21e67]: Solution library
+          - heading "Pilih masalah yang ingin dikurangi." [level=2] [ref=f21e68]
+          - paragraph [ref=f21e69]: Gunakan pola aktif untuk kemampuan yang tersedia sekarang. Blueprint menunjukkan solusi yang membutuhkan konektor roadmap.
+        - link "Cek konektor" [ref=f21e70] [cursor=pointer]:
+          - /url: /konektor/
+      - generic [ref=f21e71]:
+        - link "OPS Aktif Operations Alert operasional saat event penting terjadi. Terima event melalui Webhook, proses kondisinya, lalu beri tahu tim melalui action yang tersedia. Webhook · Telegram Lihat template →" [ref=f21e72] [cursor=pointer]:
+          - /url: /resep/
+          - generic [ref=f21e73]:
+            - generic [ref=f21e74]: OPS
+            - generic [ref=f21e75]: Aktif
+          - generic [ref=f21e76]: Operations
+          - heading "Alert operasional saat event penting terjadi." [level=3] [ref=f21e77]
+          - paragraph [ref=f21e78]: Terima event melalui Webhook, proses kondisinya, lalu beri tahu tim melalui action yang tersedia.
+          - generic [ref=f21e79]:
+            - generic [ref=f21e80]: Webhook · Telegram
+            - generic [ref=f21e81]: Lihat template →
+        - link "API Aktif Data movement Teruskan data dari satu sistem ke sistem lain. Gunakan Webhook sebagai trigger dan HTTP/API untuk meneruskan payload ke endpoint tujuan. Webhook · HTTP/API Lihat template →" [ref=f21e82] [cursor=pointer]:
+          - /url: /resep/
+          - generic [ref=f21e83]:
+            - generic [ref=f21e84]: API
+            - generic [ref=f21e85]: Aktif
+          - generic [ref=f21e86]: Data movement
+          - heading "Teruskan data dari satu sistem ke sistem lain." [level=3] [ref=f21e87]
+          - paragraph [ref=f21e88]: Gunakan Webhook sebagai trigger dan HTTP/API untuk meneruskan payload ke endpoint tujuan.
+          - generic [ref=f21e89]:
+            - generic [ref=f21e90]: Webhook · HTTP/API
+            - generic [ref=f21e91]: Lihat template →
+        - link "CX Blueprint Customer workflow Beri pelanggan update saat status berubah. Jadikan perubahan data atau transaksi sebagai dasar pesan dan notifikasi kepada pelanggan. Data · Messaging Cek konektor →" [ref=f21e92] [cursor=pointer]:
+          - /url: /konektor/
+          - generic [ref=f21e93]:
+            - generic [ref=f21e94]: CX
+            - generic [ref=f21e95]: Blueprint
+          - generic [ref=f21e96]: Customer workflow
+          - heading "Beri pelanggan update saat status berubah." [level=3] [ref=f21e97]
+          - paragraph [ref=f21e98]: Jadikan perubahan data atau transaksi sebagai dasar pesan dan notifikasi kepada pelanggan.
+          - generic [ref=f21e99]:
+            - generic [ref=f21e100]: Data · Messaging
+            - generic [ref=f21e101]: Cek konektor →
+        - link "PAY Blueprint Payment operations Jadikan pembayaran sebagai event bisnis. Gunakan perubahan status transaksi untuk memulai proses operasional, notifikasi, atau sistem berikutnya. Payment · Operations Cek konektor →" [ref=f21e102] [cursor=pointer]:
+          - /url: /konektor/
+          - generic [ref=f21e103]:
+            - generic [ref=f21e104]: PAY
+            - generic [ref=f21e105]: Blueprint
+          - generic [ref=f21e106]: Payment operations
+          - heading "Jadikan pembayaran sebagai event bisnis." [level=3] [ref=f21e107]
+          - paragraph [ref=f21e108]: Gunakan perubahan status transaksi untuk memulai proses operasional, notifikasi, atau sistem berikutnya.
+          - generic [ref=f21e109]:
+            - generic [ref=f21e110]: Payment · Operations
+            - generic [ref=f21e111]: Cek konektor →
+        - link "ORD Blueprint Commerce Hubungkan order dengan proses setelah penjualan. Gunakan event order sebagai titik awal untuk handoff operasional, pencatatan, atau pemberitahuan. Commerce · Workflow Cek konektor →" [ref=f21e112] [cursor=pointer]:
+          - /url: /konektor/
+          - generic [ref=f21e113]:
+            - generic [ref=f21e114]: ORD
+            - generic [ref=f21e115]: Blueprint
+          - generic [ref=f21e116]: Commerce
+          - heading "Hubungkan order dengan proses setelah penjualan." [level=3] [ref=f21e117]
+          - paragraph [ref=f21e118]: Gunakan event order sebagai titik awal untuk handoff operasional, pencatatan, atau pemberitahuan.
+          - generic [ref=f21e119]:
+            - generic [ref=f21e120]: Commerce · Workflow
+            - generic [ref=f21e121]: Cek konektor →
+        - link "FIN Blueprint Finance Kurangi perpindahan data ke proses accounting. Rancang alur dari transaksi menuju pencatatan atau rekonsiliasi setelah konektor yang dibutuhkan tersedia. Transaction · Accounting Cek konektor →" [ref=f21e122] [cursor=pointer]:
+          - /url: /konektor/
+          - generic [ref=f21e123]:
+            - generic [ref=f21e124]: FIN
+            - generic [ref=f21e125]: Blueprint
+          - generic [ref=f21e126]: Finance
+          - heading "Kurangi perpindahan data ke proses accounting." [level=3] [ref=f21e127]
+          - paragraph [ref=f21e128]: Rancang alur dari transaksi menuju pencatatan atau rekonsiliasi setelah konektor yang dibutuhkan tersedia.
+          - generic [ref=f21e129]:
+            - generic [ref=f21e130]: Transaction · Accounting
+            - generic [ref=f21e131]: Cek konektor →
+    - generic [ref=f21e133]:
+      - generic [ref=f21e135]:
+        - generic [ref=f21e136]: From problem to workflow
+        - heading "Dari pekerjaan manual menjadi alur yang bisa dijalankan." [level=2] [ref=f21e137]
+        - paragraph [ref=f21e138]: Mulai dari hasil yang dibutuhkan, identifikasi event pemicu, lalu pilih sistem yang terlibat.
+      - generic [ref=f21e139]:
+        - generic [ref=f21e140]:
+          - text: "01"
+          - heading "Tentukan pekerjaan" [level=3] [ref=f21e141]
+          - paragraph [ref=f21e142]: Pilih aktivitas berulang atau handoff manual yang ingin dikurangi.
+        - generic [ref=f21e144]:
+          - text: "02"
+          - heading "Hubungkan sistem" [level=3] [ref=f21e145]
+          - paragraph [ref=f21e146]: Pilih connector native, Webhook, atau HTTP/API sesuai sistem yang tersedia.
+        - generic [ref=f21e148]:
+          - text: "03"
+          - heading "Jalankan workflow" [level=3] [ref=f21e149]
+          - paragraph [ref=f21e150]: Uji trigger dan action, lalu gunakan workflow untuk pekerjaan sehari-hari.
+    - generic [ref=f21e152]:
+      - generic [ref=f21e154]:
+        - generic [ref=f21e155]: One platform, multiple teams
+        - heading "Satu fondasi untuk pekerjaan lintas tim." [level=2] [ref=f21e156]
+        - paragraph [ref=f21e157]: Tim berbeda dapat memulai dari masalah yang berbeda tanpa membutuhkan fondasi integrasi yang berbeda.
+      - generic [ref=f21e158]:
+        - article [ref=f21e159]:
+          - generic [ref=f21e160]: OPS
+          - heading "Operations" [level=3] [ref=f21e161]
+          - paragraph [ref=f21e162]: Alert, handoff proses, routing event, dan pekerjaan operasional yang berulang.
+        - article [ref=f21e163]:
+          - generic [ref=f21e164]: CX
+          - heading "Customer" [level=3] [ref=f21e165]
+          - paragraph [ref=f21e166]: Notifikasi dan komunikasi berdasarkan perubahan pada data atau transaksi.
+        - article [ref=f21e167]:
+          - generic [ref=f21e168]: FIN
+          - heading "Finance" [level=3] [ref=f21e169]
+          - paragraph [ref=f21e170]: Workflow transaksi, pencatatan, dan handoff menuju sistem accounting.
+        - article [ref=f21e171]:
+          - generic [ref=f21e172]: DEV
+          - heading "Developer" [level=3] [ref=f21e173]
+          - paragraph [ref=f21e174]: Hubungkan aplikasi khusus melalui Webhook dan HTTP/API tanpa menunggu connector native.
+    - generic [ref=f21e176]:
+      - generic [ref=f21e177]:
+        - generic [ref=f21e178]: Availability first
+        - heading "Bedakan yang bisa dipakai dengan yang masih blueprint." [level=2] [ref=f21e179]
+        - paragraph [ref=f21e180]: Solusi tetap dapat dirancang lebih awal, tetapi status connector harus jelas sebelum workflow diaktifkan.
+        - link "Lihat status konektor →" [ref=f21e182] [cursor=pointer]:
+          - /url: /konektor/
+      - generic [ref=f21e183]:
+        - generic [ref=f21e184]:
+          - generic [ref=f21e185]: "01"
+          - generic [ref=f21e186]:
+            - strong [ref=f21e187]: Pola aktif
+            - generic [ref=f21e188]: Dapat dibangun dari kemampuan yang tersedia sekarang.
+          - generic [ref=f21e189]: READY
+        - generic [ref=f21e190]:
+          - generic [ref=f21e191]: "02"
+          - generic [ref=f21e192]:
+            - strong [ref=f21e193]: Blueprint
+            - generic [ref=f21e194]: Menjelaskan alur bisnis, tetapi membutuhkan connector roadmap.
+          - generic [ref=f21e195]: ROADMAP
+        - generic [ref=f21e196]:
+          - generic [ref=f21e197]: "03"
+          - generic [ref=f21e198]:
+            - strong [ref=f21e199]: Jalur universal
+            - generic [ref=f21e200]: Webhook dan HTTP/API tersedia untuk sistem khusus.
+          - generic [ref=f21e201]: API
+    - generic [ref=f21e204]:
+      - generic [ref=f21e205]: Build around the work
+      - heading "Mulai dari pekerjaan yang ingin selesai." [level=2] [ref=f21e206]
+      - paragraph [ref=f21e207]: Pilih template jika polanya sudah tersedia. Gunakan Connector Marketplace untuk melihat sistem yang aktif, atau Webhook dan HTTP/API untuk kebutuhan integrasi khusus.
+      - generic [ref=f21e208]:
+        - link "Buat otomasi →" [ref=f21e209] [cursor=pointer]:
+          - /url: /otomasi/
+        - link "Lihat template" [ref=f21e210] [cursor=pointer]:
+          - /url: /resep/
+  - contentinfo [ref=f21e211]:
+    - generic [ref=f21e212]:
+      - generic [ref=f21e213]:
+        - link "BC BotConnector" [ref=f21e214] [cursor=pointer]:
+          - /url: /
+          - generic [ref=f21e215]: BC
+          - text: BotConnector
+        - generic [ref=f21e216]: Connector & automation platform.
+      - generic [ref=f21e217]:
+        - link "Konektor" [ref=f21e218] [cursor=pointer]:
+          - /url: /konektor/
+        - link "Integrasi" [ref=f21e219] [cursor=pointer]:
+          - /url: /integrasi/
+        - link "Template" [ref=f21e220] [cursor=pointer]:
+          - /url: /resep/
+        - link "Solusi" [ref=f21e221] [cursor=pointer]:
+          - /url: /solusi/
+        - link "Docs" [ref=f21e222] [cursor=pointer]:
+          - /url: /docs/
+        - link "Status" [ref=f21e223] [cursor=pointer]:
+          - /url: /status

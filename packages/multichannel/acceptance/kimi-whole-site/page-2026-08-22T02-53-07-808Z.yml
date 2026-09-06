@@ -1,0 +1,161 @@
+- generic [active] [ref=f32e1]:
+  - banner [ref=f32e2]:
+    - generic [ref=f32e3]:
+      - link "BC BotConnector" [ref=f32e4] [cursor=pointer]:
+        - /url: /
+        - generic [ref=f32e5]: BC
+        - text: BotConnector
+      - navigation "Navigasi utama" [ref=f32e6]:
+        - link "Business Suite" [ref=f32e7] [cursor=pointer]:
+          - /url: /business-suite/
+        - link "Retail" [ref=f32e8] [cursor=pointer]:
+          - /url: /retail/
+        - link "Restaurant" [ref=f32e9] [cursor=pointer]:
+          - /url: /restaurant/
+        - link "Integrasi" [ref=f32e10] [cursor=pointer]:
+          - /url: /integrations/
+        - link "Resep" [ref=f32e11] [cursor=pointer]:
+          - /url: /resep/
+        - link "Solusi" [ref=f32e12] [cursor=pointer]:
+          - /url: /solusi/
+        - link "Docs" [ref=f32e13] [cursor=pointer]:
+          - /url: /docs/
+      - link "Buka Bisnis →" [ref=f32e15] [cursor=pointer]:
+        - /url: /bisnis/
+  - generic [ref=f32e16]:
+    - link "BotConnector" [ref=f32e17] [cursor=pointer]:
+      - /url: /
+    - text: / Solusi
+  - main [ref=f32e18]:
+    - generic [ref=f32e20]:
+      - generic [ref=f32e21]:
+        - generic [ref=f32e22]: Solutions
+        - heading "Solusi untuk bisnis nyata." [level=1] [ref=f32e23]
+        - paragraph [ref=f32e24]: Pilih masalah yang ingin Anda selesaikan. Setiap solusi menunjukkan produk dan modul BotConnector yang relevan.
+        - generic [ref=f32e25]:
+          - link "Buka Business Suite →" [ref=f32e26] [cursor=pointer]:
+            - /url: /bisnis/
+          - link "Lihat Resep" [ref=f32e27] [cursor=pointer]:
+            - /url: /resep/
+      - generic [ref=f32e28]:
+        - generic [ref=f32e29]:
+          - generic [ref=f32e30]: Solution model
+          - generic [ref=f32e31]: ● Aktif
+        - generic [ref=f32e32]:
+          - generic [ref=f32e33]:
+            - generic [ref=f32e34]: MAS
+            - generic [ref=f32e35]: MASALAH
+            - strong [ref=f32e36]: Operasional manual
+          - generic [ref=f32e38]:
+            - generic [ref=f32e39]: PRD
+            - generic [ref=f32e40]: PRODUK
+            - strong [ref=f32e41]: Modul BotConnector
+          - generic [ref=f32e43]:
+            - generic [ref=f32e44]: HAS
+            - generic [ref=f32e45]: HASIL
+            - strong [ref=f32e46]: Proses terhubung
+    - generic [ref=f32e48]:
+      - generic [ref=f32e50]:
+        - generic [ref=f32e51]: Untuk setiap bisnis
+        - heading "Dari masalah ke solusi terhubung." [level=2] [ref=f32e52]
+      - generic [ref=f32e53]:
+        - generic [ref=f32e54]:
+          - generic [ref=f32e55]: TK
+          - heading "Untuk Toko Retail" [level=3] [ref=f32e56]
+          - paragraph [ref=f32e57]: Kasir lambat, stok tidak sinkron, dan laporan sulit disatukan dari banyak cabang.
+          - list [ref=f32e58]:
+            - listitem [ref=f32e59]: POS retail cepat dengan barcode
+            - listitem [ref=f32e60]: Stok pusat location-aware
+            - listitem [ref=f32e61]: Transfer antar cabang tercatat
+            - listitem [ref=f32e62]: Laporan penjualan & COGS
+          - link "Pelajari Retail →" [ref=f32e63] [cursor=pointer]:
+            - /url: /retail/
+        - generic [ref=f32e64]:
+          - generic [ref=f32e65]: RS
+          - heading "Untuk Restaurant & Cafe" [level=3] [ref=f32e66]
+          - paragraph [ref=f32e67]: Order, dapur, dan stok bahan berjalan di sistem terpisah sehingga COGS tidak akurat.
+          - list [ref=f32e68]:
+            - listitem [ref=f32e69]: POS restoran & QR self-order
+            - listitem [ref=f32e70]: Resep/BOM terhubung ke stok
+            - listitem [ref=f32e71]: KDS/KOT real-time
+            - listitem [ref=f32e72]: Laporan food/beverage & margin
+          - link "Pelajari Restaurant →" [ref=f32e73] [cursor=pointer]:
+            - /url: /restaurant/
+        - generic [ref=f32e74]:
+          - generic [ref=f32e75]: MC
+          - heading "Untuk Bisnis Multi-Cabang" [level=3] [ref=f32e76]
+          - paragraph [ref=f32e77]: Setiap cabang punya data produk dan stok sendiri, sulit konsolidasi dan audit.
+          - list [ref=f32e78]:
+            - listitem [ref=f32e79]: Master SKU satu sumber kebenaran
+            - listitem [ref=f32e80]: Stok per cabang & gudang
+            - listitem [ref=f32e81]: Transfer antar cabang terkontrol
+            - listitem [ref=f32e82]: Laporan konsolidasi per cabang
+          - link "Pelajari Business Suite →" [ref=f32e83] [cursor=pointer]:
+            - /url: /business-suite/
+        - generic [ref=f32e84]:
+          - generic [ref=f32e85]: INV
+          - heading "Untuk Inventory & Warehouse" [level=3] [ref=f32e86]
+          - paragraph [ref=f32e87]: Stok sering salah, tidak tahu lokasi, dan transfer antar gudang tidak tercatat.
+          - list [ref=f32e88]:
+            - listitem [ref=f32e89]: Stok fisik, reserved, in-transit, tersedia
+            - listitem [ref=f32e90]: "Multi-location: cabang & gudang"
+            - listitem [ref=f32e91]: Transfer dengan lifecycle status
+            - listitem [ref=f32e92]: Low-stock alert
+          - link "Lihat Stok →" [ref=f32e93] [cursor=pointer]:
+            - /url: /bisnis/#/inventory
+        - generic [ref=f32e94]:
+          - generic [ref=f32e95]: FIN
+          - heading "Untuk Finance & Reporting" [level=3] [ref=f32e96]
+          - paragraph [ref=f32e97]: Data penjualan, COGS, dan margin harus direkap manual dari banyak sumber.
+          - list [ref=f32e98]:
+            - listitem [ref=f32e99]: Laporan retail & restaurant
+            - listitem [ref=f32e100]: COGS, gross profit, gross margin
+            - listitem [ref=f32e101]: Penjualan per kategori & kanal
+            - listitem [ref=f32e102]: Terhubung ke Finance Core
+          - link "Lihat Laporan →" [ref=f32e103] [cursor=pointer]:
+            - /url: /bisnis/#/reports
+        - generic [ref=f32e104]:
+          - generic [ref=f32e105]: WF
+          - heading "Untuk Workflow Automation" [level=3] [ref=f32e106]
+          - paragraph [ref=f32e107]: Notifikasi, handoff, dan integrasi antar sistem masih banyak dilakukan manual.
+          - list [ref=f32e108]:
+            - listitem [ref=f32e109]: Webhook universal
+            - listitem [ref=f32e110]: HTTP/API action
+            - listitem [ref=f32e111]: Telegram alert
+            - listitem [ref=f32e112]: Retry, idempotency, server-side credentials
+          - link "Buat Otomasi →" [ref=f32e113] [cursor=pointer]:
+            - /url: /connect-v2/
+    - generic [ref=f32e115]:
+      - generic [ref=f32e116]: Mulai sekarang
+      - heading "Pilih solusi yang paling mendesak." [level=2] [ref=f32e117]
+      - paragraph [ref=f32e118]: Buka Business Suite untuk melihat modul yang sudah berjalan dan mulai dari masalah terbesar.
+      - generic [ref=f32e119]:
+        - link "Buka Business Suite →" [ref=f32e120] [cursor=pointer]:
+          - /url: /bisnis/
+        - link "Lihat Integrasi" [ref=f32e121] [cursor=pointer]:
+          - /url: /integrations/
+  - contentinfo [ref=f32e122]:
+    - generic [ref=f32e123]:
+      - generic [ref=f32e124]:
+        - link "BC BotConnector" [ref=f32e125] [cursor=pointer]:
+          - /url: /
+          - generic [ref=f32e126]: BC
+          - text: BotConnector
+        - generic [ref=f32e127]: Hubungkan sistem. Jalankan bisnis dari satu tempat.
+      - generic [ref=f32e128]:
+        - link "Business Suite" [ref=f32e129] [cursor=pointer]:
+          - /url: /business-suite/
+        - link "Retail" [ref=f32e130] [cursor=pointer]:
+          - /url: /retail/
+        - link "Restaurant" [ref=f32e131] [cursor=pointer]:
+          - /url: /restaurant/
+        - link "Integrasi" [ref=f32e132] [cursor=pointer]:
+          - /url: /integrations/
+        - link "Resep" [ref=f32e133] [cursor=pointer]:
+          - /url: /resep/
+        - link "Solusi" [ref=f32e134] [cursor=pointer]:
+          - /url: /solusi/
+        - link "Docs" [ref=f32e135] [cursor=pointer]:
+          - /url: /docs/
+        - link "Status" [ref=f32e136] [cursor=pointer]:
+          - /url: /status

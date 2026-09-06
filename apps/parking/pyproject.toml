@@ -1,0 +1,10 @@
+[project]
+name = "botconnector-parking"
+version = "0.1.0"
+description = "BotConnector Parking — generic multi-tenant, multi-site parking operating system (M1-M3)"
+requires-python = ">=3.11"
+
+[tool.pytest.ini_options]
+pythonpath = ["."]
+testpaths = ["tests"]
+addopts = "-q"

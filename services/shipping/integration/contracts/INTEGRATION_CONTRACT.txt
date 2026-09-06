@@ -1,0 +1,109 @@
+============================================================
+BOTCONNECTOR
+FULL CANONICAL SHIPPING INTEGRATION V1
+============================================================
+
+UPSTREAM INPUT:
+
+idempotency_key
+provider
+origin_query
+destination_query
+weight_grams
+couriers
+
+
+EXAMPLE:
+
+origin_query:
+Jakarta
+
+destination_query:
+40266
+
+weight_grams:
+1000
+
+couriers:
+jne
+pos
+
+
+UPSTREAM DOES NOT NEED:
+
+RajaOngkir destination ID
+RajaOngkir API key
+RajaOngkir raw response schema
+
+
+INTERNAL FLOW:
+
+canonical shipping request
+        |
+        v
+Shipping Integration Facade
+        |
+        v
+Shipping Location Resolver
+        |
+        v
+provider_location_id
+        |
+        v
+Shipping Provider Router
+        |
+        v
+RajaOngkir Cost Adapter
+        |
+        v
+RajaOngkir Shipping Cost API
+
+
+CANONICAL RATE OUTPUT:
+
+provider
+courier
+service
+cost
+currency
+etd
+
+
+PROVIDER LOCATION REFERENCES:
+
+INTERNAL ONLY.
+
+They may be persisted internally for reconciliation.
+
+They MUST NOT appear in:
+
+- Commerce Core order schema
+- Business Core
+- public Shipping Core identity
+- user-facing response
+
+
+DOMAIN OWNERSHIP:
+
+Shipping Core V1:
+canonical shipment lifecycle.
+
+Location Resolver:
+canonical/human location
+to provider location mapping.
+
+Provider Router:
+provider selection and routing.
+
+RajaOngkir Adapter:
+RajaOngkir API translation.
+
+Integration Facade:
+orchestration only.
+
+
+SHIPPING CORE V1 REMAINS FROZEN.
+
+RAJAONGKIR ADAPTER V1 REMAINS FROZEN.
+
+============================================================

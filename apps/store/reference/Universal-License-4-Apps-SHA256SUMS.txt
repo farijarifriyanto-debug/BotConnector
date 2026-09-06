@@ -1,0 +1,5 @@
+2daa8ed707b71a87f36c5392bec844ee9b546c54140fe4bd961b8a295378cb47  Vehicle-Wash-2.0.0-Universal-License.apk
+19a59250a4c0a4725577ede93617ce1cf01bdd3c3137b2b324985c35f0104e71  Workshop-2.0.0-Universal-License.apk
+48c7d6c3cdc6c2ace97d6673f40c5ed84caf26b6861ebdb9e3a64f185658bb8b  Retail-2.0.0-Universal-License.apk
+4f0598ea53e4ccbcb54ad1e22254d663fe9023e02ab91897dd351d4777d54256  Restaurant-All-in-One-R8-Universal-License.apk
+ee1000fce4b0ef7bd7369b0af3ccc390a95a775e3f3dedc7ec9715bf5ebb1066  universal-license-seller-patch-v1.sh

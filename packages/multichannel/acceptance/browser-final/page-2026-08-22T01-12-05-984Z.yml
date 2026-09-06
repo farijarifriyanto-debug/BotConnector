@@ -1,0 +1,179 @@
+- generic [active] [ref=f18e1]:
+  - banner [ref=f18e2]:
+    - generic [ref=f18e3]:
+      - link "BC BotConnector" [ref=f18e4] [cursor=pointer]:
+        - /url: /
+        - generic [ref=f18e5]: BC
+        - text: BotConnector
+      - navigation [ref=f18e6]:
+        - link "Konektor" [ref=f18e7] [cursor=pointer]:
+          - /url: /konektor/
+        - link "Integrasi" [ref=f18e8] [cursor=pointer]:
+          - /url: /integrasi/
+        - link "Business Suite" [ref=f18e9] [cursor=pointer]:
+          - /url: /bisnis/
+        - link "Solusi" [ref=f18e10] [cursor=pointer]:
+          - /url: /solusi/
+        - link "Docs" [ref=f18e11] [cursor=pointer]:
+          - /url: /docs/
+      - link "Buka Business Suite →" [ref=f18e13] [cursor=pointer]:
+        - /url: /bisnis/
+  - generic [ref=f18e14]:
+    - link "BotConnector" [ref=f18e15] [cursor=pointer]:
+      - /url: /
+    - text: / Integrasi
+  - main [ref=f18e16]:
+    - generic [ref=f18e18]:
+      - generic [ref=f18e19]: Integrations
+      - heading "Hubungkan sistem yang Anda pakai." [level=1] [ref=f18e20]
+      - paragraph [ref=f18e21]: "Integrasi lokal, POS, marketplace, dan food delivery. Status ditampilkan secara jujur: Tersedia, Beta, Segera Hadir, atau Roadmap."
+    - generic [ref=f18e23]:
+      - generic [ref=f18e24]: Lokal / Zero-Approval
+      - generic [ref=f18e25]:
+        - generic [ref=f18e26]:
+          - generic [ref=f18e27]:
+            - generic [ref=f18e28]: CSV
+            - generic [ref=f18e29]: Tersedia
+          - heading "CSV & Excel" [level=3] [ref=f18e30]
+          - paragraph [ref=f18e31]: Impor/ekspor penjualan, produk, stok. Mapping kolom, dry-run, deteksi duplikat.
+          - generic [ref=f18e32]: File · Mapping · Idempoten
+        - generic [ref=f18e33]:
+          - generic [ref=f18e34]:
+            - generic [ref=f18e35]: BC
+            - generic [ref=f18e36]: Tersedia
+          - heading "Barcode" [level=3] [ref=f18e37]
+          - paragraph [ref=f18e38]: Scanner keyboard-wedge langsung jalan. Barcode → SKU, alias, barcode tak dikenal.
+          - generic [ref=f18e39]: Barcode · SKU · Alias
+        - generic [ref=f18e40]:
+          - generic [ref=f18e41]:
+            - generic [ref=f18e42]: PR
+            - generic [ref=f18e43]: Tersedia
+          - heading "Receipt / Printer" [level=3] [ref=f18e44]
+          - paragraph [ref=f18e45]: Cetak receipt 58mm/80mm dari browser. Adapter ESC/POS disiapkan.
+          - generic [ref=f18e46]: Receipt · 58mm · 80mm
+        - generic [ref=f18e47]:
+          - generic [ref=f18e48]:
+            - generic [ref=f18e49]: SC
+            - generic [ref=f18e50]: Tersedia
+          - heading "Digital Scale" [level=3] [ref=f18e51]
+          - paragraph [ref=f18e52]: Bridge timbangan digital. Berat → kuantitas → SKU priced-by-weight.
+          - generic [ref=f18e53]: Scale · Berat · Tare
+        - generic [ref=f18e54]:
+          - generic [ref=f18e55]:
+            - generic [ref=f18e56]: QR
+            - generic [ref=f18e57]: Tersedia
+          - heading "QR Self Order" [level=3] [ref=f18e58]
+          - paragraph [ref=f18e59]: Menu QR, keranjang, modifier, submit ke KDS, dan antrean pelanggan.
+          - generic [ref=f18e60]: QR · Self-order · KDS
+        - generic [ref=f18e61]:
+          - generic [ref=f18e62]:
+            - generic [ref=f18e63]: WH
+            - generic [ref=f18e64]: Tersedia
+          - heading "Webhook & API" [level=3] [ref=f18e65]
+          - paragraph [ref=f18e66]: Webhook inbound/outbound, REST pull/push, signature, retry, idempotency.
+          - generic [ref=f18e67]: Webhook · REST · Retry
+      - generic [ref=f18e68]: POS
+      - generic [ref=f18e69]:
+        - generic [ref=f18e70]:
+          - generic [ref=f18e71]:
+            - generic [ref=f18e72]: MK
+            - generic [ref=f18e73]: Segera Hadir
+          - heading "Moka" [level=3] [ref=f18e74]
+          - paragraph [ref=f18e75]: Adapter POS Moka untuk outlet, item sales, COGS, dan gross profit.
+          - generic [ref=f18e76]: POS · Sales · COGS
+        - generic [ref=f18e77]:
+          - generic [ref=f18e78]:
+            - generic [ref=f18e79]: PW
+            - generic [ref=f18e80]: Segera Hadir
+          - heading "Pawoon" [level=3] [ref=f18e81]
+          - paragraph [ref=f18e82]: Adapter POS Pawoon + dukungan file ekspor melalui Universal File Connector.
+          - generic [ref=f18e83]: POS · Sales · File
+        - generic [ref=f18e84]:
+          - generic [ref=f18e85]:
+            - generic [ref=f18e86]: POS
+            - generic [ref=f18e87]: Roadmap
+          - heading "POS Lainnya" [level=3] [ref=f18e88]
+          - paragraph [ref=f18e89]: Olsera, Majoo, Qasir, Kasir Pintar — diteliti; file connector sebagai jalur universal.
+          - generic [ref=f18e90]: Olsera · Majoo · Qasir
+      - generic [ref=f18e91]: Marketplace
+      - generic [ref=f18e92]:
+        - generic [ref=f18e93]:
+          - generic [ref=f18e94]:
+            - generic [ref=f18e95]: SP
+            - generic [ref=f18e96]: Segera Hadir
+          - heading "Shopee" [level=3] [ref=f18e97]
+          - paragraph [ref=f18e98]: Konektor marketplace dengan proyeksi stok dari inventori pusat.
+          - generic [ref=f18e99]: Marketplace · Stok
+        - generic [ref=f18e100]:
+          - generic [ref=f18e101]:
+            - generic [ref=f18e102]: TK
+            - generic [ref=f18e103]: Segera Hadir
+          - heading "Tokopedia" [level=3] [ref=f18e104]
+          - paragraph [ref=f18e105]: Konektor marketplace dengan proyeksi stok dari inventori pusat.
+          - generic [ref=f18e106]: Marketplace · Stok
+        - generic [ref=f18e107]:
+          - generic [ref=f18e108]:
+            - generic [ref=f18e109]: TT
+            - generic [ref=f18e110]: Segera Hadir
+          - heading "TikTok Shop" [level=3] [ref=f18e111]
+          - paragraph [ref=f18e112]: Konektor marketplace dengan proyeksi stok dari inventori pusat.
+          - generic [ref=f18e113]: Marketplace · Stok
+        - generic [ref=f18e114]:
+          - generic [ref=f18e115]:
+            - generic [ref=f18e116]: BL
+            - generic [ref=f18e117]: Segera Hadir
+          - heading "Blibli" [level=3] [ref=f18e118]
+          - paragraph [ref=f18e119]: Konektor marketplace dengan proyeksi stok dari inventori pusat.
+          - generic [ref=f18e120]: Marketplace · Stok
+        - generic [ref=f18e121]:
+          - generic [ref=f18e122]:
+            - generic [ref=f18e123]: LZ
+            - generic [ref=f18e124]: Segera Hadir
+          - heading "Lazada" [level=3] [ref=f18e125]
+          - paragraph [ref=f18e126]: Konektor marketplace dengan proyeksi stok dari inventori pusat.
+          - generic [ref=f18e127]: Marketplace · Stok
+      - generic [ref=f18e128]: Food Delivery
+      - generic [ref=f18e129]:
+        - generic [ref=f18e130]:
+          - generic [ref=f18e131]:
+            - generic [ref=f18e132]: GF
+            - generic [ref=f18e133]: Segera Hadir
+          - heading "GoFood" [level=3] [ref=f18e134]
+          - paragraph [ref=f18e135]: "Adapter GoBiz Food Integration: menu, order, KDS, dan settlement."
+          - generic [ref=f18e136]: GoFood · Order · Settlement
+        - generic [ref=f18e137]:
+          - generic [ref=f18e138]:
+            - generic [ref=f18e139]: GR
+            - generic [ref=f18e140]: Segera Hadir
+          - heading "GrabFood" [level=3] [ref=f18e141]
+          - paragraph [ref=f18e142]: "Adapter GrabFood: OAuth, menu, order, mark ready, dan campaign."
+          - generic [ref=f18e143]: GrabFood · Order · Campaign
+        - generic [ref=f18e144]:
+          - generic [ref=f18e145]:
+            - generic [ref=f18e146]: SF
+            - generic [ref=f18e147]: Segera Hadir
+          - heading "ShopeeFood" [level=3] [ref=f18e148]
+          - paragraph [ref=f18e149]: "Adapter ShopeeFood: menu sync, order ingest, mark ready, dan cancel."
+          - generic [ref=f18e150]: ShopeeFood · Order · Menu
+      - generic [ref=f18e151]: Status integrasi ditampilkan berdasarkan kemampuan yang tersedia saat ini. Integrasi yang membutuhkan kredensial atau persetujuan pihak ketiga ditandai "Segera Hadir" sampai koneksi eksternal benar-benar aktif.
+  - contentinfo [ref=f18e152]:
+    - generic [ref=f18e153]:
+      - generic [ref=f18e154]:
+        - link "BC BotConnector" [ref=f18e155] [cursor=pointer]:
+          - /url: /
+          - generic [ref=f18e156]: BC
+          - text: BotConnector
+        - generic [ref=f18e157]: Hubungkan sistem. Jalankan bisnis dari satu tempat.
+      - generic [ref=f18e158]:
+        - link "Konektor" [ref=f18e159] [cursor=pointer]:
+          - /url: /konektor/
+        - link "Integrasi" [ref=f18e160] [cursor=pointer]:
+          - /url: /integrasi/
+        - link "Business Suite" [ref=f18e161] [cursor=pointer]:
+          - /url: /bisnis/
+        - link "Solusi" [ref=f18e162] [cursor=pointer]:
+          - /url: /solusi/
+        - link "Docs" [ref=f18e163] [cursor=pointer]:
+          - /url: /docs/
+        - link "Status" [ref=f18e164] [cursor=pointer]:
+          - /url: /status

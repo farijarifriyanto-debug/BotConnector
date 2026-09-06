@@ -1,0 +1,1941 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>BotConnector Parking — Pusat Operasional Parkir</title>
+<!-- BotConnector AI Support Widget Styles -->
+<link rel="stylesheet" href="/static/css/support_ai_widget.css">
+<style>
+:root {
+  --bg: #F8FAFC;
+  --card: #FFFFFF;
+  --ink: #0B1020;
+  --ink2: #1E293B;
+  --muted: #64748B;
+  --border: #E2E8F0;
+  --border-focus: #5B5FEF;
+  --accent: #5B5FEF;
+  --accent-hover: #484CD9;
+  --accent-bg: #EEF0FF;
+  --ok: #16A34A;
+  --ok-bg: #DCFCE7;
+  --warn: #D97706;
+  --warn-bg: #FEF3C7;
+  --crit: #DC2626;
+  --crit-bg: #FEE2E2;
+  --info: #0284C7;
+  --info-bg: #E0F2FE;
+  --off: #64748B;
+  --off-bg: #F1F5F9;
+  --shadow: 0 2px 8px rgba(11, 16, 32, 0.04);
+  --shadow-md: 0 4px 14px rgba(11, 16, 32, 0.06);
+  --shadow-lg: 0 8px 24px rgba(11, 16, 32, 0.08);
+}
+* { box-sizing: border-box; }
+body {
+  margin: 0;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+  background: var(--bg);
+  color: var(--ink);
+  line-height: 1.5;
+  -webkit-font-smoothing: antialiased;
+}
+
+/* Header */
+header {
+  background: var(--ink);
+  color: #FFFFFF;
+  padding: 14px 28px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 14px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+}
+.brand { display: flex; align-items: center; gap: 12px; }
+.brand h1 { font-size: 17px; font-weight: 800; margin: 0; letter-spacing: -0.01em; color: #FFFFFF; }
+.badge-profile {
+  font-size: 11px;
+  font-weight: 800;
+  padding: 3px 10px;
+  border-radius: 99px;
+  background: rgba(91, 95, 239, 0.25);
+  color: #C7CBF8;
+  border: 1px solid rgba(165, 180, 252, 0.35);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+.header-links { display: flex; align-items: center; gap: 16px; font-size: 13.5px; }
+.header-links a { color: #CBD5E1; text-decoration: none; font-weight: 600; display: inline-flex; align-items: center; gap: 6px; transition: color 0.15s ease; }
+.header-links a:hover { color: #FFFFFF; }
+
+/* Navigation */
+nav {
+  background: #FFFFFF;
+  border-bottom: 1px solid var(--border);
+  padding: 0 28px;
+  display: flex;
+  gap: 6px;
+  overflow-x: auto;
+  white-space: nowrap;
+  box-shadow: 0 1px 3px rgba(11, 16, 32, 0.02);
+}
+nav button {
+  background: none;
+  border: 0;
+  padding: 14px 16px;
+  font-size: 13.5px;
+  font-weight: 700;
+  color: var(--muted);
+  cursor: pointer;
+  border-bottom: 2px solid transparent;
+  min-height: 48px;
+  transition: all 0.15s ease;
+}
+nav button.active, nav button:hover {
+  color: var(--accent);
+  border-bottom-color: var(--accent);
+}
+
+/* Layout */
+main { max-width: 1440px; margin: 0 auto; padding: 28px; }
+
+/* Dashboard Hero */
+.dash-hero {
+  background: #FFFFFF;
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  padding: 22px 26px;
+  margin-bottom: 24px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 18px;
+  box-shadow: var(--shadow);
+}
+.dash-hero-title-wrap {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
+  margin-bottom: 6px;
+}
+.dash-hero-title {
+  font-size: 20px;
+  font-weight: 850;
+  margin: 0;
+  color: var(--ink);
+}
+.dash-hero-badge {
+  font-size: 11px;
+  font-weight: 800;
+  padding: 3px 9px;
+  border-radius: 99px;
+  background: var(--accent-bg);
+  color: var(--accent);
+  border: 1px solid rgba(91, 95, 239, 0.2);
+  text-transform: uppercase;
+}
+.dash-hero-subtitle {
+  font-size: 13.5px;
+  color: var(--muted);
+  margin: 0;
+  line-height: 1.5;
+}
+.dash-hero-meta {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+  align-items: center;
+}
+.meta-pill {
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--ink2);
+  background: #F8FAFC;
+  border: 1px solid var(--border);
+  padding: 6px 12px;
+  border-radius: 8px;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+
+/* Status Cards & Banners */
+.banner-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+  gap: 16px;
+  margin-bottom: 24px;
+}
+.banner {
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  padding: 18px 22px;
+  box-shadow: var(--shadow);
+}
+.banner-title {
+  font-size: 11.5px;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--muted);
+  margin-bottom: 12px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+.banner-items {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+.status-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 13px;
+  padding-bottom: 8px;
+  border-bottom: 1px solid #F1F5F9;
+}
+.status-row:last-child {
+  border-bottom: none;
+  padding-bottom: 0;
+}
+.status-row-label {
+  font-weight: 650;
+  color: var(--ink);
+}
+.status-row-sub {
+  font-size: 11.5px;
+  color: var(--muted);
+}
+
+/* Status Chips */
+.tag-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 12px;
+  font-weight: 750;
+  padding: 4px 10px;
+  border-radius: 8px;
+  background: #F8FAFC;
+  border: 1px solid var(--border);
+}
+.tag-chip.ready { background: var(--ok-bg); color: var(--ok); border-color: rgba(22, 163, 74, 0.2); }
+.tag-chip.warn { background: var(--warn-bg); color: var(--warn); border-color: rgba(217, 119, 6, 0.2); }
+.tag-chip.pending { background: #FEF3C7; color: #92400E; border-color: #FDE68A; }
+.tag-chip.info { background: var(--info-bg); color: var(--info); border-color: rgba(2, 132, 199, 0.2); }
+
+/* KPI Grid */
+.kpis {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+  gap: 16px;
+  margin-bottom: 24px;
+}
+.kpi {
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  padding: 20px;
+  box-shadow: var(--shadow);
+  transition: transform 0.15s ease, box-shadow 0.15s ease;
+}
+.kpi:hover {
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-md);
+}
+.kpi .label {
+  font-size: 12px;
+  font-weight: 750;
+  color: var(--muted);
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+.kpi .value {
+  font-size: 26px;
+  font-weight: 850;
+  color: var(--ink);
+  margin-top: 6px;
+  letter-spacing: -0.02em;
+}
+.kpi .sub {
+  font-size: 12px;
+  color: var(--muted);
+  margin-top: 4px;
+  font-weight: 500;
+}
+
+/* Empty Dashboard Teaching Card */
+.empty-teach-card {
+  background: #FFFFFF;
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  padding: 28px;
+  margin-bottom: 24px;
+  box-shadow: var(--shadow);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 20px;
+}
+.empty-teach-title {
+  font-size: 16px;
+  font-weight: 800;
+  color: var(--ink);
+  margin-bottom: 6px;
+}
+.empty-teach-desc {
+  font-size: 13.5px;
+  color: var(--muted);
+  margin: 0;
+  line-height: 1.5;
+  max-width: 680px;
+}
+.empty-teach-actions {
+  display: flex;
+  gap: 10px;
+  align-items: center;
+  flex-wrap: wrap;
+}
+
+/* Panels */
+.panel {
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  padding: 24px;
+  margin-bottom: 24px;
+  box-shadow: var(--shadow);
+}
+.panel-head {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 18px;
+  flex-wrap: wrap;
+  gap: 12px;
+}
+.panel h2 {
+  font-size: 17px;
+  font-weight: 850;
+  margin: 0;
+  color: var(--ink);
+}
+
+/* Tables */
+.table-wrap { overflow-x: auto; }
+table { width: 100%; border-collapse: collapse; font-size: 13.5px; }
+th, td { text-align: left; padding: 13px 16px; border-bottom: 1px solid var(--border); }
+th {
+  background: #F8FAFC;
+  color: var(--muted);
+  font-weight: 800;
+  font-size: 11.5px;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+tr:hover { background: #FAFBFD; }
+
+/* Badges */
+.badge { display: inline-block; padding: 3px 9px; border-radius: 99px; font-size: 11.5px; font-weight: 800; }
+.badge.ok { background: var(--ok-bg); color: var(--ok); }
+.badge.warn { background: var(--warn-bg); color: var(--warn); }
+.badge.crit { background: var(--crit-bg); color: var(--crit); }
+.badge.info { background: var(--info-bg); color: var(--info); }
+.badge.off { background: var(--off-bg); color: var(--off); }
+
+/* Buttons & Inputs */
+.btn {
+  background: var(--accent);
+  color: #FFFFFF;
+  border: 0;
+  border-radius: 8px;
+  padding: 10px 18px;
+  font-size: 13.5px;
+  font-weight: 750;
+  cursor: pointer;
+  min-height: 42px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  transition: background 0.15s ease, transform 0.15s ease;
+  text-decoration: none;
+}
+.btn:hover { background: var(--accent-hover); }
+.btn.line { background: transparent; color: var(--accent); border: 1px solid var(--accent); }
+.btn.line:hover { background: var(--accent-bg); }
+.btn.sm { padding: 6px 12px; font-size: 12px; min-height: 32px; border-radius: 6px; }
+.btn.sim { background: #0284C7; color: #FFFFFF; }
+.btn.sim:hover { background: #0369A1; }
+
+input, select, textarea {
+  width: 100%;
+  padding: 10px 14px;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  font-family: inherit;
+  font-size: 13.5px;
+  outline: none;
+  background: #FFFFFF;
+  color: var(--ink);
+  transition: border-color 0.15s ease;
+}
+input:focus, select:focus, textarea:focus { border-color: var(--accent); }
+
+/* Operational Flow Visual */
+.flow-step-bar {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  overflow-x: auto;
+  padding: 12px 0 16px;
+  margin-bottom: 16px;
+  border-bottom: 1px solid var(--border);
+}
+.flow-step {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 11.5px;
+  font-weight: 800;
+  color: var(--muted);
+  background: #F1F5F9;
+  padding: 6px 12px;
+  border-radius: 6px;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  white-space: nowrap;
+}
+.flow-step.active {
+  background: var(--accent-bg);
+  color: var(--accent);
+  border: 1px solid rgba(91, 95, 239, 0.3);
+}
+.flow-arrow {
+  color: #CBD5E1;
+  font-size: 12px;
+  font-weight: 800;
+}
+
+/* Quick Test Simulator Card */
+.sim-card {
+  background: #F0F9FF;
+  border: 1.5px solid #BAE6FD;
+  border-radius: 14px;
+  padding: 24px;
+  margin-bottom: 24px;
+  box-shadow: var(--shadow);
+}
+.sim-head {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 14px;
+}
+.sim-badge {
+  background: #0284C7;
+  color: #FFFFFF;
+  font-size: 11px;
+  font-weight: 850;
+  padding: 3px 10px;
+  border-radius: 99px;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+/* Simulator Feedback Card */
+.sim-feedback-card {
+  background: #FFFFFF;
+  border: 1px solid #BAE6FD;
+  border-radius: 10px;
+  padding: 16px;
+  margin-top: 14px;
+}
+.sim-feedback-head {
+  font-weight: 800;
+  color: #0369A1;
+  font-size: 13.5px;
+  margin-bottom: 8px;
+}
+.sim-feedback-list {
+  margin: 8px 0 12px;
+  padding-left: 18px;
+  font-size: 12.5px;
+  color: #334155;
+  line-height: 1.6;
+}
+
+/* Readiness Checklist Component */
+.readiness-list {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin-top: 14px;
+}
+.readiness-item {
+  background: #FFFFFF;
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 12px 16px;
+  transition: border-color 0.15s ease;
+}
+.readiness-item-head {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  cursor: pointer;
+}
+.readiness-item-title {
+  font-size: 13.5px;
+  font-weight: 750;
+  color: var(--ink);
+}
+.readiness-item-sub {
+  font-size: 12px;
+  color: var(--muted);
+  margin-top: 2px;
+}
+.readiness-details {
+  margin-top: 10px;
+  padding-top: 10px;
+  border-top: 1px solid #F1F5F9;
+  font-size: 12.5px;
+  color: var(--ink2);
+  line-height: 1.6;
+  display: none;
+}
+.readiness-details.open {
+  display: block;
+}
+
+/* Empty State Container */
+.empty-box {
+  text-align: center;
+  padding: 44px 20px;
+  color: var(--muted);
+}
+.empty-box-title {
+  font-size: 15px;
+  font-weight: 800;
+  color: var(--ink2);
+  margin-bottom: 6px;
+}
+.empty-box-desc {
+  font-size: 13px;
+  color: var(--muted);
+  max-width: 480px;
+  margin: 0 auto 16px;
+}
+
+/* Profile Onboarding */
+.profile-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 16px; margin: 20px 0; }
+.profile-card {
+  background: #FFFFFF;
+  border: 2px solid var(--border);
+  border-radius: 14px;
+  padding: 22px;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+.profile-card:hover { border-color: var(--accent); transform: translateY(-2px); }
+.profile-card.selected { border-color: var(--accent); background: var(--accent-bg); }
+.profile-card h3 { font-size: 16px; font-weight: 850; margin: 0 0 6px; }
+.profile-card p { font-size: 13px; color: var(--muted); margin: 0; line-height: 1.5; }
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+  main { padding: 16px; }
+  .kpis { grid-template-columns: repeat(2, 1fr); }
+  th, td { padding: 10px 8px; font-size: 12px; }
+  .dash-hero { padding: 16px; }
+}
+@media (max-width: 480px) {
+  .kpis { grid-template-columns: 1fr; }
+  header { padding: 12px 16px; }
+}
+</style>
+</head>
+<body>
+
+<header>
+  <div class="brand">
+    <h1>BotConnector Parking</h1>
+    <span class="badge-profile" id="hdr-profile">FULL STACK</span>
+  </div>
+  <div class="header-links">
+    <button class="btn sm" onclick="openParkingGuideModal()" style="background:#1E293B;color:#FFFFFF;border:1px solid #334155;cursor:pointer;font-weight:750">? Panduan Operasional</button>
+    <span id="hdr-user" style="color:#CBD5E1;font-weight:600"></span>
+    <a href="/my-products">&larr; Kembali ke Produk Saya</a>
+  </div>
+</header>
+
+<nav id="nav-tabs">
+  <!-- Dynamic tabs loaded by JS based on deployment profile -->
+</nav>
+
+<main id="app-container">
+  <div style="text-align:center;padding:60px 20px;color:var(--muted)">
+    Memuat BotConnector Parking&hellip;
+  </div>
+</main>
+
+<!-- Support AI V3 Interactive Client Script -->
+<script src="/static/js/support_ai_widget.js"></script>
+
+<script>
+const API = '/parking/api';
+let APP_STATE = null;
+let ACTIVE_TAB = 'dashboard';
+
+function badge(s) {
+  const v = String(s || '').toUpperCase();
+  if (['ONLINE', 'ACTIVE', 'OPEN', 'PAID', 'DELIVERED', 'SUCCEEDED'].includes(v)) return `<span class="badge ok">${s}</span>`;
+  if (['OFFLINE', 'CLOSED', 'EXPIRED', 'FAILED'].includes(v)) return `<span class="badge crit">${s}</span>`;
+  if (['PENDING', 'MAINTENANCE', 'MANUAL_REVIEW', 'CREATED'].includes(v)) return `<span class="badge warn">${s}</span>`;
+  return `<span class="badge off">${s || 'UNKNOWN'}</span>`;
+}
+
+async function api(url, opts = {}) {
+  opts.headers = opts.headers || {};
+  opts.headers['Accept'] = 'application/json';
+  if (opts.body && typeof opts.body === 'object' && !(opts.body instanceof FormData)) {
+    opts.headers['Content-Type'] = 'application/json';
+    opts.body = JSON.stringify(opts.body);
+  }
+  const r = await fetch(url, opts);
+  if (!r.ok) {
+    let msg = 'Request failed';
+    try { const j = await r.json(); msg = j.error?.message || j.detail || msg; } catch(e){}
+    throw new Error(msg);
+  }
+  return r.json();
+}
+
+async function loadAppState() {
+  try {
+    const res = await api(`${API}/customer/me`);
+    APP_STATE = res;
+    window.APP_STATE = res;
+    render();
+  } catch (err) {
+    document.getElementById('app-container').innerHTML = `
+      <div class="panel" style="max-width:540px;margin:60px auto;text-align:center">
+        <h2 style="color:var(--crit)">Gagal Memuat Sesi</h2>
+        <p style="color:var(--muted)">${err.message}</p>
+        <a href="/login?next=/parking/" class="btn" style="margin-top:14px">Login Ulang</a>
+      </div>
+    `;
+  }
+}
+
+function render() {
+  if (!APP_STATE || !APP_STATE.authenticated) {
+    window.location.href = '/login?next=/parking/';
+    return;
+  }
+
+  document.getElementById('hdr-user').textContent = APP_STATE.user?.email || APP_STATE.user?.name || '';
+  const profile = APP_STATE.deployment_profile || 'FULL_STACK';
+  document.getElementById('hdr-profile').textContent = profile.replace('_', ' ');
+
+  if (!APP_STATE.entitled) {
+    renderActivation();
+    return;
+  }
+  if (!APP_STATE.provisioned) {
+    renderOnboarding();
+    return;
+  }
+
+  renderNav(profile);
+  renderView(profile);
+}
+
+function renderActivation() {
+  document.getElementById('nav-tabs').innerHTML = '';
+  document.getElementById('app-container').innerHTML = `
+    <div class="panel" style="max-width:640px;margin:40px auto;text-align:center;padding:44px 32px">
+      <div style="font-size:11px;font-weight:850;letter-spacing:0.12em;text-transform:uppercase;color:var(--accent);margin-bottom:8px">PRODUK BOTCONNECTOR</div>
+      <h2 style="font-size:26px;margin:0 0 12px;color:var(--ink)">BotConnector Parking</h2>
+      <p style="color:var(--muted);font-size:14.5px;margin:0 0 28px;line-height:1.6">
+        Sistem manajemen operasional parkir modern untuk kontrol gerbang, tarif otomatis, kamera ANPR, gateway offline Edge, dan integrasi QRIS / Tunai.
+      </p>
+      <div style="background:#F8FAFC;border:1px solid var(--border);border-radius:12px;padding:20px;text-align:left;margin-bottom:28px">
+        <div style="font-weight:750;font-size:13.5px;margin-bottom:10px;color:var(--ink)">Fitur Siap Digunakan:</div>
+        <ul style="margin:0;padding-left:20px;font-size:13px;color:var(--muted);line-height:1.8">
+          <li>Pengaturan Gerbang, Lane &amp; Kapasitas Parkir Multi-Site</li>
+          <li>Kalkulasi Tarif Otomatis (Flat, Hourly, Progresif)</li>
+          <li>ANPR Software Ready (Profile M Contract) &amp; Palang Fail-Closed</li>
+          <li>Mode Simulasi Langsung untuk Pengujian Tanpa Hardware</li>
+        </ul>
+      </div>
+      <button class="btn" style="width:100%" onclick="handleActivate()">Aktifkan BotConnector Parking Sekarang</button>
+    </div>
+  `;
+}
+
+async function handleActivate() {
+  try {
+    await api(`${API}/customer/activate`, { method: 'POST' });
+    await loadAppState();
+  } catch (err) {
+    alert(err.message || 'Aktivasi belum berhasil. Silakan coba lagi.');
+  }
+}
+
+let selectedProfile = 'FULL_STACK';
+function renderOnboarding() {
+  document.getElementById('nav-tabs').innerHTML = '';
+  document.getElementById('app-container').innerHTML = `
+    <div class="panel" style="max-width:780px;margin:30px auto;padding:36px">
+      <div style="font-size:11px;font-weight:850;letter-spacing:0.12em;text-transform:uppercase;color:var(--accent);margin-bottom:6px">PENGATURAN AWAL</div>
+      <h2 style="font-size:24px;margin:0 0 8px;color:var(--ink)">Bagaimana Anda ingin menggunakan BotConnector Parking?</h2>
+      <p style="color:var(--muted);font-size:14px;margin:0 0 24px;line-height:1.5">Pilih profil implementasi yang paling sesuai dengan kebutuhan operasional Anda. Anda dapat mengubahnya sewaktu-waktu tanpa kehilangan data.</p>
+
+      <div class="profile-grid">
+        <div class="profile-card ${selectedProfile === 'FULL_STACK' ? 'selected' : ''}" onclick="selectProf('FULL_STACK')">
+          <h3>A. Sistem Parkir Lengkap</h3>
+          <p>Gunakan BotConnector sebagai OS parkir lengkap: site, gerbang, tarif otomatis, ANPR kamera, Edge gateway, dan pembayaran.</p>
+        </div>
+        <div class="profile-card ${selectedProfile === 'EXISTING_HARDWARE' ? 'selected' : ''}" onclick="selectProf('EXISTING_HARDWARE')">
+          <h3>B. Hubungkan Hardware Ada</h3>
+          <p>Gunakan software &amp; tarif BotConnector untuk menghubungkan kamera ANPR, palang, dan controller yang sudah terpasang.</p>
+        </div>
+        <div class="profile-card ${selectedProfile === 'PAYMENT_ONLY' ? 'selected' : ''}" onclick="selectProf('PAYMENT_ONLY')">
+          <h3>C. Pembayaran Saja</h3>
+          <p>Hanya gunakan gateway pembayaran QRIS MPM Dynamic, webhook merchant, dan rekonsiliasi untuk PMS parkir Anda.</p>
+        </div>
+      </div>
+
+      <form id="onboarding-form" onsubmit="handleProvision(event)" style="margin-top:24px">
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:16px">
+          <div>
+            <label style="display:block;font-size:13px;font-weight:700;margin-bottom:6px">Nama Fasilitas / Area Parkir</label>
+            <input type="text" id="ob-org" required placeholder="Area Parkir Utama" value="Area Parkir Utama">
+          </div>
+          <div id="field-site-code">
+            <label style="display:block;font-size:13px;font-weight:700;margin-bottom:6px">Kode Site</label>
+            <input type="text" id="ob-code" required placeholder="SITE-01" value="SITE-01">
+          </div>
+        </div>
+
+        <div id="full-fields">
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:16px">
+            <div>
+              <label style="display:block;font-size:13px;font-weight:700;margin-bottom:6px">Kapasitas Total Kendaraan</label>
+              <input type="number" id="ob-cap" required value="100" min="10">
+            </div>
+            <div>
+              <label style="display:block;font-size:13px;font-weight:700;margin-bottom:6px">Skema Tarif Dasar</label>
+              <select id="ob-tariff">
+                <option value="FLAT">Tarif Tetap (Flat) — Rp 5.000</option>
+                <option value="HOURLY">Tarif Per Jam (Hourly) — Rp 3.000/jam</option>
+              </select>
+            </div>
+          </div>
+        </div>
+
+        <div id="payment-only-fields" style="display:none;margin-bottom:16px">
+          <label style="display:block;font-size:13px;font-weight:700;margin-bottom:6px">URL Webhook Notifikasi (Opsional)</label>
+          <input type="url" id="ob-webhook" placeholder="https://sistem-anda.com/api/parking/webhook">
+        </div>
+
+        <div class="banner" style="margin:20px 0;background:#F8FAFC">
+          <div class="banner-title">Status Kesiapan Awal</div>
+          <div class="banner-items">
+            <span class="tag-chip ready">● Mode Simulasi: Siap</span>
+            <span class="tag-chip pending">● Hardware Fisik: Menunggu Pengujian Lapangan</span>
+            <span class="tag-chip ready">● Kontrak Software: Siap</span>
+          </div>
+        </div>
+
+        <button type="submit" class="btn" style="width:100%">Selesaikan Pengaturan &amp; Buka Konsol &rarr;</button>
+      </form>
+    </div>
+  `;
+}
+
+function selectProf(p) {
+  selectedProfile = p;
+  document.querySelectorAll('.profile-card').forEach(c => c.classList.remove('selected'));
+  renderOnboarding();
+  const fullEl = document.getElementById('full-fields');
+  const payEl = document.getElementById('payment-only-fields');
+  const siteCodeEl = document.getElementById('field-site-code');
+  if (p === 'PAYMENT_ONLY') {
+    if (fullEl) fullEl.style.display = 'none';
+    if (payEl) payEl.style.display = 'block';
+    if (siteCodeEl) siteCodeEl.style.display = 'none';
+  } else {
+    if (fullEl) fullEl.style.display = 'block';
+    if (payEl) payEl.style.display = 'none';
+    if (siteCodeEl) siteCodeEl.style.display = 'block';
+  }
+}
+
+async function handleProvision(e) {
+  e.preventDefault();
+  const payload = {
+    deployment_profile: selectedProfile,
+    organization_name: document.getElementById('ob-org').value,
+    site_code: document.getElementById('ob-code')?.value || 'SITE-01',
+    site_name: document.getElementById('ob-org').value,
+    capacity: parseInt(document.getElementById('ob-cap')?.value || '100'),
+    tariff_type: document.getElementById('ob-tariff')?.value || 'FLAT',
+    rate: document.getElementById('ob-tariff')?.value === 'HOURLY' ? 3000 : 5000,
+    webhook_url: document.getElementById('ob-webhook')?.value || null,
+  };
+  try {
+    await api(`${API}/customer/provision`, { method: 'POST', body: payload });
+    await loadAppState();
+  } catch (err) {
+    alert('Pengaturan gagal: ' + err.message);
+  }
+}
+
+function renderNav(profile) {
+  let tabs = [];
+  if (profile === 'PAYMENT_ONLY') {
+    tabs = [
+      ['dashboard', 'Dashboard'],
+      ['transactions', 'Transaksi'],
+      ['qris', 'QRIS & Gateway'],
+      ['api_docs', 'Integrasi API'],
+      ['reconciliation', 'Rekonsiliasi'],
+      ['settings', 'Pengaturan'],
+    ];
+  } else {
+    tabs = [
+      ['dashboard', 'Dashboard'],
+      ['live', 'Live Parking'],
+      ['simulator', '✦ Mode Simulasi'],
+      ['gates', 'Gate & Lane'],
+      ['devices', 'Devices'],
+      ['anpr', 'ANPR Review'],
+      ['reports', 'Reports'],
+      ['audit', 'Audit'],
+      ['settings', 'Pengaturan'],
+    ];
+  }
+
+  const nav = document.getElementById('nav-tabs');
+  nav.innerHTML = tabs.map(([k, label]) => `
+    <button class="${ACTIVE_TAB === k ? 'active' : ''}" onclick="switchTab('${k}')">${label}</button>
+  `).join('');
+}
+
+function switchTab(t) {
+  ACTIVE_TAB = t;
+  window.ACTIVE_TAB = t;
+  const profile = APP_STATE.deployment_profile || 'FULL_STACK';
+  renderNav(profile);
+  renderView(profile);
+}
+
+function renderView(profile) {
+  const container = document.getElementById('app-container');
+  if (profile === 'PAYMENT_ONLY') {
+    renderPaymentOnlyView(container);
+  } else {
+    renderFullStackView(container);
+  }
+}
+
+/* ================= FULL STACK & EXISTING HARDWARE VIEWS ================= */
+async function renderFullStackView(container) {
+  const siteId = APP_STATE.site?.id || 1;
+  const profile = APP_STATE.deployment_profile || 'FULL_STACK';
+
+  if (ACTIVE_TAB === 'dashboard') {
+    container.innerHTML = `
+      <div class="dash-hero">
+        <div class="dash-hero-content">
+          <div class="dash-hero-title-wrap">
+            <h1 class="dash-hero-title">BotConnector Parking</h1>
+            <span class="dash-hero-badge">${profile.replace('_', ' ')}</span>
+          </div>
+          <p class="dash-hero-subtitle">
+            Pantau operasional parkir, perangkat, pembayaran, dan kesiapan sistem dari satu dashboard terpusat.
+          </p>
+        </div>
+        <div class="dash-hero-meta">
+          <div class="meta-pill"><span style="color:var(--ok)">●</span> Lokasi: <strong>${APP_STATE.site?.name || APP_STATE.site?.code || 'SITE-01'}</strong></div>
+          <div class="meta-pill">Kapasitas: <strong>${APP_STATE.site?.capacity || 100} Kendaraan</strong></div>
+          <div class="meta-pill">Status: <strong style="color:var(--ok)">Normal / Operational</strong></div>
+        </div>
+      </div>
+
+      ${renderProfileChecklist(profile)}
+
+      <div class="banner-grid">
+        <div class="banner">
+          <div class="banner-title">
+            <span>Status Kesiapan Hardware</span>
+            <span class="badge info">Fail-Closed Active</span>
+          </div>
+          <div class="banner-items">
+            <div class="status-row">
+              <div>
+                <div class="status-row-label">ANPR Software</div>
+                <div class="status-row-sub">Profile M contract tersedia</div>
+              </div>
+              <span class="tag-chip ready">Siap</span>
+            </div>
+            <div class="status-row">
+              <div>
+                <div class="status-row-label">Camera Fisik</div>
+                <div class="status-row-sub">Physical test diperlukan di lokasi</div>
+              </div>
+              <span class="tag-chip pending">Belum Diverifikasi</span>
+            </div>
+            <div class="status-row">
+              <div>
+                <div class="status-row-label">Barrier Software</div>
+                <div class="status-row-sub">Fail-closed active (aman terkunci)</div>
+              </div>
+              <span class="tag-chip ready">Siap</span>
+            </div>
+            <div class="status-row">
+              <div>
+                <div class="status-row-label">Palang Fisik</div>
+                <div class="status-row-sub">Physical test diperlukan di lokasi</div>
+              </div>
+              <span class="tag-chip pending">Belum Diverifikasi</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="banner">
+          <div class="banner-title">
+            <span>Status Metode Pembayaran</span>
+            <span class="badge ok">Gateway Siap</span>
+          </div>
+          <div class="banner-items">
+            <div class="status-row">
+              <div>
+                <div class="status-row-label">Tunai (Cash Settlement)</div>
+                <div class="status-row-sub">Pencatatan kasir &amp; struk POS</div>
+              </div>
+              <span class="tag-chip ready">● Aktif</span>
+            </div>
+            <div class="status-row">
+              <div>
+                <div class="status-row-label">Bebas Biaya (Grace Period)</div>
+                <div class="status-row-sub">Drop-off gratis terkonfigurasi</div>
+              </div>
+              <span class="tag-chip ready">● Aktif</span>
+            </div>
+            <div class="status-row">
+              <div>
+                <div class="status-row-label">QRIS MPM Dynamic</div>
+                <div class="status-row-sub">Software QRIS &amp; sandbox siap. Produksi butuh PJP.</div>
+              </div>
+              <span class="tag-chip pending">◐ Menunggu PJP</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="kpis" id="kpis-box">
+        <div class="kpi"><div class="label">Kendaraan Parkir</div><div class="value">0</div><div class="sub">Memuat data...</div></div>
+        <div class="kpi"><div class="label">Masuk Hari Ini</div><div class="value">0</div><div class="sub">Memuat data...</div></div>
+        <div class="kpi"><div class="label">Keluar Hari Ini</div><div class="value">0</div><div class="sub">Memuat data...</div></div>
+        <div class="kpi"><div class="label">Pendapatan Hari Ini</div><div class="value">Rp 0</div><div class="sub">Memuat data...</div></div>
+        <div class="kpi"><div class="label">Belum Bayar</div><div class="value">0</div><div class="sub">Memuat data...</div></div>
+        <div class="kpi"><div class="label">Manual Review</div><div class="value">0</div><div class="sub">Memuat data...</div></div>
+      </div>
+
+      <div id="empty-dashboard-teach"></div>
+
+      <div class="sim-card">
+        <div class="sim-head">
+          <div>
+            <div style="font-weight:850;font-size:16px;color:#0369A1">Quick Test Simulator</div>
+            <div style="font-size:13px;color:#0284C7;margin-top:2px">Uji alur kendaraan masuk tanpa kamera atau palang fisik.</div>
+          </div>
+          <span class="sim-badge">✦ SIMULASI MANDIRI</span>
+        </div>
+
+        <div class="flow-step-bar">
+          <div class="flow-step active">1. Masuk</div>
+          <span class="flow-arrow">&rarr;</span>
+          <div class="flow-step">2. Sesi Parked</div>
+          <span class="flow-arrow">&rarr;</span>
+          <div class="flow-step">3. Hitung Tarif</div>
+          <span class="flow-arrow">&rarr;</span>
+          <div class="flow-step">4. Bayar Lunas</div>
+          <span class="flow-arrow">&rarr;</span>
+          <div class="flow-step">5. Buka Palang</div>
+          <span class="flow-arrow">&rarr;</span>
+          <div class="flow-step">6. Selesai</div>
+        </div>
+
+        <div style="display:grid;grid-template-columns:repeat(auto-fit, minmax(200px, 1fr));gap:12px;margin-bottom:14px">
+          <div>
+            <label style="font-size:12px;font-weight:750;color:#0369A1;display:block;margin-bottom:4px">Plat Nomor</label>
+            <input type="text" id="q-plate" value="B 1234 ABC" placeholder="B 1234 ABC">
+          </div>
+          <div>
+            <label style="font-size:12px;font-weight:750;color:#0369A1;display:block;margin-bottom:4px">Jenis Kendaraan</label>
+            <select id="q-vtype">
+              <option value="CAR">Mobil (CAR)</option>
+              <option value="MOTORCYCLE">Motor (MOTORCYCLE)</option>
+            </select>
+          </div>
+          <div style="display:flex;align-items:flex-end">
+            <button class="btn sim" style="width:100%" onclick="executeSimEntry(true)">Simulasikan Kendaraan Masuk &rarr;</button>
+          </div>
+        </div>
+
+        <div id="q-res"></div>
+      </div>
+    `;
+    loadDashboardKPIs(siteId);
+  } else if (ACTIVE_TAB === 'live') {
+    container.innerHTML = `
+      <div class="panel">
+        <div class="panel-head">
+          <div>
+            <h2>Sesi Parkir Aktif (Live Parking)</h2>
+            <div style="font-size:12.5px;color:var(--muted);margin-top:2px">Daftar kendaraan yang saat ini sedang berada di dalam area parkir.</div>
+          </div>
+          <div style="display:flex;gap:8px">
+            <button class="btn sm sim" onclick="switchTab('simulator')">+ Simulasi Masuk</button>
+            <button class="btn sm line" onclick="loadLiveSessions(${siteId})">&#8635; Refresh</button>
+          </div>
+        </div>
+        <div class="table-wrap"><table id="live-table">
+          <thead><tr><th>Plat Nomor</th><th>Jenis</th><th>Waktu Masuk</th><th>Status Sesi</th><th>Pembayaran</th><th>Aksi</th></tr></thead>
+          <tbody><tr><td colspan="6" style="text-align:center;padding:24px;color:var(--muted)">Memuat data...</td></tr></tbody>
+        </table></div>
+      </div>
+    `;
+    loadLiveSessions(siteId);
+  } else if (ACTIVE_TAB === 'simulator') {
+    container.innerHTML = `
+      <div class="sim-card">
+        <div class="sim-head">
+          <div>
+            <div style="font-size:18px;font-weight:850;color:#0369A1">Mode Simulasi Mandiri (Safe Testing)</div>
+            <div style="font-size:13.5px;color:#0284C7;margin-top:2px">Uji seluruh alur kendaraan masuk, penghitungan tarif, pembayaran instan, dan sinyal pembukaan palang gerbang secara aman langsung dari browser Anda.</div>
+          </div>
+          <span class="sim-badge">✦ SIMULASI</span>
+        </div>
+
+        <div class="flow-step-bar">
+          <div class="flow-step active">1. Entry Gerbang</div>
+          <span class="flow-arrow">&rarr;</span>
+          <div class="flow-step">2. Tiket PARKED</div>
+          <span class="flow-arrow">&rarr;</span>
+          <div class="flow-step">3. Kalkulasi Tarif</div>
+          <span class="flow-arrow">&rarr;</span>
+          <div class="flow-step">4. Pembayaran Settle</div>
+          <span class="flow-arrow">&rarr;</span>
+          <div class="flow-step">5. Exit CLOSED</div>
+        </div>
+
+        <div style="display:grid;grid-template-columns:repeat(auto-fit, minmax(220px, 1fr));gap:14px;margin-bottom:16px">
+          <div>
+            <label style="font-size:12px;font-weight:750;color:#0369A1;display:block;margin-bottom:4px">Plat Nomor Kendaraan</label>
+            <input type="text" id="sim-plate" value="B 1234 ABC" placeholder="B 1234 ABC">
+          </div>
+          <div>
+            <label style="font-size:12px;font-weight:750;color:#0369A1;display:block;margin-bottom:4px">Jenis Kendaraan</label>
+            <select id="sim-vtype">
+              <option value="CAR">Mobil (CAR)</option>
+              <option value="MOTORCYCLE">Motor (MOTORCYCLE)</option>
+            </select>
+          </div>
+          <div style="display:flex;align-items:flex-end">
+            <button class="btn sim" style="width:100%" onclick="executeSimEntry(false)">Simulasikan Masuk Gerbang &rarr;</button>
+          </div>
+        </div>
+
+        <div id="sim-result"></div>
+      </div>
+
+      <div class="panel">
+        <div class="panel-head">
+          <div>
+            <h2>Sesi Parkir Siap Diuji (Simulasi Exit &amp; Bayar)</h2>
+            <div style="font-size:12.5px;color:var(--muted);margin-top:2px">Selesaikan pembayaran tarif dan simulasikan pembukaan palang keluar untuk sesi yang aktif.</div>
+          </div>
+          <button class="btn sm line" onclick="loadSimLiveSessions(${siteId})">&#8635; Refresh</button>
+        </div>
+        <div class="table-wrap"><table id="sim-live-table">
+          <thead><tr><th>Plat Nomor</th><th>Tipe</th><th>Waktu Masuk</th><th>Status Sesi</th><th>Aksi Simulasi</th></tr></thead>
+          <tbody></tbody>
+        </table></div>
+      </div>
+    `;
+    loadSimLiveSessions(siteId);
+  } else if (ACTIVE_TAB === 'gates') {
+    container.innerHTML = `
+      <div class="panel">
+        <div class="panel-head">
+          <div>
+            <h2>Gerbang &amp; Lane Terkonfigurasi</h2>
+            <div style="font-size:12.5px;color:var(--muted);margin-top:2px">Konfigurasi jalur Entry &amp; Exit Gate beserta status runtime controller.</div>
+          </div>
+        </div>
+        <div class="table-wrap"><table id="gates-table">
+          <thead><tr><th>Kode Gerbang</th><th>Arah</th><th>Status Konfigurasi</th><th>Runtime State</th></tr></thead>
+          <tbody></tbody>
+        </table></div>
+      </div>
+    `;
+    loadGates(siteId);
+  } else if (ACTIVE_TAB === 'devices') {
+    container.innerHTML = `
+      <div class="panel">
+        <div class="panel-head">
+          <div>
+            <h2>Kesehatan Perangkat &amp; Adapter (Devices)</h2>
+            <div style="font-size:12.5px;color:var(--muted);margin-top:2px">Status koneksi kamera ANPR, barrier controller, dan Edge gateway lokal.</div>
+          </div>
+          <a href="/docs#parking-anpr-hardware" target="_blank" class="btn sm line">📖 Panduan Hardware &rarr;</a>
+        </div>
+        <div class="table-wrap"><table id="device-table">
+          <thead><tr><th>Nama Perangkat</th><th>Tipe</th><th>Adapter</th><th>Runtime State</th><th>Last Heartbeat</th></tr></thead>
+          <tbody></tbody>
+        </table></div>
+      </div>
+    `;
+    loadDevices(siteId);
+  } else if (ACTIVE_TAB === 'anpr') {
+    container.innerHTML = `
+      <div class="panel">
+        <div class="panel-head">
+          <div>
+            <h2>Review Tangkapan ANPR (Manual Review)</h2>
+            <div style="font-size:12.5px;color:var(--muted);margin-top:2px">Verifikasi manual tangkapan plat nomor yang membutuhkan pencocokan operator.</div>
+          </div>
+        </div>
+        <div class="table-wrap"><table id="anpr-table">
+          <thead><tr><th>Plat Terdeteksi</th><th>Tingkat Keyakinan</th><th>Lokasi Site</th><th>Waktu Tangkapan</th></tr></thead>
+          <tbody></tbody>
+        </table></div>
+      </div>
+    `;
+    loadAnpr(siteId);
+  } else if (ACTIVE_TAB === 'reports') {
+    container.innerHTML = `
+      <div class="panel">
+        <div class="panel-head">
+          <div>
+            <h2>Rekap Harian Operasional Parkir</h2>
+            <div style="font-size:12.5px;color:var(--muted);margin-top:2px">Ringkasan transaksi volume kendaraan masuk/keluar dan omzet harian.</div>
+          </div>
+        </div>
+        <div id="report-content" style="font-size:14px;color:var(--ink2)">Memuat laporan...</div>
+      </div>
+    `;
+    loadReport(siteId);
+  } else if (ACTIVE_TAB === 'audit') {
+    container.innerHTML = `
+      <div class="panel">
+        <div class="panel-head">
+          <div>
+            <h2>Audit Log Aktivitas &amp; Keamanan</h2>
+            <div style="font-size:12.5px;color:var(--muted);margin-top:2px">Catatan kronologis immutable seluruh aksi operasional, simulasi, dan perubahan tarif.</div>
+          </div>
+        </div>
+        <div class="table-wrap"><table id="audit-table">
+          <thead><tr><th>Aktor</th><th>Aksi</th><th>Objek</th><th>Waktu Aktivitas</th></tr></thead>
+          <tbody></tbody>
+        </table></div>
+      </div>
+    `;
+    loadAudit(siteId);
+  } else if (ACTIVE_TAB === 'settings') {
+    renderSettingsView(container);
+  }
+}
+
+async function loadDashboardKPIs(siteId) {
+  try {
+    const d = await api(`${API}/sites/${siteId}/dashboard`);
+    const occ = d.occupancy || {};
+    const act = occ.active || 0;
+    const entries = d.entries_today || 0;
+    const exits = d.exits_today || 0;
+    const rev = d.revenue_today || 0;
+    const unpaid = d.unpaid || 0;
+    const mrev = d.manual_review || 0;
+
+    document.getElementById('kpis-box').innerHTML = `
+      <div class="kpi">
+        <div class="label">Kendaraan Parkir</div>
+        <div class="value">${act}</div>
+        <div class="sub">${act === 0 ? 'Belum ada sesi aktif' : `Kapasitas: ${occ.capacity_total || 100}`}</div>
+      </div>
+      <div class="kpi">
+        <div class="label">Masuk Hari Ini</div>
+        <div class="value">${entries}</div>
+        <div class="sub">${entries === 0 ? 'Belum ada kendaraan masuk' : 'Sesi tercatat hari ini'}</div>
+      </div>
+      <div class="kpi">
+        <div class="label">Keluar Hari Ini</div>
+        <div class="value">${exits}</div>
+        <div class="sub">${exits === 0 ? 'Belum ada kendaraan keluar' : 'Sesi selesai hari ini'}</div>
+      </div>
+      <div class="kpi">
+        <div class="label">Pendapatan Hari Ini</div>
+        <div class="value">Rp ${rev.toLocaleString('id-ID')}</div>
+        <div class="sub">${rev === 0 ? 'Belum ada pembayaran' : 'Total omzet tarif lunas'}</div>
+      </div>
+      <div class="kpi">
+        <div class="label">Belum Bayar</div>
+        <div class="value">${unpaid}</div>
+        <div class="sub">${unpaid === 0 ? 'Semua tagihan terselesaikan' : 'Sesi menunggu pembayaran'}</div>
+      </div>
+      <div class="kpi">
+        <div class="label">Manual Review</div>
+        <div class="value">${mrev}</div>
+        <div class="sub">${mrev === 0 ? 'Tidak ada pemeriksaan' : 'Perlu verifikasi operator'}</div>
+      </div>
+    `;
+
+    const teachEl = document.getElementById('empty-dashboard-teach');
+    if (teachEl) {
+      if (act === 0 && entries === 0) {
+        teachEl.innerHTML = `
+          <div class="empty-teach-card">
+            <div>
+              <div class="empty-teach-title">Belum ada aktivitas parkir hari ini</div>
+              <p class="empty-teach-desc">
+                Anda dapat menjalankan simulasi untuk melihat alur kendaraan masuk, tarif, pembayaran, dan keluar tanpa hardware fisik.
+              </p>
+            </div>
+            <div class="empty-teach-actions">
+              <button class="btn sim sm" onclick="switchTab('simulator')">✦ Mulai Simulasi Terpandu</button>
+              <button class="btn sm line" onclick="openParkingGuideModal()">Lihat Panduan Profil &rarr;</button>
+            </div>
+          </div>
+        `;
+      } else {
+        teachEl.innerHTML = '';
+      }
+    }
+  } catch (e) {
+    document.getElementById('kpis-box').innerHTML = `<div class="kpi"><div class="label">Status</div><div class="value">Gagal memuat KPI</div></div>`;
+  }
+}
+
+async function executeSimEntry(quick = false) {
+  const plateEl = document.getElementById(quick ? 'q-plate' : 'sim-plate');
+  const vtypeEl = document.getElementById(quick ? 'q-vtype' : 'sim-vtype');
+  const resEl = document.getElementById(quick ? 'q-res' : 'sim-result');
+  const plate = (plateEl?.value || 'B 1234 ABC').trim();
+  const vtype = vtypeEl?.value || 'CAR';
+
+  try {
+    const res = await api(`${API}/customer/simulate-entry`, { method: 'POST', body: { plate, vehicle_type: vtype } });
+    resEl.innerHTML = `
+      <div class="sim-feedback-card">
+        <div class="sim-feedback-head">✓ Simulasi Kendaraan Masuk Berhasil</div>
+        <div style="font-size:13px;color:var(--ink);font-weight:700">
+          Plat: <span style="font-family:monospace">${res.plate}</span> &middot; Tipe: ${res.vehicle_type} &middot; Status: <span class="badge ok">PARKED</span>
+        </div>
+        <div style="font-size:12px;color:var(--muted);margin-top:2px">
+          Nomor Referensi Tiket: <code style="background:#F1F5F9;padding:2px 6px;border-radius:4px">${res.public_reference}</code>
+        </div>
+        <div class="sim-feedback-list">
+          <div>✓ Sesi parkir terdaftar di database cloud</div>
+          <div>✓ Okupansi kendaraan parkir bertambah (+1)</div>
+          <div>✓ Live Parking &amp; statistik dashboard terbarui</div>
+        </div>
+        <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap">
+          <button class="btn sm" onclick="switchTab('live')">Lihat di Live Parking &rarr;</button>
+          ${quick ? `<button class="btn sm line" onclick="switchTab('simulator')">Uji Selesaikan Keluar</button>` : ''}
+        </div>
+      </div>
+    `;
+    if (quick) {
+      loadDashboardKPIs(APP_STATE.site?.id || 1);
+    } else {
+      loadSimLiveSessions(APP_STATE.site?.id || 1);
+    }
+  } catch (err) {
+    resEl.innerHTML = `
+      <div style="background:var(--crit-bg);border:1px solid rgba(220,38,38,0.2);color:var(--crit);padding:12px 16px;border-radius:8px;font-size:13px;font-weight:700;margin-top:10px">
+        Gagal Simulasi: ${err.message}
+      </div>
+    `;
+  }
+}
+
+async function loadSimLiveSessions(siteId) {
+  const tb = document.querySelector('#sim-live-table tbody');
+  if (!tb) return;
+  try {
+    const rows = await api(`${API}/sites/${siteId}/live`);
+    if (!rows.length) {
+      tb.innerHTML = `
+        <tr><td colspan="5" style="padding:0">
+          <div class="empty-box">
+            <div class="empty-box-title">Belum ada sesi parkir yang aktif</div>
+            <div class="empty-box-desc">Gunakan formulir di atas untuk mensimulasikan kendaraan masuk, lalu uji alur penghitungan tarif dan pembayaran.</div>
+          </div>
+        </td></tr>
+      `;
+      return;
+    }
+    tb.innerHTML = rows.map(r => `
+      <tr>
+        <td style="font-weight:750;font-family:monospace;font-size:14px">${r.plate_display || r.plate_normalized}</td>
+        <td>${r.vehicle_type}</td>
+        <td>${new Date(r.entry_at).toLocaleTimeString('id-ID')}</td>
+        <td>${badge(r.state)}</td>
+        <td>
+          <button class="btn sim sm" onclick="executeSimExit('${r.public_reference}')">Simulasi Keluar Gerbang &rarr;</button>
+        </td>
+      </tr>
+    `).join('');
+  } catch (e) {
+    tb.innerHTML = `<tr><td colspan="5" style="color:var(--crit)">${e.message}</td></tr>`;
+  }
+}
+
+async function executeSimExit(publicRef) {
+  if (!confirm('Jalankan simulasi hitung tarif, settlement pembayaran, dan buka palang untuk tiket ini?')) return;
+  try {
+    const res = await api(`${API}/customer/simulate-exit`, { method: 'POST', body: { public_reference: publicRef } });
+    alert(`Sukses!\nTotal Tarif: Rp ${(res.total_amount || 0).toLocaleString('id-ID')}\nStatus: ${res.message}`);
+    loadSimLiveSessions(APP_STATE.site?.id || 1);
+  } catch (err) {
+    alert('Simulasi keluar gagal: ' + err.message);
+  }
+}
+
+async function loadLiveSessions(siteId) {
+  const tb = document.querySelector('#live-table tbody');
+  if (!tb) return;
+  try {
+    const rows = await api(`${API}/sites/${siteId}/live`);
+    if (!rows.length) {
+      tb.innerHTML = `
+        <tr><td colspan="6" style="padding:0">
+          <div class="empty-box">
+            <div class="empty-box-title">Belum ada kendaraan yang sedang parkir</div>
+            <div class="empty-box-desc">Kendaraan akan muncul di sini secara real-time setelah entry tercatat di gerbang masuk.</div>
+            <button class="btn sim sm" onclick="switchTab('simulator')">✦ Coba Simulasi Masuk</button>
+          </div>
+        </td></tr>
+      `;
+      return;
+    }
+    tb.innerHTML = rows.map(r => `
+      <tr>
+        <td style="font-weight:750;font-family:monospace;font-size:14px">${r.plate_display || r.plate_normalized}</td>
+        <td>${r.vehicle_type}</td>
+        <td>${new Date(r.entry_at).toLocaleTimeString('id-ID')}</td>
+        <td>${badge(r.state)}</td>
+        <td>${badge(r.payment_state)}</td>
+        <td>
+          <button class="btn line sm" onclick="switchTab('simulator')">Uji di Simulator</button>
+        </td>
+      </tr>
+    `).join('');
+  } catch (e) {
+    tb.innerHTML = `<tr><td colspan="6" style="color:var(--crit)">${e.message}</td></tr>`;
+  }
+}
+
+async function loadGates(siteId) {
+  const tb = document.querySelector('#gates-table tbody');
+  if (!tb) return;
+  try {
+    const d = await api(`${API}/sites/${siteId}/dashboard`);
+    tb.innerHTML = (d.gate_status || []).map(g => `
+      <tr>
+        <td style="font-weight:750">${g.code}</td>
+        <td>${g.direction}</td>
+        <td>${badge(g.config_status)}</td>
+        <td>${badge(g.runtime_state)}</td>
+      </tr>
+    `).join('') || '<tr><td colspan="4" style="text-align:center;padding:24px;color:var(--muted)">Tidak ada gerbang terkonfigurasi</td></tr>';
+  } catch (e) { tb.innerHTML = `<tr><td colspan="4">${e.message}</td></tr>`; }
+}
+
+async function loadDevices(siteId) {
+  const tb = document.querySelector('#device-table tbody');
+  if (!tb) return;
+  try {
+    const rows = await api(`${API}/sites/${siteId}/devices`);
+    if (!rows.length) {
+      tb.innerHTML = `
+        <tr><td colspan="5" style="padding:0">
+          <div class="empty-box">
+            <div class="empty-box-title">Belum ada perangkat fisik yang terhubung</div>
+            <div class="empty-box-desc">Untuk profil ini, Anda tetap dapat menguji seluruh workflow operasional software secara aman melalui simulator.</div>
+            <button class="btn sim sm" onclick="switchTab('simulator')">✦ Uji di Simulator</button>
+          </div>
+        </td></tr>
+      `;
+      return;
+    }
+    tb.innerHTML = rows.map(d => `
+      <tr>
+        <td style="font-weight:750">${d.name}</td>
+        <td>${d.device_type}</td>
+        <td>${d.adapter_type}</td>
+        <td>${badge(d.runtime_state)}</td>
+        <td>${d.last_seen_at ? new Date(d.last_seen_at).toLocaleTimeString('id-ID') : '—'}</td>
+      </tr>
+    `).join('');
+  } catch (e) { tb.innerHTML = `<tr><td colspan="5">${e.message}</td></tr>`; }
+}
+
+async function loadAnpr(siteId) {
+  const tb = document.querySelector('#anpr-table tbody');
+  if (!tb) return;
+  try {
+    const rows = await api(`${API}/anpr/review?site_id=${siteId}`);
+    if (!rows.length) {
+      tb.innerHTML = `
+        <tr><td colspan="4" style="padding:0">
+          <div class="empty-box">
+            <div class="empty-box-title">Tidak ada pembacaan plat yang memerlukan pemeriksaan</div>
+            <div class="empty-box-desc">Tangkapan kamera dengan confidence rendah atau format plat buram akan diarahkan ke sini untuk verifikasi manual operator.</div>
+          </div>
+        </td></tr>
+      `;
+      return;
+    }
+    tb.innerHTML = rows.map(a => `
+      <tr>
+        <td style="font-weight:750;font-family:monospace">${a.plate_normalized}</td>
+        <td>${(a.confidence * 100).toFixed(0)}%</td>
+        <td>${a.site_id}</td>
+        <td>${new Date(a.captured_at).toLocaleString('id-ID')}</td>
+      </tr>
+    `).join('');
+  } catch (e) {
+    tb.innerHTML = `
+      <tr><td colspan="4" style="padding:0">
+        <div class="empty-box">
+          <div class="empty-box-title">Tidak ada pembacaan plat yang memerlukan pemeriksaan</div>
+          <div class="empty-box-desc">Tangkapan kamera dengan confidence rendah akan diarahkan ke sini untuk verifikasi manual.</div>
+        </div>
+      </td></tr>
+    `;
+  }
+}
+
+async function loadReport(siteId) {
+  const el = document.getElementById('report-content');
+  if (!el) return;
+  const day = new Date().toISOString().slice(0, 10);
+  try {
+    const r = await api(`${API}/sites/${siteId}/reports/daily?day=${day}`);
+    el.innerHTML = `
+      <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:16px;margin-bottom:16px">
+        <div class="kpi"><div class="label">Kendaraan Masuk</div><div class="value">${r.entries || 0}</div><div class="sub">Total tiket terbit</div></div>
+        <div class="kpi"><div class="label">Kendaraan Keluar</div><div class="value">${r.exits || 0}</div><div class="sub">Total sesi selesai</div></div>
+        <div class="kpi"><div class="label">Total Pendapatan</div><div class="value">Rp ${(r.revenue || 0).toLocaleString('id-ID')}</div><div class="sub">Omzet parkir lunas</div></div>
+        <div class="kpi"><div class="label">Review Manual</div><div class="value">${r.manual_review || 0}</div><div class="sub">Verifikasi plat ANPR</div></div>
+      </div>
+    `;
+  } catch (e) {
+    el.innerHTML = `
+      <div class="empty-box">
+        <div class="empty-box-title">Belum ada transaksi untuk ditampilkan</div>
+        <div class="empty-box-desc">Laporan harian mencatat transaksi riil dan simulasi yang telah diselesaikan.</div>
+        <button class="btn sim sm" onclick="switchTab('simulator')">Buat Transaksi Simulasi</button>
+      </div>
+    `;
+  }
+}
+
+async function loadAudit(siteId) {
+  const tb = document.querySelector('#audit-table tbody');
+  if (!tb) return;
+  try {
+    const rows = await api(`${API}/audit?site_id=${siteId}`);
+    tb.innerHTML = rows.map(a => `
+      <tr>
+        <td style="font-weight:650">${a.actor}</td>
+        <td><span class="badge off">${a.action}</span></td>
+        <td>${a.object_type}:${a.object_id || ''}</td>
+        <td>${new Date(a.occurred_at).toLocaleTimeString('id-ID')}</td>
+      </tr>
+    `).join('') || '<tr><td colspan="4" style="text-align:center;padding:24px;color:var(--muted)">Belum ada catatan audit log</td></tr>';
+  } catch (e) {
+    tb.innerHTML = '<tr><td colspan="4" style="text-align:center;padding:24px;color:var(--muted)">Log audit tersedia untuk role MANAGER / OWNER.</td></tr>';
+  }
+}
+
+/* ================= PAYMENT ONLY VIEW ================= */
+async function renderPaymentOnlyView(container) {
+  if (ACTIVE_TAB === 'dashboard') {
+    container.innerHTML = `
+      <div class="dash-hero">
+        <div class="dash-hero-content">
+          <div class="dash-hero-title-wrap">
+            <h1 class="dash-hero-title">BotConnector Parking</h1>
+            <span class="dash-hero-badge">PAYMENT ONLY</span>
+          </div>
+          <p class="dash-hero-subtitle">
+            Gateway pembayaran QRIS MPM Dynamic, webhook signed HMAC, dan rekonsiliasi otomatis untuk PMS parkir Anda.
+          </p>
+        </div>
+        <div class="dash-hero-meta">
+          <div class="meta-pill"><span style="color:var(--ok)">●</span> Gateway: <strong>Aktif</strong></div>
+          <div class="meta-pill">Tenant: <strong>${APP_STATE.tenant?.code || 'TENANT-01'}</strong></div>
+          <div class="meta-pill">Status: <strong style="color:var(--ok)">Normal / Operational</strong></div>
+        </div>
+      </div>
+
+      ${renderProfileChecklist('PAYMENT_ONLY')}
+
+      <div class="banner" style="margin-bottom:24px">
+        <div class="banner-title">
+          <span>Status Integrasi Payment Gateway</span>
+          <span class="badge ok">Gateway Active</span>
+        </div>
+        <div class="banner-items">
+          <div class="status-row">
+            <div>
+              <div class="status-row-label">Merchant API &amp; Webhook</div>
+              <div class="status-row-sub">Signed HMAC SHA-256 event PAYMENT_PAID</div>
+            </div>
+            <span class="tag-chip ready">Aktif</span>
+          </div>
+          <div class="status-row">
+            <div>
+              <div class="status-row-label">Mode Sandbox Settlement</div>
+              <div class="status-row-sub">Uji alur bayar instan tanpa uang nyata</div>
+            </div>
+            <span class="tag-chip ready">Siap Digunakan</span>
+          </div>
+          <div class="status-row">
+            <div>
+              <div class="status-row-label">QRIS Produksi (PJP Gateway)</div>
+              <div class="status-row-sub">Software siap. Transaksi uang nyata membutuhkan onboarding PJP.</div>
+            </div>
+            <span class="tag-chip pending">Menunggu Kredensial PJP</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="kpis" id="pg-kpis">
+        <div class="kpi"><div class="label">Total Volume Terbayar</div><div class="value">Rp 0</div><div class="sub">Memuat data...</div></div>
+        <div class="kpi"><div class="label">Transaksi Lunas</div><div class="value">0</div><div class="sub">Memuat data...</div></div>
+        <div class="kpi"><div class="label">Menunggu Bayar</div><div class="value">0</div><div class="sub">Memuat data...</div></div>
+      </div>
+
+      <div class="sim-card">
+        <div class="sim-head">
+          <div>
+            <div style="font-weight:850;font-size:16px;color:#0369A1">Sandbox Test Order QRIS</div>
+            <div style="font-size:13px;color:#0284C7;margin-top:2px">Generate Dynamic QRIS order dan simulasikan callback webhook ke PMS Anda.</div>
+          </div>
+          <span class="sim-badge">✦ SANDBOX GATEWAY</span>
+        </div>
+        <div style="display:grid;grid-template-columns:repeat(auto-fit, minmax(200px, 1fr));gap:14px">
+          <div>
+            <label style="font-size:12px;font-weight:750;color:#0369A1;display:block;margin-bottom:4px">Merchant Order Ref</label>
+            <input type="text" id="sb-ref" value="EXT-PARK-${Date.now().toString().slice(-4)}">
+          </div>
+          <div>
+            <label style="font-size:12px;font-weight:750;color:#0369A1;display:block;margin-bottom:4px">Nominal Tarif (IDR)</label>
+            <input type="number" id="sb-amt" value="15000">
+          </div>
+          <div style="display:flex;align-items:flex-end">
+            <button class="btn sim" style="width:100%" onclick="executeSandboxOrder()">+ Buat Order &amp; QRIS</button>
+          </div>
+        </div>
+        <div id="sb-result" style="margin-top:14px"></div>
+      </div>
+    `;
+    loadPGReconciliation();
+  } else if (ACTIVE_TAB === 'transactions') {
+    container.innerHTML = `
+      <div class="panel">
+        <div class="panel-head">
+          <div>
+            <h2>Riwayat Transaksi Merchant</h2>
+            <div style="font-size:12.5px;color:var(--muted);margin-top:2px">Log pembuatan tagihan QRIS dan status callback webhook.</div>
+          </div>
+        </div>
+        <div class="table-wrap"><table id="tx-table">
+          <thead><tr><th>Payment Ref</th><th>Merchant Ref</th><th>Nominal</th><th>Metode</th><th>Status</th><th>Webhook Callback</th><th>Aksi</th></tr></thead>
+          <tbody></tbody>
+        </table></div>
+      </div>
+    `;
+    loadPGTransactions();
+  } else if (ACTIVE_TAB === 'qris') {
+    container.innerHTML = `
+      <div class="panel">
+        <h2>Integrasi QRIS Merchant</h2>
+        <p style="color:var(--muted);font-size:13.5px;line-height:1.6">
+          BotConnector menyediakan gateway integrasi QRIS Dinamis (MPM) terstandarisasi untuk pembayaran parkir pihak ketiga.
+        </p>
+        <div class="banner" style="background:#F8FAFC;margin:16px 0">
+          <div class="banner-title">Kepatuhan Regulasi &amp; PJP</div>
+          <p style="font-size:13px;color:var(--muted);margin:0;line-height:1.6">
+            BotConnector bertindak sebagai Application / Technical Service Provider. Pemrosesan QRIS produksi sesungguhnya dihubungkan melalui Penyelenggara Jasa Pembayaran (PJP) berizin resmi Bank Indonesia.
+          </p>
+        </div>
+      </div>
+    `;
+  } else if (ACTIVE_TAB === 'api_docs') {
+    container.innerHTML = `
+      <div class="panel">
+        <h2>Dokumentasi &amp; Kredensial API Merchant</h2>
+        <div style="background:#F8FAFC;border:1px solid var(--border);border-radius:10px;padding:18px;margin:16px 0">
+          <div style="font-size:12px;font-weight:800;color:var(--muted);text-transform:uppercase">Tenant Code / ID</div>
+          <div style="font-size:16px;font-weight:800;font-family:monospace;margin-top:4px">${APP_STATE.tenant?.code}</div>
+          <div style="font-size:12px;font-weight:800;color:var(--muted);text-transform:uppercase;margin-top:14px">Webhook Secret (HMAC SHA-256)</div>
+          <div style="font-size:14px;font-weight:700;font-family:monospace;background:#fff;padding:8px 12px;border:1px solid var(--border);border-radius:6px;margin-top:4px">${APP_STATE.tenant?.webhook_secret || '—'}</div>
+        </div>
+        <h3>Endpoint Pembuatan Order:</h3>
+        <pre style="background:#0F172A;color:#E2E8F0;padding:16px;border-radius:10px;font-size:12.5px;overflow-x:auto">POST /parking/api/payment-gateway/orders
+Headers:
+  Authorization: Bearer &lt;API_TOKEN&gt;
+  Content-Type: application/json
+Body:
+{
+  "merchant_order_ref": "EXT-PARK-001",
+  "amount": 15000,
+  "currency": "IDR",
+  "payment_method": "QRIS_MPM_DYNAMIC"
+}</pre>
+      </div>
+    `;
+  } else if (ACTIVE_TAB === 'reconciliation') {
+    container.innerHTML = `
+      <div class="panel">
+        <h2>Rekonsiliasi Pembayaran</h2>
+        <div id="recon-box">Memuat ringkasan rekonsiliasi...</div>
+      </div>
+    `;
+    loadPGReconciliation(true);
+  } else if (ACTIVE_TAB === 'settings') {
+    renderSettingsView(container);
+  }
+}
+
+async function loadPGReconciliation(detailed = false) {
+  try {
+    const r = await api(`${API}/payment-gateway/reconciliation`);
+    const box = document.getElementById(detailed ? 'recon-box' : 'pg-kpis');
+    if (!box) return;
+    if (detailed) {
+      box.innerHTML = `
+        <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:16px">
+          <div class="kpi"><div class="label">Total Volume Selesai</div><div class="value">Rp ${(r.total_settled_volume_idr || 0).toLocaleString('id-ID')}</div></div>
+          <div class="kpi"><div class="label">Transaksi Berhasil</div><div class="value">${r.paid_transactions_count || 0}</div></div>
+          <div class="kpi"><div class="label">Transaksi Pending</div><div class="value">${r.pending_transactions_count || 0}</div></div>
+        </div>
+      `;
+    } else {
+      box.innerHTML = `
+        <div class="kpi"><div class="label">Total Volume Terbayar</div><div class="value">Rp ${(r.total_settled_volume_idr || 0).toLocaleString('id-ID')}</div></div>
+        <div class="kpi"><div class="label">Transaksi Lunas</div><div class="value">${r.paid_transactions_count || 0}</div></div>
+        <div class="kpi"><div class="label">Menunggu Bayar</div><div class="value">${r.pending_transactions_count || 0}</div></div>
+      `;
+    }
+  } catch(e){}
+}
+
+async function executeSandboxOrder() {
+  const merchant_order_ref = document.getElementById('sb-ref').value;
+  const amount = parseInt(document.getElementById('sb-amt').value);
+  const resEl = document.getElementById('sb-result');
+  try {
+    const res = await api(`${API}/payment-gateway/orders`, {
+      method: 'POST',
+      body: { merchant_order_ref, amount, currency: 'IDR', payment_method: 'QRIS_MPM_DYNAMIC' }
+    });
+    resEl.innerHTML = `
+      <div style="background:#FFFFFF;border:1px solid #BAE6FD;border-radius:10px;padding:16px;font-size:13px">
+        <div style="font-weight:800;color:var(--ok)">✓ Order Berhasil Dibuat: ${res.payment_reference}</div>
+        <div style="color:var(--muted);margin-top:2px">Merchant Ref: ${res.merchant_order_ref} | Nominal: Rp ${res.amount.toLocaleString('id-ID')}</div>
+        <div style="margin-top:10px">
+          <button class="btn sm sim" onclick="executeSimPay('${res.payment_reference}')">Simulasi Bayar QRIS (Trigger Webhook) &rarr;</button>
+        </div>
+      </div>
+    `;
+  } catch (err) {
+    resEl.innerHTML = `<span style="color:var(--crit);font-weight:700">${err.message}</span>`;
+  }
+}
+
+async function executeSimPay(ref) {
+  try {
+    const res = await api(`${API}/payment-gateway/orders/${ref}/simulate-pay`, { method: 'POST' });
+    alert(`Pembayaran ${ref} berhasil disettle!\nWebhook Status: ${res.webhook_status || 'NO_URL'}`);
+    loadPGReconciliation();
+  } catch (err) {
+    alert('Gagal settle: ' + err.message);
+  }
+}
+
+async function loadPGTransactions() {
+  const tb = document.querySelector('#tx-table tbody');
+  if (!tb) return;
+  try {
+    const rows = await api(`${API}/payment-gateway/transactions`);
+    if (!rows.length) {
+      tb.innerHTML = `
+        <tr><td colspan="7" style="padding:0">
+          <div class="empty-box">
+            <div class="empty-box-title">Belum ada riwayat transaksi merchant</div>
+            <div class="empty-box-desc">Buat order sandbox pertama di tab Dashboard untuk menguji alur pembayaran QRIS dan webhook.</div>
+          </div>
+        </td></tr>
+      `;
+      return;
+    }
+    tb.innerHTML = rows.map(t => `
+      <tr>
+        <td style="font-family:monospace;font-weight:750">${t.payment_reference}</td>
+        <td>${t.merchant_order_ref || '—'}</td>
+        <td style="font-weight:750">Rp ${(t.amount || 0).toLocaleString('id-ID')}</td>
+        <td>${t.method}</td>
+        <td>${badge(t.state)}</td>
+        <td><span class="badge off">${t.webhook_status || '—'}</span></td>
+        <td>
+          ${t.state === 'PENDING' ? `<button class="btn sim sm" onclick="executeSimPay('${t.payment_reference}')">Settle Pay</button>` : '—'}
+        </td>
+      </tr>
+    `).join('');
+  } catch (e) { tb.innerHTML = `<tr><td colspan="7">${e.message}</td></tr>`; }
+}
+
+/* ================= SETTINGS VIEW & UPGRADE ================= */
+function renderSettingsView(container) {
+  const curProf = APP_STATE.deployment_profile || 'FULL_STACK';
+  container.innerHTML = `
+    <div class="panel" style="max-width:780px">
+      <h2>Pengaturan &amp; Profil Implementasi</h2>
+      <p style="color:var(--muted);font-size:13.5px;line-height:1.5">
+        Ubah profil implementasi tanpa kehilangan riwayat transaksi, gerbang, atau konfigurasi sebelumnya.
+      </p>
+
+      <form onsubmit="handleUpdateProfile(event)" style="margin-top:24px">
+        <div style="margin-bottom:18px">
+          <label style="display:block;font-size:13px;font-weight:750;margin-bottom:6px">Profil Deployment Aktif</label>
+          <select id="set-prof">
+            <option value="FULL_STACK" ${curProf === 'FULL_STACK' ? 'selected' : ''}>FULL_STACK — Sistem Parkir Lengkap</option>
+            <option value="EXISTING_HARDWARE" ${curProf === 'EXISTING_HARDWARE' ? 'selected' : ''}>EXISTING_HARDWARE — Hubungkan Hardware yang Ada</option>
+            <option value="PAYMENT_ONLY" ${curProf === 'PAYMENT_ONLY' ? 'selected' : ''}>PAYMENT_ONLY — Integrasi Pembayaran Saja</option>
+          </select>
+        </div>
+
+        <div style="margin-bottom:20px">
+          <label style="display:block;font-size:13px;font-weight:750;margin-bottom:6px">URL Webhook Notifikasi</label>
+          <input type="url" id="set-webhook" value="${APP_STATE.tenant?.webhook_url || ''}" placeholder="https://domain-anda.com/api/parking-webhook">
+        </div>
+
+        <button type="submit" class="btn">Simpan Perubahan Profil</button>
+      </form>
+    </div>
+  `;
+}
+
+async function handleUpdateProfile(e) {
+  e.preventDefault();
+  const prof = document.getElementById('set-prof').value;
+  const webhook_url = document.getElementById('set-webhook').value;
+  try {
+    await api(`${API}/customer/update-profile`, { method: 'POST', body: { deployment_profile: prof, webhook_url } });
+    alert('Profil berhasil diperbarui!');
+    await loadAppState();
+  } catch (err) {
+    alert('Gagal memperbarui: ' + err.message);
+  }
+}
+
+/* ================= STATUS KESIAPAN ACCORDION & CHECKLIST ================= */
+function toggleReadinessDetail(id) {
+  const el = document.getElementById(id);
+  if (el) el.classList.toggle('open');
+}
+
+function renderProfileChecklist(profile) {
+  let items = [];
+  if (profile === 'FULL_STACK') {
+    items = [
+      { id: 'rd-1', name: 'Lokasi & Kapasitas Parkir (Site)', status: 'Siap', desc: 'Kapasitas total dan kuota mobil/motor aktif.', cara: 'Buka pengaturan Site untuk menentukan kapasitas total dan batas kuota kendaraan.', hasil: 'Sistem membatasi kendaraan masuk jika kapasitas telah terpenuhi 100%.' },
+      { id: 'rd-2', name: 'Gerbang & Lane Masuk/Keluar', status: 'Siap', desc: 'Gerbang masuk & keluar terkonfigurasi dengan runtime online.', cara: 'Atur Entry Gate dan Exit Gate pada tab Gate & Lane.', hasil: 'Lane aktif siap menerima input deteksi plat nomor.' },
+      { id: 'rd-3', name: 'Skema Tarif Parkir', status: 'Siap', desc: 'Kalkulasi tarif otomatis (Flat / Hourly) aktif.', cara: 'Tentukan tarif Flat (Rp 5.000) atau Hourly (Rp 3.000/jam) beserta durasi Grace Period.', hasil: 'Tarif terhitung otomatis saat sesi keluar disimulasikan.' },
+      { id: 'rd-4', name: 'Simulasi Kendaraan Masuk', status: 'Siap Diuji', desc: 'Uji masuk kendaraan dari konsol simulator.', cara: 'Masukkan plat nomor pada Quick Test Simulator lalu klik Masuk.', hasil: 'Sesi status PARKED tercatat di Live Parking (+1 kendaraan).' },
+      { id: 'rd-5', name: 'Live Parking & Sesi Aktif', status: 'Siap', desc: 'Pantau kendaraan yang sedang parkir real-time.', cara: 'Buka tab Live Parking untuk melihat durasi dan waktu masuk kendaraan.', hasil: 'Okupansi terbarui secara instan.' },
+      { id: 'rd-6', name: 'Simulasi Pembayaran & Keluar', status: 'Siap Diuji', desc: 'Bayar tarif parkir dan buka palang keluar.', cara: 'Klik Simulasi Keluar Gerbang pada tab Mode Simulasi.', hasil: 'Sesi ditutup (CLOSED) dan palang keluar terbuka secara aman.' },
+      { id: 'rd-7', name: 'Laporan & Audit Pendapatan', status: 'Siap', desc: 'Rekap pendapatan harian dan log audit gerbang.', cara: 'Buka tab Reports dan Audit untuk memverifikasi pencatatan omzet harian.', hasil: 'Laporan audit transparan siap diunduh.' },
+    ];
+  } else if (profile === 'EXISTING_HARDWARE') {
+    items = [
+      { id: 'rd-1', name: 'Pemetaan Lokasi & Lane', status: 'Siap', desc: 'Lokasi fisik terdaftar di sistem cloud.', cara: 'Petakan nomor gate dan lane pada fasilitas eksisting Anda.', hasil: 'Sistem cloud mengenali identitas fisik gerbang.' },
+      { id: 'rd-2', name: 'Inventaris Hardware & Adapter', status: 'Siap', desc: 'Pilihan adapter ONVIF / Relay / Microcontroller.', cara: 'Buka tab Devices untuk mendaftarkan adapter perangkat.', hasil: 'Adapter siap menghubungkan perintah software ke hardware eksisting.' },
+      { id: 'rd-3', name: 'ANPR Contract (Profile M)', status: 'Siap', desc: 'Software siap menerima metadata plat nomor Profile M.', cara: 'Pastikan kamera ANPR mendukung streaming metadata ONVIF Profile M.', hasil: 'Plat nomor terbaca otomatis tanpa modul OCR terpisah.' },
+      { id: 'rd-4', name: 'Barrier Safety (Fail-Closed)', status: 'Siap', desc: 'Software tidak membuka palang jika koneksi terputus.', cara: 'Prinsip fail-closed aktif secara default demi keamanan.', hasil: 'Palang tetap tertutup saat terjadi pemadaman listrik/sinyal.' },
+      { id: 'rd-5', name: 'Simulasi Alur Software (Dry Run)', status: 'Siap Diuji', desc: 'Uji alur kendaraan tanpa kamera fisik.', cara: 'Jalankan simulasi kendaraan masuk dan keluar di tab Simulator.', hasil: 'Semua alur bisnis terverifikasi sebelum uji perangkat fisik.' },
+      { id: 'rd-6', name: 'Uji Lapangan Hardware Fisik', status: 'Menunggu Pengujian', desc: 'Verifikasi palang & kamera di lokasi riil.', cara: 'Jalankan capability probe langsung di lokasi fisik gerbang.', hasil: 'Status hardware berubah menjadi VERIFIED setelah uji lapangan.' },
+      { id: 'rd-7', name: 'Health Check & Monitoring', status: 'Siap', desc: 'Pantau status detak online/offline perangkat.', cara: 'Cek heartbeat perangkat pada tab Devices secara berkala.', hasil: 'Notifikasi otomatis jika ada perangkat yang terputus.' },
+    ];
+  } else if (profile === 'PAYMENT_ONLY') {
+    items = [
+      { id: 'rd-1', name: 'Pahami Alur Payment Gateway', status: 'Siap', desc: 'Sistem parkir eksternal Anda &rarr; Payment API BotConnector.', cara: 'PMS eksternal memanggil endpoint POST /parking/api/payment-gateway/orders.', hasil: 'Payment reference unik diterbitkan.' },
+      { id: 'rd-2', name: 'Buat Sandbox Order Pertama', status: 'Siap Diuji', desc: 'Generate payment reference & QRIS MPM Dynamic.', cara: 'Gunakan form Sandbox Test Order pada tab Dashboard.', hasil: 'Payload QRIS MPM siap di-scan aplikasi perbankan.' },
+      { id: 'rd-3', name: 'Simulasikan Pembayaran Selesai', status: 'Siap Diuji', desc: 'Simulasi bayar instan untuk memicu webhook.', cara: 'Klik tombol Settle Pay pada order sandbox.', hasil: 'Status order berubah menjadi PAID.' },
+      { id: 'rd-4', name: 'Merchant Webhook Notifikasi', status: 'Siap', desc: 'Webhook bertanda tangan HMAC SHA-256 terkirim.', cara: 'Daftarkan webhook URL sistem Anda pada tab Pengaturan.', hasil: 'Event PAYMENT_PAID diterima PMS Anda untuk membuka palang.' },
+      { id: 'rd-5', name: 'Rekonsiliasi Pembayaran', status: 'Siap', desc: 'Rekap volume dan transaksi sukses otomatis.', cara: 'Pantau volume tagihan terbayar pada tab Rekonsiliasi.', hasil: 'Rekonsiliasi harian seimbang tanpa selisih nominal.' },
+      { id: 'rd-6', name: 'Kredensial PJP Produksi', status: 'Menunggu PJP', desc: 'Masukkan kredensial merchant saat siap go-live.', cara: 'Lengkapi registrasi PJP resmi untuk aktivasi QRIS uang nyata.', hasil: 'QRIS produksi aktif menerima pembayaran publik.' },
+    ];
+  }
+
+  const readyCount = items.filter(i => i.status === 'Siap' || i.status === 'Siap Diuji').length;
+  const totalCount = items.length;
+
+  const rows = items.map((it, idx) => `
+    <div class="readiness-item">
+      <div class="readiness-item-head" onclick="toggleReadinessDetail('${it.id}')">
+        <div>
+          <div class="readiness-item-title">${idx + 1}. ${it.name}</div>
+          <div class="readiness-item-sub">${it.desc}</div>
+        </div>
+        <div style="display:flex;align-items:center;gap:10px">
+          <span class="badge ${it.status === 'Siap' ? 'ok' : it.status.includes('Diuji') ? 'info' : 'warn'}">${it.status}</span>
+          <span style="font-size:12px;color:var(--muted);cursor:pointer">&#9662;</span>
+        </div>
+      </div>
+      <div class="readiness-details" id="${it.id}">
+        <div><strong>Cara:</strong> ${it.cara}</div>
+        <div style="margin-top:4px"><strong>Hasil yang Diharapkan:</strong> ${it.hasil}</div>
+      </div>
+    </div>
+  `).join('');
+
+  return `
+    <div class="panel" style="margin-bottom:24px">
+      <div class="panel-head">
+        <div>
+          <div style="font-size:11px;font-weight:850;letter-spacing:0.08em;text-transform:uppercase;color:var(--accent)">STATUS KESIAPAN OPERASIONAL</div>
+          <h2 style="font-size:18px;margin:4px 0 0">Checklist Kesiapan &middot; ${readyCount} dari ${totalCount} Langkah Siap</h2>
+        </div>
+        <a href="/docs#parking-overview" target="_blank" style="font-size:12.5px;color:var(--accent);text-decoration:none;font-weight:750">📖 Panduan Lengkap di /docs &rarr;</a>
+      </div>
+      <div class="readiness-list">${rows}</div>
+    </div>
+  `;
+}
+
+/* ================= PARKING GUIDED EXPERIENCE MODAL ================= */
+window.openParkingGuideModal = function(tab = 'overview') {
+  let modalEl = document.getElementById('parking-guide-modal');
+  if (!modalEl) {
+    modalEl = document.createElement('div');
+    modalEl.id = 'parking-guide-modal';
+    document.body.appendChild(modalEl);
+  }
+
+  let body = '';
+  if (tab === 'overview') {
+    body = `
+      <div style="margin-bottom:18px">
+        <h4 style="font-size:15px;margin:0 0 6px;color:#0F172A">3 Profil Implementasi BotConnector Parking</h4>
+        <p style="font-size:13px;color:var(--muted);line-height:1.5;margin:0 0 14px">Pilih atau sesuaikan profil operasional sesuai arsitektur fasilitas parkir Anda:</p>
+        
+        <div style="display:flex;flex-direction:column;gap:10px">
+          <div style="background:#F8FAFC;border:1px solid var(--border);border-radius:10px;padding:14px">
+            <strong style="color:var(--accent);font-size:13.5px">A. FULL_STACK (Sistem Parkir Lengkap)</strong>
+            <p style="font-size:12.5px;color:var(--muted);margin:4px 0 0;line-height:1.5">Gunakan BotConnector sebagai OS operasional penuh: site, gate, lane, tarif, ANPR kamera, Edge offline gateway, dan pembayaran.</p>
+          </div>
+          <div style="background:#F8FAFC;border:1px solid var(--border);border-radius:10px;padding:14px">
+            <strong style="color:var(--accent);font-size:13.5px">B. EXISTING_HARDWARE (Hubungkan Hardware yang Ada)</strong>
+            <p style="font-size:12.5px;color:var(--muted);margin:4px 0 0;line-height:1.5">Hubungkan barrier gate, loop detector, dan kamera ANPR yang sudah terpasang. Tidak perlu mengganti hardware fisik yang ada.</p>
+          </div>
+          <div style="background:#F8FAFC;border:1px solid var(--border);border-radius:10px;padding:14px">
+            <strong style="color:var(--accent);font-size:13.5px">C. PAYMENT_ONLY (Integrasi Pembayaran QRIS &amp; API Saja)</strong>
+            <p style="font-size:12.5px;color:var(--muted);margin:4px 0 0;line-height:1.5">Khusus bagi yang sudah memiliki sistem/palang parkir sendiri dan hanya memerlukan QRIS MPM Dynamic, Webhook notifikasi, dan rekonsiliasi otomatis.</p>
+          </div>
+        </div>
+      </div>
+    `;
+  } else if (tab === 'hardware') {
+    body = `
+      <div style="display:flex;flex-direction:column;gap:12px">
+        <div style="background:#F8FAFC;border:1px solid var(--border);border-radius:10px;padding:14px">
+          <strong style="color:#0F172A;font-size:13.5px">ANPR &amp; Kamera (Profile M Ready)</strong>
+          <p style="font-size:12.5px;color:var(--muted);margin:4px 0 0;line-height:1.5">Software BotConnector mengadopsi kontrak standar ONVIF Profile M untuk metadata plat nomor. Plat nomor otomatis dikenali dan dicocokkan saat kendaraan masuk dan keluar.</p>
+        </div>
+        <div style="background:#F8FAFC;border:1px solid var(--border);border-radius:10px;padding:14px">
+          <strong style="color:#0F172A;font-size:13.5px">Barrier Safety &amp; Palang (Fail-Closed)</strong>
+          <p style="font-size:12.5px;color:var(--muted);margin:4px 0 0;line-height:1.5">Prinsip keselamatan utama: Palang gerbang selalu berada pada posisi tertutup aman (Fail-Closed). Palang hanya terbuka jika tiket diterbitkan atau pembayaran terkonfirmasi.</p>
+        </div>
+        <div style="background:#F8FAFC;border:1px solid var(--border);border-radius:10px;padding:14px">
+          <strong style="color:#0F172A;font-size:13.5px">Edge Offline Gateway</strong>
+          <p style="font-size:12.5px;color:var(--muted);margin:4px 0 0;line-height:1.5">Jika internet terputus, Edge Gateway lokal tetap melayani kendaraan masuk/keluar secara offline, dan menyinkronkan data kembali ke cloud saat koneksi pulih.</p>
+        </div>
+      </div>
+    `;
+  } else if (tab === 'troubleshooting') {
+    body = `
+      <div style="display:flex;flex-direction:column;gap:12px">
+        <div style="background:#F8FAFC;border:1px solid var(--border);border-radius:10px;padding:14px">
+          <strong style="font-size:13.5px;color:#0F172A">❓ Plat nomor masuk ke ANPR Review?</strong>
+          <p style="font-size:12.5px;color:var(--muted);margin:4px 0 0;line-height:1.5"><strong>Penyebab:</strong> Citra kamera buram, tertutup kotoran, atau format plat tidak standar.<br><strong>Solusi:</strong> Petugas operator dapat memeriksa tangkapan layar di tab "ANPR Review" dan mengoreksi plat secara manual.</p>
+        </div>
+        <div style="background:#F8FAFC;border:1px solid var(--border);border-radius:10px;padding:14px">
+          <strong style="font-size:13.5px;color:#0F172A">❓ Status QRIS masih Pending di Simulator?</strong>
+          <p style="font-size:12.5px;color:var(--muted);margin:4px 0 0;line-height:1.5"><strong>Solusi:</strong> Pada mode sandbox, klik tombol "Settle Pay" atau "Simulasi Bayar QRIS" untuk mensimulasikan notifikasi sukses dari PJP merchant.</p>
+        </div>
+        <div style="background:#F8FAFC;border:1px solid var(--border);border-radius:10px;padding:14px">
+          <strong style="font-size:13.5px;color:#0F172A">❓ Perangkat Device Offline?</strong>
+          <p style="font-size:12.5px;color:var(--muted);margin:4px 0 0;line-height:1.5"><strong>Penyebab:</strong> Kabel LAN/IP controller gerbang belum terhubung atau heartbeat terputus.<br><strong>Solusi:</strong> Periksa koneksi IP perangkat di tab Devices atau gunakan Mode Simulasi untuk pengujian fungsional.</p>
+        </div>
+      </div>
+    `;
+  }
+
+  modalEl.innerHTML = `
+    <div style="position:fixed;inset:0;background:rgba(15,23,42,0.7);backdrop-filter:blur(6px);z-index:9999;display:flex;align-items:center;justify-content:center;padding:20px" onclick="if(event.target===this)closeParkingGuideModal()">
+      <div style="background:#FFFFFF;border-radius:18px;max-width:680px;width:100%;max-height:88vh;overflow-y:auto;padding:32px;box-shadow:0 20px 60px rgba(0,0,0,0.25)">
+        <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:20px">
+          <div>
+            <div style="font-size:11px;font-weight:850;letter-spacing:0.1em;text-transform:uppercase;color:var(--accent)">PANDUAN RESMI</div>
+            <h3 style="font-size:22px;margin:4px 0 0;color:#0F172A">Panduan Operasional BotConnector Parking</h3>
+          </div>
+          <button style="border:none;background:transparent;font-size:24px;cursor:pointer;color:var(--muted)" onclick="closeParkingGuideModal()">&times;</button>
+        </div>
+
+        <div style="display:flex;gap:8px;border-bottom:1px solid var(--border);padding-bottom:12px;margin-bottom:20px;overflow-x:auto">
+          <button class="btn sm ${tab === 'overview' ? '' : 'sim'}" onclick="openParkingGuideModal('overview')">Profil &amp; Alur Parkir</button>
+          <button class="btn sm ${tab === 'hardware' ? '' : 'sim'}" onclick="openParkingGuideModal('hardware')">Hardware &amp; ANPR</button>
+          <button class="btn sm ${tab === 'troubleshooting' ? '' : 'sim'}" onclick="openParkingGuideModal('troubleshooting')">Masalah Umum (FAQ)</button>
+        </div>
+
+        <div>${body}</div>
+
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-top:24px;border-top:1px solid var(--border);padding-top:16px;flex-wrap:wrap;gap:10px">
+          <a href="/docs#parking-overview" target="_blank" class="btn sm">Buka Dokumentasi /docs &rarr;</a>
+          <button class="btn sm" style="background:#F1F5F9;color:#475467" onclick="closeParkingGuideModal()">Tutup</button>
+        </div>
+      </div>
+    </div>
+  `;
+};
+
+window.closeParkingGuideModal = function() {
+  const el = document.getElementById('parking-guide-modal');
+  if (el) el.remove();
+};
+
+loadAppState();
+</script>
+</body>
+</html>

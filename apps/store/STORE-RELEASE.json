@@ -1,0 +1,60 @@
+{
+  "release": "V6R3-FINAL",
+  "date": "2026-08-12",
+  "design": "store-v6-light-core",
+  "listen": "127.0.0.1:18194",
+  "public_path": "/store/",
+  "products": {
+    "restaurant": {
+      "display_name": "Restoran & Kafe",
+      "sellable_editions": [
+        "Essential",
+        "Lengkap",
+        "Professional",
+        "Multi Outlet"
+      ]
+    },
+    "vehicle-wash": {
+      "display_name": "Cuci Kendaraan",
+      "sellable_editions": [
+        "Essential",
+        "Lengkap"
+      ]
+    },
+    "workshop": {
+      "display_name": "Bengkel",
+      "sellable_editions": [
+        "Essential",
+        "Lengkap",
+        "Professional"
+      ]
+    },
+    "retail": {
+      "display_name": "Toko & Retail",
+      "sellable_editions": [
+        "Essential",
+        "Lengkap",
+        "Professional"
+      ]
+    }
+  },
+  "license_types": [
+    "trial",
+    "full",
+    "upgrade"
+  ],
+  "trial_hours": 72,
+  "default_payment": "manual",
+  "optional_payment": "midtrans-snap",
+  "seller_control": "127.0.0.1:18192",
+  "private_signing_key_moved": false,
+  "order_access_token_in_url": false,
+  "midtrans_notification_override": true,
+  "upgrade_current_plan_server_verified": true,
+  "hotfixes": [
+    "Exact HTTPS apex server block selection for botconnector.id (exclude www redirect block)",
+    "APK deployment/production checks use GET instead of unsupported HEAD"
+  ],
+  "repair": "repair-store-v6r3.sh",
+  "repair_notes": "Nginx apex insertion after exact server_name; no raw brace parser; curl local validation bypasses proxies."
+}

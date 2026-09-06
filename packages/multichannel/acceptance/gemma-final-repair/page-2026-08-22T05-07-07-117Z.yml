@@ -1,0 +1,40 @@
+- generic [active] [ref=f10e1]:
+  - complementary [ref=f10e2]:
+    - generic [ref=f10e3]:
+      - generic [ref=f10e4]: BC
+      - text: Bisnis
+    - generic [ref=f10e5]:
+      - generic [ref=f10e6]: Cabang / Lokasi
+      - combobox [ref=f10e7]:
+        - option "Memuat..." [selected]
+    - navigation [ref=f10e8]:
+      - link "Dashboard" [ref=f10e9] [cursor=pointer]:
+        - /url: "#/dashboard"
+      - link "POS" [ref=f10e15] [cursor=pointer]:
+        - /url: "#/pos"
+      - link "Orders" [ref=f10e19] [cursor=pointer]:
+        - /url: "#/orders"
+      - link "Products" [ref=f10e22] [cursor=pointer]:
+        - /url: "#/products"
+      - link "Inventory" [ref=f10e27] [cursor=pointer]:
+        - /url: "#/inventory"
+      - link "Transfers" [ref=f10e30] [cursor=pointer]:
+        - /url: "#/transfers"
+      - link "Restaurant" [ref=f10e36] [cursor=pointer]:
+        - /url: "#/restaurant"
+      - link "Kitchen" [ref=f10e39] [cursor=pointer]:
+        - /url: "#/kitchen"
+      - link "Reports" [ref=f10e42] [cursor=pointer]:
+        - /url: "#/reports"
+      - link "Integrasi" [ref=f10e44] [cursor=pointer]:
+        - /url: "#/integrasi"
+  - main [ref=f10e48]:
+    - generic [ref=f10e49]:
+      - generic [ref=f10e51]:
+        - generic [ref=f10e52]: Dashboard
+        - generic [ref=f10e53]: Business Suite
+      - generic [ref=f10e54]:
+        - button "Sync Offline" [ref=f10e55] [cursor=pointer]
+        - link "BotConnector.id" [ref=f10e56] [cursor=pointer]:
+          - /url: /
+    - generic [ref=f10e57]: Memuat...

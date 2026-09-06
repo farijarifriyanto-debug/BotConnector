@@ -1,0 +1,14 @@
+{% extends "base.html" %}
+{% block content %}
+<section class="order-page"><div class="wrap order-wrap" id="orderRoot" data-order-id="{{ order.order_id }}">
+  <a class="back" href="/store/{{ order.product }}/">← Kembali ke {{ product.display_name }}</a>
+  <div class="order-card">
+    <div class="order-title"><span class="status-pill {{ order.payment_status }}" id="statusPill">{{ payment_status_label(order.payment_status) }}</span><h1>Pesanan {{ order.order_id }}</h1><p>Status pembayaran dan kode aktivasi tampil di halaman ini.</p></div>
+    <div class="order-details"><div><small>Aplikasi</small><strong>{{ product.display_name }}</strong></div><div><small>Nama</small><strong>{{ order.customer }}</strong></div><div><small>Paket</small><strong>{{ product.editions[order.edition].label }}</strong></div><div><small>Jenis</small><strong>{{ license_type_label(order.license_type) }}</strong></div><div><small>Total</small><strong>{{ money(order.amount) }}</strong></div><div><small>ID perangkat</small><strong class="mono">{{ order.device }}</strong></div></div>
+    <div class="state-box {% if order.payment_status=='paid' %}done{% endif %}" id="paymentBox"><div class="state-number">1</div><div><small>Pembayaran</small><h3 id="paymentState">{{ payment_status_label(order.payment_status) }}</h3><p id="paymentHelp">{% if order.amount==0 %}Uji coba tidak memerlukan pembayaran.{% elif order.payment_mode=='midtrans' %}Selesaikan pembayaran pada halaman pembayaran resmi.{% else %}{{ manual_payment_text }}{% endif %}</p></div>{% if order.midtrans_redirect and order.payment_status=='pending' %}<a class="btn primary" id="payButton" href="{{ order.midtrans_redirect }}">Bayar Sekarang</a>{% endif %}</div>
+    <div class="state-box {% if order.fulfillment_status=='issued' %}done{% endif %}" id="licenseBox"><div class="state-number">2</div><div><small>Aktivasi</small><h3 id="licenseState">{{ fulfillment_status_label(order.fulfillment_status) }}</h3><p id="licenseHelp">Kode aktivasi muncul setelah pembayaran selesai dan lisensi diterbitkan.</p></div></div>
+    <div class="token-area {% if order.fulfillment_status!='issued' %}hidden{% endif %}" id="tokenArea"><small>Kode aktivasi</small><div class="token-row"><code id="licenseToken">{{ order.license_token or '' }}</code><button class="copy-btn" id="copyToken" type="button">Salin</button></div><p>Masukkan kode ini pada layar lisensi aplikasi {{ product.display_name }}.</p></div>
+    <div class="order-foot"><span>Simpan ID pesanan ini untuk referensi.</span><button class="refresh-btn" id="refreshOrder" type="button">Perbarui status</button></div>
+  </div>
+</div></section>
+{% endblock %}

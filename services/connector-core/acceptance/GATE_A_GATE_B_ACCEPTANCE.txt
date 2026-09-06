@@ -1,0 +1,86 @@
+============================================================
+BOTCONNECTOR GOOGLE SHEETS NATIVE V1
+CANDIDATE — GATE A + GATE B
+============================================================
+
+UTC=2026-08-13 06:14:37 UTC
+
+STATUS=CANDIDATE
+GATE_A=PASS
+GATE_B=PASS
+PROMOTED=NO
+REAL_GOOGLE_WRITE=NO
+
+BASELINE_RELEASE=/opt/botconnector-connector-core/releases/connector-core-v1-20260812T154906Z
+BASELINE_MAIN_SHA256=76be13b88ee61dc09443cc214d3db8dcc83876898e77b35f353df4ed9f7596e8
+BASELINE_DB_SHA256=dad1dec29f903160ed816e4be00a84632d611ab943b39a8fe63ec7e80b517eb4
+
+CANDIDATE=/opt/botconnector-connector-core/candidates/google-sheets-native-v1-20260813T061429Z
+CANDIDATE_MAIN_SHA256=cb784df1466b002be14528cc75356dba0d3c7c006b177f7b8959b7f4d922265f
+CANDIDATE_REQUIREMENTS_SHA256=5ff1385dbc03857c033ac381ed39806c098b87d70686b4fc8c348427497bb761
+
+ACTION_TYPE=google_sheets
+OPERATION=append_row
+
+ARCHITECTURE:
+Webhook
+-> Connector Core Candidate
+-> google_sheets action
+-> authenticated loopback bridge
+-> mock append sink
+
+VERIFIED:
+- frozen baseline pointer guard
+- frozen source hash guard
+- frozen DB hash guard
+- freeze manifest integrity
+- exact source structure guard
+- candidate-only patch
+- requirements unchanged
+- no Google SDK dependency
+- no Google OAuth credential dependency
+- bridge restricted to loopback
+- bridge shared-secret authentication
+- API authentication guard
+- existing HTTP workflow create regression
+- existing Telegram workflow create regression
+- Google Sheets config validation
+- Google Sheets workflow creation
+- workflow ownership isolation
+- encrypted workflow config at rest
+- webhook enqueue
+- idempotency
+- same run reuse
+- controlled retry after bridge 503
+- success on second attempt
+- user ID propagation from owned workflow
+- run ID propagation
+- append row column mapping
+- ignored payload field isolation
+- bridge-side duplicate append protection
+- workflow disable guard
+- disabled test guard
+- delete lifecycle
+- temporary DB cleanup
+- bridge secret leak scan
+- production current unchanged
+- production source unchanged
+- production DB unchanged
+- production service unchanged
+- production health unchanged
+
+NOT_VERIFIED:
+- real Google OAuth bridge
+- Google access token refresh
+- Google Sheets API append
+- real spreadsheet row creation
+- Google Sheets read
+- Google Sheets update
+- promotion
+- production UI status change
+
+PRODUCTION_MUTATION=NONE
+PRODUCTION_ROLLBACK_REQUIRED=NO
+
+NEXT_GATE=GATE_C_REAL_GOOGLE_APPEND
+============================================================

@@ -1,0 +1,267 @@
+- generic [active] [ref=f2e1]:
+  - banner [ref=f2e2]:
+    - generic [ref=f2e3]:
+      - link "BC BotConnector / Docs" [ref=f2e4] [cursor=pointer]:
+        - /url: /
+        - generic [ref=f2e5]: BC
+        - generic [ref=f2e6]: BotConnector
+        - generic [ref=f2e7]: / Docs
+      - generic [ref=f2e8]:
+        - generic [ref=f2e9]: ⌕
+        - searchbox "Cari dokumentasi" [ref=f2e10]
+        - generic [ref=f2e11]: Ctrl K
+      - navigation "Navigasi utama" [ref=f2e12]:
+        - link "Business Suite" [ref=f2e13] [cursor=pointer]:
+          - /url: /bisnis/
+        - link "Konektor" [ref=f2e14] [cursor=pointer]:
+          - /url: /konektor/
+        - link "Integrasi" [ref=f2e15] [cursor=pointer]:
+          - /url: /integrasi/
+        - link "Template" [ref=f2e16] [cursor=pointer]:
+          - /url: /resep/
+        - link "Solusi" [ref=f2e17] [cursor=pointer]:
+          - /url: /solusi/
+        - link "Docs" [ref=f2e18] [cursor=pointer]:
+          - /url: /docs/
+      - generic [ref=f2e19]:
+        - link "Konektor" [ref=f2e20] [cursor=pointer]:
+          - /url: /konektor/
+        - link "Status" [ref=f2e21] [cursor=pointer]:
+          - /url: /status
+        - link "Buat otomasi →" [ref=f2e23] [cursor=pointer]:
+          - /url: /otomasi/
+  - generic [ref=f2e24]:
+    - complementary [ref=f2e25]:
+      - generic [ref=f2e26]:
+        - generic [ref=f2e27]: Mulai
+        - link "⌂ Ikhtisar" [ref=f2e28] [cursor=pointer]:
+          - /url: "#overview"
+          - generic [ref=f2e29]: ⌂
+          - text: Ikhtisar
+        - link "→ Quick start" [ref=f2e30] [cursor=pointer]:
+          - /url: "#quickstart"
+          - generic [ref=f2e31]: →
+          - text: Quick start
+      - generic [ref=f2e32]:
+        - generic [ref=f2e33]: Dasar automation
+        - link "◇ Trigger & action" [ref=f2e34] [cursor=pointer]:
+          - /url: "#concepts"
+          - generic [ref=f2e35]: ◇
+          - text: Trigger & action
+        - link "⌘ Konektor" [ref=f2e36] [cursor=pointer]:
+          - /url: "#connectors"
+          - generic [ref=f2e37]: ⌘
+          - text: Konektor
+        - link "↗ Webhook & HTTP/API" [ref=f2e38] [cursor=pointer]:
+          - /url: "#webhooks"
+          - generic [ref=f2e39]: ↗
+          - text: Webhook & HTTP/API
+      - generic [ref=f2e40]:
+        - generic [ref=f2e41]: Production
+        - link "◎ Reliability" [ref=f2e42] [cursor=pointer]:
+          - /url: "#reliability"
+          - generic [ref=f2e43]: ◎
+          - text: Reliability
+        - link "⌑ Security" [ref=f2e44] [cursor=pointer]:
+          - /url: "#security"
+          - generic [ref=f2e45]: ⌑
+          - text: Security
+        - link "● Status sistem" [ref=f2e46] [cursor=pointer]:
+          - /url: /status
+          - generic [ref=f2e47]: ●
+          - text: Status sistem
+      - generic [ref=f2e48]:
+        - generic [ref=f2e49]: Resources
+        - link "Connector Store" [ref=f2e50] [cursor=pointer]:
+          - /url: /konektor/
+        - link "Template" [ref=f2e51] [cursor=pointer]:
+          - /url: /resep/
+        - link "Solusi" [ref=f2e52] [cursor=pointer]:
+          - /url: /solusi/
+    - main [ref=f2e53]:
+      - generic [ref=f2e54]:
+        - generic [ref=f2e55]: BotConnector Documentation
+        - heading "Bangun workflow yang bekerja di dunia nyata." [level=1] [ref=f2e56]
+        - paragraph [ref=f2e57]: Pelajari cara menerima event, menghubungkan sistem, menjalankan tindakan, dan menjaga workflow tetap aman ketika digunakan di production.
+        - generic [ref=f2e58]:
+          - link "Buat workflow →" [ref=f2e59] [cursor=pointer]:
+            - /url: /otomasi/
+          - link "Mulai dari quick start" [ref=f2e60] [cursor=pointer]:
+            - /url: "#quickstart"
+          - link "Lihat konektor" [ref=f2e61] [cursor=pointer]:
+            - /url: /konektor/
+        - generic [ref=f2e62]:
+          - link "01 Buat otomasi pertama Pilih trigger, tentukan tindakan, uji alur, lalu aktifkan." [ref=f2e63] [cursor=pointer]:
+            - /url: /otomasi/
+            - generic [ref=f2e64]: "01"
+            - strong [ref=f2e65]: Buat otomasi pertama
+            - paragraph [ref=f2e66]: Pilih trigger, tentukan tindakan, uji alur, lalu aktifkan.
+          - link "02 Mulai dengan Webhook Terima event JSON dari aplikasi atau sistem yang Anda gunakan." [ref=f2e67] [cursor=pointer]:
+            - /url: "#webhooks"
+            - generic [ref=f2e68]: "02"
+            - strong [ref=f2e69]: Mulai dengan Webhook
+            - paragraph [ref=f2e70]: Terima event JSON dari aplikasi atau sistem yang Anda gunakan.
+          - link "03 Hubungkan sistem Gunakan konektor native atau HTTP/API sebagai jalur universal." [ref=f2e71] [cursor=pointer]:
+            - /url: "#connectors"
+            - generic [ref=f2e72]: "03"
+            - strong [ref=f2e73]: Hubungkan sistem
+            - paragraph [ref=f2e74]: Gunakan konektor native atau HTTP/API sebagai jalur universal.
+          - link "04 Siapkan untuk production Pahami retry, idempotency, credential, dan execution state." [ref=f2e75] [cursor=pointer]:
+            - /url: "#reliability"
+            - generic [ref=f2e76]: "04"
+            - strong [ref=f2e77]: Siapkan untuk production
+            - paragraph [ref=f2e78]: Pahami retry, idempotency, credential, dan execution state.
+      - generic [ref=f2e79]:
+        - generic [ref=f2e80]: Core concepts
+        - heading "Bagaimana automation bekerja." [level=2] [ref=f2e81]
+        - paragraph [ref=f2e82]: Workflow dimulai ketika sebuah event terjadi. BotConnector menerima event tersebut, memprosesnya, kemudian menjalankan tindakan menuju sistem tujuan.
+        - generic [ref=f2e83]:
+          - generic [ref=f2e84]:
+            - text: "01"
+            - heading "Trigger" [level=3] [ref=f2e85]
+            - paragraph [ref=f2e86]: Peristiwa yang memulai workflow, misalnya webhook atau perubahan status.
+          - generic [ref=f2e87]: →
+          - generic [ref=f2e88]:
+            - text: "02"
+            - heading "Workflow" [level=3] [ref=f2e89]
+            - paragraph [ref=f2e90]: Aturan dan pemrosesan yang menentukan apa yang harus dilakukan terhadap event.
+          - generic [ref=f2e91]: →
+          - generic [ref=f2e92]:
+            - text: "03"
+            - heading "Action" [level=3] [ref=f2e93]
+            - paragraph [ref=f2e94]: Tindakan akhir seperti mengirim notifikasi atau meneruskan data ke API.
+        - generic [ref=f2e95]: "Mulai dari workflow sederhana terlebih dahulu: satu trigger dan satu action. Tambahkan integrasi lain setelah alur dasar berhasil diuji."
+      - generic [ref=f2e96]:
+        - generic [ref=f2e97]: Connectors
+        - heading "Pilih cara sistem terhubung." [level=2] [ref=f2e98]
+        - paragraph [ref=f2e99]: Gunakan konektor yang tersedia. Ketika konektor khusus belum tersedia, Webhook dan HTTP/API tetap menyediakan jalur integrasi universal.
+        - generic [ref=f2e100]:
+          - generic [ref=f2e101]:
+            - generic [ref=f2e102]: Konektor
+            - generic [ref=f2e103]: Jenis
+            - generic [ref=f2e104]: Status
+          - generic [ref=f2e105]:
+            - generic [ref=f2e106]: WH
+            - generic [ref=f2e107]:
+              - generic [ref=f2e108]: Webhook
+              - generic [ref=f2e109]: Terima event JSON melalui HTTPS.
+            - generic [ref=f2e110]: Trigger
+            - generic [ref=f2e111]: Aktif
+          - generic [ref=f2e112]:
+            - generic [ref=f2e113]: API
+            - generic [ref=f2e114]:
+              - generic [ref=f2e115]: HTTP / API
+              - generic [ref=f2e116]: Teruskan data menuju endpoint HTTPS.
+            - generic [ref=f2e117]: Action
+            - generic [ref=f2e118]: Aktif
+          - generic [ref=f2e119]:
+            - generic [ref=f2e120]: TG
+            - generic [ref=f2e121]:
+              - generic [ref=f2e122]: Telegram
+              - generic [ref=f2e123]: Kirim alert dan notifikasi workflow.
+            - generic [ref=f2e124]: Action
+            - generic [ref=f2e125]: Aktif
+          - generic [ref=f2e126]:
+            - generic [ref=f2e127]: GS
+            - generic [ref=f2e128]:
+              - generic [ref=f2e129]: Google Sheets
+              - generic [ref=f2e130]: Integrasi perubahan data spreadsheet.
+            - generic [ref=f2e131]: Data
+            - generic [ref=f2e132]: Roadmap
+          - generic [ref=f2e133]:
+            - generic [ref=f2e134]: WA
+            - generic [ref=f2e135]:
+              - generic [ref=f2e136]: WhatsApp
+              - generic [ref=f2e137]: Notifikasi dan workflow pelanggan.
+            - generic [ref=f2e138]: Messaging
+            - generic [ref=f2e139]: Roadmap
+        - link "Buka Connector Store →" [ref=f2e141] [cursor=pointer]:
+          - /url: /konektor/
+      - generic [ref=f2e142]:
+        - generic [ref=f2e143]: Developer
+        - heading "Webhook dan HTTP/API." [level=2] [ref=f2e144]
+        - paragraph [ref=f2e145]: Webhook memungkinkan sistem mengirim event ketika sesuatu terjadi. HTTP/API dapat digunakan untuk meneruskan hasil workflow ke layanan atau sistem lain.
+        - generic [ref=f2e146]:
+          - generic [ref=f2e147]:
+            - generic [ref=f2e148]: Contoh event JSON
+            - generic [ref=f2e149]: application/json
+          - generic [ref=f2e150]: "{ \"event\": \"payment.paid\", \"order_id\": \"ORD-1028\", \"amount\": 250000 }"
+        - generic [ref=f2e151]: Payload di atas hanya contoh struktur data. Endpoint dan field workflow mengikuti konfigurasi otomasi yang Anda buat di BotConnector.
+      - generic [ref=f2e152]:
+        - generic [ref=f2e153]: Production
+        - heading "Reliability bukan fitur tambahan." [level=2] [ref=f2e154]
+        - paragraph [ref=f2e155]: Workflow production perlu mampu menghadapi request gagal, event ganda, credential rahasia, serta kebutuhan untuk mengetahui status eksekusi.
+        - generic [ref=f2e156]:
+          - article [ref=f2e157]:
+            - strong [ref=f2e158]: Automatic Retry
+            - paragraph [ref=f2e159]: Percobaan ulang membantu menghadapi kegagalan jaringan yang bersifat sementara.
+          - article [ref=f2e160]:
+            - strong [ref=f2e161]: Idempotency
+            - paragraph [ref=f2e162]: Membantu mengurangi risiko event yang sama menjalankan tindakan berulang.
+          - article [ref=f2e163]:
+            - strong [ref=f2e164]: Server-side Credentials
+            - paragraph [ref=f2e165]: Secret dan credential sensitif tidak perlu dikirim kembali ke antarmuka pengguna.
+          - article [ref=f2e166]:
+            - strong [ref=f2e167]: Execution Visibility
+            - paragraph [ref=f2e168]: Status yang jelas memudahkan pemeriksaan ketika sebuah workflow berhasil atau gagal.
+      - generic [ref=f2e169]:
+        - generic [ref=f2e170]: Security
+        - heading "Rahasia tetap menjadi rahasia." [level=2] [ref=f2e171]
+        - paragraph [ref=f2e172]: Gunakan HTTPS untuk komunikasi, simpan credential secara server-side, dan batasi akses sesuai kebutuhan setiap workflow.
+        - generic [ref=f2e173]:
+          - article [ref=f2e174]:
+            - strong [ref=f2e175]: Security
+            - paragraph [ref=f2e176]: Baca kebijakan keamanan yang tersedia untuk layanan BotConnector.
+            - link "Buka security →" [ref=f2e177] [cursor=pointer]:
+              - /url: /security
+          - article [ref=f2e178]:
+            - strong [ref=f2e179]: System status
+            - paragraph [ref=f2e180]: Periksa status layanan sebelum melakukan troubleshooting aplikasi.
+            - link "Lihat status →" [ref=f2e181] [cursor=pointer]:
+              - /url: /status
+          - article [ref=f2e182]:
+            - strong [ref=f2e183]: Workflow builder
+            - paragraph [ref=f2e184]: Kembali ke antarmuka automation untuk membuat atau menguji workflow.
+            - link "Buat otomasi →" [ref=f2e185] [cursor=pointer]:
+              - /url: /otomasi/
+      - generic [ref=f2e187]:
+        - link "Sebelumnya ← Automation Platform" [ref=f2e188] [cursor=pointer]:
+          - /url: /
+          - generic [ref=f2e189]: Sebelumnya
+          - strong [ref=f2e190]: ← Automation Platform
+        - link "Berikutnya Buat workflow →" [ref=f2e191] [cursor=pointer]:
+          - /url: /otomasi/
+          - generic [ref=f2e192]: Berikutnya
+          - strong [ref=f2e193]: Buat workflow →
+    - complementary [ref=f2e194]:
+      - generic [ref=f2e195]: Di halaman ini
+      - link "Overview" [ref=f2e196] [cursor=pointer]:
+        - /url: "#overview"
+      - link "Quick start" [ref=f2e197] [cursor=pointer]:
+        - /url: "#quickstart"
+      - link "Trigger & action" [ref=f2e198] [cursor=pointer]:
+        - /url: "#concepts"
+      - link "Konektor" [ref=f2e199] [cursor=pointer]:
+        - /url: "#connectors"
+      - link "Webhook / API" [ref=f2e200] [cursor=pointer]:
+        - /url: "#webhooks"
+      - link "Reliability" [ref=f2e201] [cursor=pointer]:
+        - /url: "#reliability"
+      - link "Security" [ref=f2e202] [cursor=pointer]:
+        - /url: "#security"
+  - contentinfo [ref=f2e203]:
+    - generic [ref=f2e204]:
+      - generic [ref=f2e205]: BotConnector / Docs
+      - navigation "Navigasi footer" [ref=f2e206]:
+        - link "Konektor" [ref=f2e207] [cursor=pointer]:
+          - /url: /konektor/
+        - link "Integrasi" [ref=f2e208] [cursor=pointer]:
+          - /url: /integrasi/
+        - link "Template" [ref=f2e209] [cursor=pointer]:
+          - /url: /resep/
+        - link "Solusi" [ref=f2e210] [cursor=pointer]:
+          - /url: /solusi/
+        - link "Docs" [ref=f2e211] [cursor=pointer]:
+          - /url: /docs/
+        - link "Status" [ref=f2e212] [cursor=pointer]:
+          - /url: /status

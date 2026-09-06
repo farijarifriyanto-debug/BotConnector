@@ -1,0 +1,29 @@
+[Unit]
+Description=BotConnector Store Production V6
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+Type=simple
+User=botconnector-store
+Group=botconnector-store
+WorkingDirectory=/opt/botconnector-store/current
+EnvironmentFile=/etc/botconnector-store/.env
+ExecStart=/opt/botconnector-store/venv/bin/python -m uvicorn app.app:APP --host 127.0.0.1 --port 18194 --workers 1 --proxy-headers --forwarded-allow-ips=127.0.0.1 --no-access-log
+Restart=always
+RestartSec=3
+TimeoutStopSec=15
+NoNewPrivileges=true
+PrivateTmp=true
+ProtectSystem=strict
+ProtectHome=true
+ProtectKernelTunables=true
+ProtectKernelModules=true
+ProtectControlGroups=true
+RestrictSUIDSGID=true
+LockPersonality=true
+ReadWritePaths=/var/lib/botconnector-store
+UMask=0027
+
+[Install]
+WantedBy=multi-user.target

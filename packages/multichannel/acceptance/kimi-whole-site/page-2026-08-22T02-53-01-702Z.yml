@@ -1,0 +1,226 @@
+- generic [active] [ref=f31e1]:
+  - banner [ref=f31e2]:
+    - generic [ref=f31e3]:
+      - link "BC BotConnector" [ref=f31e4] [cursor=pointer]:
+        - /url: /
+        - generic [ref=f31e5]: BC
+        - text: BotConnector
+      - navigation "Navigasi utama" [ref=f31e6]:
+        - link "Business Suite" [ref=f31e7] [cursor=pointer]:
+          - /url: /business-suite/
+        - link "Retail" [ref=f31e8] [cursor=pointer]:
+          - /url: /retail/
+        - link "Restaurant" [ref=f31e9] [cursor=pointer]:
+          - /url: /restaurant/
+        - link "Integrasi" [ref=f31e10] [cursor=pointer]:
+          - /url: /integrations/
+        - link "Resep" [ref=f31e11] [cursor=pointer]:
+          - /url: /resep/
+        - link "Solusi" [ref=f31e12] [cursor=pointer]:
+          - /url: /solusi/
+        - link "Docs" [ref=f31e13] [cursor=pointer]:
+          - /url: /docs/
+      - link "Buka Bisnis →" [ref=f31e15] [cursor=pointer]:
+        - /url: /bisnis/
+  - generic [ref=f31e16]:
+    - link "BotConnector" [ref=f31e17] [cursor=pointer]:
+      - /url: /
+    - text: / Resep Operasional
+  - main [ref=f31e18]:
+    - generic [ref=f31e20]:
+      - generic [ref=f31e21]:
+        - generic [ref=f31e22]: Resep Operasional
+        - heading "Mulai dari alur bisnis yang sudah jelas." [level=1] [ref=f31e23]
+        - paragraph [ref=f31e24]: "Template berbasis kemampuan nyata BotConnector: retail, restoran, integrasi, dan otomasi. Setiap resep menunjukkan input, proses, dan hasil."
+        - generic [ref=f31e25]:
+          - link "Buka Business Suite →" [ref=f31e26] [cursor=pointer]:
+            - /url: /bisnis/
+          - link "Buat Otomasi" [ref=f31e27] [cursor=pointer]:
+            - /url: /connect-v2/
+      - generic [ref=f31e28]:
+        - generic [ref=f31e29]:
+          - generic [ref=f31e30]: Recipe pattern
+          - generic [ref=f31e31]: ● Aktif
+        - generic [ref=f31e32]:
+          - generic [ref=f31e33]:
+            - generic [ref=f31e34]: IN
+            - generic [ref=f31e35]: INPUT
+            - strong [ref=f31e36]: Order / Event
+          - generic [ref=f31e38]:
+            - generic [ref=f31e39]: PR
+            - generic [ref=f31e40]: PROSES
+            - strong [ref=f31e41]: Sistem bekerja
+          - generic [ref=f31e43]:
+            - generic [ref=f31e44]: OUT
+            - generic [ref=f31e45]: HASIL
+            - strong [ref=f31e46]: Stok & Laporan
+    - generic [ref=f31e48]:
+      - generic [ref=f31e50]:
+        - generic [ref=f31e51]: Retail
+        - heading "Alur toko & retail." [level=2] [ref=f31e52]
+      - generic [ref=f31e53]:
+        - generic [ref=f31e54]:
+          - generic [ref=f31e55]:
+            - generic [ref=f31e56]:
+              - generic [ref=f31e57]: POS
+              - generic [ref=f31e58]: INV
+              - generic [ref=f31e59]: FIN
+            - generic [ref=f31e60]: Aktif
+          - generic [ref=f31e61]: Penjualan Retail
+          - heading "Sale → Inventory → Finance" [level=3] [ref=f31e62]
+          - paragraph [ref=f31e63]: Penjualan di POS mengurangi stok cabang dan mencatat pembukuan secara otomatis.
+          - generic [ref=f31e64]:
+            - generic [ref=f31e65]: POS · Stok · Finance
+            - generic [ref=f31e66]: Langsung jalan
+        - generic [ref=f31e67]:
+          - generic [ref=f31e68]:
+            - generic [ref=f31e69]:
+              - generic [ref=f31e70]: RT
+              - generic [ref=f31e71]: INV
+            - generic [ref=f31e72]: Aktif
+          - generic [ref=f31e73]: Retur
+          - heading "Retur → Stok kembali" [level=3] [ref=f31e74]
+          - paragraph [ref=f31e75]: Retur penjualan mengembalikan stok ke lokasi asal dan memperbarui laporan.
+          - generic [ref=f31e76]:
+            - generic [ref=f31e77]: Retur · Stok
+            - generic [ref=f31e78]: Langsung jalan
+        - generic [ref=f31e79]:
+          - generic [ref=f31e80]:
+            - generic [ref=f31e81]:
+              - generic [ref=f31e82]: A
+              - generic [ref=f31e83]: B
+              - generic [ref=f31e84]: TR
+            - generic [ref=f31e85]: Aktif
+          - generic [ref=f31e86]: Multi-cabang
+          - heading "Transfer antar cabang" [level=3] [ref=f31e87]
+          - paragraph [ref=f31e88]: Kirim stok dari cabang A ke B dengan lifecycle dan konservasi qty.
+          - generic [ref=f31e89]:
+            - generic [ref=f31e90]: Transfer · Stok
+            - generic [ref=f31e91]: Langsung jalan
+      - generic [ref=f31e93]:
+        - generic [ref=f31e94]: Restaurant
+        - heading "Alur restoran & cafe." [level=2] [ref=f31e95]
+      - generic [ref=f31e96]:
+        - generic [ref=f31e97]:
+          - generic [ref=f31e98]:
+            - generic [ref=f31e99]:
+              - generic [ref=f31e100]: ORD
+              - generic [ref=f31e101]: KDS
+              - generic [ref=f31e102]: INV
+            - generic [ref=f31e103]: Aktif
+          - generic [ref=f31e104]: Dapur
+          - heading "Order → KDS → Ingredient usage" [level=3] [ref=f31e105]
+          - paragraph [ref=f31e106]: Order restoran masuk ke KDS dan mengonsumsi bahan sesuai resep/BOM.
+          - generic [ref=f31e107]:
+            - generic [ref=f31e108]: Order · KDS · Stok
+            - generic [ref=f31e109]: Langsung jalan
+        - generic [ref=f31e110]:
+          - generic [ref=f31e111]:
+            - generic [ref=f31e112]:
+              - generic [ref=f31e113]: F
+              - generic [ref=f31e114]: B
+              - generic [ref=f31e115]: RPT
+            - generic [ref=f31e116]: Aktif
+          - generic [ref=f31e117]: Laporan
+          - heading "Food/Beverage sale → Reporting" [level=3] [ref=f31e118]
+          - paragraph [ref=f31e119]: Setiap penjualan makanan/minuman mencatat COGS, gross profit, dan margin.
+          - generic [ref=f31e120]:
+            - generic [ref=f31e121]: Sales · COGS · Margin
+            - generic [ref=f31e122]: Langsung jalan
+        - generic [ref=f31e123]:
+          - generic [ref=f31e124]:
+            - generic [ref=f31e125]:
+              - generic [ref=f31e126]: QR
+              - generic [ref=f31e127]: KDS
+            - generic [ref=f31e128]: Aktif
+          - generic [ref=f31e129]: Self-order
+          - heading "QR order → Kitchen flow" [level=3] [ref=f31e130]
+          - paragraph [ref=f31e131]: Pelanggan scan QR, pesan, dan order masuk ke KDS tanpa melalui kasir.
+          - generic [ref=f31e132]:
+            - generic [ref=f31e133]: QR · KDS · Antrean
+            - generic [ref=f31e134]: Langsung jalan
+      - generic [ref=f31e136]:
+        - generic [ref=f31e137]: Integrasi & Otomasi
+        - heading "Alur integrasi dan workflow." [level=2] [ref=f31e138]
+      - generic [ref=f31e139]:
+        - generic [ref=f31e140]:
+          - generic [ref=f31e141]:
+            - generic [ref=f31e142]:
+              - generic [ref=f31e143]: MP
+              - generic [ref=f31e144]: INV
+            - generic [ref=f31e145]: Segera Hadir
+          - generic [ref=f31e146]: Marketplace
+          - heading "Marketplace order → Inventory" [level=3] [ref=f31e147]
+          - paragraph [ref=f31e148]: Order dari marketplace mengurangi stok pusat dan memicu pembuatan picking list.
+          - generic [ref=f31e149]:
+            - generic [ref=f31e150]: Marketplace · Stok
+            - generic [ref=f31e151]: Segera hadir
+        - generic [ref=f31e152]:
+          - generic [ref=f31e153]:
+            - generic [ref=f31e154]:
+              - generic [ref=f31e155]: FD
+              - generic [ref=f31e156]: KDS
+            - generic [ref=f31e157]: Segera Hadir
+          - generic [ref=f31e158]: Food Delivery
+          - heading "Food delivery → KDS/order normalization" [level=3] [ref=f31e159]
+          - paragraph [ref=f31e160]: Order GoFood/GrabFood masuk sebagai order restoran dan diteruskan ke KDS.
+          - generic [ref=f31e161]:
+            - generic [ref=f31e162]: Delivery · KDS
+            - generic [ref=f31e163]: Segera hadir
+        - link "WH TG Tersedia Otomasi Webhook → Telegram alert Terima event JSON lalu kirim notifikasi yang sudah diformat ke Telegram. Webhook · Telegram Buat →" [ref=f31e164] [cursor=pointer]:
+          - /url: /connect-v2/
+          - generic [ref=f31e165]:
+            - generic [ref=f31e166]:
+              - generic [ref=f31e167]: WH
+              - generic [ref=f31e168]: TG
+            - generic [ref=f31e169]: Tersedia
+          - generic [ref=f31e170]: Otomasi
+          - heading "Webhook → Telegram alert" [level=3] [ref=f31e171]
+          - paragraph [ref=f31e172]: Terima event JSON lalu kirim notifikasi yang sudah diformat ke Telegram.
+          - generic [ref=f31e173]:
+            - generic [ref=f31e174]: Webhook · Telegram
+            - generic [ref=f31e175]: Buat →
+        - link "WH API Tersedia Otomasi Webhook → API Gunakan webhook sebagai trigger dan teruskan payload ke endpoint HTTPS tujuan. Webhook · API Buat →" [ref=f31e176] [cursor=pointer]:
+          - /url: /connect-v2/
+          - generic [ref=f31e177]:
+            - generic [ref=f31e178]:
+              - generic [ref=f31e179]: WH
+              - generic [ref=f31e180]: API
+            - generic [ref=f31e181]: Tersedia
+          - generic [ref=f31e182]: Otomasi
+          - heading "Webhook → API" [level=3] [ref=f31e183]
+          - paragraph [ref=f31e184]: Gunakan webhook sebagai trigger dan teruskan payload ke endpoint HTTPS tujuan.
+          - generic [ref=f31e185]:
+            - generic [ref=f31e186]: Webhook · API
+            - generic [ref=f31e187]: Buat →
+      - generic [ref=f31e188]:
+        - text: Resep berstatus
+        - strong [ref=f31e189]: Aktif/Tersedia
+        - text: dapat langsung dijalankan di Business Suite atau Automation. Resep berstatus
+        - strong [ref=f31e190]: Segera Hadir
+        - text: adalah ilustrasi alur yang memerlukan koneksi eksternal aktif.
+  - contentinfo [ref=f31e191]:
+    - generic [ref=f31e192]:
+      - generic [ref=f31e193]:
+        - link "BC BotConnector" [ref=f31e194] [cursor=pointer]:
+          - /url: /
+          - generic [ref=f31e195]: BC
+          - text: BotConnector
+        - generic [ref=f31e196]: Hubungkan sistem. Jalankan bisnis dari satu tempat.
+      - generic [ref=f31e197]:
+        - link "Business Suite" [ref=f31e198] [cursor=pointer]:
+          - /url: /business-suite/
+        - link "Retail" [ref=f31e199] [cursor=pointer]:
+          - /url: /retail/
+        - link "Restaurant" [ref=f31e200] [cursor=pointer]:
+          - /url: /restaurant/
+        - link "Integrasi" [ref=f31e201] [cursor=pointer]:
+          - /url: /integrations/
+        - link "Resep" [ref=f31e202] [cursor=pointer]:
+          - /url: /resep/
+        - link "Solusi" [ref=f31e203] [cursor=pointer]:
+          - /url: /solusi/
+        - link "Docs" [ref=f31e204] [cursor=pointer]:
+          - /url: /docs/
+        - link "Status" [ref=f31e205] [cursor=pointer]:
+          - /url: /status

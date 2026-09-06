@@ -1,0 +1,209 @@
+- generic [active] [ref=f50e1]:
+  - banner [ref=f50e2]:
+    - generic [ref=f50e3]:
+      - link "BC BotConnector / Docs" [ref=f50e4] [cursor=pointer]:
+        - /url: /
+        - generic [ref=f50e5]: BC
+        - text: BotConnector
+        - generic [ref=f50e6]: / Docs
+      - navigation [ref=f50e7]:
+        - link "Business Suite" [ref=f50e8] [cursor=pointer]:
+          - /url: /business-suite/
+        - link "Retail" [ref=f50e9] [cursor=pointer]:
+          - /url: /retail/
+        - link "Restaurant" [ref=f50e10] [cursor=pointer]:
+          - /url: /restaurant/
+        - link "Integrasi" [ref=f50e11] [cursor=pointer]:
+          - /url: /integrations/
+        - link "Resep" [ref=f50e12] [cursor=pointer]:
+          - /url: /resep/
+        - link "Solusi" [ref=f50e13] [cursor=pointer]:
+          - /url: /solusi/
+      - link "Buka Bisnis →" [ref=f50e15] [cursor=pointer]:
+        - /url: /bisnis/
+  - generic [ref=f50e16]:
+    - complementary [ref=f50e17]:
+      - generic [ref=f50e18]:
+        - generic [ref=f50e19]: Mulai
+        - link "Ikhtisar" [ref=f50e20] [cursor=pointer]:
+          - /url: "#overview"
+        - link "Business Suite" [ref=f50e21] [cursor=pointer]:
+          - /url: "#business-suite"
+      - generic [ref=f50e22]:
+        - generic [ref=f50e23]: Products
+        - link "Retail POS" [ref=f50e24] [cursor=pointer]:
+          - /url: "#retail"
+        - link "Restaurant" [ref=f50e25] [cursor=pointer]:
+          - /url: "#restaurant"
+        - link "Inventory" [ref=f50e26] [cursor=pointer]:
+          - /url: "#inventory"
+        - link "Transfer" [ref=f50e27] [cursor=pointer]:
+          - /url: "#transfers"
+        - link "KDS / KOT" [ref=f50e28] [cursor=pointer]:
+          - /url: "#kds"
+        - link "Reporting" [ref=f50e29] [cursor=pointer]:
+          - /url: "#reports"
+      - generic [ref=f50e30]:
+        - generic [ref=f50e31]: Integrasi & Otomasi
+        - link "Integrasi" [ref=f50e32] [cursor=pointer]:
+          - /url: "#integrations"
+        - link "CSV & Barcode" [ref=f50e33] [cursor=pointer]:
+          - /url: "#csv-barcode"
+        - link "Webhook / API" [ref=f50e34] [cursor=pointer]:
+          - /url: "#webhook"
+        - link "Automation" [ref=f50e35] [cursor=pointer]:
+          - /url: "#automation"
+    - main [ref=f50e36]:
+      - generic [ref=f50e37]:
+        - generic [ref=f50e38]: BotConnector Documentation
+        - heading "Dokumentasi produk & integrasi." [level=1] [ref=f50e39]
+        - paragraph [ref=f50e40]: Panduan untuk menjalankan Business Suite — Retail POS, Restaurant, Inventory, Multi-Cabang, Transfer, KDS, Reporting — serta integrasi lokal dan otomasi event-driven.
+        - generic [ref=f50e41]:
+          - link "01 Buka Business Suite Dashboard, POS, order, produk, stok, transfer, KDS, dan laporan." [ref=f50e42] [cursor=pointer]:
+            - /url: /bisnis/
+            - generic [ref=f50e43]: "01"
+            - strong [ref=f50e44]: Buka Business Suite
+            - paragraph [ref=f50e45]: Dashboard, POS, order, produk, stok, transfer, KDS, dan laporan.
+          - link "02 Mulai dengan Retail POS Kasir, barcode, cart, tender, receipt, retur, dan offline." [ref=f50e46] [cursor=pointer]:
+            - /url: "#retail"
+            - generic [ref=f50e47]: "02"
+            - strong [ref=f50e48]: Mulai dengan Retail POS
+            - paragraph [ref=f50e49]: Kasir, barcode, cart, tender, receipt, retur, dan offline.
+          - link "03 Jalankan Restaurant Menu, resep/BOM, KDS/KOT, dine-in/takeaway, QR self-order." [ref=f50e50] [cursor=pointer]:
+            - /url: "#restaurant"
+            - generic [ref=f50e51]: "03"
+            - strong [ref=f50e52]: Jalankan Restaurant
+            - paragraph [ref=f50e53]: Menu, resep/BOM, KDS/KOT, dine-in/takeaway, QR self-order.
+          - link "04 Hubungkan sistem CSV, barcode, QR, marketplace, food delivery, webhook/API." [ref=f50e54] [cursor=pointer]:
+            - /url: "#integrations"
+            - generic [ref=f50e55]: "04"
+            - strong [ref=f50e56]: Hubungkan sistem
+            - paragraph [ref=f50e57]: CSV, barcode, QR, marketplace, food delivery, webhook/API.
+      - generic [ref=f50e58]:
+        - generic [ref=f50e59]: Business Suite
+        - heading "Satu aplikasi untuk seluruh operasional." [level=2] [ref=f50e60]
+        - paragraph [ref=f50e61]: Business Suite menyatukan POS retail & restoran, produk/SKU master, inventori pusat, multi-cabang, transfer, KDS, reporting, dan finance dalam satu aplikasi berbasis web. Setiap transaksi langsung memengaruhi stok dan laporan.
+        - paragraph [ref=f50e62]:
+          - text: Akses langsung di
+          - link /bisnis/ [ref=f50e63] [cursor=pointer]:
+            - /url: /bisnis/
+          - text: ". Modul tersedia: Dashboard, POS, Orders, Products, Inventory, Transfers, Restaurant, Kitchen, Reports, Integrasi."
+      - generic [ref=f50e64]:
+        - generic [ref=f50e65]: Retail POS
+        - heading "Kasir toko dengan stok terhubung." [level=2] [ref=f50e66]
+        - paragraph [ref=f50e67]: POS retail mendukung pencarian produk, scan barcode, cart, qty, diskon, tender tunai/QRIS/kartu/transfer, receipt, dan sale history. Setiap penjualan mengurangi stok cabang dan mencatat COGS ke finance.
+        - paragraph [ref=f50e68]: "Fitur utama: barcode keyboard-wedge, alias barcode, retur, void, shift, multi-register, multi-cabang, dan mode offline dengan sinkronisasi idempoten."
+      - generic [ref=f50e69]:
+        - generic [ref=f50e70]: Restaurant
+        - heading "POS restoran berbasis resep." [level=2] [ref=f50e71]
+        - paragraph [ref=f50e72]: Restaurant POS mendukung dine-in dan takeaway, pemilihan meja, guest count, order line, notes, dan pembayaran. Setiap order restoran tersambung ke resep/BOM sehingga ingredient inventory berkurang secara otomatis.
+        - paragraph [ref=f50e73]: Laporan restoran mencakup food sales, beverage sales, COGS, gross profit, dan gross margin per kategori serta kanal.
+      - generic [ref=f50e74]:
+        - generic [ref=f50e75]: Inventory
+        - heading "Stok pusat location-aware." [level=2] [ref=f50e76]
+        - paragraph [ref=f50e77]: "Inventory menggunakan terminologi operasional: Stok Fisik, Dipesan/Reserved, Dalam Perjalanan/In Transit, dan Stok Tersedia. Setiap cabang dan gudang adalah lokasi tersendiri dengan saldo independen."
+        - paragraph [ref=f50e78]: "Fitur: produk/SKU master, low-stock alert, opname, waste/spoilage, transfer antar cabang, dan konservasi stok."
+      - generic [ref=f50e79]:
+        - generic [ref=f50e80]: Transfer
+        - heading "Transfer stok antar cabang." [level=2] [ref=f50e81]
+        - paragraph [ref=f50e82]: "Transfer memiliki lifecycle yang jelas: Dibuat → Disetujui → Dikirim → Dalam Perjalanan → Diterima. Status dan qty setiap item terlihat sehingga stok tidak hilang di tengah jalan."
+      - generic [ref=f50e83]:
+        - generic [ref=f50e84]: KDS / KOT
+        - heading "Kitchen Display System." [level=2] [ref=f50e85]
+        - paragraph [ref=f50e86]: "KDS menampilkan Kitchen Order Ticket dalam lane: Baru, Diproses, Siap, Selesai. Desain dioptimalkan untuk terbaca dari jarak di dapur. Setiap perubahan status memperbarui prioritas antrean dan waktu elapsed."
+      - generic [ref=f50e87]:
+        - generic [ref=f50e88]: Reporting
+        - heading "Laporan bisnis real-time." [level=2] [ref=f50e89]
+        - paragraph [ref=f50e90]: "Reports menyediakan KPI card dan tabel berdasarkan data operasional: penjualan retail, restaurant, food/beverage, COGS, gross profit, gross margin, channel, waste, dan perbandingan cabang. Tidak ada data palsu; angka berasal dari transaksi tercatat."
+      - generic [ref=f50e91]:
+        - generic [ref=f50e92]: Integrasi
+        - heading "Hubungkan channel dan perangkat." [level=2] [ref=f50e93]
+        - paragraph [ref=f50e94]: "Integrasi dikelompokkan berdasarkan jenis dan status ketersediaan. Status ditampilkan secara jujur: Tersedia, Beta, Segera Hadir, atau Roadmap."
+        - generic [ref=f50e95]:
+          - generic [ref=f50e96]:
+            - generic [ref=f50e97]: Integrasi
+            - generic [ref=f50e98]: Jenis
+            - generic [ref=f50e99]: Status
+          - generic [ref=f50e100]:
+            - generic [ref=f50e101]: CSV
+            - generic [ref=f50e102]:
+              - generic [ref=f50e103]: CSV & Excel
+              - generic [ref=f50e104]: Impor/ekspor file penjualan, produk, stok.
+            - generic [ref=f50e105]: File
+            - generic [ref=f50e106]: Tersedia
+          - generic [ref=f50e107]:
+            - generic [ref=f50e108]: BC
+            - generic [ref=f50e109]:
+              - generic [ref=f50e110]: Barcode
+              - generic [ref=f50e111]: Scan langsung ke SKU.
+            - generic [ref=f50e112]: Device
+            - generic [ref=f50e113]: Tersedia
+          - generic [ref=f50e114]:
+            - generic [ref=f50e115]: QR
+            - generic [ref=f50e116]:
+              - generic [ref=f50e117]: QR Self Order
+              - generic [ref=f50e118]: Menu QR ke KDS.
+            - generic [ref=f50e119]: Self-order
+            - generic [ref=f50e120]: Tersedia
+          - generic [ref=f50e121]:
+            - generic [ref=f50e122]: MP
+            - generic [ref=f50e123]:
+              - generic [ref=f50e124]: Marketplace
+              - generic [ref=f50e125]: Shopee, Tokopedia, TikTok, Blibli, Lazada.
+            - generic [ref=f50e126]: Channel
+            - generic [ref=f50e127]: Segera Hadir
+          - generic [ref=f50e128]:
+            - generic [ref=f50e129]: FD
+            - generic [ref=f50e130]:
+              - generic [ref=f50e131]: Food Delivery
+              - generic [ref=f50e132]: GoFood, GrabFood, ShopeeFood.
+            - generic [ref=f50e133]: Channel
+            - generic [ref=f50e134]: Segera Hadir
+          - generic [ref=f50e135]:
+            - generic [ref=f50e136]: POS
+            - generic [ref=f50e137]:
+              - generic [ref=f50e138]: POS Adapter
+              - generic [ref=f50e139]: Moka, Pawoon, dll.
+            - generic [ref=f50e140]: POS
+            - generic [ref=f50e141]: Segera Hadir
+      - generic [ref=f50e142]:
+        - generic [ref=f50e143]: CSV & Barcode
+        - heading "Impor/ekspor dan scan langsung." [level=2] [ref=f50e144]
+        - paragraph [ref=f50e145]: CSV/XLSX mendukung impor produk, stok, dan penjualan dengan mapping kolom, dry-run, dan deteksi duplikat. Barcode scanner keyboard-wedge langsung mencari SKU tanpa konfigurasi tambahan.
+      - generic [ref=f50e146]:
+        - generic [ref=f50e147]: Webhook / API
+        - heading "Webhook dan HTTP/API." [level=2] [ref=f50e148]
+        - paragraph [ref=f50e149]: Webhook menerima event JSON melalui HTTPS. HTTP/API digunakan untuk meneruskan hasil workflow ke endpoint tujuan. Semua komunikasi menggunakan HTTPS, retry otomatis, idempotency, dan credential disimpan server-side.
+      - generic [ref=f50e150]:
+        - generic [ref=f50e151]: Automation
+        - heading "Otomasi event-driven." [level=2] [ref=f50e152]
+        - paragraph [ref=f50e153]:
+          - text: Automation memungkinkan Anda membangun workflow dari trigger (webhook, event) ke action (Telegram, HTTP/API) dengan retry dan execution visibility. Akses melalui
+          - link /connect-v2/ [ref=f50e154] [cursor=pointer]:
+            - /url: /connect-v2/
+          - text: .
+  - contentinfo [ref=f50e155]:
+    - generic [ref=f50e156]:
+      - generic [ref=f50e157]:
+        - link "BC BotConnector" [ref=f50e158] [cursor=pointer]:
+          - /url: /
+          - generic [ref=f50e159]: BC
+          - text: BotConnector
+        - generic [ref=f50e160]: Hubungkan sistem. Jalankan bisnis dari satu tempat.
+      - generic [ref=f50e161]:
+        - link "Business Suite" [ref=f50e162] [cursor=pointer]:
+          - /url: /business-suite/
+        - link "Retail" [ref=f50e163] [cursor=pointer]:
+          - /url: /retail/
+        - link "Restaurant" [ref=f50e164] [cursor=pointer]:
+          - /url: /restaurant/
+        - link "Integrasi" [ref=f50e165] [cursor=pointer]:
+          - /url: /integrations/
+        - link "Resep" [ref=f50e166] [cursor=pointer]:
+          - /url: /resep/
+        - link "Solusi" [ref=f50e167] [cursor=pointer]:
+          - /url: /solusi/
+        - link "Docs" [ref=f50e168] [cursor=pointer]:
+          - /url: /docs/
+        - link "Status" [ref=f50e169] [cursor=pointer]:
+          - /url: /status

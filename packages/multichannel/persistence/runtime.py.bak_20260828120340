@@ -1,0 +1,116 @@
+"""Konfigurasi runtime penyimpanan multichannel.
+
+Menunjuk ke basis data `botconnector` di kontainer `botconnector-core-postgres`.
+IP kontainer diselesaikan secara dinamis (jangan andalkan nama kontainer),
+persis pola yang sudah terbukti di handoff Finance Core.
+
+Dua basis data pada satu kontainer:
+  - `finance_core` -> nilai keuangan (Finance Core, OTORITATIF untuk pembukuan)
+  - `botconnector` -> persistence tenant/toko/pesanan/settlement multichannel
+
+Modul ini TIDAK pernah memuat atau mencetak password. Password dibaca dari
+environment saat runtime.
+"""
+
+from __future__ import annotations
+
+import os
+import subprocess
+from pathlib import Path
+
+
+KONTENER_PG = "botconnector-core-postgres"
+DB_NAME = "botconnector"
+DB_USER = "botconnector_app"
+
+# Dipakai tes/kanari; bukan rahasia, hanya isi nama env.
+_ENV_PASSWORD = os.environ.get("BC_BOTCONNECTOR_DB_PASSWORD", "")
+
+
+def db_password() -> str:
+    """Ambil password aplikasi dari environment.
+
+    Prioritas: BC_BOTCONNECTOR_DB_PASSWORD -> POSTGRES_PASSWORD di env
+    kontainer (hanya dibaca proses, tidak pernah dicetak).
+    """
+    if _ENV_PASSWORD:
+        return _ENV_PASSWORD
+
+    # systemd credential path for least-privilege services such as
+    # botconnector-bisnis-telegram.service.
+    # The secret remains a file in the per-unit credentials directory
+    # rather than being exposed through the service environment.
+    credentials_dir = os.environ.get("CREDENTIALS_DIRECTORY", "")
+    if credentials_dir:
+        try:
+            credential = (
+                Path(credentials_dir)
+                / "bc_botconnector_db_password"
+            ).read_text(encoding="utf-8").strip()
+            if credential:
+                return credential
+        except Exception:
+            pass
+
+    try:
+        out = subprocess.check_output(
+            ["docker", "exec", KONTENER_PG, "env"],
+            stderr=subprocess.DEVNULL,
+        )
+        for line in out.decode().splitlines():
+            if line.startswith("POSTGRES_PASSWORD="):
+                return line.split("=", 1)[1]
+    except Exception:
+        pass
+    return ""
+
+
+def pg_ip() -> str:
+    """Resolusi IP kontainer PostgreSQL secara dinamis.
+
+    BC_BOTCONNECTOR_DB_HOST, when set, is an explicit override (used by host
+    systemd services to reach the loopback-published port). Otherwise resolve
+    the container IP dynamically; fall back to the historical default.
+    """
+    override = os.environ.get("BC_BOTCONNECTOR_DB_HOST", "").strip()
+    if override:
+        return override
+    try:
+        out = subprocess.check_output(
+            ["docker", "inspect", "-f",
+             "{{range .NetworkSettings.Networks}}{{.IPAddress}}{{end}}",
+             str(KONTENER_PG)],
+            stderr=subprocess.DEVNULL,
+        )
+        ip = out.decode().strip()
+        if ip:
+            return ip
+    except Exception:
+        pass
+    # jaring saat ini (hasil inspeksi runtime aman sebagai sandi sandi)
+    return "172.19.0.2"
+
+
+def pg_port() -> int:
+    """Port PostgreSQL. Backward compatible: default 5432.
+
+    Overridable via BC_BOTCONNECTOR_DB_PORT (e.g. 15432 loopback publish).
+    """
+    raw = os.environ.get("BC_BOTCONNECTOR_DB_PORT", "").strip()
+    if raw:
+        try:
+            return int(raw)
+        except ValueError:
+            pass
+    return 5432
+
+
+def env_ringkas() -> dict:
+    """Keadaan runtime tanpa rahasia, untuk dicatat sebagai bukti."""
+    return {
+        "kontainer_pg": KONTENER_PG,
+        "db_name": DB_NAME,
+        "db_user": DB_USER,
+        "password_terisi": bool(db_password()),
+        "pg_ip": pg_ip(),
+    }

@@ -1,0 +1,4 @@
+{% extends "base.html" %}
+{% block content %}
+<section class="simple-page"><div class="wrap narrow-page"><h1>Status Store</h1><div class="status-list"><div><span class="status-dot ok"></span><strong>Website Store</strong><b>Tersedia</b></div><div><span class="status-dot {% if seller_ok %}ok{% else %}bad{% endif %}"></span><strong>Aktivasi lisensi</strong><b>{% if seller_ok %}Tersedia{% else %}Gangguan{% endif %}</b></div><div><span class="status-dot {% if payment_mode in ['midtrans','manual'] %}ok{% else %}bad{% endif %}"></span><strong>Pembayaran</strong><b>{% if payment_mode == 'midtrans' %}Online{% elif payment_mode == 'manual' %}Verifikasi manual{% else %}Belum aktif{% endif %}</b></div></div><p class="status-note">Status ini diperiksa saat halaman dibuka.</p></div></section>
+{% endblock %}

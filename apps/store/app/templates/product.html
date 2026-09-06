@@ -1,0 +1,76 @@
+{% extends "base.html" %}
+{% block content %}
+<section class="product-page">
+  <div class="wrap">
+    <a class="back" href="/store/">← Kembali ke Store</a>
+    <div class="product-hero-grid">
+      <div class="product-copy">
+        <div class="product-heading"><span class="app-icon large"><img src="{{ p.icon }}" alt=""></span><div><p class="category">{{ p.category }}</p><h1>{{ p.display_name }}</h1></div></div>
+        <p class="product-intro">{{ p.intro }}</p>
+        <div class="hero-actions">
+          <button class="btn primary js-checkout" data-product="{{ p.slug }}" data-edition="{{ p.trial_edition }}" data-type="trial">Coba Gratis 3 Hari</button>
+          <a class="btn outline" href="/store/download/{{ p.slug }}.apk">Unduh APK</a>
+        </div>
+        <div class="app-meta"><span>Versi {{ p.version }}</span><span>Android APK</span></div>
+      </div>
+      <aside class="feature-card">
+        <h2>Yang tersedia di aplikasi</h2>
+        {% for chip in p.chips %}<div class="feature-line"><span>✓</span><strong>{{ chip }}</strong></div>{% endfor %}
+        <div class="feature-note">Tidak perlu ganti aplikasi saat berpindah paket.</div>
+      </aside>
+    </div>
+  </div>
+</section>
+
+<section class="section pricing-section" id="harga">
+  <div class="wrap">
+    <div class="section-title"><h2>Paket & harga</h2><p>Pilih paket sesuai kebutuhan. Harga berlaku untuk satu perangkat.</p></div>
+    <div class="pricing-grid count-{{ p.sellable_editions|length }}">
+      {% for edition in p.sellable_editions %}{% set plan=p.editions[edition] %}
+      <article class="price-card {% if edition == p.recommended %}recommended{% endif %}">
+        {% if edition == p.recommended %}<span class="recommend-badge">Direkomendasikan</span>{% endif %}
+        <h3>{{ plan.label }}</h3><div class="plan-price">{{ money(plan.price) }}</div><p class="plan-note">sekali bayar • 1 perangkat</p>
+        <ul>{% for f in plan.features %}<li><span>✓</span>{{ f }}</li>{% endfor %}</ul>
+        <button class="btn {% if edition == p.recommended %}primary{% else %}outline{% endif %} wide js-checkout" data-product="{{ p.slug }}" data-edition="{{ edition }}" data-type="full">Pilih Paket {{ plan.label }}</button>
+        {% if edition != p.sellable_editions[0] %}<button class="upgrade-link js-checkout" data-product="{{ p.slug }}" data-edition="{{ edition }}" data-type="upgrade">Tingkatkan ke {{ plan.label }}</button>{% endif %}
+      </article>
+      {% endfor %}
+    </div>
+  </div>
+</section>
+
+<section class="section features-section">
+  <div class="wrap">
+    <div class="section-title"><h2>Fitur aplikasi</h2></div>
+    <div class="feature-groups">{% for g in p.feature_groups %}<article><span class="group-number">0{{ loop.index }}</span><h3>{{ g.title }}</h3><ul>{% for item in g['items'] %}<li>{{ item }}</li>{% endfor %}</ul></article>{% endfor %}</div>
+  </div>
+</section>
+
+<section class="section activation-section">
+  <div class="wrap activation-grid">
+    <div><h2>Cara mulai</h2><p>Unduh aplikasi, salin ID perangkat, lalu pilih uji coba atau paket. Jika nanti pindah ke paket yang lebih tinggi, cukup masukkan kode baru.</p></div>
+    <ol class="steps"><li><b>1</b><span><strong>Unduh APK</strong><small>Pasang aplikasi resmi.</small></span></li><li><b>2</b><span><strong>Lihat ID perangkat</strong><small>Salin 16 karakter dari layar lisensi.</small></span></li><li><b>3</b><span><strong>Coba atau beli</strong><small>Masukkan data dan ID perangkat di Store.</small></span></li><li><b>4</b><span><strong>Aktifkan</strong><small>Masukkan kode yang diterima ke aplikasi.</small></span></li></ol>
+  </div>
+</section>
+
+<div class="modal" id="checkoutModal" aria-hidden="true">
+  <div class="modal-backdrop js-close"></div>
+  <div class="modal-card" role="dialog" aria-modal="true" aria-labelledby="checkoutTitle">
+    <button class="modal-x js-close" aria-label="Tutup">×</button>
+    <div class="modal-head"><span class="modal-label">BotConnector Store</span><h2 id="checkoutTitle">{{ p.display_name }}</h2><p id="checkoutSub">Lengkapi data di bawah ini.</p></div>
+    <form id="checkoutForm">
+      <input type="hidden" name="product" value="{{ p.slug }}"><input type="hidden" name="edition"><input type="hidden" name="license_type">
+      <div class="order-summary"><div><small>Jenis</small><strong id="summaryType">—</strong></div><div><small>Paket</small><strong id="summaryEdition">—</strong></div></div>
+      <div class="form-grid">
+        <label>Nama usaha atau pemilik<input name="customer" required minlength="2" maxlength="100" autocomplete="name" placeholder="Nama usaha atau pemilik"></label>
+        <label>Email<input name="email" type="email" required autocomplete="email" placeholder="nama@email.com"></label>
+        <label>No. WhatsApp / telepon<input name="phone" required autocomplete="tel" placeholder="08xxxxxxxxxx"></label>
+        <label>ID perangkat<input name="device" required minlength="16" maxlength="16" pattern="[A-Za-z0-9]{16}" placeholder="16 karakter" autocapitalize="characters"></label>
+      </div>
+      <p class="form-note">ID perangkat harus sama dengan yang tampil di aplikasi. Untuk peningkatan paket, Store akan membaca paket yang sudah aktif dari sistem lisensi.</p>
+      <p class="legal-note">Dengan melanjutkan, Anda menyetujui <a href="/terms" target="_blank" rel="noopener">Ketentuan</a> dan <a href="/privacy" target="_blank" rel="noopener">Kebijakan Privasi</a> BotConnector.</p>
+      <button class="btn primary wide submit-order" type="submit">Lanjutkan</button><div class="form-error" id="formError"></div>
+    </form>
+  </div>
+</div>
+{% endblock %}

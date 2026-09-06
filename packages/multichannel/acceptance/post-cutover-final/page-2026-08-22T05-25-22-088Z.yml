@@ -1,0 +1,105 @@
+- generic [ref=f2e1]:
+  - complementary [ref=f2e2]:
+    - link "BC Bisnis" [ref=f2e3] [cursor=pointer]:
+      - /url: /
+      - generic [ref=f2e4]: BC
+      - text: Bisnis
+    - generic [ref=f2e5]:
+      - generic [ref=f2e6]: Cabang / Lokasi
+      - combobox [ref=f2e7]:
+        - option "Cabang A (RETAIL)" [selected]
+        - option "Cabang B (RESTAURANT)"
+    - navigation [ref=f2e8]:
+      - link "Dashboard" [ref=f2e9] [cursor=pointer]:
+        - /url: "#/dashboard"
+      - link "POS" [active] [ref=f2e15] [cursor=pointer]:
+        - /url: "#/pos"
+      - link "Orders" [ref=f2e19] [cursor=pointer]:
+        - /url: "#/orders"
+      - link "Products" [ref=f2e22] [cursor=pointer]:
+        - /url: "#/products"
+      - link "Inventory" [ref=f2e27] [cursor=pointer]:
+        - /url: "#/inventory"
+      - link "Transfers" [ref=f2e30] [cursor=pointer]:
+        - /url: "#/transfers"
+      - link "Restaurant" [ref=f2e36] [cursor=pointer]:
+        - /url: "#/restaurant"
+      - link "Kitchen" [ref=f2e39] [cursor=pointer]:
+        - /url: "#/kitchen"
+      - link "Reports" [ref=f2e42] [cursor=pointer]:
+        - /url: "#/reports"
+      - link "Integrasi" [ref=f2e44] [cursor=pointer]:
+        - /url: "#/integrasi"
+  - main [ref=f2e48]:
+    - generic [ref=f2e49]:
+      - generic [ref=f2e51]:
+        - generic [ref=f2e52]: POS
+        - generic [ref=f2e53]: Business Suite
+      - generic [ref=f2e54]:
+        - button "Sync Offline" [ref=f2e55] [cursor=pointer]
+        - link "BotConnector.id" [ref=f2e56] [cursor=pointer]:
+          - /url: /
+    - generic [ref=f2e57]:
+      - generic [ref=f2e83]:
+        - heading "POS" [level=1] [ref=f2e84]
+        - generic [ref=f2e85]: Kasir retail — scan barcode, pilih produk, tender, cetak struk
+      - generic [ref=f2e86]:
+        - generic [ref=f2e87]:
+          - generic [ref=f2e88]:
+            - textbox "Cari produk / scan barcode" [ref=f2e89]
+            - generic [ref=f2e90]:
+              - generic [ref=f2e91]: Cabang
+              - combobox [ref=f2e92]:
+                - option "Cabang A (RETAIL)" [selected]
+                - option "Cabang B (RESTAURANT)"
+            - generic [ref=f2e93]:
+              - generic [ref=f2e94]: Register
+              - combobox [ref=f2e95]:
+                - option "Kasir A" [selected]
+                - option "Kasir B"
+          - generic [ref=f2e96]:
+            - button "Tambah Ayam" [ref=f2e97] [cursor=pointer]:
+              - generic [ref=f2e98]: Ayam
+              - generic [ref=f2e99]: "0"
+              - generic [ref=f2e100]: No barcode
+            - button "Tambah Telur" [ref=f2e101] [cursor=pointer]:
+              - generic [ref=f2e102]: Telur
+              - generic [ref=f2e103]: "0"
+              - generic [ref=f2e104]: No barcode
+            - button "Tambah Minyak Goreng" [ref=f2e105] [cursor=pointer]:
+              - generic [ref=f2e106]: Minyak Goreng
+              - generic [ref=f2e107]: "0"
+              - generic [ref=f2e108]: No barcode
+            - button "Tambah Beras" [ref=f2e109] [cursor=pointer]:
+              - generic [ref=f2e110]: Beras
+              - generic [ref=f2e111]: "0"
+              - generic [ref=f2e112]: No barcode
+            - button "Tambah Air Mineral 600ml" [ref=f2e113] [cursor=pointer]:
+              - generic [ref=f2e114]: Air Mineral 600ml
+              - generic [ref=f2e115]: "0"
+              - generic [ref=f2e116]: No barcode
+        - generic [ref=f2e117]:
+          - heading "Keranjang" [level=3] [ref=f2e118]
+          - generic [ref=f2e119]: Belum ada item.
+          - generic [ref=f2e121]:
+            - generic [ref=f2e122]:
+              - generic [ref=f2e123]: Subtotal
+              - generic [ref=f2e124]: Rp 0
+            - generic [ref=f2e125]:
+              - generic [ref=f2e126]: Diskon
+              - generic [ref=f2e127]: Rp 0
+            - generic [ref=f2e128]:
+              - generic [ref=f2e129]: Total
+              - generic [ref=f2e130]: Rp 0
+          - generic [ref=f2e131]:
+            - generic [ref=f2e132]:
+              - generic [ref=f2e133]: Tender
+              - combobox [ref=f2e134]:
+                - option "Tunai" [selected]
+                - option "QRIS (manual)"
+                - option "Kartu (manual)"
+                - option "Transfer Bank"
+            - generic [ref=f2e135]:
+              - generic [ref=f2e136]: Dibayar
+              - spinbutton "0" [ref=f2e137]
+          - button "Bayar" [ref=f2e138] [cursor=pointer]

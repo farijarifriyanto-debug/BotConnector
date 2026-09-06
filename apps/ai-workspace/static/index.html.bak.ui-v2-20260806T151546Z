@@ -1,0 +1,187 @@
+<!DOCTYPE html>
+<html lang="id"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>BotConnector AI Workspace</title>
+<style>
+  :root{--bg:#0d0b12;--panel:#16131f;--panel2:#1e1a2b;--line:#2b2540;--text:#f3eefb;--muted:#a99fc0;--accent:#8b5cf6;--accent2:#ec6a9c;--grad:linear-gradient(135deg,#8b5cf6,#ec6a9c);--ok:#5dae5d}
+  *{margin:0;padding:0;box-sizing:border-box}
+  body{font-family:'Segoe UI',system-ui,sans-serif;background:var(--bg);color:var(--text);min-height:100vh}
+  .top{display:flex;align-items:center;gap:11px;padding:15px 22px;border-bottom:1px solid var(--line);position:sticky;top:0;background:var(--bg);z-index:5}
+  .dot{width:30px;height:30px;border-radius:9px;background:var(--grad);display:grid;place-items:center}
+  .top b{font-size:17px}.top small{display:block;font-size:11px;color:var(--muted)}
+  .wrap{max-width:900px;margin:0 auto;padding:24px 18px}
+  .back{background:var(--panel2);border:1px solid var(--line);color:var(--text);border-radius:9px;padding:8px 13px;font-size:13px;font-weight:600;cursor:pointer}
+  h2{font-size:26px;margin:6px 0 4px}.lead{color:var(--muted);margin-bottom:22px}
+  .grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(240px,1fr));gap:14px}
+  .tool{background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:18px;cursor:pointer;transition:.15s;position:relative}
+  .tool:hover{border-color:var(--accent);transform:translateY(-2px)}
+  .tool.soon{opacity:.55;cursor:not-allowed}.tool .ic{width:42px;height:42px;border-radius:11px;display:grid;place-items:center;font-size:22px;background:var(--panel2);margin-bottom:12px}
+  .tool b{font-size:16px}.tool p{color:var(--muted);font-size:13px;margin-top:4px;line-height:1.45}
+  .badge{position:absolute;top:14px;right:14px;font-size:10px;font-weight:700;padding:3px 8px;border-radius:20px}
+  .b-live{background:rgba(93,174,93,.18);color:#7fd47f}.b-soon{background:var(--panel2);color:var(--muted)}
+  /* study */
+  textarea{width:100%;background:var(--panel2);border:1px solid var(--line);border-radius:12px;color:var(--text);padding:13px;font:14px/1.5 inherit;resize:vertical;min-height:120px;outline:none}
+  textarea:focus{border-color:var(--accent)}
+  .acts{display:flex;flex-wrap:wrap;gap:9px;margin:14px 0}
+  .act{background:var(--panel2);border:1px solid var(--line);color:var(--text);border-radius:10px;padding:10px 15px;font-size:14px;font-weight:600;cursor:pointer;transition:.15s}
+  .act:hover{border-color:var(--accent)}.act.primary{background:var(--grad);border:0}
+  .qrow{display:flex;gap:9px;margin-top:10px}.qrow input{flex:1;background:var(--panel2);border:1px solid var(--line);border-radius:10px;color:var(--text);padding:11px 13px;font-size:14px;outline:none}
+  .opts{display:flex;align-items:center;gap:8px;font-size:12.5px;color:var(--muted);margin-top:12px}
+  select{background:var(--panel2);border:1px solid var(--line);color:var(--text);border-radius:8px;padding:5px 8px;font-size:12.5px;outline:none}
+  .out{margin-top:20px}.card2{background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:20px}
+  .out h3{margin-bottom:8px}.out p{line-height:1.6;margin:8px 0;white-space:pre-wrap}
+  .flash{display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:12px}
+  .fc{background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:16px;min-height:110px;cursor:pointer;display:flex;align-items:center;justify-content:center;text-align:center;transition:.15s}
+  .fc:hover{border-color:var(--accent)}.fc .q{font-weight:600}.fc .a{color:var(--accent2)}
+  .quiz .qq{background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:16px;margin-bottom:12px}
+  .quiz .qq b{display:block;margin-bottom:10px}
+  .opt{display:block;width:100%;text-align:left;background:var(--panel2);border:1px solid var(--line);color:var(--text);border-radius:9px;padding:10px 13px;font-size:14px;margin-bottom:7px;cursor:pointer}
+  .opt.correct{border-color:var(--ok);background:rgba(93,174,93,.14)}.opt.wrong{border-color:#c25;background:rgba(200,50,80,.14)}
+  .why{font-size:12.5px;color:var(--muted);margin-top:6px}
+  .meta{font-size:11.5px;color:var(--muted);margin-top:12px}.load{color:var(--muted);padding:18px}.err{color:#ff8a8a}
+  .codewrap{position:relative;margin:10px 0}
+  pre{background:#0a0910;border:1px solid var(--line);border-radius:10px;padding:14px;overflow-x:auto}
+  code{font-family:ui-monospace,Consolas,monospace;font-size:13px;line-height:1.5;color:#e8e0f5;white-space:pre}
+  .copy{position:absolute;top:8px;right:8px;background:var(--panel2);border:1px solid var(--line);color:var(--muted);border-radius:7px;padding:4px 9px;font-size:11px;cursor:pointer}
+  .copy:hover{color:var(--text);border-color:var(--accent)}
+  .hidden{display:none}
+</style></head><body>
+<div class="top"><span class="dot">✦</span><div><b>BotConnector AI Workspace</b><small>alat AI untuk belajar, bisnis & ngoding</small></div></div>
+
+<!-- HUB -->
+<div class="wrap" id="hub">
+  <h2>Pilih alat</h2><div class="lead">Gratis untuk semua. Mode "Bagus" (kualitas lebih) khusus admin.</div>
+  <div class="grid">
+    <div class="tool" onclick="openStudy()"><span class="badge b-live">Tersedia</span><div class="ic">📚</div><b>Study AI</b><p>Ringkas materi, flashcard, kuis, jelaskan konsep, tanya-jawab.</p></div>
+    <div class="tool soon"><span class="badge b-soon">Segera</span><div class="ic">💼</div><b>Business AI</b><p>Caption, deskripsi produk, nama & slogan, rencana bisnis.</p></div>
+    <div class="tool" onclick="openCoding()"><span class="badge b-live">Tersedia</span><div class="ic">💻</div><b>Coding AI</b><p>Buat kode, jelasin & debug, konversi, regex, SQL.</p></div>
+  </div>
+</div>
+
+<!-- STUDY -->
+<div class="wrap hidden" id="study">
+  <button class="back" onclick="showHub()">‹ Semua alat</button>
+  <h2 style="margin-top:14px">📚 Study AI</h2><div class="lead">Tempel materi, atau upload PDF/Word, lalu pilih aksi.</div>
+  <div style="display:flex;gap:9px;align-items:center;margin-bottom:10px;flex-wrap:wrap">
+    <button class="act" onclick="document.getElementById('file').click()">📎 Upload PDF / Word / TXT</button>
+    <input type="file" id="file" accept=".pdf,.docx,.txt,.md,.csv" style="display:none" onchange="uploadFile(this)">
+    <span id="fileinfo" class="meta"></span>
+  </div>
+  <textarea id="mat" placeholder="Tempel materi, catatan, atau ketik topik di sini… (atau upload file di atas)"></textarea>
+  <div class="acts">
+    <button class="act primary" onclick="go('ringkas')">📝 Ringkas</button>
+    <button class="act" onclick="go('flashcard')">🃏 Flashcard</button>
+    <button class="act" onclick="go('kuis')">❓ Kuis</button>
+    <button class="act" onclick="go('jelaskan')">💡 Jelaskan</button>
+  </div>
+  <div class="qrow"><input id="q" placeholder="…atau tanya sesuatu tentang materi ini" onkeydown="if(event.key==='Enter')go('tanya')"><button class="act" onclick="go('tanya')">💬 Tanya</button></div>
+  <div class="opts"><span>Kualitas:</span>
+    <select id="task"><option value="fast">Cepat (gratis)</option><option value="main">Bagus (admin)</option></select>
+    <span id="prov" style="margin-left:auto"></span>
+  </div>
+  <div class="out" id="out"></div>
+</div>
+
+<!-- CODING -->
+<div class="wrap hidden" id="coding">
+  <button class="back" onclick="showHub()">‹ Semua alat</button>
+  <h2 style="margin-top:14px">💻 Coding AI</h2><div class="lead">Buat, jelasin, debug, atau konversi kode.</div>
+  <textarea id="cinput" placeholder="Deskripsi (kalau Buat kode) — atau tempel kode (Jelaskan / Debug / Konversi)…" style="font-family:ui-monospace,Consolas,monospace;font-size:13px"></textarea>
+  <div class="qrow" style="margin-top:10px">
+    <input id="cextra" placeholder="opsional: pesan error (Debug) / pertanyaan (Tanya)">
+    <select id="clang" title="Bahasa (Buat / target Konversi)">
+      <option>python</option><option>javascript</option><option>typescript</option><option>php</option><option>java</option><option>go</option><option>c++</option><option>c#</option><option>rust</option><option>sql</option><option>html</option><option>bash</option>
+    </select>
+  </div>
+  <div class="acts">
+    <button class="act primary" onclick="goCode('buat')">💡 Buat kode</button>
+    <button class="act" onclick="goCode('jelaskan')">📖 Jelaskan</button>
+    <button class="act" onclick="goCode('debug')">🐛 Debug</button>
+    <button class="act" onclick="goCode('konversi')">🔄 Konversi</button>
+    <button class="act" onclick="goCode('tanya')">💬 Tanya</button>
+  </div>
+  <div class="opts"><span>Kualitas:</span>
+    <select id="ctask"><option value="fast">Cepat (gratis)</option><option value="main">Bagus (admin)</option></select>
+    <span id="cprov" style="margin-left:auto"></span>
+  </div>
+  <div class="out" id="cout"></div>
+</div>
+
+<script>
+// render markdown ringkas: blok ```kode``` → <pre> + tombol salin, sisanya teks
+function renderMD(md){
+  const parts=String(md).split(/```/); let html='';
+  parts.forEach((seg,i)=>{
+    if(i%2===1){
+      let s=seg.replace(/^[a-zA-Z0-9+#]*\n/,'');
+      html+=`<div class="codewrap"><button class="copy" onclick="cp(this)">salin</button><pre><code>${esc(s)}</code></pre></div>`;
+    }else if(seg.trim()){
+      html+=`<p>${esc(seg.trim())}</p>`;
+    }
+  });
+  return html||`<p>${esc(md)}</p>`;
+}
+function cp(btn){const t=btn.parentElement.querySelector('code').textContent;navigator.clipboard.writeText(t);btn.textContent='tersalin ✓';setTimeout(()=>btn.textContent='salin',1500)}
+</script>
+<script>
+function showHub(){['study','coding'].forEach(id=>document.getElementById(id).classList.add('hidden'));document.getElementById('hub').classList.remove('hidden')}
+function openStudy(){document.getElementById('hub').classList.add('hidden');document.getElementById('study').classList.remove('hidden')}
+function openCoding(){document.getElementById('hub').classList.add('hidden');document.getElementById('coding').classList.remove('hidden')}
+
+async function goCode(mode){
+  const out=document.getElementById('cout');const v=document.getElementById('cinput').value;
+  out.innerHTML='<div class="load">⏳ AI sedang koding…</div>';
+  try{
+    const r=await fetch('api/coding',{method:'POST',headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({mode,code:v,desc:v,lang:document.getElementById('clang').value,
+        extra:document.getElementById('cextra').value,question:document.getElementById('cextra').value||v,
+        task:document.getElementById('ctask').value})});
+    if(!r.ok){throw new Error((await r.json()).detail||r.status)}
+    const d=await r.json();out.innerHTML='<div class="card2">'+renderMD(d.content)+'</div>';
+    const m=d._meta||{};document.getElementById('cprov').textContent=(d._gated?'(Bagus khusus admin → pakai Cepat) ':'')+`via ${m.provider||'?'} · ${m.latency_ms||0}ms`;
+  }catch(e){out.innerHTML='<div class="err card2">Gagal: '+esc(e.message)+'</div>'}
+}
+function esc(s){return (s==null?'':String(s)).replace(/[&<>]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;'}[c]))}
+
+async function uploadFile(inp){
+  const f=inp.files[0]; if(!f)return;
+  const info=document.getElementById('fileinfo'); info.textContent='⏳ membaca '+f.name+'…';
+  try{
+    const fd=new FormData(); fd.append('file',f);
+    const r=await fetch('api/extract',{method:'POST',body:fd});
+    if(!r.ok){throw new Error((await r.json()).detail||r.status)}
+    const d=await r.json();
+    document.getElementById('mat').value=d.text;
+    info.textContent='✅ '+d.name+' — '+d.chars.toLocaleString()+' karakter dimuat';
+  }catch(e){info.innerHTML='<span class="err">⚠️ '+esc(e.message)+'</span>'}
+  finally{inp.value=''}
+}
+async function go(mode){
+  const out=document.getElementById('out');const text=document.getElementById('mat').value;const q=document.getElementById('q').value;
+  if(mode!=='tanya'&&!text.trim()){out.innerHTML='<div class="err card2">Tempel materi dulu ya.</div>';return}
+  if(mode==='tanya'&&!q.trim()){out.innerHTML='<div class="err card2">Tulis pertanyaannya dulu.</div>';return}
+  out.innerHTML='<div class="load">⏳ AI sedang berpikir…</div>';
+  try{
+    const r=await fetch('api/study',{method:'POST',headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({mode,text,question:q,task:document.getElementById('task').value})});
+    if(!r.ok){throw new Error((await r.json()).detail||r.status)}
+    const d=await r.json();render(d);
+    const m=d._meta||{};document.getElementById('prov').textContent=(d._gated?'(Bagus khusus admin → pakai Cepat) ':'')+`via ${m.provider||'?'} · ${m.latency_ms||0}ms`;
+  }catch(e){out.innerHTML='<div class="err card2">Gagal: '+esc(e.message)+'</div>'}
+}
+function render(d){const out=document.getElementById('out');
+  if(d.type==='text'){out.innerHTML=`<div class="card2"><p>${esc(d.content)}</p></div>`;return}
+  if(d.type==='cards'){out.innerHTML='<h3 style="margin-bottom:10px">🃏 Flashcard <span class="meta">(klik utk balik)</span></h3><div class="flash">'+
+    d.items.map((c,i)=>`<div class="fc" onclick="this.querySelector('.q').classList.toggle('hidden');this.querySelector('.a').classList.toggle('hidden')"><div><div class="q">${esc(c.q)}</div><div class="a hidden">${esc(c.a)}</div></div></div>`).join('')+'</div>';return}
+  if(d.type==='quiz'){out.innerHTML='<h3 style="margin-bottom:10px">❓ Kuis</h3><div class="quiz">'+
+    d.items.map((it,qi)=>`<div class="qq"><b>${qi+1}. ${esc(it.q)}</b>${
+      it.options.map((o,oi)=>`<button class="opt" onclick="ans(this,${qi},${oi},${it.answer})">${String.fromCharCode(65+oi)}. ${esc(o)}</button>`).join('')
+    }<div class="why hidden" id="why${qi}">💡 ${esc(it.why)}</div></div>`).join('')+'</div>';return}
+}
+function ans(btn,qi,oi,correct){
+  const box=btn.closest('.qq');if(box.dataset.done)return;box.dataset.done=1;
+  box.querySelectorAll('.opt').forEach((b,i)=>{if(i===correct)b.classList.add('correct');});
+  if(oi!==correct)btn.classList.add('wrong');
+  document.getElementById('why'+qi).classList.remove('hidden');
+}
+</script>
+</body></html>

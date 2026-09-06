@@ -1,0 +1,215 @@
+- generic [active] [ref=f3e1]:
+  - banner [ref=f3e2]:
+    - generic [ref=f3e3]:
+      - link "BC BotConnector" [ref=f3e4] [cursor=pointer]:
+        - /url: /
+        - generic [ref=f3e5]: BC
+        - text: BotConnector
+      - navigation [ref=f3e6]:
+        - link "Konektor" [ref=f3e7] [cursor=pointer]:
+          - /url: /konektor/
+        - link "Integrasi" [ref=f3e8] [cursor=pointer]:
+          - /url: /integrasi/
+        - link "Business Suite" [ref=f3e9] [cursor=pointer]:
+          - /url: /bisnis/
+        - link "Solusi" [ref=f3e10] [cursor=pointer]:
+          - /url: /solusi/
+        - link "Docs" [ref=f3e11] [cursor=pointer]:
+          - /url: /docs/
+      - link "Buka Business Suite →" [ref=f3e13] [cursor=pointer]:
+        - /url: /bisnis/
+  - generic [ref=f3e14]:
+    - link "BotConnector" [ref=f3e15] [cursor=pointer]:
+      - /url: /
+    - text: / Business Suite
+  - main [ref=f3e16]:
+    - generic [ref=f3e18]:
+      - generic [ref=f3e19]:
+        - generic [ref=f3e20]: Business Suite
+        - heading "Hubungkan sistem. Jalankan bisnis dari satu tempat." [level=1] [ref=f3e21]
+        - paragraph [ref=f3e22]: "BotConnector menghubungkan operasional bisnis Anda: POS retail & restoran, inventori pusat, multi-cabang, gudang, laporan, dan finance — dengan satu sumber kebenaran untuk produk, stok, dan pembukuan."
+        - generic [ref=f3e23]:
+          - link "Buka Business Suite →" [ref=f3e24] [cursor=pointer]:
+            - /url: /bisnis/
+          - link "Lihat integrasi" [ref=f3e25] [cursor=pointer]:
+            - /url: /integrasi/
+        - generic [ref=f3e26]:
+          - generic [ref=f3e27]: Retail & Toko
+          - generic [ref=f3e28]: Restaurant & Cafe
+          - generic [ref=f3e29]: Central Inventory
+          - generic [ref=f3e30]: Multi-Branch
+          - generic [ref=f3e31]: Reporting & Finance
+      - generic [ref=f3e32]:
+        - generic [ref=f3e33]:
+          - generic [ref=f3e34]: Business flow
+          - generic [ref=f3e35]: ● Aktif
+        - generic [ref=f3e36]:
+          - generic [ref=f3e37]:
+            - generic [ref=f3e38]: POS
+            - generic [ref=f3e39]: PENJUALAN
+            - strong [ref=f3e40]: POS mencatat
+          - generic [ref=f3e42]:
+            - generic [ref=f3e43]: INV
+            - generic [ref=f3e44]: STOK
+            - strong [ref=f3e45]: Inventori terpusat
+          - generic [ref=f3e47]:
+            - generic [ref=f3e48]: FIN
+            - generic [ref=f3e49]: FINANCE
+            - strong [ref=f3e50]: Pembukuan & laporan
+        - generic [ref=f3e51]:
+          - generic [ref=f3e52]:
+            - strong [ref=f3e53]: Operasional
+            - generic [ref=f3e54]: POS & stok
+          - generic [ref=f3e55]:
+            - strong [ref=f3e56]: Kebenaran
+            - generic [ref=f3e57]: Produk & inventori
+          - generic [ref=f3e58]:
+            - strong [ref=f3e59]: Hasil
+            - generic [ref=f3e60]: Laporan & finance
+    - generic [ref=f3e62]:
+      - generic [ref=f3e63]:
+        - generic [ref=f3e64]:
+          - generic [ref=f3e65]: Business Suite
+          - heading "Jalankan bisnis dari satu fondasi." [level=2] [ref=f3e66]
+          - paragraph [ref=f3e67]: Satu sumber kebenaran untuk produk, stok, dan pembukuan. Semua cabang dan kanal memakai data yang sama.
+        - link "Buka aplikasi →" [ref=f3e68] [cursor=pointer]:
+          - /url: /bisnis/
+      - generic [ref=f3e69]:
+        - link "RTL Aktif Retail & Toko POS retail dengan barcode & stok. Kasir, barcode, diskon, retur, void, shift, dan pencatatan pembayaran. POS · Barcode · Retur Buka →" [ref=f3e70] [cursor=pointer]:
+          - /url: /bisnis/
+          - generic [ref=f3e71]:
+            - generic [ref=f3e72]: RTL
+            - generic [ref=f3e73]: Aktif
+          - generic [ref=f3e74]: Retail & Toko
+          - heading "POS retail dengan barcode & stok." [level=3] [ref=f3e75]
+          - paragraph [ref=f3e76]: Kasir, barcode, diskon, retur, void, shift, dan pencatatan pembayaran.
+          - generic [ref=f3e77]:
+            - generic [ref=f3e78]: POS · Barcode · Retur
+            - generic [ref=f3e79]: Buka →
+        - link "RST Aktif Restaurant & Cafe POS restoran dengan resep & KDS. Menu, resep/BOM, ingredient inventory, meja, KOT/KDS, dine-in & takeaway. Menu · Resep · KDS Buka →" [ref=f3e80] [cursor=pointer]:
+          - /url: /bisnis/
+          - generic [ref=f3e81]:
+            - generic [ref=f3e82]: RST
+            - generic [ref=f3e83]: Aktif
+          - generic [ref=f3e84]: Restaurant & Cafe
+          - heading "POS restoran dengan resep & KDS." [level=3] [ref=f3e85]
+          - paragraph [ref=f3e86]: Menu, resep/BOM, ingredient inventory, meja, KOT/KDS, dine-in & takeaway.
+          - generic [ref=f3e87]:
+            - generic [ref=f3e88]: Menu · Resep · KDS
+            - generic [ref=f3e89]: Buka →
+        - link "INV Aktif Central Inventory Stok pusat yang location-aware. Produk/SKU master, stok per lokasi, transfer antar cabang, opname, waste. SKU · Lokasi · Transfer Buka →" [ref=f3e90] [cursor=pointer]:
+          - /url: /bisnis/
+          - generic [ref=f3e91]:
+            - generic [ref=f3e92]: INV
+            - generic [ref=f3e93]: Aktif
+          - generic [ref=f3e94]: Central Inventory
+          - heading "Stok pusat yang location-aware." [level=3] [ref=f3e95]
+          - paragraph [ref=f3e96]: Produk/SKU master, stok per lokasi, transfer antar cabang, opname, waste.
+          - generic [ref=f3e97]:
+            - generic [ref=f3e98]: SKU · Lokasi · Transfer
+            - generic [ref=f3e99]: Buka →
+        - link "BRN Aktif Multi-Branch & Warehouse Kelola banyak cabang & gudang. Cabang, register, gudang, transfer stok dengan konservasi, dan laporan per cabang. Cabang · Gudang · Transfer Buka →" [ref=f3e100] [cursor=pointer]:
+          - /url: /bisnis/
+          - generic [ref=f3e101]:
+            - generic [ref=f3e102]: BRN
+            - generic [ref=f3e103]: Aktif
+          - generic [ref=f3e104]: Multi-Branch & Warehouse
+          - heading "Kelola banyak cabang & gudang." [level=3] [ref=f3e105]
+          - paragraph [ref=f3e106]: Cabang, register, gudang, transfer stok dengan konservasi, dan laporan per cabang.
+          - generic [ref=f3e107]:
+            - generic [ref=f3e108]: Cabang · Gudang · Transfer
+            - generic [ref=f3e109]: Buka →
+        - link "RPT Aktif Reporting & Finance Laporan bisnis & pembukuan kanonik. Penjualan, COGS, margin, per kategori & kanal, terhubung ke Finance Core. Laporan · COGS · Finance Buka →" [ref=f3e110] [cursor=pointer]:
+          - /url: /bisnis/
+          - generic [ref=f3e111]:
+            - generic [ref=f3e112]: RPT
+            - generic [ref=f3e113]: Aktif
+          - generic [ref=f3e114]: Reporting & Finance
+          - heading "Laporan bisnis & pembukuan kanonik." [level=3] [ref=f3e115]
+          - paragraph [ref=f3e116]: Penjualan, COGS, margin, per kategori & kanal, terhubung ke Finance Core.
+          - generic [ref=f3e117]:
+            - generic [ref=f3e118]: Laporan · COGS · Finance
+            - generic [ref=f3e119]: Buka →
+        - link "OFF Aktif Offline-first POS tetap berjalan saat jaringan terganggu. Antrean offline, allowance stok, dan sinkronisasi idempoten saat kembali online. Offline · Sync · Idempoten Buka →" [ref=f3e120] [cursor=pointer]:
+          - /url: /bisnis/
+          - generic [ref=f3e121]:
+            - generic [ref=f3e122]: "OFF"
+            - generic [ref=f3e123]: Aktif
+          - generic [ref=f3e124]: Offline-first
+          - heading "POS tetap berjalan saat jaringan terganggu." [level=3] [ref=f3e125]
+          - paragraph [ref=f3e126]: Antrean offline, allowance stok, dan sinkronisasi idempoten saat kembali online.
+          - generic [ref=f3e127]:
+            - generic [ref=f3e128]: Offline · Sync · Idempoten
+            - generic [ref=f3e129]: Buka →
+    - generic [ref=f3e131]:
+      - generic [ref=f3e132]:
+        - generic [ref=f3e133]:
+          - generic [ref=f3e134]: Zero-approval
+          - heading "Integrasi yang bisa langsung dipakai." [level=2] [ref=f3e135]
+          - paragraph [ref=f3e136]: CSV/Excel, barcode, printer, timbangan digital, QR self-order, webhook, dan API — tanpa menunggu approval pihak ketiga.
+        - link "Lihat integrasi →" [ref=f3e137] [cursor=pointer]:
+          - /url: /integrasi/
+      - generic [ref=f3e138]:
+        - link "CSV Aktif File CSV & Excel import/export. Impor penjualan, produk, stok; mapping kolom; dry-run; deteksi duplikat. CSV · XLSX · Mapping Buka →" [ref=f3e139] [cursor=pointer]:
+          - /url: /integrasi/
+          - generic [ref=f3e140]:
+            - generic [ref=f3e141]: CSV
+            - generic [ref=f3e142]: Aktif
+          - generic [ref=f3e143]: File
+          - heading "CSV & Excel import/export." [level=3] [ref=f3e144]
+          - paragraph [ref=f3e145]: Impor penjualan, produk, stok; mapping kolom; dry-run; deteksi duplikat.
+          - generic [ref=f3e146]:
+            - generic [ref=f3e147]: CSV · XLSX · Mapping
+            - generic [ref=f3e148]: Buka →
+        - link "QR Aktif Self-order QR menu & self-order. Menu QR, keranjang, modifier, submit ke KDS, dan antrean pelanggan. QR · KDS · Antrean Buka →" [ref=f3e149] [cursor=pointer]:
+          - /url: /integrasi/
+          - generic [ref=f3e150]:
+            - generic [ref=f3e151]: QR
+            - generic [ref=f3e152]: Aktif
+          - generic [ref=f3e153]: Self-order
+          - heading "QR menu & self-order." [level=3] [ref=f3e154]
+          - paragraph [ref=f3e155]: Menu QR, keranjang, modifier, submit ke KDS, dan antrean pelanggan.
+          - generic [ref=f3e156]:
+            - generic [ref=f3e157]: QR · KDS · Antrean
+            - generic [ref=f3e158]: Buka →
+        - link "DEV Aktif Webhook & API Webhook & REST generik. Inbound/outbound webhook, REST pull/push, signature, retry, idempotency. Webhook · REST · Retry Buka →" [ref=f3e159] [cursor=pointer]:
+          - /url: /integrasi/
+          - generic [ref=f3e160]:
+            - generic [ref=f3e161]: DEV
+            - generic [ref=f3e162]: Aktif
+          - generic [ref=f3e163]: Webhook & API
+          - heading "Webhook & REST generik." [level=3] [ref=f3e164]
+          - paragraph [ref=f3e165]: Inbound/outbound webhook, REST pull/push, signature, retry, idempotency.
+          - generic [ref=f3e166]:
+            - generic [ref=f3e167]: Webhook · REST · Retry
+            - generic [ref=f3e168]: Buka →
+    - generic [ref=f3e170]:
+      - generic [ref=f3e171]: Mulai sekarang
+      - heading "Jalankan bisnis Anda dari satu tempat." [level=2] [ref=f3e172]
+      - paragraph [ref=f3e173]: Buka Business Suite untuk melihat POS, inventori, laporan, dan integrasi yang sudah berjalan.
+      - generic [ref=f3e174]:
+        - link "Buka Business Suite →" [ref=f3e175] [cursor=pointer]:
+          - /url: /bisnis/
+        - link "Lihat integrasi" [ref=f3e176] [cursor=pointer]:
+          - /url: /integrasi/
+  - contentinfo [ref=f3e177]:
+    - generic [ref=f3e178]:
+      - generic [ref=f3e179]:
+        - link "BC BotConnector" [ref=f3e180] [cursor=pointer]:
+          - /url: /
+          - generic [ref=f3e181]: BC
+          - text: BotConnector
+        - generic [ref=f3e182]: Hubungkan sistem. Jalankan bisnis dari satu tempat.
+      - generic [ref=f3e183]:
+        - link "Konektor" [ref=f3e184] [cursor=pointer]:
+          - /url: /konektor/
+        - link "Integrasi" [ref=f3e185] [cursor=pointer]:
+          - /url: /integrasi/
+        - link "Business Suite" [ref=f3e186] [cursor=pointer]:
+          - /url: /bisnis/
+        - link "Solusi" [ref=f3e187] [cursor=pointer]:
+          - /url: /solusi/
+        - link "Docs" [ref=f3e188] [cursor=pointer]:
+          - /url: /docs/
+        - link "Status" [ref=f3e189] [cursor=pointer]:
+          - /url: /status

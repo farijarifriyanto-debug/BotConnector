@@ -1,0 +1,364 @@
+- generic [active] [ref=f1e1]:
+  - banner [ref=f1e2]:
+    - generic [ref=f1e3]:
+      - link "BotConnector" [ref=f1e4] [cursor=pointer]:
+        - /url: /
+        - generic [ref=f1e5]: BC
+      - navigation "Navigasi utama" [ref=f1e7]:
+        - link "Business Suite" [ref=f1e8] [cursor=pointer]:
+          - /url: /bisnis/
+        - link "Konektor" [ref=f1e9] [cursor=pointer]:
+          - /url: /konektor/
+        - link "Integrasi" [ref=f1e10] [cursor=pointer]:
+          - /url: /integrasi/
+        - link "Template" [ref=f1e11] [cursor=pointer]:
+          - /url: /resep/
+        - link "Solusi" [ref=f1e12] [cursor=pointer]:
+          - /url: /solusi/
+        - link "Docs" [ref=f1e13] [cursor=pointer]:
+          - /url: /docs/
+      - generic [ref=f1e14]:
+        - link "Status sistem" [ref=f1e15] [cursor=pointer]:
+          - /url: /status
+        - link "Masuk" [ref=f1e17] [cursor=pointer]:
+          - /url: /login
+        - link "Mulai otomasi →" [ref=f1e18] [cursor=pointer]:
+          - /url: /otomasi/
+          - text: Mulai otomasi
+          - generic [ref=f1e19]: →
+  - main [ref=f1e20]:
+    - generic [ref=f1e22]:
+      - generic [ref=f1e23]:
+        - generic [ref=f1e24]: Hubungkan sistem. Jalankan bisnis.
+        - heading "Hubungkan sistem. Jalankan bisnis dari satu tempat." [level=1] [ref=f1e25]
+        - paragraph [ref=f1e26]: BotConnector menghubungkan operasional bisnis — POS retail & restoran, inventori pusat, multi-cabang, laporan, finance — serta otomasi webhook, API, dan sistem internal, dari satu tempat.
+        - generic [ref=f1e27]:
+          - link "Buka Business Suite →" [ref=f1e28] [cursor=pointer]:
+            - /url: /bisnis/
+            - text: Buka Business Suite
+            - generic [ref=f1e29]: →
+          - link "Buat otomasi" [ref=f1e30] [cursor=pointer]:
+            - /url: /connect-v2/
+        - generic [ref=f1e31]:
+          - generic [ref=f1e32]:
+            - generic [ref=f1e33]: ✓
+            - text: Webhook HTTPS
+          - generic [ref=f1e34]:
+            - generic [ref=f1e35]: ✓
+            - text: Retry & idempotency
+          - generic [ref=f1e36]:
+            - generic [ref=f1e37]: ✓
+            - text: Credential server-side
+      - generic "Contoh workflow BotConnector" [ref=f1e38]:
+        - generic [ref=f1e39]:
+          - generic [ref=f1e40]: Workflow
+          - generic [ref=f1e45]: Contoh alur
+        - generic [ref=f1e46]:
+          - generic [ref=f1e47]:
+            - generic [ref=f1e48]:
+              - strong [ref=f1e49]: Payment notification
+              - generic [ref=f1e50]: Event → proses → tindakan
+            - generic [ref=f1e51]: Active
+          - generic [ref=f1e52]:
+            - generic [ref=f1e53]:
+              - generic [ref=f1e54]: WH
+              - strong [ref=f1e55]: Webhook
+              - generic [ref=f1e56]: Event received
+            - generic [ref=f1e58]:
+              - generic [ref=f1e59]: IF
+              - strong [ref=f1e60]: Rules
+              - generic [ref=f1e61]: Validate event
+            - generic [ref=f1e63]:
+              - generic [ref=f1e64]: TG
+              - strong [ref=f1e65]: Telegram
+              - generic [ref=f1e66]: Send alert
+          - generic [ref=f1e67]:
+            - generic [ref=f1e68]:
+              - generic [ref=f1e69]:
+                - generic [ref=f1e70]: ✓
+                - text: Webhook diterima
+              - generic [ref=f1e71]: received
+            - generic [ref=f1e72]:
+              - generic [ref=f1e73]:
+                - generic [ref=f1e74]: ✓
+                - text: Rule tervalidasi
+              - generic [ref=f1e75]: processed
+            - generic [ref=f1e76]:
+              - generic [ref=f1e77]:
+                - generic [ref=f1e78]: ✓
+                - text: Tindakan dijalankan
+              - generic [ref=f1e79]: completed
+    - generic [ref=f1e81]:
+      - generic [ref=f1e82]:
+        - strong [ref=f1e83]: Webhook universal
+        - generic [ref=f1e84]: Terima event dari sistem yang Anda gunakan.
+      - generic [ref=f1e85]:
+        - strong [ref=f1e86]: Retry otomatis
+        - generic [ref=f1e87]: Workflow lebih tahan terhadap kegagalan sementara.
+      - generic [ref=f1e88]:
+        - strong [ref=f1e89]: Idempotency
+        - generic [ref=f1e90]: Kurangi risiko event yang sama dieksekusi berulang.
+      - generic [ref=f1e91]:
+        - strong [ref=f1e92]: Credential aman
+        - generic [ref=f1e93]: Secret tetap disimpan di sisi server.
+    - generic [ref=f1e95]:
+      - generic [ref=f1e96]:
+        - generic [ref=f1e97]:
+          - generic [ref=f1e98]: Connector Store
+          - heading "Mulai dari sistem yang sudah Anda pakai." [level=2] [ref=f1e99]
+          - paragraph [ref=f1e100]: Pilih konektor siap digunakan atau mulai dari webhook dan HTTP/API untuk menghubungkan sistem apa pun.
+        - link "Dokumentasi →" [ref=f1e101] [cursor=pointer]:
+          - /url: /docs
+      - generic [ref=f1e102]:
+        - generic [ref=f1e103]: ⌕
+        - searchbox "Cari konektor" [ref=f1e104]
+      - generic [ref=f1e105]:
+        - button "Semua" [ref=f1e106] [cursor=pointer]
+        - button "Developer" [ref=f1e107] [cursor=pointer]
+        - button "Messaging" [ref=f1e108] [cursor=pointer]
+        - button "Payment" [ref=f1e109] [cursor=pointer]
+        - button "Accounting" [ref=f1e110] [cursor=pointer]
+        - button "Commerce" [ref=f1e111] [cursor=pointer]
+        - button "Network" [ref=f1e112] [cursor=pointer]
+      - generic [ref=f1e113]:
+        - article [ref=f1e114]:
+          - generic [ref=f1e115]:
+            - generic [ref=f1e116]: WH
+            - generic [ref=f1e117]: Aktif
+          - heading "Webhook" [level=3] [ref=f1e118]
+          - paragraph [ref=f1e119]: Terima event dari aplikasi, server, form, atau sistem apa pun melalui HTTPS.
+          - generic [ref=f1e120]: Webhook → JSON event
+        - article [ref=f1e121]:
+          - generic [ref=f1e122]:
+            - generic [ref=f1e123]: API
+            - generic [ref=f1e124]: Aktif
+          - heading "HTTP / API" [level=3] [ref=f1e125]
+          - paragraph [ref=f1e126]: Teruskan data ke endpoint HTTPS publik menggunakan request API.
+          - generic [ref=f1e127]: Webhook → API → Sistem
+        - article [ref=f1e128]:
+          - generic [ref=f1e129]:
+            - generic [ref=f1e130]: TG
+            - generic [ref=f1e131]: Aktif
+          - heading "Telegram" [level=3] [ref=f1e132]
+          - paragraph [ref=f1e133]: Kirim alert dan notifikasi workflow ke chat atau grup.
+          - generic [ref=f1e134]: Event → Telegram
+        - article [ref=f1e135]:
+          - generic [ref=f1e136]:
+            - generic [ref=f1e137]: GS
+            - generic [ref=f1e138]: Roadmap
+          - heading "Google Sheets" [level=3] [ref=f1e139]
+          - paragraph [ref=f1e140]: Hubungkan perubahan baris dan data spreadsheet ke workflow otomatis.
+          - generic [ref=f1e141]: Sheets ↔ Workflow
+        - article [ref=f1e142]:
+          - generic [ref=f1e143]:
+            - generic [ref=f1e144]: WA
+            - generic [ref=f1e145]: Roadmap
+          - heading "WhatsApp" [level=3] [ref=f1e146]
+          - paragraph [ref=f1e147]: Kanal pesan untuk notifikasi pelanggan dan workflow bisnis.
+          - generic [ref=f1e148]: Event → WhatsApp
+        - article [ref=f1e149]:
+          - generic [ref=f1e150]:
+            - generic [ref=f1e151]: MT
+            - generic [ref=f1e152]: Roadmap
+          - heading "Midtrans" [level=3] [ref=f1e153]
+          - paragraph [ref=f1e154]: Gunakan perubahan status pembayaran sebagai pemicu proses otomatis.
+          - generic [ref=f1e155]: Payment → Workflow
+        - article [ref=f1e156]:
+          - generic [ref=f1e157]:
+            - generic [ref=f1e158]: XD
+            - generic [ref=f1e159]: Roadmap
+          - heading "Xendit" [level=3] [ref=f1e160]
+          - paragraph [ref=f1e161]: Hubungkan event pembayaran dengan operasional dan pencatatan.
+          - generic [ref=f1e162]: Payment → Sistem
+        - article [ref=f1e163]:
+          - generic [ref=f1e164]:
+            - generic [ref=f1e165]: AC
+            - generic [ref=f1e166]: Roadmap
+          - heading "Accurate" [level=3] [ref=f1e167]
+          - paragraph [ref=f1e168]: Sinkronkan transaksi bisnis ke alur accounting otomatis.
+          - generic [ref=f1e169]: Order → Accurate
+        - article [ref=f1e170]:
+          - generic [ref=f1e171]:
+            - generic [ref=f1e172]: WC
+            - generic [ref=f1e173]: Roadmap
+          - heading "WooCommerce" [level=3] [ref=f1e174]
+          - paragraph [ref=f1e175]: Gunakan order dan event toko sebagai trigger workflow bisnis.
+          - generic [ref=f1e176]: Order → Sistem
+        - article [ref=f1e177]:
+          - generic [ref=f1e178]:
+            - generic [ref=f1e179]: MK
+            - generic [ref=f1e180]: Roadmap
+          - heading "MikroTik" [level=3] [ref=f1e181]
+          - paragraph [ref=f1e182]: Hubungkan pembayaran dan jaringan untuk kebutuhan ISP.
+          - generic [ref=f1e183]: Payment → MikroTik
+    - generic [ref=f1e185]:
+      - generic [ref=f1e187]:
+        - generic [ref=f1e188]: Workflow Templates
+        - heading "Mulai dari alur yang sudah jelas." [level=2] [ref=f1e189]
+        - paragraph [ref=f1e190]: Template membantu Anda memahami trigger, proses, dan hasil sebelum membangun workflow sendiri.
+      - generic [ref=f1e191]:
+        - article [ref=f1e192]:
+          - generic [ref=f1e193]:
+            - generic [ref=f1e194]:
+              - generic [ref=f1e195]: WC
+              - generic [ref=f1e196]: WA
+            - heading "Order masuk → notifikasi pelanggan" [level=3] [ref=f1e197]
+            - paragraph [ref=f1e198]: Gunakan event order sebagai trigger, lalu teruskan informasi ke kanal komunikasi.
+          - generic [ref=f1e199]:
+            - generic [ref=f1e200]: Commerce · Messaging
+            - generic [ref=f1e201]: Workflow →
+        - article [ref=f1e202]:
+          - generic [ref=f1e203]:
+            - generic [ref=f1e204]:
+              - generic [ref=f1e205]: MT
+              - generic [ref=f1e206]: AC
+            - heading "Pembayaran → accounting" [level=3] [ref=f1e207]
+            - paragraph [ref=f1e208]: Terima perubahan status pembayaran dan gunakan sebagai pemicu pencatatan.
+          - generic [ref=f1e209]:
+            - generic [ref=f1e210]: Payment · Finance
+            - generic [ref=f1e211]: Workflow →
+        - article [ref=f1e212]:
+          - generic [ref=f1e213]:
+            - generic [ref=f1e214]:
+              - generic [ref=f1e215]: WH
+              - generic [ref=f1e216]: TG
+            - heading "Webhook → Telegram alert" [level=3] [ref=f1e217]
+            - paragraph [ref=f1e218]: Terima event JSON lalu kirim notifikasi yang sudah diformat ke Telegram.
+          - generic [ref=f1e219]:
+            - generic [ref=f1e220]: Developer · Messaging
+            - generic [ref=f1e221]: Workflow →
+        - article [ref=f1e222]:
+          - generic [ref=f1e223]:
+            - generic [ref=f1e224]:
+              - generic [ref=f1e225]: MT
+              - generic [ref=f1e226]: MK
+            - heading "Payment → MikroTik → notifikasi" [level=3] [ref=f1e227]
+            - paragraph [ref=f1e228]: Jadikan event billing sebagai trigger proses jaringan dan pemberitahuan pelanggan.
+          - generic [ref=f1e229]:
+            - generic [ref=f1e230]: ISP · Network
+            - generic [ref=f1e231]: Workflow →
+    - generic [ref=f1e233]:
+      - generic [ref=f1e235]:
+        - generic [ref=f1e236]: How it works
+        - heading "Dari event menjadi tindakan." [level=2] [ref=f1e237]
+        - paragraph [ref=f1e238]: Mulai sederhana. Pilih apa yang memicu workflow, tentukan tindakannya, kemudian aktifkan dan pantau.
+      - generic [ref=f1e239]:
+        - article [ref=f1e240]:
+          - generic [ref=f1e241]: "01"
+          - heading "Pilih trigger" [level=3] [ref=f1e242]
+          - paragraph [ref=f1e243]: Gunakan webhook, payment, order, alert, API, atau event dari sistem Anda.
+        - article [ref=f1e244]:
+          - generic [ref=f1e245]: "02"
+          - heading "Tentukan tindakan" [level=3] [ref=f1e246]
+          - paragraph [ref=f1e247]: Teruskan data ke Telegram, API, accounting, messaging, atau sistem tujuan.
+        - article [ref=f1e248]:
+          - generic [ref=f1e249]: "03"
+          - heading "Aktifkan & pantau" [level=3] [ref=f1e250]
+          - paragraph [ref=f1e251]: Uji workflow terlebih dahulu, aktifkan, kemudian periksa hasil eksekusinya.
+    - generic [ref=f1e253]:
+      - generic [ref=f1e254]:
+        - generic [ref=f1e255]: Developer Platform
+        - heading "Mulai dari webhook. Hubungkan hampir apa pun." [level=2] [ref=f1e256]
+        - paragraph [ref=f1e257]: Gunakan HTTPS dan JSON sebagai jalur universal ketika konektor khusus belum tersedia.
+        - link "Buka dokumentasi →" [ref=f1e259] [cursor=pointer]:
+          - /url: /docs
+      - generic [ref=f1e260]:
+        - generic [ref=f1e261]:
+          - generic [ref=f1e262]: Webhook request
+          - generic [ref=f1e263]: JSON
+        - generic [ref=f1e264]: "POST /v1/webhooks/order { \"event\": \"payment.paid\", \"order_id\": \"ORD-1028\", \"amount\": 250000 } # workflow ✓ Event received ✓ Rules validated ✓ Action executed"
+    - generic [ref=f1e266]:
+      - generic [ref=f1e267]:
+        - generic [ref=f1e268]:
+          - generic [ref=f1e269]: Reliability by default
+          - heading "Bukan sekadar meneruskan request." [level=2] [ref=f1e270]
+          - paragraph [ref=f1e271]: Workflow production membutuhkan kontrol ketika request gagal, event terkirim ulang, atau credential perlu diamankan.
+        - link "Lihat status sistem →" [ref=f1e272] [cursor=pointer]:
+          - /url: /status
+      - generic [ref=f1e273]:
+        - article [ref=f1e274]:
+          - generic [ref=f1e275]: ↻
+          - heading "Automatic Retry" [level=3] [ref=f1e276]
+          - paragraph [ref=f1e277]: Jalankan kembali proses yang gagal sementara tanpa membuat workflow menjadi rumit.
+        - article [ref=f1e278]:
+          - generic [ref=f1e279]: ≡
+          - heading "Idempotency" [level=3] [ref=f1e280]
+          - paragraph [ref=f1e281]: Kurangi risiko satu event menyebabkan tindakan yang sama berulang kali.
+        - article [ref=f1e282]:
+          - generic [ref=f1e283]: ⌑
+          - heading "Secure Credentials" [level=3] [ref=f1e284]
+          - paragraph [ref=f1e285]: Rahasia koneksi disimpan server-side dan tidak perlu ditampilkan kembali.
+        - article [ref=f1e286]:
+          - generic [ref=f1e287]: ◎
+          - heading "Execution Visibility" [level=3] [ref=f1e288]
+          - paragraph [ref=f1e289]: Workflow lebih mudah diperiksa ketika setiap tahapan mempunyai status yang jelas.
+    - generic [ref=f1e291]:
+      - generic [ref=f1e293]:
+        - generic [ref=f1e294]: Solutions
+        - heading "Satu fondasi. Banyak kebutuhan bisnis." [level=2] [ref=f1e295]
+      - generic [ref=f1e296]:
+        - article [ref=f1e297]:
+          - text: Operations
+          - heading "Operasional bisnis" [level=3] [ref=f1e298]
+          - paragraph [ref=f1e299]: Hubungkan order, pembayaran, notifikasi, data, dan proses internal.
+          - link "Lihat workflow →" [ref=f1e300] [cursor=pointer]:
+            - /url: "#templates"
+        - article [ref=f1e301]:
+          - text: Finance
+          - heading "Finance & accounting" [level=3] [ref=f1e302]
+          - paragraph [ref=f1e303]: Kurangi input berulang dengan menghubungkan event transaksi ke proses pencatatan.
+          - link "Lihat konektor →" [ref=f1e304] [cursor=pointer]:
+            - /url: "#connectors"
+        - article [ref=f1e305]:
+          - text: Developer
+          - heading "API & sistem khusus" [level=3] [ref=f1e306]
+          - paragraph [ref=f1e307]: Gunakan webhook dan HTTP/API untuk menyatukan layanan tanpa konektor native.
+          - link "Buka docs →" [ref=f1e308] [cursor=pointer]:
+            - /url: /docs
+    - generic [ref=f1e311]:
+      - heading "Workflow pertama Anda bisa dimulai hari ini." [level=2] [ref=f1e312]
+      - paragraph [ref=f1e313]: Mulai dari webhook, tentukan sistem tujuan, uji alurnya, lalu aktifkan saat sudah siap.
+      - generic [ref=f1e314]:
+        - link "Buat otomasi →" [ref=f1e315] [cursor=pointer]:
+          - /url: /connect-v2/
+        - link "Baca dokumentasi" [ref=f1e316] [cursor=pointer]:
+          - /url: /docs
+  - contentinfo [ref=f1e317]:
+    - generic [ref=f1e318]:
+      - generic [ref=f1e319]:
+        - generic [ref=f1e320]:
+          - link "BC BotConnector" [ref=f1e321] [cursor=pointer]:
+            - /url: /
+            - generic [ref=f1e322]: BC
+            - generic [ref=f1e323]: BotConnector
+          - paragraph [ref=f1e324]: Connect systems. Automate work.
+        - navigation [ref=f1e325]:
+          - link "Business Suite" [ref=f1e326] [cursor=pointer]:
+            - /url: /bisnis/
+          - link "Retail" [ref=f1e327] [cursor=pointer]:
+            - /url: /retail/
+          - link "Restaurant" [ref=f1e328] [cursor=pointer]:
+            - /url: /restaurant/
+          - link "Integrasi" [ref=f1e329] [cursor=pointer]:
+            - /url: /integrations/
+          - link "Konektor" [ref=f1e330] [cursor=pointer]:
+            - /url: /konektor/
+          - link "Integrasi" [ref=f1e331] [cursor=pointer]:
+            - /url: /integrasi/
+          - link "Template" [ref=f1e332] [cursor=pointer]:
+            - /url: /resep/
+          - link "Solusi" [ref=f1e333] [cursor=pointer]:
+            - /url: /solusi/
+          - link "Docs" [ref=f1e334] [cursor=pointer]:
+            - /url: /docs/
+          - link "Status" [ref=f1e335] [cursor=pointer]:
+            - /url: /status
+          - link "Keamanan" [ref=f1e336] [cursor=pointer]:
+            - /url: /security
+          - link "Privasi" [ref=f1e337] [cursor=pointer]:
+            - /url: /privacy
+          - link "Ketentuan" [ref=f1e338] [cursor=pointer]:
+            - /url: /terms
+      - generic [ref=f1e339]:
+        - generic [ref=f1e340]: © 2026 BotConnector.
+        - generic [ref=f1e341]: Hubungkan sistem. Jalankan bisnis dari satu tempat.

@@ -1,0 +1,8 @@
+{% extends "base.html" %}
+{% block content %}
+<section class="admin-page"><div class="wrap">
+  <div class="admin-head"><div><p class="category">Internal</p><h1>Store Admin</h1><p>Pesanan, pembayaran, aktivasi, dan harga.</p></div><button class="btn outline" id="adminLogout">Keluar</button></div>
+  <div class="admin-login" id="adminLogin"><div><h2>Masuk</h2><p>Gunakan STORE_ADMIN_SECRET dari server.</p><form id="adminLoginForm"><input type="password" name="secret" required placeholder="Admin secret"><button class="btn primary" type="submit">Masuk</button></form><div class="form-error" id="adminLoginError"></div></div></div>
+  <div class="admin-content hidden" id="adminContent"><div class="admin-tabs"><button class="active" data-tab="orders">Pesanan</button><button data-tab="prices">Harga</button></div><div class="tab-pane" id="tab-orders"><div class="toolbar"><strong>300 pesanan terakhir</strong><button class="refresh-btn" id="reloadOrders">Muat Ulang</button></div><div class="table-wrap"><table><thead><tr><th>Pesanan</th><th>Produk</th><th>Pelanggan</th><th>Lisensi</th><th>Total</th><th>Bayar</th><th>Aktivasi</th><th>Aksi</th></tr></thead><tbody id="ordersBody"></tbody></table></div></div><div class="tab-pane hidden" id="tab-prices"><div class="toolbar"><strong>Harga paket yang dijual</strong><span>Harga peningkatan dihitung otomatis dari paket aktif ke paket tujuan.</span></div><div id="priceEditor" class="price-editor"></div></div></div>
+</div></section>
+{% endblock %}

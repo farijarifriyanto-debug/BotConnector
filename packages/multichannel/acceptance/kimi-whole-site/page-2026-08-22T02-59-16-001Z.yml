@@ -1,0 +1,66 @@
+- generic [active] [ref=f34e1]:
+  - banner [ref=f34e2]:
+    - generic [ref=f34e3]: BC Bisnis
+    - navigation [ref=f34e4]:
+      - link "Dashboard" [ref=f34e5] [cursor=pointer]:
+        - /url: "#/dashboard"
+      - link "POS" [ref=f34e6] [cursor=pointer]:
+        - /url: "#/pos"
+      - link "Orders" [ref=f34e7] [cursor=pointer]:
+        - /url: "#/orders"
+      - link "Products" [ref=f34e8] [cursor=pointer]:
+        - /url: "#/products"
+      - link "Inventory" [ref=f34e9] [cursor=pointer]:
+        - /url: "#/inventory"
+      - link "Transfers" [ref=f34e10] [cursor=pointer]:
+        - /url: "#/transfers"
+      - link "Restaurant" [ref=f34e11] [cursor=pointer]:
+        - /url: "#/restaurant"
+      - link "Kitchen" [ref=f34e12] [cursor=pointer]:
+        - /url: "#/kitchen"
+      - link "Reports" [ref=f34e13] [cursor=pointer]:
+        - /url: "#/reports"
+      - link "Integrasi" [ref=f34e14] [cursor=pointer]:
+        - /url: "#/integrasi"
+  - main [ref=f34e15]:
+    - generic [ref=f34e212]:
+      - heading "Products" [level=1] [ref=f34e213]
+      - generic [ref=f34e214]: Produk / Master SKU
+    - table [ref=f34e216]:
+      - rowgroup [ref=f34e217]:
+        - row [ref=f34e218]:
+          - columnheader "SKU" [ref=f34e219]
+          - columnheader "Produk" [ref=f34e220]
+          - columnheader "Kategori" [ref=f34e221]
+          - columnheader "Barcode" [ref=f34e222]
+          - columnheader "Stok Aman" [ref=f34e223]
+        - row [ref=f34e224]:
+          - cell "CHICKEN" [ref=f34e225]
+          - cell "Ayam" [ref=f34e226]
+          - cell "Bahan" [ref=f34e227]
+          - cell [ref=f34e228]
+          - cell "0" [ref=f34e229]
+        - row [ref=f34e230]:
+          - cell "EGG" [ref=f34e231]
+          - cell "Telur" [ref=f34e232]
+          - cell "Bahan" [ref=f34e233]
+          - cell [ref=f34e234]
+          - cell "0" [ref=f34e235]
+        - row [ref=f34e236]:
+          - cell "OIL" [ref=f34e237]
+          - cell "Minyak Goreng" [ref=f34e238]
+          - cell "Bahan" [ref=f34e239]
+          - cell [ref=f34e240]
+          - cell "0" [ref=f34e241]
+        - row [ref=f34e242]:
+          - cell "RICE" [ref=f34e243]
+          - cell "Beras" [ref=f34e244]
+          - cell "Bahan" [ref=f34e245]
+          - cell [ref=f34e246]
+          - cell "0" [ref=f34e247]
+        - row [ref=f34e248]:
+          - cell "WATER-600" [ref=f34e249]
+          - cell "Air Mineral 600ml" [ref=f34e250]
+          - cell "Minuman" [ref=f34e251]
+          - cell [ref=f34e252]
+          - cell "0" [ref=f34e253]

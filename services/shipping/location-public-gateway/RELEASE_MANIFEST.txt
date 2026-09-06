@@ -1,0 +1,32 @@
+============================================================
+BOTCONNECTOR SHIPPING
+PUBLIC LOCATION SEARCH GATEWAY V1
+FROZEN RELEASE
+============================================================
+
+FREEZE_UTC=2026-08-13 13:28:59 UTC
+
+STATUS=FROZEN_PUBLIC_LOCATION_GATEWAY
+RESULT=PASS
+
+RELEASE=/opt/botconnector-shipping-location-public-gateway/releases/location-public-gateway-v1-20260813T132858Z
+SOURCE_CANDIDATE=/opt/botconnector-shipping-location-public-gateway/candidates/location-public-gateway-v1-20260813T132459Z
+
+APP_SHA256=0a8b50859baa7eb14c27b9a20f551d957143c0a8eae1278015a3a6f605508aa3
+ACCEPTANCE_SHA256=b812008832bf7bc7a780465df23a67a058fc38a0f6eb83c934b6c9e354da14a4
+SOURCE_MASTER_SHA256=4ea28da91dd0cca0fbfcf60cd0494234d9945b880de962f732b8d2366b0b1e5f
+
+PUBLIC_CONTRACT=
+GET /api/shipping/locations
+
+CACHE_TTL_SECONDS=300
+
+PROVIDER_LOCATION_ID_PUBLIC=NO
+IDEMPOTENCY_KEY_PUBLIC=NO
+PROVIDER_CREDENTIAL_PUBLIC=NO
+
+LOCATION_RESOLVER_V1=FROZEN_UNTOUCHED
+SHIPPING_CORE_V1=FROZEN_UNTOUCHED
+RAJAONGKIR_ADAPTER_V1=FROZEN_UNTOUCHED
+
+============================================================

@@ -1,0 +1,11 @@
+User-agent: *
+Allow: /
+Disallow: /dashboard
+Disallow: /admin
+Disallow: /api/
+Disallow: /webhook/
+Disallow: /panel/
+Disallow: /store/
+Disallow: /connect-v2/
+
+Sitemap: https://botconnector.id/sitemap.xml

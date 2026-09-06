@@ -1,0 +1,61 @@
+- generic [ref=f11e1]:
+  - banner [ref=f11e2]:
+    - generic [ref=f11e3]: BC Bisnis
+    - navigation [ref=f11e4]:
+      - link "Dashboard" [ref=f11e5] [cursor=pointer]:
+        - /url: "#/dashboard"
+      - link "POS" [ref=f11e6] [cursor=pointer]:
+        - /url: "#/pos"
+      - link "Orders" [ref=f11e7] [cursor=pointer]:
+        - /url: "#/orders"
+      - link "Products" [ref=f11e8] [cursor=pointer]:
+        - /url: "#/products"
+      - link "Inventory" [ref=f11e9] [cursor=pointer]:
+        - /url: "#/inventory"
+      - link "Transfers" [ref=f11e10] [cursor=pointer]:
+        - /url: "#/transfers"
+      - link "Restaurant" [ref=f11e11] [cursor=pointer]:
+        - /url: "#/restaurant"
+      - link "Kitchen" [ref=f11e12] [cursor=pointer]:
+        - /url: "#/kitchen"
+      - link "Reports" [ref=f11e13] [cursor=pointer]:
+        - /url: "#/reports"
+      - link "Integrasi" [active] [ref=f11e14] [cursor=pointer]:
+        - /url: "#/integrasi"
+  - main [ref=f11e15]:
+    - generic [ref=f11e296]:
+      - heading "Reports" [level=1] [ref=f11e297]
+      - generic [ref=f11e298]: Laporan bisnis (Retail + Restoran)
+    - generic [ref=f11e299]:
+      - generic [ref=f11e300]:
+        - generic [ref=f11e301]: Gross Sales Restoran
+        - generic [ref=f11e302]: "0"
+      - generic [ref=f11e303]:
+        - generic [ref=f11e304]: COGS Restoran
+        - generic [ref=f11e305]: "0"
+      - generic [ref=f11e306]:
+        - generic [ref=f11e307]: Gross Profit
+        - generic [ref=f11e308]: "0"
+      - generic [ref=f11e309]:
+        - generic [ref=f11e310]: Gross Margin
+        - generic [ref=f11e311]: 0%
+      - generic [ref=f11e312]:
+        - generic [ref=f11e313]: Penjualan Retail
+        - generic [ref=f11e314]: "0"
+    - generic [ref=f11e315]:
+      - heading "Penjualan per Kategori" [level=2] [ref=f11e316]
+      - table [ref=f11e317]:
+        - rowgroup [ref=f11e318]:
+          - row [ref=f11e319]:
+            - columnheader "Kategori" [ref=f11e320]
+            - columnheader "Penjualan" [ref=f11e321]
+            - columnheader "Qty" [ref=f11e322]
+    - generic [ref=f11e323]:
+      - heading "Penjualan per Kanal" [level=2] [ref=f11e324]
+      - table [ref=f11e325]:
+        - rowgroup [ref=f11e326]:
+          - row [ref=f11e327]:
+            - columnheader "Kanal" [ref=f11e328]
+            - columnheader "Order" [ref=f11e329]
+            - columnheader "Penjualan" [ref=f11e330]
+            - columnheader "Biaya Provider" [ref=f11e331]

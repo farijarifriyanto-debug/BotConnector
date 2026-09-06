@@ -1,0 +1,46 @@
+============================================================
+BOTCONNECTOR SHIPPING
+LOCATION PUBLIC GATEWAY V1.1
+AUTOCOMPLETE FAIL-SOFT RELEASE
+============================================================
+
+FREEZE_UTC=2026-08-13 14:17:18 UTC
+
+RESULT=PASS
+STATUS=IMMUTABLE_RELEASE
+
+RELEASE=/opt/botconnector-shipping-location-public-gateway/releases/location-public-gateway-v1.1-failsoft-20260813T141718Z
+
+SOURCE_CANDIDATE=/opt/botconnector-shipping-location-public-gateway/candidates/location-public-gateway-v1.1-failsoft-20260813T141257Z
+
+APP_SHA256=cf6ec695bbab26b503ec5d706c0478d58d4d007556880de3eae78f716cb1fb77
+ACCEPTANCE_SHA256=b993ba0def83a368dc944b756b81f599426fb351fa4390a122634cf85333641d
+
+FAILSOFT_SEMANTIC=
+resolver_HTTP_502
++
+provider_request_rejected
++
+provider_http_404
+=
+public_HTTP_200_results_empty
+
+OTHER_PROVIDER_ERRORS_FAILSOFT=NO
+
+PREFIX_NO_MATCH=200_EMPTY
+REAL_MATCH=200_RESULTS
+
+VALIDATION_PRESERVED=YES
+PUBLIC_SECURITY_PRESERVED=YES
+CACHE_PRESERVED=YES
+
+ROLLBACK_RELEASE=/opt/botconnector-shipping-location-public-gateway/releases/location-public-gateway-v1-20260813T132858Z
+
+RESOLVER_MUTATION=NONE
+SHIPPING_CORE_MUTATION=NONE
+BUSINESS_CORE_MUTATION=NONE
+RAJAONGKIR_ADAPTER_MUTATION=NONE
+SHIPPING_UI_MUTATION=NONE
+NGINX_MUTATION=NONE
+
+============================================================

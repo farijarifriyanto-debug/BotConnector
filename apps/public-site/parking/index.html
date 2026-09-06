@@ -1,0 +1,182 @@
+<!doctype html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="theme-color" content="#F6F7FB">
+<title>Parking — BotConnector</title>
+<meta name="description" content="Kelola gerbang, tarif, dan pembayaran parkir dari satu sistem — kamera baca plat otomatis (ANPR), tunai &amp; QRIS, tetap jalan walau internet mati.">
+<meta name="robots" content="index, follow">
+<link rel="canonical" href="https://botconnector.id/parking/">
+<link rel="icon" href="../favicon.svg" type="image/svg+xml">
+<link rel="stylesheet" href="../css/site.css">
+</head>
+<body>
+
+<header class="top">
+  <div class="wrap top-in">
+    <a class="brand" href="../"><span class="plug">BC</span>BotConnector</a>
+    <nav aria-label="Navigasi utama">
+      <div class="has-dd">
+        <button class="dd-trigger active" aria-haspopup="true">Produk</button>
+        <div class="dd-panel">
+          <a href="../business-suite/">Business Suite<small>POS ritel, resto &amp; multi-cabang</small></a>
+          <a href="../retail/">Retail<small>Kasir &amp; stok toko</small></a>
+          <a href="../restaurant/">Restaurant<small>Kasir &amp; dapur resto/kafe</small></a>
+          <a href="../parking/" class="active">Parking<small>Gerbang, tarif, ANPR</small></a>
+          <a href="../my-drive/">My Drive<small>Penyimpanan file terhubung</small></a>
+        </div>
+      </div>
+      <div class="has-dd">
+        <button class="dd-trigger" aria-haspopup="true">Integrasi</button>
+        <div class="dd-panel">
+          <a href="../integrations/">Integrasi<small>Hubungkan sistem yang Anda pakai</small></a>
+          <a href="../konektor/">Konektor<small>Marketplace koneksi siap pakai</small></a>
+          <a href="../resep/">Resep<small>Template alur kerja operasional</small></a>
+        </div>
+      </div>
+      <a href="../solusi/">Solusi</a>
+      <a href="../docs/">Docs</a>
+    </nav>
+    <div class="top-actions">
+      <a class="btn btn-line" href="https://botconnector.id/login">Masuk</a>
+      <a class="btn btn-main" href="https://botconnector.id/parking/">Buka Parking →</a>
+      <button class="mobile-menu" aria-label="Buka menu navigasi">☰</button>
+    </div>
+  </div>
+</header>
+
+<div class="wrap crumb"><a href="../">BotConnector</a> &nbsp;/&nbsp; Parking</div>
+
+<main>
+
+<section class="hero">
+  <div class="wrap hero-grid">
+    <div>
+      <div class="label">Parking</div>
+      <h1>Kelola parkir dari gerbang sampai laporan.</h1>
+      <p class="hero-copy">
+        Akses gerbang, tarif otomatis, kamera baca plat (ANPR), pembayaran tunai &amp; QRIS — dengan gateway
+        yang tetap berjalan saat koneksi internet terputus.
+      </p>
+      <div class="hero-actions">
+        <a class="btn btn-main" href="https://botconnector.id/parking/">Buka Parking →</a>
+        <a class="btn btn-line" href="../solusi/">Lihat Solusi</a>
+      </div>
+      <div class="chips">
+        <span class="chip">Akses Gerbang</span>
+        <span class="chip">Tarif Otomatis</span>
+        <span class="chip">ANPR</span>
+        <span class="chip">QRIS &amp; Tunai</span>
+        <span class="chip">Offline Gateway</span>
+      </div>
+    </div>
+    <div class="board">
+      <div class="board-top"><span class="mono">Parking flow</span><span class="board-active">● Aktif</span></div>
+      <div class="solution-flow">
+        <div class="flow-node"><span class="flow-icon">IN</span><small>MASUK</small><strong>Plat terbaca (ANPR)</strong></div>
+        <span class="line"></span>
+        <div class="flow-node"><span class="flow-icon">TRF</span><small>TARIF</small><strong>Dihitung otomatis</strong></div>
+        <span class="line"></span>
+        <div class="flow-node"><span class="flow-icon">PAY</span><small>BAYAR</small><strong>QRIS / tunai</strong></div>
+      </div>
+      <div class="board-foot">
+        <div class="board-cell"><strong>Gerbang</strong><span>Lane · Palang</span></div>
+        <div class="board-cell"><strong>Kamera</strong><span>ANPR</span></div>
+        <div class="board-cell"><strong>Kasir</strong><span>Shift · Rekap</span></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="section white">
+  <div class="wrap">
+    <div class="section-head">
+      <div class="section-head-copy">
+        <div class="label">Yang bisa Anda lakukan</div>
+        <h2>Operasional lapangan yang tidak berhenti karena internet.</h2>
+        <p class="section-intro">Gateway edge di lokasi tetap mencatat transaksi saat koneksi terputus, lalu tersinkron begitu jaringan kembali.</p>
+      </div>
+    </div>
+    <div class="grid">
+      <div class="card">
+        <div class="card-head"><span class="icon">GT</span><span class="badge ready">Aktif</span></div>
+        <div class="card-label">Akses Gerbang</div>
+        <h3>Kontrol lane masuk &amp; keluar.</h3>
+        <p>Buka-tutup palang otomatis berdasarkan validasi tiket atau plat yang terbaca kamera.</p>
+      </div>
+      <div class="card">
+        <div class="card-head"><span class="icon">ANPR</span><span class="badge ready">Aktif</span></div>
+        <div class="card-label">Kamera ANPR</div>
+        <h3>Baca plat nomor otomatis.</h3>
+        <p>Kamera mencatat plat saat kendaraan masuk dan keluar — tanpa tiket kertas yang mudah hilang.</p>
+      </div>
+      <div class="card">
+        <div class="card-head"><span class="icon">TRF</span><span class="badge ready">Aktif</span></div>
+        <div class="card-label">Tarif</div>
+        <h3>Tarif dihitung otomatis dari durasi.</h3>
+        <p>Aturan tarif per jam atau per profil kendaraan, dihitung otomatis saat kendaraan keluar.</p>
+      </div>
+      <div class="card">
+        <div class="card-head"><span class="icon">RPT</span><span class="badge ready">Aktif</span></div>
+        <div class="card-label">Laporan</div>
+        <h3>Rekap pendapatan &amp; shift.</h3>
+        <p>Laporan pendapatan harian dan audit rekap shift untuk setiap operator gerbang.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="section">
+  <div class="wrap band">
+    <div class="label">Mulai sekarang</div>
+    <h2>Sambungkan gerbang parkir Anda.</h2>
+    <p>Buka BotConnector Parking untuk melihat gerbang, tarif, dan laporan yang sudah berjalan.</p>
+    <div class="hero-actions">
+      <a class="btn btn-main" href="https://botconnector.id/parking/">Buka Parking →</a>
+      <a class="btn btn-line" href="../docs/">Dokumentasi</a>
+    </div>
+  </div>
+</section>
+
+</main>
+
+<footer>
+  <div class="wrap footer-grid">
+    <div>
+      <a class="brand" href="../"><span class="plug">BC</span>BotConnector</a>
+      <div class="footer-copy">Satu platform untuk kasir, stok, parkir, dan otomasi bisnis Anda.</div>
+    </div>
+    <div class="footer-col">
+      <div class="footer-col-label">Produk</div>
+      <div class="footer-links">
+        <a href="../business-suite/">Business Suite</a>
+        <a href="../retail/">Retail</a>
+        <a href="../restaurant/">Restaurant</a>
+        <a href="../parking/">Parking</a>
+        <a href="../my-drive/">My Drive</a>
+      </div>
+    </div>
+    <div class="footer-col">
+      <div class="footer-col-label">Ekosistem</div>
+      <div class="footer-links">
+        <a href="../integrations/">Integrasi</a>
+        <a href="../konektor/">Konektor</a>
+        <a href="../resep/">Resep</a>
+        <a href="../solusi/">Solusi</a>
+      </div>
+    </div>
+    <div class="footer-col">
+      <div class="footer-col-label">Sumber Daya</div>
+      <div class="footer-links">
+        <a href="../docs/">Docs</a>
+        <a href="https://botconnector.id/status">Status</a>
+        <a href="https://botconnector.id/support">Bantuan</a>
+      </div>
+    </div>
+  </div>
+</footer>
+
+<script src="../js/site.js"></script>
+</body>
+</html>

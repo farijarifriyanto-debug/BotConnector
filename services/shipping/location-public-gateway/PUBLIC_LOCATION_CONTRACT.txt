@@ -1,0 +1,79 @@
+============================================================
+BOTCONNECTOR SHIPPING
+PUBLIC LOCATION SEARCH CONTRACT V1
+============================================================
+
+PUBLIC:
+
+GET /api/shipping/locations
+
+QUERY:
+
+q
+- required
+- string
+- min 2
+- max 200
+
+limit
+- optional
+- integer
+- default 10
+- min 1
+- max 10
+
+
+PUBLIC RESPONSE:
+
+{
+  "ok": true,
+  "query": "...",
+  "results": [
+    {
+      "label": "...",
+      "province": "...",
+      "city": "...",
+      "district": "...",
+      "subdistrict": "...",
+      "postal_code": "..."
+    }
+  ]
+}
+
+
+NEVER PUBLIC:
+
+provider_location_id
+idempotency_key
+provider credential
+provider raw payload
+
+
+INTERNAL:
+
+Public Location Gateway
+  ->
+Location Resolver V1
+  ->
+RajaOngkir
+
+
+CACHE:
+
+local SQLite
+TTL 300 seconds
+
+
+UX TARGET:
+
+minimum characters = 2
+debounce = ~350 ms
+maximum suggestions = 10
+
+desktop:
+dropdown below input
+
+mobile:
+large touch-friendly suggestion list
+
+============================================================

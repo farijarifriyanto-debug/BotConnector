@@ -1,0 +1,90 @@
+- generic [active] [ref=f38e1]:
+  - banner [ref=f38e2]:
+    - generic [ref=f38e3]: BC Bisnis
+    - navigation [ref=f38e4]:
+      - link "Dashboard" [ref=f38e5] [cursor=pointer]:
+        - /url: "#/dashboard"
+      - link "POS" [ref=f38e6] [cursor=pointer]:
+        - /url: "#/pos"
+      - link "Orders" [ref=f38e7] [cursor=pointer]:
+        - /url: "#/orders"
+      - link "Products" [ref=f38e8] [cursor=pointer]:
+        - /url: "#/products"
+      - link "Inventory" [ref=f38e9] [cursor=pointer]:
+        - /url: "#/inventory"
+      - link "Transfers" [ref=f38e10] [cursor=pointer]:
+        - /url: "#/transfers"
+      - link "Restaurant" [ref=f38e11] [cursor=pointer]:
+        - /url: "#/restaurant"
+      - link "Kitchen" [ref=f38e12] [cursor=pointer]:
+        - /url: "#/kitchen"
+      - link "Reports" [ref=f38e13] [cursor=pointer]:
+        - /url: "#/reports"
+      - link "Integrasi" [ref=f38e14] [cursor=pointer]:
+        - /url: "#/integrasi"
+  - main [ref=f38e15]:
+    - generic [ref=f38e16]:
+      - heading "POS" [level=1] [ref=f38e17]
+      - generic [ref=f38e18]: Kasir retail — scan barcode, pilih produk, tender, dan cetak struk
+    - generic [ref=f38e19]:
+      - heading "Kasir" [level=2] [ref=f38e20]
+      - generic [ref=f38e21]:
+        - generic [ref=f38e22]:
+          - generic [ref=f38e23]: Cabang
+          - combobox [ref=f38e24]:
+            - option "Cabang A (RETAIL)" [selected]
+            - option "Cabang B (RESTAURANT)"
+        - generic [ref=f38e25]:
+          - generic [ref=f38e26]: Register
+          - combobox [ref=f38e27]:
+            - option "Kasir A" [selected]
+            - option "Kasir B"
+        - generic [ref=f38e28]:
+          - generic [ref=f38e29]: Scan Barcode / SKU
+          - textbox "Scan lalu Enter" [ref=f38e30]
+      - table [ref=f38e31]:
+        - rowgroup [ref=f38e32]:
+          - row [ref=f38e33]:
+            - columnheader "SKU" [ref=f38e34]
+            - columnheader "Produk" [ref=f38e35]
+            - columnheader "Barcode" [ref=f38e36]
+            - columnheader "Harga" [ref=f38e37]
+          - row [ref=f38e38]:
+            - cell "CHICKEN" [ref=f38e39]
+            - cell "Ayam" [ref=f38e40]
+            - cell [ref=f38e41]
+            - cell "0" [ref=f38e42]
+          - row [ref=f38e43]:
+            - cell "EGG" [ref=f38e44]
+            - cell "Telur" [ref=f38e45]
+            - cell [ref=f38e46]
+            - cell "0" [ref=f38e47]
+          - row [ref=f38e48]:
+            - cell "OIL" [ref=f38e49]
+            - cell "Minyak Goreng" [ref=f38e50]
+            - cell [ref=f38e51]
+            - cell "0" [ref=f38e52]
+          - row [ref=f38e53]:
+            - cell "RICE" [ref=f38e54]
+            - cell "Beras" [ref=f38e55]
+            - cell [ref=f38e56]
+            - cell "0" [ref=f38e57]
+          - row [ref=f38e58]:
+            - cell "WATER-600" [ref=f38e59]
+            - cell "Air Mineral 600ml" [ref=f38e60]
+            - cell [ref=f38e61]
+            - cell "0" [ref=f38e62]
+    - generic [ref=f38e63]:
+      - generic [ref=f38e64]:
+        - strong [ref=f38e65]: "Keranjang:"
+        - text: 0 item ·
+        - strong [ref=f38e66]: Total
+        - text: "0"
+      - generic [ref=f38e67]:
+        - combobox [ref=f38e68]:
+          - option "Tunai" [selected]
+          - option "QRIS (manual)"
+          - option "Kartu (manual)"
+          - option "Transfer Bank"
+        - spinbutton "Jumlah dibayar" [ref=f38e69]
+        - button "Selesaikan Penjualan" [ref=f38e70] [cursor=pointer]

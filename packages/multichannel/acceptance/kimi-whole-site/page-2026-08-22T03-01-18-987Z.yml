@@ -1,0 +1,165 @@
+- generic [active] [ref=f46e1]:
+  - banner [ref=f46e2]:
+    - generic [ref=f46e3]:
+      - link "BC BotConnector" [ref=f46e4] [cursor=pointer]:
+        - /url: /
+        - generic [ref=f46e5]: BC
+        - text: BotConnector
+      - navigation "Navigasi utama" [ref=f46e6]:
+        - link "Business Suite" [ref=f46e7] [cursor=pointer]:
+          - /url: /business-suite/
+        - link "Retail" [ref=f46e8] [cursor=pointer]:
+          - /url: /retail/
+        - link "Restaurant" [ref=f46e9] [cursor=pointer]:
+          - /url: /restaurant/
+        - link "Integrasi" [ref=f46e10] [cursor=pointer]:
+          - /url: /integrations/
+        - link "Resep" [ref=f46e11] [cursor=pointer]:
+          - /url: /resep/
+        - link "Solusi" [ref=f46e12] [cursor=pointer]:
+          - /url: /solusi/
+        - link "Docs" [ref=f46e13] [cursor=pointer]:
+          - /url: /docs/
+      - link "Buat Otomasi →" [ref=f46e15] [cursor=pointer]:
+        - /url: /connect-v2/
+  - generic [ref=f46e16]:
+    - link "BotConnector" [ref=f46e17] [cursor=pointer]:
+      - /url: /
+    - text: / Automation Connectors
+  - main [ref=f46e18]:
+    - generic [ref=f46e20]:
+      - generic [ref=f46e21]:
+        - generic [ref=f46e22]: Automation
+        - heading "Konektor untuk workflow event-driven." [level=1] [ref=f46e23]
+        - paragraph [ref=f46e24]: Webhook, HTTP/API, Telegram, dan pola workflow otomatis yang aman, dengan retry, idempotency, dan credential server-side.
+        - generic [ref=f46e25]:
+          - link "Buat Otomasi →" [ref=f46e26] [cursor=pointer]:
+            - /url: /connect-v2/
+          - link "Lihat Template" [ref=f46e27] [cursor=pointer]:
+            - /url: /resep/
+        - generic [ref=f46e28]:
+          - generic [ref=f46e29]: Webhook
+          - generic [ref=f46e30]: HTTP/API
+          - generic [ref=f46e31]: Telegram
+          - generic [ref=f46e32]: Retry & Idempotency
+      - generic [ref=f46e33]:
+        - generic [ref=f46e34]:
+          - generic [ref=f46e35]: Automation flow
+          - generic [ref=f46e36]: ● Aktif
+        - generic [ref=f46e37]:
+          - generic [ref=f46e38]:
+            - generic [ref=f46e39]: EVT
+            - generic [ref=f46e40]: TRIGGER
+            - strong [ref=f46e41]: Event masuk
+          - generic [ref=f46e43]:
+            - generic [ref=f46e44]: WF
+            - generic [ref=f46e45]: PROSES
+            - strong [ref=f46e46]: Validasi & routing
+          - generic [ref=f46e48]:
+            - generic [ref=f46e49]: ACT
+            - generic [ref=f46e50]: AKSI
+            - strong [ref=f46e51]: Notifikasi/API
+        - generic [ref=f46e52]:
+          - generic [ref=f46e53]:
+            - strong [ref=f46e54]: Trigger
+            - generic [ref=f46e55]: Webhook · Event
+          - generic [ref=f46e56]:
+            - strong [ref=f46e57]: Process
+            - generic [ref=f46e58]: Rule · Routing
+          - generic [ref=f46e59]:
+            - strong [ref=f46e60]: Action
+            - generic [ref=f46e61]: Telegram · API
+    - generic [ref=f46e63]:
+      - generic [ref=f46e64]:
+        - generic [ref=f46e65]:
+          - generic [ref=f46e66]: Konektor otomasi
+          - heading "Mulai dari sistem yang sudah Anda pakai." [level=2] [ref=f46e67]
+          - paragraph [ref=f46e68]: Konektor aktif dapat digunakan sekarang. Konektor lain tetap dapat diakses melalui webhook/API sebagai jalur universal.
+        - link "Buat workflow →" [ref=f46e69] [cursor=pointer]:
+          - /url: /connect-v2/
+      - generic [ref=f46e70]:
+        - button "Semua" [ref=f46e71] [cursor=pointer]
+        - button "Trigger" [ref=f46e72] [cursor=pointer]
+        - button "Action" [ref=f46e73] [cursor=pointer]
+        - button "Messaging" [ref=f46e74] [cursor=pointer]
+        - button "Developer" [ref=f46e75] [cursor=pointer]
+      - generic [ref=f46e76]:
+        - link "WH Tersedia Webhook Terima event JSON melalui HTTPS dari aplikasi, form, server, atau sistem Anda sendiri. Trigger · Developer" [ref=f46e77] [cursor=pointer]:
+          - /url: /connect-v2/
+          - generic [ref=f46e78]:
+            - generic [ref=f46e79]: WH
+            - generic [ref=f46e80]: Tersedia
+          - heading "Webhook" [level=3] [ref=f46e81]
+          - paragraph [ref=f46e82]: Terima event JSON melalui HTTPS dari aplikasi, form, server, atau sistem Anda sendiri.
+          - generic [ref=f46e83]: Trigger · Developer
+        - link "API Tersedia HTTP / API Teruskan data workflow ke endpoint HTTPS menggunakan request API. Action · Developer" [ref=f46e84] [cursor=pointer]:
+          - /url: /connect-v2/
+          - generic [ref=f46e85]:
+            - generic [ref=f46e86]: API
+            - generic [ref=f46e87]: Tersedia
+          - heading "HTTP / API" [level=3] [ref=f46e88]
+          - paragraph [ref=f46e89]: Teruskan data workflow ke endpoint HTTPS menggunakan request API.
+          - generic [ref=f46e90]: Action · Developer
+        - link "TG Tersedia Telegram Kirim alert dan notifikasi workflow ke chat atau grup Telegram. Action · Messaging" [ref=f46e91] [cursor=pointer]:
+          - /url: /connect-v2/
+          - generic [ref=f46e92]:
+            - generic [ref=f46e93]: TG
+            - generic [ref=f46e94]: Tersedia
+          - heading "Telegram" [level=3] [ref=f46e95]
+          - paragraph [ref=f46e96]: Kirim alert dan notifikasi workflow ke chat atau grup Telegram.
+          - generic [ref=f46e97]: Action · Messaging
+        - generic [ref=f46e98]:
+          - generic [ref=f46e99]:
+            - generic [ref=f46e100]: GS
+            - generic [ref=f46e101]: Roadmap
+          - heading "Google Sheets" [level=3] [ref=f46e102]
+          - paragraph [ref=f46e103]: Integrasi perubahan data spreadsheet sebagai pemicu atau tujuan workflow.
+          - generic [ref=f46e104]: Data · Roadmap
+        - generic [ref=f46e105]:
+          - generic [ref=f46e106]:
+            - generic [ref=f46e107]: WA
+            - generic [ref=f46e108]: Roadmap
+          - heading "WhatsApp" [level=3] [ref=f46e109]
+          - paragraph [ref=f46e110]: Kanal messaging untuk workflow pelanggan dan notifikasi bisnis.
+          - generic [ref=f46e111]: Messaging · Roadmap
+        - generic [ref=f46e112]:
+          - generic [ref=f46e113]:
+            - generic [ref=f46e114]: PAY
+            - generic [ref=f46e115]: Roadmap
+          - heading "Payment Gateways" [level=3] [ref=f46e116]
+          - paragraph [ref=f46e117]: Gunakan perubahan status transaksi sebagai pemicu workflow bisnis.
+          - generic [ref=f46e118]: Payment · Roadmap
+    - generic [ref=f46e120]:
+      - generic [ref=f46e121]: Automation
+      - heading "Bangun workflow pertama Anda." [level=2] [ref=f46e122]
+      - paragraph [ref=f46e123]: Mulai dari trigger, tentukan tindakan, uji alur, lalu aktifkan saat sudah siap.
+      - generic [ref=f46e124]:
+        - link "Buat Otomasi →" [ref=f46e125] [cursor=pointer]:
+          - /url: /connect-v2/
+        - link "Dokumentasi" [ref=f46e126] [cursor=pointer]:
+          - /url: /docs/
+  - contentinfo [ref=f46e127]:
+    - generic [ref=f46e128]:
+      - generic [ref=f46e129]:
+        - link "BC BotConnector" [ref=f46e130] [cursor=pointer]:
+          - /url: /
+          - generic [ref=f46e131]: BC
+          - text: BotConnector
+        - generic [ref=f46e132]: Hubungkan sistem. Jalankan bisnis dari satu tempat.
+      - generic [ref=f46e133]:
+        - link "Business Suite" [ref=f46e134] [cursor=pointer]:
+          - /url: /business-suite/
+        - link "Retail" [ref=f46e135] [cursor=pointer]:
+          - /url: /retail/
+        - link "Restaurant" [ref=f46e136] [cursor=pointer]:
+          - /url: /restaurant/
+        - link "Integrasi" [ref=f46e137] [cursor=pointer]:
+          - /url: /integrations/
+        - link "Resep" [ref=f46e138] [cursor=pointer]:
+          - /url: /resep/
+        - link "Solusi" [ref=f46e139] [cursor=pointer]:
+          - /url: /solusi/
+        - link "Docs" [ref=f46e140] [cursor=pointer]:
+          - /url: /docs/
+        - link "Status" [ref=f46e141] [cursor=pointer]:
+          - /url: /status

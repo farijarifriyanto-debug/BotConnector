@@ -1,0 +1,878 @@
+"""Server Local Business Suite  -  /bisnis/ (PWA offline-first).
+
+Serves the Local Business UI (Retail POS, Restaurant, Inventory, Transfers,
+Reports, Dashboard) and its JSON API. Preserves /integrasi untouched.
+
+Endpoints:
+  GET  /bisnis/            PWA shell (HTML)
+  GET  /bisnis/manifest    PWA manifest
+  GET  /bisnis/sw.js       Service Worker
+  GET  /bisnis/api/state   dashboard + business state
+  GET  /bisnis/api/products
+  GET  /bisnis/api/inventory
+  GET  /bisnis/api/sales
+  GET  /bisnis/api/transfers
+  GET  /bisnis/api/restaurant
+  GET  /bisnis/api/kitchen
+  POST /bisnis/api/sale
+  POST /bisnis/api/return
+  POST /bisnis/api/transfer
+  POST /bisnis/api/restaurant/order
+  POST /bisnis/api/kitchen/status
+  POST /bisnis/api/offline/sync
+"""
+
+from __future__ import annotations
+
+import sys
+from pathlib import Path
+
+from fastapi import FastAPI, Request, Depends, HTTPException
+from fastapi.responses import HTMLResponse, JSONResponse, Response
+
+sys.path.insert(0, "/opt")
+sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
+
+from botconnector_multichannel.persistence import db  # noqa
+from botconnector_multichannel.local_business import (  # noqa
+    core, inventory as inv, retail, returns, transfer, restaurant,
+    offline, procurement, marketplace, reporting,
+)
+
+def get_user_id(request: Request):
+    """
+    OWNER_ONLY_PILOT authorization.
+
+    Do not trust X-BotConnector-User-ID as proof of authorization.
+    Validate the existing signed bc_admin cookie through the canonical
+    BotConnector Admin Gate on loopback.
+    """
+    import json as _json
+    import urllib.request as _urlrequest
+
+    admin_cookie = request.cookies.get("bc_admin", "")
+    supplied_identity = request.headers.get(
+        "X-BotConnector-User-ID", ""
+    ).strip()
+
+    if not admin_cookie:
+        # A caller trying to assert identity without a valid admin
+        # session is explicitly forbidden.
+        if supplied_identity:
+            raise HTTPException(
+                status_code=403,
+                detail="Admin authorization required",
+            )
+
+        raise HTTPException(
+            status_code=401,
+            detail="Authentication required",
+        )
+
+    req = _urlrequest.Request(
+        "http://127.0.0.1:18160/check",
+        headers={
+            "Cookie": "bc_admin=" + admin_cookie,
+            "Accept": "application/json",
+        },
+        method="GET",
+    )
+
+    try:
+        with _urlrequest.urlopen(req, timeout=3) as response:
+            payload = _json.loads(
+                response.read().decode("utf-8")
+            )
+    except Exception:
+        # Fail closed if authorization service is unavailable.
+        raise HTTPException(
+            status_code=503,
+            detail="Authorization service unavailable",
+        )
+
+    if not isinstance(payload, dict) or not payload.get("admin"):
+        raise HTTPException(
+            status_code=403,
+            detail="Admin authorization required",
+        )
+
+    admin_identity = str(payload.get("email") or "").strip().lower()
+
+    if not admin_identity:
+        raise HTTPException(
+            status_code=403,
+            detail="Admin authorization required",
+        )
+
+    return admin_identity
+APP = FastAPI(title="BotConnector Local Business", version="1.0.0")
+
+_TENANT = "LOCAL-PILOT"
+
+
+def _default_business():
+    """Resolve the default PILOT business for the UI."""
+    bizs = core.list_business(_TENANT)
+    if not bizs:
+        return None
+    return bizs[0]
+
+
+def _branch_map(business_id: int) -> dict:
+    """branch_id -> warehouse_id."""
+    return {b["id"]: b["warehouse_id"] for b in core.list_branch(business_id)}
+
+
+# ============================================================ API
+@APP.get("/bisnis/api/state", dependencies=[Depends(get_user_id)])
+def state():
+    biz = _default_business()
+    if not biz:
+        return {"ok": True, "business": None}
+    branches = core.list_branch(biz["id"])
+    dash = reporting.dashboard(biz["id"])
+    return {"ok": True, "business": biz, "branches": branches,
+            "dashboard": dash, "tenant": _TENANT}
+
+
+@APP.get("/bisnis/api/products", dependencies=[Depends(get_user_id)])
+def products():
+    with db.koneksi() as c:
+        cur = c.cursor()
+        cur.execute(
+            """SELECT m.id, m.sku, p.name, p.category, m.barcode, m.safety_stock
+               FROM multichannel.master_sku m
+               JOIN multichannel.product p ON p.id=m.product_id
+               ORDER BY m.sku""")
+        return {"ok": True, "products": cur.fetchall()}
+
+
+@APP.get("/bisnis/api/inventory", dependencies=[Depends(get_user_id)])
+def inventory():
+    biz = _default_business()
+    if not biz:
+        return {"ok": True, "stock": []}
+    return {"ok": True, "stock": reporting.stock_by_branch(biz["id"]),
+            "global": reporting.global_stock(biz["id"]),
+            "low": reporting.low_stock(biz["id"])}
+
+
+@APP.get("/bisnis/api/sales", dependencies=[Depends(get_user_id)])
+def sales():
+    biz = _default_business()
+    if not biz:
+        return {"ok": True, "sales": []}
+    out = []
+    for b in core.list_branch(biz["id"]):
+        for s in retail.list_sales(b["id"], limit=50):
+            out.append(s)
+    return {"ok": True, "sales": out}
+
+
+@APP.get("/bisnis/api/transfers", dependencies=[Depends(get_user_id)])
+def transfers():
+    biz = _default_business()
+    if not biz:
+        return {"ok": True, "transfers": []}
+    return {"ok": True, "transfers": transfer.list_transfers(biz["id"]),
+            "report": reporting.transfer_report(biz["id"])}
+
+
+@APP.get("/bisnis/api/restaurant", dependencies=[Depends(get_user_id)])
+def restaurant_menu():
+    biz = _default_business()
+    if not biz:
+        return {"ok": True, "menu": [], "orders": []}
+    with db.koneksi() as c:
+        cur = c.cursor()
+        cur.execute(
+            """SELECT mi.id, mi.name, mi.price, mi.is_stocked, mc.name AS category
+               FROM local_business.menu_item mi
+               LEFT JOIN local_business.menu_category mc ON mc.id=mi.category_id
+               WHERE mi.business_id=%s AND mi.active=TRUE ORDER BY mi.name""",
+            (biz["id"],))
+        menu = cur.fetchall()
+    orders = []
+    for b in core.list_branch(biz["id"]):
+        orders += restaurant.list_restaurant_orders(b["id"])
+    return {"ok": True, "menu": menu, "orders": orders}
+
+
+@APP.get("/bisnis/api/kitchen", dependencies=[Depends(get_user_id)])
+def kitchen():
+    biz = _default_business()
+    if not biz:
+        return {"ok": True, "kots": []}
+    kots = []
+    for b in core.list_branch(biz["id"]):
+        kots += restaurant.list_kot(b["id"])
+    return {"ok": True, "kots": kots}
+
+
+@APP.post("/bisnis/api/sale", dependencies=[Depends(get_user_id)])
+async def api_sale(req: Request):
+    body = await req.json()
+    biz = _default_business()
+    if not biz:
+        return JSONResponse({"ok": False, "error": "belum ada business"}, status_code=400)
+    try:
+        r = retail.create_sale(
+            tenant_id=_TENANT, business_id=biz["id"],
+            branch_id=body["branch_id"], register_id=body["register_id"],
+            cashier_id=body.get("cashier_id"), warehouse_id=body["warehouse_id"],
+            lines=body["lines"], tender_method=body.get("tender_method", "CASH"),
+            amount_tendered=body.get("amount_tendered", 0),
+            customer_id=body.get("customer_id"),
+            shift_id=body.get("shift_id"), discount=body.get("discount", 0),
+            tax_amount=body.get("tax_amount", 0),
+            client_event_id=body.get("client_event_id", ""),
+            device_id=body.get("device_id", ""),
+            created_at_client=body.get("created_at_client"))
+        return {"ok": True, "sale": r}
+    except inv.StokTidakCukup as e:
+        return JSONResponse({"ok": False, "error": str(e)}, status_code=409)
+
+
+@APP.post("/bisnis/api/return", dependencies=[Depends(get_user_id)])
+async def api_return(req: Request):
+    body = await req.json()
+    biz = _default_business()
+    if not biz:
+        return JSONResponse({"ok": False, "error": "belum ada business"}, status_code=400)
+    try:
+        r = returns.create_return(
+            tenant_id=_TENANT, business_id=biz["id"], branch_id=body["branch_id"],
+            warehouse_id=body["warehouse_id"], sale_id=body["sale_id"],
+            reason=body.get("reason", ""), actor=body.get("actor", ""),
+            client_event_id=body.get("client_event_id", ""),
+            device_id=body.get("device_id", ""))
+        return {"ok": True, "return": r}
+    except Exception as e:
+        return JSONResponse({"ok": False, "error": str(e)}, status_code=400)
+
+
+@APP.post("/bisnis/api/transfer", dependencies=[Depends(get_user_id)])
+async def api_transfer(req: Request):
+    body = await req.json()
+    biz = _default_business()
+    if not biz:
+        return JSONResponse({"ok": False, "error": "belum ada business"}, status_code=400)
+    try:
+        r = transfer.create_transfer(
+            tenant_id=_TENANT, business_id=biz["id"],
+            source_branch_id=body["source_branch_id"],
+            dest_branch_id=body["dest_branch_id"], lines=body["lines"],
+            note=body.get("note", ""), actor=body.get("actor", ""))
+        return {"ok": True, "transfer": r}
+    except Exception as e:
+        return JSONResponse({"ok": False, "error": str(e)}, status_code=400)
+
+
+@APP.post("/bisnis/api/restaurant/order", dependencies=[Depends(get_user_id)])
+async def api_restaurant_order(req: Request):
+    body = await req.json()
+    biz = _default_business()
+    if not biz:
+        return JSONResponse({"ok": False, "error": "belum ada business"}, status_code=400)
+    try:
+        r = restaurant.create_restaurant_order(
+            tenant_id=_TENANT, business_id=biz["id"], branch_id=body["branch_id"],
+            register_id=body["register_id"], cashier_id=body.get("cashier_id"),
+            warehouse_id=body["warehouse_id"], lines=body["lines"],
+            order_type=body.get("order_type", "DINE_IN"),
+            table_id=body.get("table_id"), guest_count=body.get("guest_count", 1),
+            note=body.get("note", ""), client_event_id=body.get("client_event_id", ""),
+            device_id=body.get("device_id", ""))
+        return {"ok": True, "order": r}
+    except restaurant.StokTidakCukup as e:
+        return JSONResponse({"ok": False, "error": str(e)}, status_code=409)
+
+
+@APP.post("/bisnis/api/kitchen/status", dependencies=[Depends(get_user_id)])
+async def api_kitchen_status(req: Request):
+    body = await req.json()
+    try:
+        r = restaurant.set_kot_status(kot_id=body["kot_id"], status=body["status"],
+                                      actor=body.get("actor", "kitchen"))
+        return {"ok": True, "kot": r}
+    except Exception as e:
+        return JSONResponse({"ok": False, "error": str(e)}, status_code=400)
+
+
+@APP.post("/bisnis/api/offline/sync", dependencies=[Depends(get_user_id)])
+async def api_offline_sync(req: Request):
+    body = await req.json()
+    biz = _default_business()
+    if not biz:
+        return JSONResponse({"ok": False, "error": "belum ada business"}, status_code=400)
+    wmap = _branch_map(biz["id"])
+    r = offline.replay_offline_queue(biz["id"], warehouse_map=wmap)
+    return {"ok": True, "sync": r}
+
+
+@APP.get("/bisnis/api/reports", dependencies=[Depends(get_user_id)])
+def reports():
+    """Runtime-backed business reports (restaurant + retail + channel)."""
+    from botconnector_multichannel.local_business import business_reporting as BR
+    biz = _default_business()
+    if not biz:
+        return {"ok": True, "reports": None}
+    return {"ok": True, "reports": {
+        "restaurant": BR.restaurant_sales_report(biz["id"], days=30),
+        "retail": BR.retail_sales_report(biz["id"], days=30),
+        "channel": BR.channel_report(biz["id"], days=30),
+    }}
+
+
+@APP.get("/bisnis/api/pos", dependencies=[Depends(get_user_id)])
+def pos():
+    """POS data: products + registers + branches + shifts (read for cart UI)."""
+    biz = _default_business()
+    if not biz:
+        return {"ok": True, "business": None}
+    branches = core.list_branch(biz["id"])
+    registers = []
+    for b in branches:
+        with db.koneksi() as c:
+            cur = c.cursor()
+            cur.execute("SELECT id, code, name FROM local_business.register WHERE branch_id=%s", (b["id"],))
+            registers += cur.fetchall()
+    return {"ok": True, "business": biz, "branches": branches, "registers": registers,
+            "products": _product_list(biz["id"])}
+
+
+def _product_list(business_id):
+    with db.koneksi() as c:
+        cur = c.cursor()
+        cur.execute(
+            """SELECT m.id AS master_sku_id, m.sku, p.name, p.category, m.barcode,
+                      m.safety_stock, COALESCE(rsp.selling_price, mi.price) AS price,
+                      mi.reporting_category, mi.id AS menu_item_id
+               FROM multichannel.master_sku m
+               JOIN multichannel.product p ON p.id=m.product_id
+               LEFT JOIN local_business.retail_selling_price rsp ON rsp.master_sku_id=m.id AND rsp.business_id=%s AND rsp.active=TRUE
+               LEFT JOIN local_business.menu_item mi ON mi.stocked_sku_id=m.id
+               ORDER BY m.sku",
+            (business_id,))
+        return cur.fetchall()
+
+
+@APP.get("/bisnis/api/barcode", dependencies=[Depends(get_user_id)])
+def barcode_lookup(barcode: str = ""):
+    from botconnector_multichannel.local_business import barcode as bc
+    biz = _default_business()
+    if not biz:
+        return {"ok": False, "error": "belum ada business"}
+    return bc.lookup_barcode(business_id=biz["id"], barcode=barcode)
+
+
+@APP.get("/bisnis/api/orders", dependencies=[Depends(get_user_id)])
+def orders():
+    biz = _default_business()
+    if not biz:
+        return {"ok": True, "sales": [], "restaurant_orders": []}
+    sales = []
+    for b in core.list_branch(biz["id"]):
+        sales += retail.list_sales(b["id"], limit=100)
+    orders = []
+    for b in core.list_branch(biz["id"]):
+        orders += restaurant.list_restaurant_orders(b["id"])
+    return {"ok": True, "sales": sales, "orders": orders}
+
+
+@APP.get("/bisnis/api/business-integrasi", dependencies=[Depends(get_user_id)])
+def business_integrasi():
+    """Operational (internal) integration state  -  no secret values, no external blockers wording."""
+    from botconnector_multichannel.local_business.connectors import build_delivery_registry
+    from botconnector_multichannel.local_business.pos import build_pos_registry
+    delivery = [c.status_report() for c in build_delivery_registry().all()]
+    pos = [c.status_report() for c in build_pos_registry().all()]
+    # public-friendly status mapping
+    def pub(s):
+        return "SEGERA_HADIR" if s == "BLOCKED_EXTERNAL" else "TERSEDIA"
+    return {
+        "ok": True,
+        "delivery": [{"provider": d["provider"], "status": pub(d["real_status"]),
+                      "auth": d.get("auth", "")} for d in delivery],
+        "pos": [{"provider": p["provider"], "status": pub(p["real_status"]),
+                 "auth": p.get("auth", "")} for p in pos],
+    }
+
+
+@APP.get("/bisnis/api/sale/{sale_id}", dependencies=[Depends(get_user_id)])
+def sale_detail(sale_id: int):
+    return {"ok": True, "sale": retail.get_sale(sale_id)}
+
+
+@APP.get("/bisnis/api/receipt/{sale_id}", dependencies=[Depends(get_user_id)])
+def receipt(sale_id: int):
+    from botconnector_multichannel.local_business import print_receipt as pr
+    s = pr.get_receipt_data(sale_id)
+    if not s:
+        return JSONResponse({"ok": False, "error": "sale tidak ada"}, status_code=404)
+    return HTMLResponse(pr.render_receipt_html(
+        business_name=s["business_name"], branch_name=s["branch_name"],
+        receipt_number=s["receipt_number"], cashier=s["cashier_name"] or "",
+        lines=s["lines"], subtotal=s["subtotal"], discount=s["discount"],
+        tax_amount=s["tax_amount"], total=s["total"],
+        tender_method=s["tender_method"], amount_tendered=s["amount_tendered"],
+        change_due=s["change_due"], timestamp=str(s["created_at"])))
+
+
+@APP.get("/bisnis/manifest")
+def manifest():
+    return JSONResponse({
+        "name": "BotConnector Local Business",
+        "short_name": "BC Bisnis",
+        "start_url": "/bisnis/",
+        "display": "standalone",
+        "background_color": "#f8fafc",
+        "theme_color": "#f8fafc",
+        "icons": [{"src": "/bisnis/icon.png", "sizes": "192x192", "type": "image/png"}],
+    })
+
+
+@APP.get("/bisnis/sw.js")
+def business_service_worker_retirement():
+    """
+    Temporary retirement worker.
+
+    BC Bisnis is an authenticated OWNER_ONLY_PILOT application.
+    The previous worker used broad cache-first handling under /bisnis/
+    and could cache authenticated API GET responses.
+
+    This worker intentionally:
+    - does NOT intercept fetch requests
+    - removes only BC Bisnis caches
+    - unregisters itself
+    """
+    from starlette.responses import Response
+
+    script = r"""
+self.addEventListener('install', event => {
+  self.skipWaiting();
+});
+
+self.addEventListener('activate', event => {
+  event.waitUntil((async () => {
+    const keys = await caches.keys();
+
+    await Promise.all(
+      keys
+        .filter(key => {
+          const k = String(key).toLowerCase();
+          return (
+            k.startsWith('bc-bisnis') ||
+            k.startsWith('botconnector-bisnis') ||
+            k.includes('bc-bisnis-')
+          );
+        })
+        .map(key => caches.delete(key))
+    );
+
+    await self.clients.claim();
+    await self.registration.unregister();
+  })());
+});
+
+/*
+ * Deliberately NO fetch event handler.
+ * Network/auth remains authoritative.
+ */
+"""
+
+    return Response(
+        content=script,
+        media_type="application/javascript",
+        headers={
+            "Cache-Control":
+                "no-store, no-cache, must-revalidate, max-age=0",
+        },
+    )
+
+
+
+# BC_BISNIS_SHELL_ROUTES_RECOVERY_V1
+@APP.get("/bisnis/", response_class=HTMLResponse)
+@APP.get("/bisnis", response_class=HTMLResponse)
+def halaman():
+    return _HTML
+
+
+@APP.get("/health")
+def health():
+    return {
+        "ok": True,
+        "service": "botconnector-bisnis",
+    }
+
+
+_HTML = r"""<!doctype html><html lang="id"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="theme-color" content="#f8fafc">
+<link rel="manifest" href="/bisnis/manifest">
+<title>Business Suite  -  BotConnector Bisnis</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#f8fafc;--card:#fff;--line:#e2e8f0;--txt:#1e293b;--mut:#64748b;--acc:#4d4be4;--ok:#16a34a;--warn:#d97706;--err:#dc2626;--brand:#4d4be4;--sidebar:240px;--header:56px}
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:Inter,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;background:var(--bg);color:var(--txt);min-height:100vh;overflow-x:hidden}
+.app{display:grid;grid-template-columns:var(--sidebar) 1fr;min-height:100vh}
+aside.sidebar{background:#fff;border-right:1px solid var(--line);display:flex;flex-direction:column}
+.brand{padding:16px;display:flex;align-items:center;gap:10px;font-weight:800;font-size:15px;border-bottom:1px solid var(--line);cursor:pointer}
+.brand span{width:28px;height:28px;border-radius:8px;background:var(--acc);color:#06283a;display:grid;place-items:center;font-size:11px}
+.branch{padding:14px 16px;border-bottom:1px solid var(--line)}
+.branch label{display:block;font-size:11px;color:var(--mut);margin-bottom:6px}
+.branch select{width:100%;background:#fff;border:1px solid var(--line);color:var(--txt);border-radius:8px;padding:8px 10px;font-size:13px}
+nav.nav{flex:1;padding:10px 12px;display:flex;flex-direction:column;gap:3px;overflow:auto}
+nav.nav a{color:var(--mut);text-decoration:none;padding:9px 12px;border-radius:8px;font-size:13px;font-weight:600;display:flex;align-items:center;gap:10px}
+nav.nav a:hover,nav.nav a.active{color:#fff;background:rgba(56,189,248,.12)}
+nav.nav a svg{width:18px;height:18px;opacity:.8}
+main.workspace{display:flex;flex-direction:column;min-height:100vh}
+header.topbar{height:var(--header);border-bottom:1px solid var(--line);display:flex;align-items:center;justify-content:space-between;padding:0 18px;background:rgba(255,255,255,.85);backdrop-filter:blur(12px);position:sticky;top:0;z-index:40}
+.page-title{font-size:17px;font-weight:700}
+.page-sub{color:var(--mut);font-size:12px;margin-top:1px}
+.top-actions{display:flex;gap:10px;align-items:center}
+.btn{background:var(--acc);color:#06283a;border:none;border-radius:8px;padding:8px 14px;font-size:12px;font-weight:700;cursor:pointer;display:inline-flex;align-items:center;gap:6px}
+.btn:hover{filter:brightness(1.1)}
+.btn.line{background:transparent;color:var(--acc);border:1px solid var(--acc)}
+.btn.danger{background:var(--err);color:#fff}
+.btn.sm{padding:6px 10px;font-size:11px}
+.content{padding:20px;overflow:auto;flex:1;max-width:1400px;width:100%;margin:0 auto}
+.page-head{margin-bottom:18px;display:flex;justify-content:space-between;align-items:flex-end;gap:16px;flex-wrap:wrap}
+.page-head h1{font-size:22px;letter-spacing:-.02em}
+.page-head .sub{color:var(--mut);font-size:13px;margin-top:4px}
+.grid{display:grid;gap:14px}
+.kpis{grid-template-columns:repeat(auto-fit,minmax(170px,1fr))}
+.kpi{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:16px}
+.kpi .k{font-size:11px;color:var(--mut);text-transform:uppercase;letter-spacing:.04em}
+.kpi .v{font-size:24px;font-weight:800;margin-top:6px}
+.kpi .v.warn{color:var(--warn)}
+.kpi .v.err{color:var(--err)}
+.kpi .v.ok{color:var(--ok)}
+.section{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:18px;margin-bottom:16px}
+.section h2{font-size:15px;margin-bottom:14px;color:var(--txt);font-weight:700}
+.section h3{font-size:13px;margin-bottom:10px;color:var(--mut);font-weight:600}
+table{width:100%;border-collapse:collapse;font-size:13px}
+th,td{text-align:left;padding:10px 8px;border-bottom:1px solid var(--line);vertical-align:top}
+th{color:var(--mut);font-weight:600;font-size:11px;text-transform:uppercase;letter-spacing:.03em}
+tr:last-child td{border-bottom:none}
+.badge{display:inline-block;padding:3px 9px;border-radius:999px;font-size:11px;font-weight:600}
+.badge.ok{background:rgba(34,197,94,.15);color:var(--ok)}
+.badge.warn{background:rgba(245,158,11,.15);color:var(--warn)}
+.badge.err{background:rgba(239,68,68,.15);color:var(--err)}
+.badge.info{background:rgba(56,189,248,.15);color:var(--acc)}
+.dim{color:var(--mut);font-size:13px}
+.empty{padding:32px;text-align:center;color:var(--mut);border:1px dashed var(--line);border-radius:10px;font-size:13px;background:var(--card)}
+.row{display:flex;gap:12px;flex-wrap:wrap;align-items:flex-end;margin-bottom:12px}
+.field{display:flex;flex-direction:column;gap:5px}
+.field label{font-size:11px;color:var(--mut);font-weight:600}
+.field input,.field select{background:#fff;border:1px solid var(--line);color:var(--txt);border-radius:8px;padding:9px 11px;font-size:13px;min-width:150px}
+.search{background:#fff;border:1px solid var(--line);color:var(--txt);border-radius:8px;padding:9px 11px;font-size:13px;min-width:220px}
+.pos-layout{display:grid;grid-template-columns:1.3fr .7fr;gap:16px;align-items:start}
+.pos-products{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:14px;min-height:400px}
+.pos-cart{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:14px;position:sticky;top:20px}
+.product-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(130px,1fr));gap:10px;margin-top:12px}
+.product-item{background:#fff;border:1px solid var(--line);border-radius:10px;padding:12px;cursor:pointer;transition:.15s}
+.product-item:hover{border-color:var(--acc)}
+.product-item .name{font-size:13px;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.product-item .price{font-size:12px;color:var(--acc);margin-top:4px}
+.product-item .stock{font-size:10px;color:var(--mut);margin-top:2px}
+.cart-list{max-height:320px;overflow:auto;margin:10px 0}
+.cart-item{display:flex;justify-content:space-between;align-items:center;padding:8px 0;border-bottom:1px solid var(--line)}
+.cart-item:last-child{border-bottom:none}
+.cart-item .info{font-size:13px}
+.cart-item .info .qty{font-size:11px;color:var(--mut)}
+.cart-item .total{font-size:13px;font-weight:700}
+.totals{border-top:2px solid var(--line);padding-top:12px;margin-top:12px}
+.total-row{display:flex;justify-content:space-between;font-size:13px;margin-bottom:6px}
+.total-row.grand{font-size:18px;font-weight:800;margin-top:8px}
+.kds{display:grid;grid-template-columns:repeat(4,1fr);gap:14px}
+.kds-lane{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:12px;min-height:300px}
+.kds-lane h3{display:flex;justify-content:space-between;align-items:center;font-size:13px;color:var(--mut);margin-bottom:12px}
+.kds-card{background:#fff;border:1px solid var(--line);border-radius:10px;padding:12px;margin-bottom:10px}
+.kds-card .kot{font-size:14px;font-weight:700}
+.kds-card .meta{font-size:11px;color:var(--mut);margin-top:4px}
+.kds-card .items{font-size:12px;margin-top:8px;line-height:1.5}
+.mobile-menu{display:none;width:40px;height:40px;border:1px solid var(--line);background:var(--card);color:var(--txt);border-radius:8px;cursor:pointer}
+@media(max-width:900px){
+  .app{grid-template-columns:1fr}
+  aside.sidebar{position:fixed;left:0;top:0;bottom:0;z-index:60;transform:translateX(-100%);transition:.2s}
+  .sidebar-open aside.sidebar{transform:translateX(0)}
+  main.workspace{margin-left:0}
+  .mobile-menu{display:flex;align-items:center;justify-content:center}
+  .pos-layout{grid-template-columns:1fr}
+  .kds{grid-template-columns:repeat(2,1fr)}
+}
+@media(max-width:560px){
+  .kpis{grid-template-columns:repeat(2,1fr)}
+  .kds{grid-template-columns:1fr}
+}
+</style></head><body class="app">
+<aside class="sidebar">
+  <a class="brand" href="/" style="text-decoration:none;color:inherit"><span>BC</span>Bisnis</a>
+  <div class="branch">
+    <label>Cabang / Lokasi</label>
+    <select id="branchSelect"><option>Memuat...</option></select>
+  </div>
+  <nav class="nav" id="nav">
+    <a href="#/dashboard" data-view="dashboard" class="active"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg>Dashboard</a>
+    <a href="#/pos" data-view="pos"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="4" width="20" height="14" rx="2"/><path d="M7 18v4m10-4v4"/></svg>POS</a>
+    <a href="#/orders" data-view="orders"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 2 3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"/><line x1="3" y1="6" x2="21" y2="6"/></svg>Orders</a>
+    <a href="#/products" data-view="products"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="9" cy="20" r="1"/><circle cx="20" cy="20" r="1"/><path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"/></svg>Products</a>
+    <a href="#/inventory" data-view="inventory"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/></svg>Inventory</a>
+    <a href="#/transfers" data-view="transfers"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 1l4 4-4 4"/><path d="M7 15l-4 4 4 4"/><path d="M3 5h16a4 4 0 0 1 4 4v3"/><path d="M21 19H5a4 4 0 0 1-4-4v-3"/></svg>Transfers</a>
+    <a href="#/restaurant" data-view="restaurant"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 22h16"/><path d="M7 22V12"/><path d="M17 22V12"/><path d="M6 2v8a3 3 0 0 0 3 3h6a3 3 0 0 0 3-3V2"/><path d="M12 12v10"/></svg>Restaurant</a>
+    <a href="#/kitchen" data-view="kitchen"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 13.87A4 4 0 0 1 7.41 8a4 4 0 0 1 7.17-1.87A4 4 0 0 1 17.5 6.5"/><path d="M2 17h20"/><path d="M6 17v5"/><path d="M12 17v5"/><path d="M18 17v5"/></svg>Kitchen</a>
+    <a href="#/reports" data-view="reports"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg>Reports</a>
+    <a href="#/integrasi" data-view="integrasi"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/></svg>Integrasi</a>
+  </nav>
+</aside>
+<main class="workspace">
+  <header class="topbar">
+    <div style="display:flex;align-items:center;gap:12px">
+      <button class="mobile-menu" aria-label="Buka menu" onclick="document.body.classList.toggle('sidebar-open')">☰</button>
+      <div>
+        <div class="page-title" id="pageTitle">Dashboard</div>
+        <div class="page-sub" id="pageSub">Business Suite</div>
+      </div>
+    </div>
+    <div class="top-actions">
+      <button class="btn line" id="syncBtn">Sync Offline</button>
+      <a class="btn" href="/">BotConnector.id</a>
+    </div>
+  </header>
+  <div class="content" id="main"></div>
+</main>
+<script>
+const $=s=>document.querySelector(s);
+const $$=s=>Array.prototype.slice.call(document.querySelectorAll(s));
+async function j(u,o){const r=await fetch(u,o);return r.json();}
+const esc=s=>String(s==null?'':s).replace(/[&<>"]/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[m]));
+const money=n=>new Intl.NumberFormat('id-ID').format(Number(n||0));
+const time=(d)=>d?new Date(d).toLocaleString('id-ID',{day:'2-digit',month:'short',hour:'2-digit',minute:'2-digit'}):'-';
+const VIEWS={dashboard:'Dashboard',pos:'POS',orders:'Orders / Sales',products:'Products',inventory:'Inventory',transfers:'Transfers',restaurant:'Restaurant',kitchen:'Kitchen / KDS',reports:'Reports',integrasi:'Integrasi'};
+let BRANCHES=[],REGISTERS=[],PRODUCTS=[];
+function page(title,sub,body){return '<div class="page-head"><div><h1>'+esc(title)+'</h1><div class="sub">'+esc(sub||'')+'</div></div></div>'+body;}
+function section(title,body){return '<div class="section"><h2>'+esc(title)+'</h2>'+body+'</div>';}
+function table(cols,rows,empty){
+  if(!rows||!rows.length)return '<div class="empty">'+(empty||'Belum ada data.')+'</div>';
+  let h='<table><tr>';cols.forEach(c=>h+='<th>'+c.label+'</th>');h+='</tr>';
+  rows.forEach(r=>{h+='<tr>';cols.forEach(c=>{let v=c.format?c.format(r[c.key]):esc(r[c.key]);h+='<td>'+v+'</td>';});h+='</tr>';});
+  return h+'</table>';
+}
+function kpi(k,v,cls){return '<div class="kpi"><div class="k">'+esc(k)+'</div><div class="v '+(cls||'')+'">'+esc(v)+'</div></div>';}
+function cards(list){return '<div class="grid kpis">'+list.map(x=>kpi(x.k,x.v,x.cls)).join('')+'</div>';}
+
+async function renderDashboard(){
+  const st=await j('/bisnis/api/state');
+  if(!st.business)return page('Dashboard','Business Suite','<div class="empty">Belum ada business. Jalankan pilot seed.</div>');
+  updateBranchSelect(st.branches);
+  const d=st.dashboard;
+  const list=[
+    {k:'Penjualan Hari Ini',v:'Rp '+money(d.sales_today)},
+    {k:'Transaksi',v:d.transaction_count_today},
+    {k:'Rata-rata Ticket',v:'Rp '+money(d.average_ticket)},
+    {k:'Order Restoran Terbuka',v:d.open_restaurant_orders,cls:d.open_restaurant_orders?'warn':''},
+    {k:'KOT Pending',v:d.pending_kitchen_orders,cls:d.pending_kitchen_orders?'warn':''},
+    {k:'Transfer Aktif',v:d.active_transfers}
+  ];
+  let low=d.low_stock||[];
+  let lowHtml='';
+  if(low.length){
+    lowHtml=section('Stok Rendah','<div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(180px,1fr));gap:10px">'+
+      low.map(l=>'<div class="kpi"><div class="k">'+esc(l.branch_code)+' · '+esc(l.sku)+'</div><div class="v err">'+l.available+'</div><div style="font-size:11px;color:var(--mut)">Stok tersedia</div></div>').join('')+'</div>');
+  }
+  return page('Dashboard','Metrik bisnis langsung dari data operasional',cards(list)+lowHtml);
+}
+
+function updateBranchSelect(branches){
+  const sel=$('#branchSelect');
+  if(!sel||!branches)return;
+  sel.innerHTML=branches.map(b=>'<option value="'+b.id+'">'+esc(b.name)+'</option>').join('');
+  BRANCHES=branches;
+}
+
+async function renderPOS(){
+  const st=await j('/bisnis/api/pos');
+  if(!st.business)return page('POS','','<div class="empty">Belum ada business.</div>');
+  updateBranchSelect(st.branches);
+  REGISTERS=st.registers||[]; PRODUCTS=st.products||[];
+  const prodItems=PRODUCTS.map(p=>'<div class="product-item" data-id="'+p.master_sku_id+'" data-sku="'+esc(p.sku)+'" data-price="'+(p.price||0)+'" data-name="'+esc(p.name)+'" onclick="addToCart(this)" tabindex="0" role="button" aria-label="Tambah '+esc(p.name)+'">'+
+    '<div class="name">'+esc(p.name)+'</div>'+
+    '<div class="price">'+money(p.price)+'</div>'+
+    '<div class="stock">'+esc(p.barcode||'No barcode')+'</div>'+
+    '</div>').join('');
+  const regOpts=REGISTERS.map(r=>'<option value="'+r.id+'">'+esc(r.name||r.code)+'</option>').join('');
+  const branchOpts=BRANCHES.map(b=>'<option value="'+b.id+'" data-wh="'+b.warehouse_id+'">'+esc(b.name)+'</option>').join('');
+  const body='<div class="pos-layout">'+
+    '<div class="pos-products">'+
+      '<div class="row">'+
+        '<input class="search" id="posSearch" placeholder="Cari produk / scan barcode" onkeyup="filterPOS(event)">'+
+        '<div class="field"><label>Cabang</label><select id="posBranch">'+branchOpts+'</select></div>'+
+        '<div class="field"><label>Register</label><select id="posReg">'+regOpts+'</select></div>'+
+      '</div>'+
+      '<div class="product-grid" id="posGrid">'+prodItems+'</div>'+
+    '</div>'+
+    '<div class="pos-cart">'+
+      '<h3>Keranjang</h3>'+
+      '<div class="cart-list" id="cartList"><div class="dim">Belum ada item.</div></div>'+
+      '<div class="totals">'+
+        '<div class="total-row"><span>Subtotal</span><span id="cartSubtotal">Rp 0</span></div>'+
+        '<div class="total-row"><span>Diskon</span><span id="cartDiscount">Rp 0</span></div>'+
+        '<div class="total-row grand"><span>Total</span><span id="cartTotal">Rp 0</span></div>'+
+      '</div>'+
+      '<div class="row" style="margin-top:14px">'+
+        '<div class="field"><label>Tender</label><select id="posTender"><option value="CASH">Tunai</option><option value="QRIS_MANUAL">QRIS (manual)</option><option value="CARD_MANUAL">Kartu (manual)</option><option value="BANK_TRANSFER_MANUAL">Transfer Bank</option></select></div>'+
+        '<div class="field"><label>Dibayar</label><input id="posBayar" type="number" placeholder="0" min="0"></div>'+
+      '</div>'+
+      '<button class="btn" style="width:100%;margin-top:12px" id="posPayBtn" onclick="checkout()">Bayar</button>'+
+      '<div id="posMsg" class="dim" style="margin-top:10px"></div>'+
+    '</div>'+
+  '</div>';
+  return page('POS','Kasir retail  -  scan barcode, pilih produk, tender, cetak struk',body);
+}
+window.addToCart=function(el){
+  const id=Number(el.dataset.id), sku=el.dataset.sku, name=el.dataset.name, price=Number(el.dataset.price);
+  let cart=getCart();
+  const ex=cart.find(c=>c.id===id);
+  if(ex)ex.qty++; else cart.push({id,sku,name,price,qty:1});
+  setCart(cart); renderCart();
+}
+window.filterPOS=function(e){
+  const v=e.target.value.toLowerCase();
+  $$('#posGrid .product-item').forEach(el=>{
+    const name=el.dataset.name.toLowerCase(), sku=el.dataset.sku.toLowerCase();
+    el.style.display=(name.includes(v)||sku.includes(v))?'block':'none';
+  });
+  if(e.key==='Enter'&&v){
+    const hit=$$('#posGrid .product-item').find(el=>el.style.display!=='none');
+    if(hit)addToCart(hit);
+  }
+}
+function getCart(){try{return JSON.parse(localStorage.getItem('bc_cart')||'[]');}catch(e){return [];}}
+function setCart(c){localStorage.setItem('bc_cart',JSON.stringify(c));}
+window.renderCart=function(){
+  const cart=getCart();
+  const list=$('#cartList'); const sub=$('#cartSubtotal'); const total=$('#cartTotal');
+  if(!list)return;
+  const subtotal=cart.reduce((s,c)=>s+c.price*c.qty,0);
+  if(!cart.length){list.innerHTML='<div class="dim">Belum ada item.</div>';}
+  else{list.innerHTML=cart.map((c,i)=>'<div class="cart-item"><div class="info"><div>'+esc(c.name)+'</div><div class="qty">'+c.qty+' x Rp '+money(c.price)+'</div></div><div class="total">Rp '+money(c.price*c.qty)+'</div></div>').join('');}
+  if(sub)sub.textContent='Rp '+money(subtotal);
+  if(total)total.textContent='Rp '+money(subtotal);
+}
+window.checkout=async function(){
+  const cart=getCart(); if(!cart.length){$('#posMsg').textContent='Keranjang kosong.';return;}
+  const branch=$('#posBranch'); const wh=branch.options[branch.selectedIndex].dataset.wh;
+  const body={branch_id:Number(branch.value),register_id:Number($('#posReg').value),warehouse_id:Number(wh),lines:cart.map(c=>({master_sku_id:c.id,sku:c.sku,quantity:c.qty,unit_price:c.price})),tender_method:$('#posTender').value,amount_tendered:Number($('#posBayar').value||0),client_event_id:'ui-'+Date.now(),device_id:'UI-POS'};
+  try{const res=await j('/bisnis/api/sale',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(body)});
+    if(res.ok&&res.sale){setCart([]);renderCart();$('#posMsg').textContent='Penjualan '+res.sale.receipt_number+' tercatat.';}
+    else{$('#posMsg').textContent=res.error||'Gagal';}
+  }catch(err){$('#posMsg').textContent=err.message;}
+}
+
+async function renderOrders(){
+  const d=await j('/bisnis/api/orders');
+  const sales=(d.sales||[]).map(s=>({receipt:s.receipt_number,status:s.status,total:'Rp '+money(s.total),tender:s.tender_method,channel:'Retail',type:'Penjualan',created:time(s.created_at)}));
+  const orders=(d.orders||[]).map(o=>({no:o.order_number,status:o.status,channel:o.sales_channel,total:'Rp '+money(o.total),tender:'-',type:o.order_type||'Restaurant',created:time(o.created_at)}));
+  const all=[...sales,...orders].sort((a,b)=>new Date(b.created)-new Date(a.created));
+  const body='<div class="row"><input class="search" id="orderSearch" placeholder="Cari nomor order / struk" onkeyup="filterTable(this,\'#ordersTable\')"></div>'+
+    section('Semua Order','<div id="ordersTable">'+table([{label:'No',key:'receipt',format:v=>v||'-'},{label:'Status',key:'status'},{label:'Kanal',key:'channel'},{label:'Tipe',key:'type'},{label:'Total',key:'total'},{label:'Tender',key:'tender'},{label:'Waktu',key:'created'}],all,'Belum ada order.')+'</div>');
+  return page('Orders / Sales','Riwayat penjualan retail & order restoran',body);
+}
+window.filterTable=function(input,sel){const v=input.value.toLowerCase();$$(sel+' tr').forEach((tr,i)=>{if(i===0)return; const txt=tr.textContent.toLowerCase(); tr.style.display=txt.includes(v)?'':'none';});}
+
+async function renderProducts(){
+  const d=await j('/bisnis/api/products');
+  const rows=(d.products||[]).map(p=>({sku:p.sku,name:p.name,category:p.category,barcode:p.barcode,safety:p.safety_stock}));
+  const body='<div class="row"><input class="search" placeholder="Cari SKU / nama / barcode" onkeyup="filterTable(this,\'#productsTable\')"></div>'+
+    section('Master Produk','<div id="productsTable">'+table([{label:'SKU',key:'sku'},{label:'Produk',key:'name'},{label:'Kategori',key:'category'},{label:'Barcode',key:'barcode'},{label:'Stok Aman',key:'safety'}],rows,'Belum ada produk.')+'</div>');
+  return page('Products','Produk / Master SKU',body);
+}
+
+async function renderInventory(){
+  const d=await j('/bisnis/api/inventory');
+  const low=(d.low||[]);
+  const rows=(d.stock||[]).map(s=>({branch:s.branch_code,sku:s.sku,on_hand:s.on_hand,reserved:s.reserved,in_transit:s.in_transit,available:s.available}));
+  let lowHtml='';
+  if(low.length){
+    lowHtml=section('Stok Rendah','<div class="grid kpis">'+low.map(l=>kpi(l.branch_code+' · '+l.sku,l.available,'err')).join('')+'</div>');
+  }
+  const body=lowHtml+section('Stok per Lokasi','<div id="inventoryTable">'+table([{label:'Cabang',key:'branch'},{label:'SKU',key:'sku'},{label:'Stok Fisik',key:'on_hand'},{label:'Dipesan',key:'reserved'},{label:'Dalam Perjalanan',key:'in_transit'},{label:'Stok Tersedia',key:'available'}],rows,'Belum ada stok.')+'</div>');
+  return page('Inventory','Stok per lokasi (location-aware)',body);
+}
+
+async function renderTransfers(){
+  const d=await j('/bisnis/api/transfers');
+  const rows=(d.transfers||[]).map(t=>({no:t.transfer_number,from:t.source_branch_code||'-',to:t.dest_branch_code||'-',status:t.status,items:t.item_count||0,qty:t.total_qty||0,created:time(t.created_at)}));
+  const body=section('Transfer Stok','<div id="transfersTable">'+table([{label:'No Transfer',key:'no'},{label:'Dari Cabang',key:'from'},{label:'Ke Cabang',key:'to'},{label:'Status',key:'status'},{label:'Items',key:'items'},{label:'Qty',key:'qty'},{label:'Dibuat',key:'created'}],rows,'Belum ada transfer.')+'</div>');
+  return page('Transfers','Transfer stok antar cabang',body);
+}
+
+async function renderRestaurant(){
+  const d=await j('/bisnis/api/restaurant');
+  const menuRows=(d.menu||[]).map(m=>({name:m.name,price:'Rp '+money(m.price),category:m.category||'-',stocked:m.is_stocked?'Ya':'Tidak'}));
+  const orderRows=(d.orders||[]).map(o=>({no:o.order_number,status:o.status,channel:o.sales_channel,total:'Rp '+money(o.total),type:o.order_type,created:time(o.created_at)}));
+  const body=section('Menu','<div id="menuTable">'+table([{label:'Menu',key:'name'},{label:'Harga',key:'price'},{label:'Kategori',key:'category'},{label:'Stoked',key:'stocked'}],menuRows,'Belum ada menu.')+'</div>')+
+    section('Order Terbuka','<div id="restoOrdersTable">'+table([{label:'No',key:'no'},{label:'Status',key:'status'},{label:'Kanal',key:'channel'},{label:'Tipe',key:'type'},{label:'Total',key:'total'},{label:'Waktu',key:'created'}],orderRows,'Belum ada order restoran.')+'</div>');
+  return page('Restaurant','Menu & order restoran',body);
+}
+
+async function renderKitchen(){
+  const d=await j('/bisnis/api/kitchen');
+  const lanes={NEW:{label:'Baru',items:[]},PREPARING:{label:'Diproses',items:[]},READY:{label:'Siap',items:[]},SERVED:{label:'Selesai',items:[]}};
+  (d.kots||[]).forEach(k=>{
+    const lane=lanes[k.status]||lanes.NEW;
+    lane.items.push('<div class="kds-card"><div class="kot">'+esc(k.kot_number)+'</div><div class="meta">'+esc(k.order_number)+' · '+time(k.created_at)+'</div><div class="items">'+esc((k.items||[]).map(i=>i.name+' x'+i.qty).join(', '))+'</div></div>');
+  });
+  const body='<div class="kds">'+Object.entries(lanes).map(([k,l])=>'<div class="kds-lane"><h3>'+l.label+' <span class="badge info">'+l.items.length+'</span></h3>'+(l.items.length?l.items.join(''):'<div class="dim" style="font-size:12px">Kosong</div>')+'</div>').join('')+'</div>';
+  return page('Kitchen / KDS','Kitchen Order Ticket',body);
+}
+
+async function renderReports(){
+  const d=await j('/bisnis/api/reports');
+  if(!d.reports)return page('Reports','','<div class="empty">Belum ada data laporan.</div>');
+  const r=d.reports.restaurant,ret=d.reports.retail;
+  const list=[
+    {k:'Gross Sales Restoran',v:'Rp '+money(r.gross_sales)},
+    {k:'COGS Restoran',v:'Rp '+money(r.cogs)},
+    {k:'Gross Profit',v:'Rp '+money(r.gross_profit)},
+    {k:'Gross Margin',v:r.gross_margin_pct+'%'},
+    {k:'Penjualan Retail',v:'Rp '+money(ret.gross_sales)}
+  ];
+  const cats=(r.category_sales||[]).map(x=>'<tr><td>'+esc(x.category)+'</td><td>Rp '+money(x.gross_sales)+'</td><td>'+x.qty_sold+'</td></tr>').join('');
+  const chans=(d.reports.channel.channels||[]).map(x=>'<tr><td>'+esc(x.channel)+'</td><td>'+x.order_count+'</td><td>Rp '+money(x.gross_sales)+'</td><td>Rp '+money(x.provider_fee)+'</td></tr>').join('');
+  return page('Reports','Laporan bisnis (Retail + Restoran)',cards(list)+section('Penjualan per Kategori','<table><tr><th>Kategori</th><th>Penjualan</th><th>Qty</th></tr>'+cats+'</table>')+section('Penjualan per Kanal','<table><tr><th>Kanal</th><th>Order</th><th>Penjualan</th><th>Biaya Provider</th></tr>'+chans+'</table>'));
+}
+
+async function renderIntegrasi(){
+  const d=await j('/bisnis/api/business-integrasi');
+  function statusBadge(s){const cls=s==='SEGERA_HADIR'?'warn':'ok'; const txt=s==='SEGERA_HADIR'?'Segera Hadir':'Tersedia'; return '<span class="badge '+cls+'">'+txt+'</span>';}
+  const delivery=(d.delivery||[]).map(x=>'<tr><td>'+esc(x.provider)+'</td><td>'+statusBadge(x.status)+'</td><td>'+esc(x.auth)+'</td></tr>').join('');
+  const pos=(d.pos||[]).map(x=>'<tr><td>'+esc(x.provider)+'</td><td>'+statusBadge(x.status)+'</td><td>'+esc(x.auth)+'</td></tr>').join('');
+  return page('Integrasi','Status integrasi operasional (tanpa membuka rahasia)',
+    section('Food Delivery','<table><tr><th>Provider</th><th>Status</th><th>Auth</th></tr>'+delivery+'</table>')+
+    section('POS','<table><tr><th>Provider</th><th>Status</th><th>Auth</th></tr>'+pos+'</table>'));
+}
+
+const RENDER={dashboard:renderDashboard,pos:renderPOS,orders:renderOrders,products:renderProducts,inventory:renderInventory,transfers:renderTransfers,restaurant:renderRestaurant,kitchen:renderKitchen,reports:renderReports,integrasi:renderIntegrasi};
+async function route(){
+  const hash=location.hash||'#/dashboard';
+  const view=(hash.match(/#\/([a-z]+)/)||[])[1]||'dashboard';
+  if(!VIEWS[view])return;
+  $$('#nav a').forEach(a=>a.classList.toggle('active',a.dataset.view===view));
+  $('#pageTitle').textContent=VIEWS[view];
+  try{$('#main').innerHTML='<div class="empty">Memuat...</div>';const html=await RENDER[view]();$('#main').innerHTML=html;if(view==='pos')renderCart();}catch(e){$('#main').innerHTML='<div class="empty">Gagal memuat: '+esc(e.message)+'</div>';console.error(e);}
+}
+window.addEventListener('hashchange',route);
+route();
+if('serviceWorker' in navigator){
+navigator.serviceWorker
+  .register('/bisnis/sw.js',{updateViaCache:'none'})
+  .then(reg=>reg.update())
+  .catch(()=>{});
+}
+$('#syncBtn').addEventListener('click',async()=>{try{const r=await j('/bisnis/api/offline/sync',{method:'POST',headers:{'Content-Type':'application/json'},body:'{}'});alert('Sync: '+JSON.stringify(r.sync||{}));}catch(e){alert('Gagal sync: '+e.message);}});
+</script></body></html>
+"""

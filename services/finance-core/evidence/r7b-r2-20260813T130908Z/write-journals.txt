@@ -1,0 +1,10 @@
+          journal_number           |  source_type  |          source_id           | status | code |         name         |  debit   |  credit  
+-----------------------------------+---------------+------------------------------+--------+------+----------------------+----------+----------
+ RCPT-R7B-R2-RCPT-20260813T130908Z | cash.receipt  | R7B-R2-RCPT-20260813T130908Z | POSTED | 1102 | Bank                 | 75000.00 |     0.00
+ RCPT-R7B-R2-RCPT-20260813T130908Z | cash.receipt  | R7B-R2-RCPT-20260813T130908Z | POSTED | 4201 | Pendapatan Lain-lain |     0.00 | 75000.00
+ PAY-R7B-R2-PAY-20260813T130908Z   | cash.payment  | R7B-R2-PAY-20260813T130908Z  | POSTED | 6101 | Beban Operasional    | 25000.00 |     0.00
+ PAY-R7B-R2-PAY-20260813T130908Z   | cash.payment  | R7B-R2-PAY-20260813T130908Z  | POSTED | 1102 | Bank                 |     0.00 | 25000.00
+ TRF-R7B-R2-TRF-20260813T130908Z   | bank.transfer | R7B-R2-TRF-20260813T130908Z  | POSTED | 1101 | Kas                  | 30000.00 |     0.00
+ TRF-R7B-R2-TRF-20260813T130908Z   | bank.transfer | R7B-R2-TRF-20260813T130908Z  | POSTED | 1102 | Bank                 |     0.00 | 30000.00
+(6 rows)
+

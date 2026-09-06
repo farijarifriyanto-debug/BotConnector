@@ -1,0 +1,19 @@
+[Unit]
+Description=BotConnector AI Workspace (Study/Business/Coding AI tools)
+After=network-online.target ai-orchestrator.service
+Wants=network-online.target
+
+[Service]
+Type=simple
+User=botadmin
+Group=botadmin
+WorkingDirectory=/home/botadmin/ai-workspace
+EnvironmentFile=-/home/botadmin/ai-workspace/.env
+ExecStart=/home/botadmin/ai-workspace/venv/bin/uvicorn app:app --host 127.0.0.1 --port 18170
+Restart=on-failure
+RestartSec=3
+NoNewPrivileges=true
+PrivateTmp=true
+
+[Install]
+WantedBy=multi-user.target

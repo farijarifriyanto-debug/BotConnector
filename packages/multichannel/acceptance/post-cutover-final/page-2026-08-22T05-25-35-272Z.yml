@@ -1,0 +1,62 @@
+- generic [ref=f2e1]:
+  - complementary [ref=f2e2]:
+    - link "BC Bisnis" [ref=f2e3] [cursor=pointer]:
+      - /url: /
+      - generic [ref=f2e4]: BC
+      - text: Bisnis
+    - generic [ref=f2e5]:
+      - generic [ref=f2e6]: Cabang / Lokasi
+      - combobox [ref=f2e7]:
+        - option "Cabang A (RETAIL)" [selected]
+        - option "Cabang B (RESTAURANT)"
+    - navigation [ref=f2e8]:
+      - link "Dashboard" [ref=f2e9] [cursor=pointer]:
+        - /url: "#/dashboard"
+      - link "POS" [ref=f2e15] [cursor=pointer]:
+        - /url: "#/pos"
+      - link "Orders" [ref=f2e19] [cursor=pointer]:
+        - /url: "#/orders"
+      - link "Products" [ref=f2e22] [cursor=pointer]:
+        - /url: "#/products"
+      - link "Inventory" [ref=f2e27] [cursor=pointer]:
+        - /url: "#/inventory"
+      - link "Transfers" [ref=f2e30] [cursor=pointer]:
+        - /url: "#/transfers"
+      - link "Restaurant" [ref=f2e36] [cursor=pointer]:
+        - /url: "#/restaurant"
+      - link "Kitchen" [ref=f2e39] [cursor=pointer]:
+        - /url: "#/kitchen"
+      - link "Reports" [ref=f2e42] [cursor=pointer]:
+        - /url: "#/reports"
+      - link "Integrasi" [active] [ref=f2e44] [cursor=pointer]:
+        - /url: "#/integrasi"
+  - main [ref=f2e48]:
+    - generic [ref=f2e49]:
+      - generic [ref=f2e51]:
+        - generic [ref=f2e52]: Restaurant
+        - generic [ref=f2e53]: Business Suite
+      - generic [ref=f2e54]:
+        - button "Sync Offline" [ref=f2e55] [cursor=pointer]
+        - link "BotConnector.id" [ref=f2e56] [cursor=pointer]:
+          - /url: /
+    - generic [ref=f2e57]:
+      - generic [ref=f2e233]:
+        - heading "Restaurant" [level=1] [ref=f2e234]
+        - generic [ref=f2e235]: Menu & order restoran
+      - generic [ref=f2e236]:
+        - heading "Menu" [level=2] [ref=f2e237]
+        - table [ref=f2e239]:
+          - rowgroup [ref=f2e240]:
+            - row [ref=f2e241]:
+              - columnheader "Menu" [ref=f2e242]
+              - columnheader "Harga" [ref=f2e243]
+              - columnheader "Kategori" [ref=f2e244]
+              - columnheader "Stoked" [ref=f2e245]
+            - row [ref=f2e246]:
+              - cell "NASI_GORENG" [ref=f2e247]
+              - cell "Rp 15.000" [ref=f2e248]
+              - cell "Makanan" [ref=f2e249]
+              - cell "Tidak" [ref=f2e250]
+      - generic [ref=f2e251]:
+        - heading "Order Terbuka" [level=2] [ref=f2e252]
+        - generic [ref=f2e253]: Belum ada order restoran.

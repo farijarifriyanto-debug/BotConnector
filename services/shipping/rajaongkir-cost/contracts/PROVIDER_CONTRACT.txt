@@ -1,0 +1,104 @@
+============================================================
+BOTCONNECTOR
+RAJAONGKIR SHIPPING COST PROVIDER ADAPTER V1
+============================================================
+
+ROLE:
+
+RajaOngkir is a PROVIDER ADAPTER.
+
+RajaOngkir is NOT Shipping Core.
+
+
+INPUT:
+
+origin_id
+destination_id
+weight_grams
+courier
+idempotency_key
+
+
+CANONICAL OUTPUT:
+
+provider
+courier
+service
+cost
+currency
+etd
+
+
+PROVIDER:
+
+provider = rajaongkir
+
+
+RELIABILITY:
+
+- persistent SQLite request ledger
+- idempotency_key unique
+- canonical request fingerprint
+- TTL rate cache
+- provider call ledger
+- provider error normalization
+- timeout normalization
+- network error normalization
+
+
+CACHE:
+
+Same idempotency key:
+    return original response
+    zero provider call
+
+Same canonical request within TTL:
+    return cached response
+    zero provider call
+
+
+PROVIDER ERROR CONTRACT:
+
+401 / 403
+    -> provider_auth_error
+
+404
+    -> provider_not_found
+
+429
+    -> provider_rate_limited
+
+other 4xx
+    -> provider_request_rejected
+
+5xx
+    -> provider_unavailable
+
+timeout
+    -> provider_timeout
+
+network failure
+    -> provider_network_error
+
+
+IMPORTANT:
+
+No RajaOngkir credential may be stored in source,
+candidate, release, SQLite, API response, or manifest.
+
+Credential remains external:
+
+/etc/botconnector/rajaongkir-shipping-cost.env
+
+
+NO SHIPPING DELIVERY ACTIONS EXIST IN THIS ADAPTER.
+
+NO:
+
+- shipment creation
+- pickup
+- label
+- delivery order
+- cancellation
+
+============================================================

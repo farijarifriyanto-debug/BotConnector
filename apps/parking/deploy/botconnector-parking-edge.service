@@ -1,0 +1,17 @@
+# BotConnector Parking — Edge Gateway systemd unit template (deployment artifact).
+# NOT installed/enabled automatically. Edge is a separate site-local runtime.
+[Unit]
+Description=BotConnector Parking Edge Gateway
+After=network.target
+
+[Service]
+Type=simple
+User=botadmin
+WorkingDirectory=/home/botadmin/ai-workspaces/BotConnector-Parking
+EnvironmentFile=/etc/botconnector/parking-edge.env
+ExecStart=/home/botadmin/ai-workspaces/BotConnector-Parking/.venv/bin/python -m parking.edge.run
+Restart=on-failure
+RestartSec=5
+
+[Install]
+WantedBy=multi-user.target

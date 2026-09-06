@@ -1,0 +1,78 @@
+- generic [active] [ref=f8e1]:
+  - link "Lewati ke konten" [ref=f8e2] [cursor=pointer]:
+    - /url: "#main"
+  - banner [ref=f8e3]:
+    - generic [ref=f8e4]:
+      - link "BC BOTCONNECTOR Connect" [ref=f8e5] [cursor=pointer]:
+        - /url: https://botconnector.id/
+        - generic [ref=f8e6]: BC
+        - generic [ref=f8e7]:
+          - text: BOTCONNECTOR
+          - generic [ref=f8e8]: Connect
+      - navigation [ref=f8e9]:
+        - link "Cara Pakai" [ref=f8e10] [cursor=pointer]:
+          - /url: /connect-v2/guide
+        - link "Dashboard" [ref=f8e11] [cursor=pointer]:
+          - /url: /connect-v2/sso
+      - generic [ref=f8e12]:
+        - generic "Language" [ref=f8e13]:
+          - link "ID" [ref=f8e14] [cursor=pointer]:
+            - /url: /connect-v2/language/id?next=/connect-v2/about
+          - generic [ref=f8e15]: "|"
+          - link "EN" [ref=f8e16] [cursor=pointer]:
+            - /url: /connect-v2/language/en?next=/connect-v2/about
+        - link "Masuk" [ref=f8e17] [cursor=pointer]:
+          - /url: /login?product=webhook
+        - link "Mulai" [ref=f8e18] [cursor=pointer]:
+          - /url: /register?product=webhook
+  - main [ref=f8e19]:
+    - generic [ref=f8e21]:
+      - generic [ref=f8e22]: Botconnector
+      - heading "Tentang Botconnector" [level=1] [ref=f8e23]
+      - generic [ref=f8e24]:
+        - paragraph [ref=f8e25]: Botconnector adalah layanan konektor yang menghubungkan alert TradingView ke terminal MetaTrader secara otomatis.
+        - paragraph [ref=f8e26]: Setiap pelanggan memiliki satu webhook utama dan dapat menghubungkan terminal MetaTrader sesuai kuota paket. Terminal tujuan selalu dipilih manual pada setiap route.
+        - paragraph [ref=f8e27]: Setiap instruksi transaksi berasal dari alert TradingView dan pengaturan yang dibuat oleh pengguna. Botconnector meneruskan instruksi tersebut ke terminal MetaTrader yang telah dihubungkan.
+  - contentinfo [ref=f8e28]:
+    - generic [ref=f8e29]:
+      - generic [ref=f8e30]:
+        - generic [ref=f8e31]:
+          - link "BC Botconnector Connecting Strategies" [ref=f8e32] [cursor=pointer]:
+            - /url: /connect-v2/
+            - generic [ref=f8e33]: BC
+            - generic [ref=f8e34]:
+              - text: Botconnector
+              - generic [ref=f8e35]: Connecting Strategies
+          - paragraph [ref=f8e36]: Botconnector menghubungkan alert TradingView ke MetaTrader secara otomatis.
+        - generic [ref=f8e37]:
+          - strong [ref=f8e38]: Informasi
+          - generic [ref=f8e39]:
+            - link "Cara Pakai" [ref=f8e40] [cursor=pointer]:
+              - /url: /connect-v2/guide
+            - link "Webhook TradingView" [ref=f8e41] [cursor=pointer]:
+              - /url: /connect-v2/webhook-tradingview
+            - link "CAPTURE vs LIVE" [ref=f8e42] [cursor=pointer]:
+              - /url: /connect-v2/capture-vs-live
+            - link "Botconnector EA" [ref=f8e43] [cursor=pointer]:
+              - /url: /connect-v2/guide
+            - link "Format Alert" [ref=f8e44] [cursor=pointer]:
+              - /url: /connect-v2/format-alert-tradingview
+            - link "Troubleshooting" [ref=f8e45] [cursor=pointer]:
+              - /url: /connect-v2/troubleshooting-alert
+            - link "Tentang" [ref=f8e46] [cursor=pointer]:
+              - /url: /connect-v2/about
+            - link "Keamanan" [ref=f8e47] [cursor=pointer]:
+              - /url: /connect-v2/security
+        - generic [ref=f8e48]:
+          - strong [ref=f8e49]: Legal
+          - generic [ref=f8e50]:
+            - link "Privacy" [ref=f8e51] [cursor=pointer]:
+              - /url: /connect-v2/privacy
+            - link "Terms" [ref=f8e52] [cursor=pointer]:
+              - /url: /connect-v2/terms
+            - link "Risiko" [ref=f8e53] [cursor=pointer]:
+              - /url: /connect-v2/risk-disclosure
+      - generic [ref=f8e54]: Hasil trading bergantung pada strategi dan pengaturan masing-masing pengguna. Botconnector hanya meneruskan instruksi yang diterima dan tidak bertanggung jawab atas keuntungan atau kerugian yang timbul dari penggunaannya.
+      - generic [ref=f8e55]:
+        - generic [ref=f8e56]: © 2026 Botconnector.
+        - generic [ref=f8e57]: Connecting Strategies

@@ -1,0 +1,63 @@
+============================================================
+BOTCONNECTOR
+SHIPPING PROVIDER ROUTER V1
+WIRING BOUNDARY
+============================================================
+
+CURRENT WIRING LEVEL:
+
+PROVIDER_CONTRACT
+
+
+SUPPORTED PROVIDER:
+
+rajaongkir
+
+
+CURRENT INTERNAL INPUT:
+
+provider
+idempotency_key
+origin_id
+destination_id
+weight_grams
+courier
+
+
+IMPORTANT:
+
+origin_id and destination_id currently correspond
+to provider location references.
+
+Therefore this router is NOT YET the final public
+Shipping Core canonical address interface.
+
+
+FINAL TARGET:
+
+Shipping Core canonical address/package request
+        |
+        v
+Shipping Location Resolver
+        |
+        v
+Provider Router
+        |
+        v
+RajaOngkir Cost Adapter
+
+
+The Location Resolver must translate canonical
+location/address information into provider location
+references without modifying Shipping Core V1.
+
+
+DO NOT:
+
+- place RajaOngkir destination IDs into Commerce Core
+- place RajaOngkir API calls into Shipping Core
+- expose RajaOngkir API key to Router
+- alter frozen provider adapter
+
+
+============================================================
