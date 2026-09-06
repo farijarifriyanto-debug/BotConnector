@@ -229,11 +229,23 @@ HOMEPAGE-CONVERGENCE.md) — that unblocks planning for concern 1, but
 production still runs the old `/opt` source unchanged, and no nginx
 change has been made.
 
-#### 1. HOME_RUNTIME_CANONICALIZATION
+#### 1. HOME_RUNTIME_CANONICALIZATION — EXECUTED, PASS (2026-09-06)
 
 Goal: make `apps/homepage-runtime` the source production actually runs
 from, WITHOUT changing what's served (same app, same routes, same
 behavior) and WITHOUT touching the apex routing decision.
+
+**Done.** Built `botconnector-platform-home:348f3f2-20260906T094839Z`
+directly from `apps/homepage-runtime` at commit `348f3f2`, updated only
+the `image:` line in `/opt/botconnector-platform-starter-v0.3/homepage/docker-compose.yml`
+(one-line diff, backed up first), recreated only `botconnector-platform-home`.
+All acceptance checks (health, login, register, catalog, application
+gateway, support, Postgres, Redis, SMTP AUTH) passed against the live
+container. nginx, Postgres, Redis, and backend-core were not touched or
+restarted. `/var/lib/botconnector-platform` data confirmed intact. Old
+image (`tenantization-v1-20260828`, digest `sha256:80682abba1de...`)
+retained locally for rollback. Full acceptance record:
+`docs/deployment/HOMEPAGE-CUTOVER-2026-09-06.md`.
 
 COMPONENTS=apps/homepage-runtime
 WHY_GROUPED=alone — this is a source-of-truth switch, not a functional or routing change. It should be indistinguishable to any user if done correctly.
