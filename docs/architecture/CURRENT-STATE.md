@@ -118,3 +118,33 @@ assume `apps/restaurant` is the POS feature; it is not.
   the credential rotation, not an ongoing problem. Flagging because this
   session did not cause it and did not restart anything — purely observed
   via `journalctl`, read-only.
+
+## Component count: 20 total, 19 deployable
+
+`docs/provenance/SOURCE-MAP.md` lists 20 canonical components. 19 are
+independently deployable and redeploy-proven end-to-end (see
+`docs/build-proof/BUILD-REDEPLOY-PROOF.md`). The 20th, `packages/shared-design`,
+is a static asset/documentation package with `LIVE_RUNTIME=NONE` — there is
+nothing to build, start, or redeploy for it; "proof" doesn't apply to it
+any more than it would to a README. See `docs/deployment/CUTOVER-PLAN.md`
+Section 0 for the full reasoning.
+
+## Redis: present in a dependency lockfile, not load-bearing in core runtime
+
+`packages/multichannel/requirements.lock.txt` includes `redis==8.1.0`, but
+the only actual `import redis` found in the package is inside
+`local_business/acceptance_low_stock.py` — a test/acceptance script, not
+the main Business Suite or Integrasi request path. Do not assume Redis is
+a hard runtime dependency for Business Suite/Integrasi based on the
+lockfile alone; it isn't, as far as this investigation found.
+
+## Process safety guardrail (added after a near-miss, 2026-09-06)
+
+A broad `pkill -f "uvicorn app:APP"` during an isolated build-proof test
+matched the exact command-line substring of live production
+business-suite, integrasi, and shipping processes. It did not kill them
+(confirmed immediately after and re-confirmed later — all remained
+`active`, uninterrupted), but the pattern itself was unsafe. Documented in
+full, with the required procedure for future isolated tests, in
+`docs/deployment/CUTOVER-PLAN.md` Section 1 — treat that section as a
+standing rule for this repo, not a one-time note.
