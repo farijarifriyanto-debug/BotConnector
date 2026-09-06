@@ -17,8 +17,12 @@ from fastapi import FastAPI
 from fastapi.responses import HTMLResponse
 from fastapi.middleware.cors import CORSMiddleware
 
-sys.path.insert(0, "/opt")
+_REPO_ROOT = Path(__file__).resolve().parents[2]
+sys.path.insert(0, str(_REPO_ROOT / "packages"))
 sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
+
+import multichannel as _multichannel
+sys.modules.setdefault("botconnector_multichannel", _multichannel)
 
 from botconnector_multichannel.persistence import repo  # noqa
 from botconnector_multichannel.workflow import shop_binding  # noqa

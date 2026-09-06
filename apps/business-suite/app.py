@@ -30,8 +30,12 @@ from pathlib import Path
 from fastapi import FastAPI, Request, Depends, HTTPException
 from fastapi.responses import HTMLResponse, JSONResponse, Response, RedirectResponse
 
-sys.path.insert(0, "/opt")
+_REPO_ROOT = Path(__file__).resolve().parents[2]
+sys.path.insert(0, str(_REPO_ROOT / "packages"))
 sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
+
+import multichannel as _multichannel
+sys.modules.setdefault("botconnector_multichannel", _multichannel)
 
 import logging
 from botconnector_multichannel.persistence import db

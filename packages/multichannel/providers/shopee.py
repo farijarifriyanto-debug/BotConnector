@@ -8,13 +8,25 @@ dibaca hanya keadaannya sebagai bukti.
 from __future__ import annotations
 
 import hashlib
+import os
 from pathlib import Path
 
 from ..core import safety
 from ..core.contract import Kemampuan, Kesiapan, Provider
 from ..core.registry import daftarkan
 
-AKAR = Path("/opt/botconnector-shopee-real-provider")
+# Config-driven, not a hardcoded deployment path: override with
+# SHOPEE_OFFLINE_FOUNDATION_ROOT in any environment where this optional
+# foundation artifact lives somewhere other than the production default.
+# Absence of this path is expected and safe — it only ever changes
+# `foundation_ditemukan`/`rilis_aktif` in status_foundation(); `kemampuan`
+# stays frozenset() (no capability) regardless.
+AKAR = Path(
+    os.environ.get(
+        "SHOPEE_OFFLINE_FOUNDATION_ROOT",
+        "/opt/botconnector-shopee-real-provider",
+    )
+)
 POINTER = AKAR / "current-offline-shopee-provider-composition"
 
 

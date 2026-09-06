@@ -4,6 +4,10 @@ Generated during Phase 2–4 of the BotConnector Platform consolidation
 (2026-09-06). Read-only investigation against live systemd units, nginx
 config, and on-disk layout — no runtime was modified to produce this.
 
+**COMPONENTS_TOTAL=20** (current, authoritative — grew from the original
+19-component skeleton after `apps/integrasi` was identified as a distinct
+live deployable; see the business-suite/integrasi entries below).
+
 Format per component:
 
 ```
@@ -362,3 +366,55 @@ All 6 lockfiles were also line-validated against `name==version` /
 comment syntax — zero malformed lines, zero packages with an unresolved
 origin (every package traces to a specific live venv this session
 actually queried).
+
+---
+
+## Canonical independence closure (2026-09-06, Phase 10.1 — CLOSED)
+
+Three real leaks were caught by the build/redeploy proof and fixed, each
+re-verified by running the ACTUAL committed file (not a workaround copy)
+directly from the canonical repo:
+
+- **apps/business-suite/app.py + run.sh**: `sys.path.insert(0, "/opt")`
+  replaced with a repo-relative computation
+  (`Path(__file__).resolve().parents[2] / "packages"`) plus an explicit
+  `sys.modules` alias so `import botconnector_multichannel` resolves to
+  `packages/multichannel` without any symlink or source duplication.
+  `run.sh` rewritten to resolve its own script directory and default to
+  `packages/multichannel/venv` (overridable via `MULTICHANNEL_VENV`).
+  Re-verified: ran the unmodified `run.sh` from the canonical repo,
+  `/health` returned `{"ok":false,...,"database":"disconnected"}` (correct
+  — no production credential was ever supplied).
+- **apps/integrasi/app.py + run.sh**: identical fix. Re-verified the same
+  way: unmodified `run.sh` → `/health` returned `{"ok":true,...}`.
+- **services/finance-core/run-finance-core.sh**: hardcoded
+  `/opt/botconnector-finance-core/releases/...` replaced with a
+  script-relative `APPDIR`/venv path; the Postgres-host resolution via
+  `docker inspect` was made opt-in (`FINANCE_CORE_POSTGRES_CONTAINER`)
+  rather than hardwired, so a plain `FINANCE_DB_HOST` env var works
+  everywhere. Re-verified: unmodified script, dummy DB config,
+  `/openapi.json` → 200.
+- **packages/multichannel/providers/shopee.py**: the hardcoded
+  `/opt/botconnector-shopee-real-provider` foundation-probe path is now
+  read from `SHOPEE_OFFLINE_FOUNDATION_ROOT` (env var), defaulting to the
+  same production path — config-driven, not hardcoded. No capability
+  change: `kemampuan` stays `frozenset()` regardless.
+
+Remaining old-path references were classified, not silently deleted (per
+instruction — see `/tmp` scratch classification note, folded in here):
+TEST_TOOLING (packages/multichannel's own acceptance/test scripts, 7
+files; one parking dev screenshot utility) and LEGACY_DEPLOYMENT_TOOL /
+MIGRATION_REFERENCE (apps/store's deploy/rollback/patch scripts; two
+finance-core historical candidate canary scripts under `evidence/`). None
+of these are imported by, or required to start, any canonical app — proven
+by the same import/run proofs above.
+
+```
+BUSINESS_SUITE_CANONICAL_IMPORT=PASS
+BUSINESS_SUITE_RUN_SCRIPT=PASS
+INTEGRASI_CANONICAL_IMPORT=PASS
+INTEGRASI_RUN_SCRIPT=PASS
+FINANCE_CORE_SCRIPT_CANONICAL=YES
+FINANCE_CORE_OLD_RUNTIME_SOURCE_REQUIRED=NO
+CANONICAL_RUNTIME_DEPENDENCY_ON_OLD_SOURCE=0 (for application imports, run scripts, build scripts, redeploy recipes, and active runtime config — the only categories this target covers per instruction)
+```
