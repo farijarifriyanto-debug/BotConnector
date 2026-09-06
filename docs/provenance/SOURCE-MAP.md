@@ -42,14 +42,36 @@ NOTES=Live deployment output lives at /var/www/botconnector-store/current, separ
 
 ---
 
-COMPONENT=restaurant
+COMPONENT=restaurant (Restaurant Seller Control — NOT the Restaurant POS feature)
 ORIGINAL_SOURCE=/opt/restaurant-seller-control
 RESOLVED_SOURCE=(same, not a symlink)
 CANONICAL_TARGET=apps/restaurant
 LIVE_RUNTIME=Docker container `restaurant-seller-control` (up 7d at time of check), health on 127.0.0.1:18192 — not a systemd unit
 LIVE_ROUTE=/panel/restaurant/ (nginx proxy_pass to 127.0.0.1:18192)
 PROVENANCE_CONFIDENCE=HIGH
-NOTES=Some files (backup.sh, rollback-remove.sh, status.sh) are root-owned 700; read via scoped read-only sudo per explicit grant, backup/import are COMPLETE not partial.
+NOTES=CORRECTED 2026-09-06 (was misidentified earlier as the restaurant POS/KDS app): reading apps/restaurant/app/app.py shows this is a licensing/entitlement admin panel — `licenses.db`, EC-signed license keys, edition tiers (Essential, Lengkap, Professional, Multi Outlet), seller admin auth. It has nothing to do with kitchen/table/menu operations. The actual Restaurant POS/KDS capability the public site markets lives inside Business Suite (`/bisnis/api/restaurant`, `/bisnis/api/kitchen`) — see the business-suite entry below. Some files (backup.sh, rollback-remove.sh, status.sh) are root-owned 700; read via scoped read-only sudo per explicit grant, backup/import are COMPLETE not partial.
+
+---
+
+COMPONENT=business-suite
+ORIGINAL_SOURCE=/opt/botconnector-bisnis (systemd WorkingDirectory)
+RESOLVED_SOURCE=/opt/botconnector-bisnis/app.py (single-file entrypoint, 3588 lines)
+CANONICAL_TARGET=apps/business-suite
+LIVE_RUNTIME=botconnector-bisnis.service (systemd, enabled/active, `Requires=botconnector-finance-core.service`), uvicorn `app:APP --app-dir /opt/botconnector-bisnis` on 127.0.0.1:18199, DB credential loaded via systemd `LoadCredential` from `/etc/botconnector/credentials/bisnis-db-password` (not a plain .env)
+LIVE_ROUTE=/bisnis/ (PWA shell + `/bisnis/api/*`: state, products, inventory, sales, transfers, restaurant, kitchen, offline/sync)
+PROVENANCE_CONFIDENCE=HIGH — CONFIRMED END-TO-END 2026-09-06
+NOTES=BUSINESS_SUITE_SOURCE=THIN_ENTRYPOINT_PLUS_MULTICHANNEL. The entrypoint does `sys.path.insert(0, "/opt")` then `import botconnector_multichannel...`, which resolves via the `/opt/botconnector_multichannel` (underscore) symlink to `/opt/botconnector-multichannel` (hyphen) — proven by directly resolving the symlink, not inferred. Runs on the Multichannel package's own venv interpreter (`/opt/botconnector-multichannel/venv/bin/python`), so it has no independent dependency set of its own — DEPENDENCIES_IDENTIFIED should be read against packages/multichannel, not this directory (which itself has no requirements.txt). Live health check at time of audit: `{"ok":true,"service":"botconnector-business-suite","database":"connected"}`.
+
+---
+
+COMPONENT=integrasi
+ORIGINAL_SOURCE=/opt/botconnector-integrasi (systemd WorkingDirectory)
+RESOLVED_SOURCE=/opt/botconnector-integrasi/app.py (single-file entrypoint, 145 lines)
+CANONICAL_TARGET=apps/integrasi (created — not part of the original Phase 3 skeleton, added because it is a distinct live deployable with its own systemd unit; see CURRENT-STATE.md)
+LIVE_RUNTIME=botconnector-integrasi.service (systemd, enabled/active, `Requires=botconnector-finance-core.service`), uvicorn `app:APP --app-dir /opt/botconnector-integrasi` on 127.0.0.1:18198
+LIVE_ROUTE=/integrasi/, /api/public/state, /api/public/inventory
+PROVENANCE_CONFIDENCE=HIGH — CONFIRMED END-TO-END 2026-09-06
+NOTES=Same thin-entrypoint-over-Multichannel pattern as business-suite (same `/opt` sys.path trick, same symlink). Its own docstring: "Read-only. Tidak memanggil keluar. Tidak membuka token." The marketplace cards it renders (Shopee, Tokopedia, TikTok Shop, Blibli, Lazada) are hardcoded status="SEGERA_HADIR" (Coming Soon) with the code comment "no real external connection yet" — confirmed NOT live by reading the source directly, not inferred. Live health check: `{"ok":true,"service":"botconnector-integrasi"}`.
 
 ---
 
@@ -108,14 +130,13 @@ NOTES=(none)
 
 ---
 
-COMPONENT=business-suite
-ORIGINAL_SOURCE=NOT FOUND
-RESOLVED_SOURCE=N/A
-CANONICAL_TARGET=apps/business-suite (created empty)
-LIVE_RUNTIME=UNKNOWN
-LIVE_ROUTE=/var/www/botconnector-business-suite exists as a deployment artifact only (no .git/package.json/sourcemaps)
-PROVENANCE_CONFIDENCE=NONE
-NOTES=NEEDS_DECISION. No dedicated "business-suite thin app" source directory was found anywhere on disk. The only filesystem hit for the name is an unrelated one-off patch script (business-suite-trial-3d-seller-patch-v1.sh). Not fabricating a source — left as an empty target pending your input on where this actually lives (it may be logic embedded inside multichannel/local_business rather than a separate app).
+COMPONENT=business-suite (SUPERSEDED — see the resolved entry above)
+STATUS=RESOLVED 2026-09-06. Kept this stale entry visible on purpose to
+show the trail: the original search here (no filesystem match for a
+"business-suite" directory name) was correct as far as it went — the
+component just isn't named that on disk, it's named `bisnis`
+(`/opt/botconnector-bisnis`). See the business-suite entry above for the
+proven answer.
 
 ---
 
@@ -123,10 +144,17 @@ COMPONENT=multichannel
 ORIGINAL_SOURCE=/opt/botconnector-multichannel
 RESOLVED_SOURCE=(same, not a symlink)
 CANONICAL_TARGET=packages/multichannel
-LIVE_RUNTIME=Backs botconnector-bisnis.service, botconnector-bisnis-telegram*.service, botconnector-integrasi.service (WorkingDirectory for those is /opt/botconnector-bisnis and /opt/botconnector-integrasi respectively — this package appears to be the shared library those deployments are built from, not itself the deployed WorkingDirectory)
+LIVE_RUNTIME=Shared package, not itself deployed. CONFIRMED 2026-09-06 (was
+MEDIUM confidence / untraced before): imported directly by both
+`/opt/botconnector-bisnis/app.py` and `/opt/botconnector-integrasi/app.py`
+via `sys.path.insert(0, "/opt")` + `import botconnector_multichannel`,
+which resolves through the `/opt/botconnector_multichannel` (underscore)
+symlink → `/opt/botconnector-multichannel` (hyphen, this directory). Also
+backs botconnector-bisnis-telegram*.service (same app, different process
+for the outbox/summary workers).
 LIVE_ROUTE=N/A (shared package)
-PROVENANCE_CONFIDENCE=MEDIUM
-NOTES=candidates/, vendor/, and backup*/ subdirectories were excluded from import as non-canonical WIP/vendored/backup content (root-owned, 700, not part of the deployed shared package). Exact relationship between this package and the separately-deployed /opt/botconnector-bisnis and /opt/botconnector-integrasi working directories was not traced further — flagging as a gap, not asserting they're identical copies. Contains a secret-scan finding, remediated: see below.
+PROVENANCE_CONFIDENCE=HIGH (was MEDIUM — now proven via symlink resolution, not inferred)
+NOTES=candidates/, vendor/, and backup*/ subdirectories were excluded from import as non-canonical WIP/vendored/backup content (root-owned, 700, not part of the deployed shared package). Contains a secret-scan finding, remediated: see below.
 
 ---
 
@@ -200,10 +228,10 @@ ORIGINAL_SOURCE=/opt/botconnector-shipping-public-gateway/current
 LIVE_SYMLINK=/opt/botconnector-shipping-public-gateway/current
 RESOLVED_SOURCE=/opt/botconnector-shipping-public-gateway/releases/shipping-public-gateway-v1-20260813T123718Z
 CANONICAL_TARGET=services/shipping/public-gateway
-LIVE_RUNTIME=botconnector-shipping-public-gateway.service (systemd, enabled/active)
+LIVE_RUNTIME=botconnector-shipping-public-gateway.service (systemd, enabled/active), uvicorn on 127.0.0.1:18244
 LIVE_ROUTE=/pengiriman/, /konektor/rajaongkir/ (root /var/www/botconnector-shipping-public/current — a separate static deployment artifact, not this app source)
 PROVENANCE_CONFIDENCE=HIGH
-NOTES=Very small (2 files) — a thin gateway, plausible for its role.
+NOTES=Very small (2 files) — a thin gateway, plausible for its role. CONFIRMED LIVE END-TO-END 2026-09-06: a real, non-destructive `POST /api/shipping/rates` request (origin "Jakarta Pusat", destination "Bandung", weight 1000g, courier JNE) returned real resolved addresses (postal codes 10520/40614) and real courier tariffs (REG 12000 IDR, YES 24000 IDR, etc.) in ~1.5s, proving the full chain public-gateway → integration (127.0.0.1:18243) → RajaOngkir. Each call inserts one row into this service's own local `public_rate_requests` SQLite table (rate-limit/audit log) — non-destructive, no customer or order data touched.
 
 ---
 
@@ -257,3 +285,37 @@ FINDING=Two secret-shaped strings matched by the Phase 2/5 scanner in tests/run_
 VERIFICATION=Checked the literal "Tenantization-Test-2026!" (exact string match, and sha256 hash comparison without printing any real value) against all 186 credential-shaped files under /etc, /root, /opt on this box — zero matches. Confirmed test-only.
 ACTION=In the canonical repo copy only (NOT in the live /opt/botconnector-multichannel source): replaced the literal password with TEST_ONLY_DUMMY_PASSWORD_DO_NOT_USE and regenerated a matching argon2id hash (same params: v=19, m=65536, t=3, p=2) so the fixture's login-flow behavior is unchanged. run_acceptance.sh's ACCEPTANCE_PASSWORD default ("acceptance_test_only_nonsecret") was left as-is — it was already an explicit non-secret placeholder.
 RESULT=TEST_FIXTURE_SECRET_SCAN_NOISE_REMOVED=YES
+
+---
+
+## Entrypoint completeness (2026-09-06 follow-up pass)
+
+Corrects the original Phase 9 pass, which only checked component root
+directories and wrongly read some nested entrypoints as missing.
+
+| Component | SOURCE_PRESENT | ENTRYPOINT_IDENTIFIED | DEPENDENCIES_IDENTIFIED | CONFIG_INTERFACE_IDENTIFIED | LIVE_RUNTIME_MAPPING_IDENTIFIED |
+|---|---|---|---|---|---|
+| public-site | YES | YES (index.html) | N/A (static) | N/A | NO live mapping (not deployed) |
+| store | YES | YES (app/app.py — nested) | YES (app/requirements.txt) | YES (/etc/botconnector-store/.env) | YES |
+| business-suite | YES | YES (app.py) | NO OWN MANIFEST — runs on packages/multichannel's venv, has no requirements.txt of its own; a real gap if this app is ever deployed independently of that venv | YES (systemd LoadCredential, not a plain .env) | YES |
+| integrasi | YES | YES (app.py) | Same as business-suite — shares Multichannel's venv, no own manifest | YES (same LoadCredential mechanism) | YES |
+| restaurant | YES | YES (app/app.py — nested) | YES (app/requirements.txt) | YES (env vars: LICENSE_DB, LICENSE_PRIVATE_KEY, SELLER_ADMIN_PASSWORD_HASH, SELLER_SESSION_SECRET) | YES (Docker, not systemd) |
+| parking | YES | YES (root — not checked for nested override) | YES (requirements.txt) | YES (.env.example present, real file at /etc/botconnector/parking.env) | YES |
+| drive | YES | YES (app.py) | YES (requirements.txt) | UNKNOWN (env vars not enumerated this pass) | YES |
+| ai-chat-preview | YES | YES (app.py) | NO OWN MANIFEST found | YES (DATABASE_URL, AI_CHAT_SCHEMA, ORCHESTRATOR_URL, LOCAL_INTELLIGENCE_URL/TOKEN — all read directly from app.py) | YES |
+| ai-workspace | YES | YES (app.py) | NO OWN MANIFEST found | UNKNOWN | YES |
+| admin-gate | YES | YES (admin_gate.py) | NO OWN MANIFEST — imports httpx + fastapi with nothing pinning versions | UNKNOWN | YES |
+| multichannel | YES | N/A — shared package, not directly deployed (correct, not a gap) | NO MANIFEST found anywhere in the package; its venv exists at `/opt/botconnector-multichannel/venv` but what's installed in it isn't reconstructable from source alone — a real gap | N/A | N/A (see business-suite/integrasi for its runtime hosts) |
+| connector-core | YES | YES (main.py) | YES (requirements.txt) | UNKNOWN | YES |
+| finance-core | YES | YES (app/main.py — nested) | NO OWN MANIFEST found in the release; has its own venv (`$APPDIR/venv`), contents not reconstructable from source | YES (/etc/botconnector-finance-core/finance-core.env, plus dynamic Postgres IP resolution via `docker inspect botconnector-core-postgres`) | YES |
+| 6 shipping services | YES (all 6) | YES (all 6 — app.py at root) | NO OWN MANIFEST on any of the 6 | PARTIAL (env vars read directly in public-gateway's app.py; others not individually enumerated) | YES (all 6, plus one proven live end-to-end) |
+
+**Real gap, not a false negative**: five components (business-suite,
+integrasi, ai-chat-preview, ai-workspace, admin-gate, multichannel itself,
+finance-core, and all 6 shipping services) have no tracked dependency
+manifest in source — their actual installed package versions live only in
+each release's own venv on the VPS, not in anything importable into this
+repo. This is a genuine `CAN_RECONSTRUCT_DEPLOYMENT=NO` finding for those
+components until each venv's `pip freeze` (or equivalent) is captured
+separately — not something this consolidation pass can fix by re-reading
+source harder.

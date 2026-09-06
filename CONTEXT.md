@@ -17,23 +17,40 @@ _Avoid_: Tenant, account, customer (Customer is the Business's own
 end-buyer, a different concept)
 
 **Business Suite**:
-The umbrella product name covering the Retail/Restaurant point-of-sale
-capabilities a Business operates under. NEEDS_DECISION: no dedicated
-source repository was found for this as a standalone app — it may be
-capability delivered from within Multichannel rather than a separate
-deployable. See docs/provenance/SOURCE-MAP.md.
+RESOLVED (2026-09-06): a thin FastAPI entrypoint (`apps/business-suite`,
+one file, `/opt/botconnector-bisnis/app.py` in production) running as
+`botconnector-bisnis.service`, serving `/bisnis/` — offline-first PWA POS
+covering Retail, Restaurant, Inventory, Transfers, Reports. It imports its
+entire domain implementation from the Multichannel shared package (via
+`sys.path.insert(0, "/opt")` + the `/opt/botconnector_multichannel` symlink
+to Multichannel's own directory) — the entrypoint itself has no deep
+implementation of its own. Confirmed live: health check reports
+`database: connected`.
 _Avoid_: Bisnis (Indonesian UI label for the same concept)
 
 **Retail**:
 The point-of-sale vertical for a Business selling physical goods —
-products, SKUs, inventory, and sales.
+products, SKUs, inventory, and sales. Delivered as part of Business
+Suite's `/bisnis/api/*` surface.
 _Avoid_: Store (Store is the separate storefront/checkout app; Retail is
 the operational POS concept it may share data with)
 
 **Restaurant**:
-The point-of-sale vertical for a Business running dine-in food service —
-tables, kitchen order tickets (KOT), and menu items.
-_Avoid_: F&B
+AMBIGUOUS TERM — resolves to two different, unrelated things on this
+platform, disambiguate by context:
+1. The dine-in food-service POS capability (menu, recipe/BOM, tables,
+   Kitchen Display/Order tickets) — this is a sub-feature of **Business
+   Suite** (`/bisnis/api/restaurant`, `/bisnis/api/kitchen`), not a
+   separate app. This is what the public-site `/restaurant/` marketing
+   page describes.
+2. **Restaurant Seller Control** (`apps/restaurant`, Docker container
+   `restaurant-seller-control`, route `/panel/restaurant/`) — a licensing
+   and plan-entitlement admin panel (edition tiers: Essential, Lengkap,
+   Professional, Multi Outlet; EC-signed license issuance) for restaurant
+   sellers. This has nothing to do with POS/kitchen operations — it is a
+   back-office licensing gate.
+_Avoid_: F&B; "Restaurant app" (ambiguous — say "Restaurant POS" for #1 or
+"Restaurant Seller Control" for #2)
 
 **Store**:
 The customer-facing storefront/checkout application (product v6r3), live
@@ -54,17 +71,37 @@ _Avoid_: Integration (see Integrasi below — related but the Indonesian
 technical adapter concept)
 
 **Integrasi**:
-The broader business-process area covering inventory, local business
-operations, workflow, and reconciliation that ties a Business's verticals
-together. Backed by the Multichannel shared package.
-_Avoid_: Business process automation
+RESOLVED (2026-09-06): a second thin FastAPI entrypoint
+(`apps/integrasi`, one file, `/opt/botconnector-integrasi/app.py` in
+production), sibling to Business Suite — same pattern (imports
+Multichannel via the same `/opt` symlink), same required dependency on
+Finance Core, different port. Today it serves exactly one thing: a
+public, read-only, no-outbound-call marketplace status page
+(`/integrasi/`) showing Shopee/Tokopedia/TikTok Shop/Blibli/Lazada as
+"Segera Hadir" (Coming Soon) — the source code's own docstring says
+"Read-only. Tidak memanggil keluar. Tidak membuka token." None of those
+marketplace connections are live; this is a placeholder, not an
+integration.
+_Avoid_: Business process automation; do not read "Integrasi" as implying
+live marketplace connectivity — it explicitly does not have any yet.
+
+**Multichannel**:
+The shared domain package (`packages/multichannel`) both Business Suite
+and Integrasi import their entire implementation from — persistence,
+local_business (POS/inventory/restaurant/procurement/telegram), workflow,
+connector registry. It is not itself deployed; it's a library two separate
+processes share via a `/opt/botconnector_multichannel` (underscore) →
+`/opt/botconnector-multichannel` (hyphen) symlink so Python's import
+system can resolve it despite the hyphenated directory name.
 
 **Shipping**:
 The logistics vertical: resolving shipping options, routing between
-providers, calculating cost (e.g. via the RajaOngkir provider), and
-exposing a public shipping-lookup gateway. Composed of multiple live
-services (router, resolver, gateway, integration, provider adapters)
-rather than one monolith — see docs/architecture/CURRENT-STATE.md.
+providers, and calculating cost via the RajaOngkir provider. Composed of
+six independently deployed services (public-gateway, integration, router,
+location-resolver, location-public-gateway, rajaongkir-cost) rather than
+one monolith. CONFIRMED LIVE end-to-end 2026-09-06: a real request through
+public-gateway → integration → RajaOngkir returned real courier quotes
+(JNE Jakarta→Bandung) in ~1.5s — see docs/capability-registry/EXTERNAL-PROVIDERS.md.
 
 **Finance**:
 The accounting/ledger vertical — invoices, journals, and period close —

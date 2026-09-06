@@ -15,7 +15,9 @@ own process, not a library boundary within one binary.
 |---|---|---|
 | Public Site | none (static POC only, not deployed) | `apps/public-site` |
 | Store | `botconnector-store.service` | `apps/store` |
-| Restaurant | Docker container `restaurant-seller-control` | `apps/restaurant` |
+| Business Suite | `botconnector-bisnis.service` (thin entrypoint over Multichannel) | `apps/business-suite` |
+| Integrasi | `botconnector-integrasi.service` (thin entrypoint over Multichannel) | `apps/integrasi` |
+| Restaurant Seller Control | Docker container `restaurant-seller-control` — a licensing/entitlement panel, NOT the Restaurant POS feature (that's inside Business Suite) | `apps/restaurant` |
 | Parking | `botconnector-parking.service` | `apps/parking` |
 | Drive | `botconnector-drive.service` | `apps/drive` |
 | AI Preview | `botconnector-ai-chat-core.service` | `apps/ai-chat-preview` |
@@ -58,20 +60,61 @@ restructured later, whether these six belong behind one Shipping interface
 or stay independently deployed is an open design question, not answered
 here.
 
-**Multichannel is depended on, not deployed.** `packages/multichannel`
-backs the separately-running `botconnector-bisnis*` and
-`botconnector-integrasi` services (different `WorkingDirectory`s), but the
-exact mechanism connecting the package to those deployments was not traced
-in this pass (NEEDS_DECISION, see SOURCE-MAP.md). Treat it as this
-platform's shared domain package until that link is confirmed.
+CONFIRMED LIVE END-TO-END (2026-09-06): a real, non-destructive request
+through `public-gateway` (port 18244) → `integration` (port 18243) →
+RajaOngkir returned real courier quotes for a Jakarta→Bandung shipment in
+~1.5s. This is the strongest evidence in this entire audit — an actual
+successful request through the whole chain, not an inference from code or
+config. See docs/capability-registry/EXTERNAL-PROVIDERS.md.
+
+**Multichannel is a shared package with two thin entrypoints on top —
+proven, not inferred.** `packages/multichannel` is imported directly by
+two separate FastAPI processes: `/opt/botconnector-bisnis/app.py`
+(Business Suite, port 18199) and `/opt/botconnector-integrasi/app.py`
+(Integrasi, port 18198). Both do the identical trick —
+`sys.path.insert(0, "/opt")` then `import botconnector_multichannel` —
+which resolves through a literal symlink, `/opt/botconnector_multichannel`
+(underscore, importable) → `/opt/botconnector-multichannel` (hyphen, this
+package's real directory). Both run on Multichannel's own venv
+interpreter and both require `botconnector-finance-core.service` to start.
+This is "one shared package, two thin application entrypoints" — the
+cleanest of the three shapes this document originally left open. Business
+Suite (`/bisnis/api/*`) is the deep one: POS, inventory, restaurant/
+kitchen, transfers, reporting, offline sync — all real, live, DB-backed
+(`database: connected` on health check). Integrasi (`/integrasi/`) is
+shallow by design today: a single read-only marketplace-status page whose
+own docstring says "Tidak memanggil keluar. Tidak membuka token" (no
+outbound calls, no token exposure) — its Shopee/Tokopedia/TikTok
+Shop/Blibli/Lazada cards are hardcoded "Segera Hadir" (Coming Soon), not
+live integrations.
+
+## Naming collision (resolved)
+
+**"Restaurant" means two unrelated things on this platform.** The
+public-site `/restaurant/` page markets recipe/BOM, table management, and
+Kitchen Display (KDS/KOT) — that capability is real and lives inside
+**Business Suite** (`/bisnis/api/restaurant`, `/bisnis/api/kitchen`), not
+in `apps/restaurant`. `apps/restaurant` (Docker container
+`restaurant-seller-control`) is actually a licensing/entitlement admin
+panel — edition tiers (Essential, Lengkap, Professional, Multi Outlet),
+EC-signed license issuance — unrelated to kitchen operations. Anyone
+reading "Restaurant" in this repo without this note would reasonably
+assume `apps/restaurant` is the POS feature; it is not.
 
 ## Known gaps (not invented, not resolved)
 
-- **Business Suite**: named in provenance decisions and referenced in the
-  public-site POC, but no standalone source repo was found. It may be
-  capability that already lives inside Multichannel rather than its own
-  deployable — unconfirmed.
 - **Public Site vs. live homepage**: the live botconnector.id root
   (`/var/www/botconnector`) has no discoverable source or generator. The
   imported `apps/public-site` (from the `full-site-poc`) is a candidate for
   becoming that source, not a proven replica of what's live today.
+- **Telegram outbox reliability**: `botconnector-bisnis-telegram-outbox.service`
+  logs showed a burst of `low_stock_outbox_poll_error (OperationalError)`
+  roughly every 2 seconds for about a minute, ending in a service restart
+  at 09:35:37 today, timed close to a Postgres/Redis credential rotation
+  observed the same morning (fresh files under `/etc/botconnector/credentials/`
+  dated today). Post-restart the worker reports `db_poll_ready` with no
+  further errors, and Business Suite/Integrasi/Finance Core show zero
+  errors in the last 2 hours — reads as a resolved, isolated blip tied to
+  the credential rotation, not an ongoing problem. Flagging because this
+  session did not cause it and did not restart anything — purely observed
+  via `journalctl`, read-only.
