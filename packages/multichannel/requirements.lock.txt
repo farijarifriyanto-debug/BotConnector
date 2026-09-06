@@ -1,0 +1,57 @@
+# Reconstructed from proven live runtime
+# Python: 3.12.3
+# Purpose: reproducible production baseline
+# Source provenance: see docs/provenance/SOURCE-MAP.md
+#
+# Also the dependency owner for apps/business-suite and apps/integrasi —
+# both are thin entrypoints that import this package and run on this same
+# venv; they have no dependency set of their own.
+annotated-doc==0.0.5
+annotated-types==0.8.0
+anyio==4.14.2
+blinker==1.9.0
+certifi==2026.7.22
+cffi==2.1.1
+click==8.4.2
+cryptography==49.0.0
+Deprecated==1.3.1
+et_xmlfile==2.0.0
+fastapi==0.141.1
+Flask==3.1.3
+Flask-Limiter==4.1.1
+greenlet==3.5.5
+h11==0.16.0
+httpcore==1.0.9
+httptools==0.8.0
+httpx==0.28.1
+idna==3.19
+iniconfig==2.3.0
+itsdangerous==2.2.0
+Jinja2==3.1.6
+limits==5.8.0
+MarkupSafe==3.0.3
+openpyxl==3.1.5
+ordered-set==4.1.0
+packaging==26.3
+playwright==1.62.0
+pluggy==1.6.0
+psycopg==3.3.4
+psycopg-binary==3.3.4
+pycparser==3.0
+pydantic==2.13.4
+pydantic_core==2.46.4
+pyee==13.0.1
+Pygments==2.21.0
+pytest==9.1.1
+python-dotenv==1.2.3
+PyYAML==6.0.3
+redis==8.1.0
+starlette==1.6.0
+typing_extensions==4.16.0
+typing-inspection==0.4.4
+uvicorn==0.52.4
+uvloop==0.22.1
+watchfiles==1.2.0
+websockets==17.0.1
+Werkzeug==3.1.8
+wrapt==2.3.0

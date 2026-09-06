@@ -319,3 +319,46 @@ repo. This is a genuine `CAN_RECONSTRUCT_DEPLOYMENT=NO` finding for those
 components until each venv's `pip freeze` (or equivalent) is captured
 separately — not something this consolidation pass can fix by re-reading
 source harder.
+
+---
+
+## Dependency manifest closure (2026-09-06 follow-up — CLOSED)
+
+The gap above is now closed for all 8 units. Every lockfile below is a
+verbatim, read-only `pip freeze` capture from the live production venv —
+no install/upgrade was performed, no venv/container was mutated.
+
+| Component | PYTHON_VERSION | DEPENDENCY_MANIFEST | DEPENDENCY_LOCK_SOURCE | EXACT_RUNTIME_PINS |
+|---|---|---|---|---|
+| packages/multichannel | 3.12.3 | `packages/multichannel/requirements.lock.txt` | PROVEN_LIVE_VENV | YES |
+| apps/business-suite | 3.12.3 | none of its own — see BUSINESS_SUITE_DEPENDENCY_OWNER below | PROVEN_LIVE_VENV (via owner) | YES (via owner) |
+| apps/integrasi | 3.12.3 | none of its own — see INTEGRASI_DEPENDENCY_OWNER below | PROVEN_LIVE_VENV (via owner) | YES (via owner) |
+| apps/ai-chat-preview | 3.12.3 | `apps/ai-chat-preview/requirements.lock.txt` | PROVEN_LIVE_VENV | YES |
+| apps/ai-workspace | 3.12.3 | `apps/ai-workspace/requirements.lock.txt` | PROVEN_LIVE_VENV | YES |
+| apps/admin-gate | 3.12.3 | `apps/admin-gate/requirements.lock.txt` | PROVEN_LIVE_VENV | YES |
+| services/finance-core | 3.12.3 | `services/finance-core/requirements.lock.txt` | PROVEN_LIVE_VENV | YES |
+| services/connector-core + 6 shipping services | 3.12.3 | DIRECT_REQUIREMENTS=`services/connector-core/requirements.txt` (pre-existing, loose ranges, unchanged) / EXACT_LOCK=`services/connector-core/requirements.lock.txt` (new, exact pins) | PROVEN_LIVE_VENV | YES |
+
+```
+BUSINESS_SUITE_DEPENDENCY_OWNER=packages/multichannel
+INTEGRASI_DEPENDENCY_OWNER=packages/multichannel
+SHARED_PYTHON_RUNTIME_OWNER=services/connector-core
+SHIPPING_DEPENDENCY_MODEL=ONE_SHARED_RUNTIME
+SHIPPING_LOCKFILE_COPIES=1 (services/connector-core/requirements.lock.txt only — not duplicated into any of the 6 shipping directories)
+```
+
+Lockfile safety audit (grep across all 6 lockfiles for editable installs,
+local/`file://` paths, private or localhost package-index URLs, and
+embedded credentials/tokens):
+
+```
+EDITABLE_REFERENCES=0
+LOCAL_PATH_REFERENCES=0
+PRIVATE_URL_REFERENCES=0
+SECRET_REFERENCES=0
+```
+
+All 6 lockfiles were also line-validated against `name==version` /
+comment syntax — zero malformed lines, zero packages with an unresolved
+origin (every package traces to a specific live venv this session
+actually queried).
