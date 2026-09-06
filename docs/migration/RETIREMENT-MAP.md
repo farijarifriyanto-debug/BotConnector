@@ -80,7 +80,7 @@ component for the minimum window to respect).
 
 | PATH | CLASSIFICATION |
 |---|---|
-| `/opt/botconnector-core` | DELETE_AFTER_CUTOVER — legacy connector-core-shaped dir, no systemd unit references it; safe to remove once you've independently confirmed nothing else on the box reads from it (this session did not exhaustively check every possible caller, only systemd units) |
+| `/opt/botconnector-core` | **CORRECTED 2026-09-06 — do not delete.** The directory's *source* content is still an unreferenced connector-core-shaped legacy tree (no systemd unit or container runs code from it directly). But `/opt/botconnector-core/.env` specifically is **ACTIVE_SECRET_STORE_PENDING_MIGRATION** — it is the live `env_file` for `botconnector-backend-api` and `botconnector-backend-worker` (project `botconnector-backend-core`, compose file `/opt/botconnector-backend-core/docker-compose.yml`), discovered during the SMTP credential incident response. **DO_NOT_DELETE** until that credential is migrated to a protected file mechanism and the plaintext value is removed from this `.env` (see `docs/security/SMTP-CREDENTIAL-INCIDENT.md`). The original "no systemd unit references it" check was true but incomplete — it missed a Docker Compose `env_file:` reference, which isn't visible to a systemd-only search. |
 | `/home/botadmin/ai-workspaces/botconnector-homepage-design-poc` | ARCHIVE_ONLY — a second design candidate not chosen for `packages/shared-design`; not wired to anything live |
 
 ## Completed / candidate POCs (public-site provenance)
