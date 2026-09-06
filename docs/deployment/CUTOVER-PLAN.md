@@ -221,22 +221,51 @@ change — nothing was touched.
 
 ### Wave 1 (replacement, conceptual only — not ready to execute)
 
-COMPONENTS=apps/public-site (marketing/presentation layer only) — the
-apex itself is NOT part of any wave until a canonical `apps/homepage-runtime`
-(or equivalent) exists and is proven; see HOMEPAGE-CONVERGENCE.md Section
-7 for the proposed target and Section 8 for the corrected replan.
-WHY_GROUPED=N/A — this wave cannot be scoped precisely until the
-homepage-runtime import decision (Section 7) is made.
-EXPECTED_DOWNTIME=0 IF the eventual placement is additive (a new path/subdomain, not the apex) — this must be re-verified against whatever placement is actually chosen, not assumed.
-PRECHECK=Playwright acceptance already PASS for the candidate in isolation (this session, twice); homepage-runtime's own build/import proof has NOT been run — REQUIRED before any real placement decision
-DEPLOY_ACTION=undetermined — depends entirely on the Section 7/8 decision; NOT executed in this plan
-HEALTH_GATE=HTTP 200 on all canonical pages (unchanged from before)
-REAL_FUNCTION_GATE=no unsupported capability claims (PUBLIC-SURFACE.md gate, unchanged) PLUS no regression to live auth/session/gateway/support functionality — this is the gate the old plan was missing
-ROLLBACK_TRIGGER=any 5xx, broken asset, OR any auth/login/register/support-ticket failure
-ROLLBACK_ACTION=undetermined until placement is chosen
-POSTCHECK=undetermined until placement is chosen
+Split into two distinct, separately-gated concerns per the homepage
+convergence decision (OPTION_B_FRONTEND_BACKEND_SPLIT). Neither is
+executed in this plan. `apps/homepage-runtime` is now imported and
+build-proven (see docs/provenance/SOURCE-MAP.md and
+HOMEPAGE-CONVERGENCE.md) — that unblocks planning for concern 1, but
+production still runs the old `/opt` source unchanged, and no nginx
+change has been made.
+
+#### 1. HOME_RUNTIME_CANONICALIZATION
+
+Goal: make `apps/homepage-runtime` the source production actually runs
+from, WITHOUT changing what's served (same app, same routes, same
+behavior) and WITHOUT touching the apex routing decision.
+
+COMPONENTS=apps/homepage-runtime
+WHY_GROUPED=alone — this is a source-of-truth switch, not a functional or routing change. It should be indistinguishable to any user if done correctly.
+EXPECTED_DOWNTIME=one container recreate, seconds — same class of action as the drive/restaurant Docker cutovers in Wave 7
+PRECHECK=build the image from `apps/homepage-runtime` (proven this session — PASS); diff the built image's `/app/app` against the currently-live image's `/app/app` to confirm byte-for-byte parity (the SMTP fix is the one intentional difference — that diff should show exactly one line, otherwise stop and investigate); confirm `docker-compose.yml` in the canonical copy still matches production's actual mounts/networks
+DEPLOY_ACTION=undetermined — this is the smallest, most mechanical of the two concerns, but "smallest" does not mean risk-free: it's the platform's login system. NOT executed in this plan.
+HEALTH_GATE=`/health` → 200; the same routes proven in isolation this session (`/login`, `/register`, `/products`, `/app`, `/support`) return the same status codes against production
+REAL_FUNCTION_GATE=a real login by a real (non-production-customer) test account succeeds, session cookie issues correctly, and at least one `/app/{slug}/...` gateway hop reaches its real backend
+ROLLBACK_TRIGGER=any auth failure, any 5xx on a previously-200 route, or any support/catalog regression
+ROLLBACK_ACTION=recreate the container from the previous image tag (`botconnector-platform-home:tenantization-v1-20260828`), unchanged, per the same pattern already proven for drive/restaurant
+POSTCHECK=confirm business-suite/parking (the application-gateway's real downstream dependents) still receive traffic correctly
+
+#### 2. PUBLIC_MARKETING_FRONTEND_CUTOVER
+
+Goal: decide where (if anywhere) `apps/public-site`'s marketing
+presentation actually goes, now that it's confirmed NOT to collide with
+anything except the apex `/` itself.
+
+COMPONENTS=apps/public-site
+WHY_GROUPED=alone — this is a pure presentation decision, entirely separate from concern 1's source-of-truth switch
+EXPECTED_DOWNTIME=0 if placed additively (a new path/subdomain); undetermined if the apex `/` itself is ever chosen — that specific choice requires resolving the one real collision documented in `docs/architecture/PUBLIC-SITE-RUNTIME-CONTRACT.md` and is a separate, explicit, future approval, not a default
+PRECHECK=Playwright acceptance already PASS for the candidate in isolation (this session, twice)
+DEPLOY_ACTION=undetermined — placement not chosen; NOT executed in this plan
+HEALTH_GATE=HTTP 200 on all canonical pages
+REAL_FUNCTION_GATE=no unsupported capability claims (PUBLIC-SURFACE.md gate) PLUS confirm every CTA that should reach HOMEPAGE_RUNTIME (login, register, and anything under `/app/...`) still resolves correctly after whatever placement is chosen
+ROLLBACK_TRIGGER=any 5xx or broken asset
+ROLLBACK_ACTION=revert the nginx location/config change (config-only)
+POSTCHECK=confirm HOME_RUNTIME_CANONICALIZATION's routes are unaffected
 
 ```
+READY_FOR_HOMEPAGE_RUNTIME_CUTOVER_PLANNING=YES (import + build proof done; production switch itself not planned in detail — the precheck above is the next concrete step, not yet executed)
+READY_FOR_PUBLIC_FRONTEND_CUTOVER_PLANNING=NO (placement/routing decision for the `/` collision has not been made)
 READY_FOR_APEX_CUTOVER=NO
 ```
 

@@ -1,0 +1,287 @@
+<!doctype html>
+<html lang="id">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#F6F7FB">
+  <title>{% block title %}BotConnector — Hubungkan sistem. Jalankan bisnis dari satu tempat.{% endblock %}</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;850;900&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/__bc_shared_design_v1/v2/site.css">
+  <link rel="stylesheet" href="/static/css/support_ai_widget.css">
+  <style>
+    /* Platform Global Canonical Tokens */
+    :root {
+      --bc-white: #FFFFFF;
+      --bc-gray: #F6F7FB;
+      --bc-navy: #0B1020;
+      --bc-dark-2: #111a33;
+      --bc-ink: #101828;
+      --bc-muted: #667085;
+      --bc-muted2: #98a2b3;
+      --bc-border: #E7E9F2;
+      --bc-indigo: #5B5FEF;
+      --bc-indigo-soft: #EEF0FF;
+      --bc-indigo-hover: #4a4edb;
+      --bc-ok: #22C55E;
+      --bc-ok-soft: #e8f9ef;
+      --bc-warn: #F59E0B;
+      --bc-warn-soft: #fff6e0;
+      --bc-err: #EF4444;
+      --bc-err-soft: #fee2e2;
+      --radius-lg: 24px;
+      --radius-md: 20px;
+      --radius-sm: 14px;
+    }
+    body {
+      background-color: var(--bc-gray);
+      color: var(--bc-ink);
+      font-family: Inter, ui-sans-serif, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      -webkit-font-smoothing: antialiased;
+      margin: 0;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+    }
+    main { flex: 1; }
+    
+    /* Topbar */
+    header.bc-topbar {
+      position: sticky;
+      top: 0;
+      z-index: 50;
+      border-bottom: 1px solid var(--bc-border);
+      background: rgba(255, 255, 255, 0.94);
+      backdrop-filter: blur(16px);
+      height: 72px;
+      display: flex;
+      align-items: center;
+    }
+    .bc-topbar-wrap {
+      width: min(calc(100% - 48px), 1240px);
+      margin: 0 auto;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 24px;
+    }
+    .bc-brand {
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+      text-decoration: none;
+      color: var(--bc-ink);
+      font-size: 16px;
+      font-weight: 850;
+      letter-spacing: -0.03em;
+    }
+    .bc-brand .bc-plug {
+      width: 32px;
+      height: 32px;
+      border-radius: 9px;
+      background: var(--bc-navy);
+      color: #fff;
+      display: grid;
+      place-items: center;
+      font-size: 12px;
+      font-weight: 850;
+    }
+    .bc-nav-links {
+      display: flex;
+      align-items: center;
+      gap: 28px;
+      font-size: 14px;
+      font-weight: 650;
+      color: #475467;
+    }
+    .bc-nav-links a { text-decoration: none; color: inherit; transition: 0.15s; }
+    .bc-nav-links a:hover { color: var(--bc-indigo); }
+    .bc-nav-links a.active { color: var(--bc-indigo); font-weight: 750; }
+    
+    .bc-top-actions {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+    .bc-btn {
+      min-height: 42px;
+      padding: 0 18px;
+      border-radius: 11px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      font-size: 13.5px;
+      font-weight: 750;
+      border: 1px solid transparent;
+      cursor: pointer;
+      transition: 0.18s ease;
+      text-decoration: none;
+    }
+    .bc-btn.primary {
+      color: #fff;
+      background: var(--bc-indigo);
+      box-shadow: 0 6px 16px rgba(91, 95, 239, 0.22);
+    }
+    .bc-btn.primary:hover {
+      background: var(--bc-indigo-hover);
+      transform: translateY(-1px);
+      box-shadow: 0 8px 22px rgba(91, 95, 239, 0.32);
+    }
+    .bc-btn.line {
+      color: #344054;
+      background: #fff;
+      border-color: var(--bc-border);
+    }
+    .bc-btn.line:hover {
+      border-color: #b9bdcb;
+      background: #fafafa;
+    }
+    
+    /* Footer */
+    footer.bc-footer {
+      background: #FFFFFF;
+      border-top: 1px solid var(--bc-border);
+      padding: 56px 0 40px;
+      margin-top: auto;
+    }
+    .bc-footer-wrap {
+      width: min(calc(100% - 48px), 1240px);
+      margin: 0 auto;
+    }
+    .bc-footer-grid {
+      display: grid;
+      grid-template-columns: 1.5fr 1fr 1fr 1fr;
+      gap: 40px;
+      margin-bottom: 48px;
+    }
+    .bc-footer-col h4 {
+      font-size: 11px;
+      font-weight: 800;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: var(--bc-muted2);
+      margin: 0 0 16px;
+    }
+    .bc-footer-links {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+      font-size: 13.5px;
+      font-weight: 600;
+      color: #475467;
+    }
+    .bc-footer-links a { text-decoration: none; color: inherit; transition: 0.15s; }
+    .bc-footer-links a:hover { color: var(--bc-indigo); }
+    .bc-footer-bottom {
+      border-top: 1px solid var(--bc-border);
+      padding-top: 28px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 16px;
+      font-size: 12px;
+      color: var(--bc-muted);
+    }
+    
+    @media(max-width: 860px) {
+      .bc-nav-links { display: none; }
+      .bc-footer-grid { grid-template-columns: 1fr 1fr; }
+    }
+    @media(max-width: 600px) {
+      .bc-top-actions .bc-btn.line:not([title="Keluar"]) { display: none; }
+      .bc-btn { min-height: 36px; padding: 0 12px; font-size: 12.5px; }
+      .bc-topbar-wrap { padding: 0 14px; }
+    }
+    @media(max-width: 540px) {
+      .bc-footer-grid { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+  <header class="bc-topbar">
+    <div class="bc-topbar-wrap">
+      <a class="bc-brand" href="/">
+        <div class="bc-plug">BC</div>
+        <span>BotConnector</span>
+      </a>
+
+      <nav class="bc-nav-links">
+        <a href="/products">Produk</a>
+        <a href="/bisnis/">Business Suite</a>
+        <a href="/connect-v2">Connect</a>
+        <a href="/docs">Panduan</a>
+        <a href="/status">Status</a>
+        <a href="/support">Bantuan</a>
+      </nav>
+
+      <div class="bc-top-actions">
+        {% if user %}
+          {% if is_platform_admin %}<a class="bc-btn line" href="/admin/staging" style="font-size:12px;min-height:36px;padding:0 12px">Admin</a>{% endif %}
+          <a class="bc-btn line" href="/my-products">Produk Saya</a>
+          <a class="bc-btn primary" href="/bisnis/">Buka Bisnis &rarr;</a>
+          <a class="bc-btn line" href="/logout" style="font-size:12px;min-height:36px;padding:0 10px" title="Keluar"><svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2.2" style="display:block"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4M16 17l5-5-5-5M21 12H9"/></svg></a>
+        {% else %}
+          <a class="bc-btn line" href="/login">Masuk</a>
+          <a class="bc-btn primary" href="/register">Mulai Gratis &rarr;</a>
+        {% endif %}
+      </div>
+    </div>
+  </header>
+
+  <main>{% block content %}{% endblock %}</main>
+
+  <footer class="bc-footer">
+    <div class="bc-footer-wrap">
+      <div class="bc-footer-grid">
+        <div class="bc-footer-col">
+          <a class="bc-brand" href="/" style="margin-bottom:14px">
+            <div class="bc-plug">BC</div>
+            <span>BotConnector</span>
+          </a>
+          <p style="font-size:13.5px;color:var(--bc-muted);line-height:1.6;margin:0;max-width:280px">
+            Platform pusat operasional retail, POS kasir, manajemen multi-cabang, dan otomatisasi bisnis terhubung.
+          </p>
+        </div>
+        <div class="bc-footer-col">
+          <h4>Produk</h4>
+          <div class="bc-footer-links">
+            <a href="/bisnis/">Business Suite</a>
+            <a href="/connect-v2">BotConnector Connect</a>
+            <a href="/drive">My Drive</a>
+            <a href="/products">Semua Solusi</a>
+          </div>
+        </div>
+        <div class="bc-footer-col">
+          <h4>Dukungan &amp; Sistem</h4>
+          <div class="bc-footer-links">
+            <a href="/docs">Panduan &amp; Dokumentasi</a>
+            <a href="/support">Pusat Bantuan</a>
+            <a href="/status">Status Layanan</a>
+            <a href="/integrations">Integrasi Sistem</a>
+          </div>
+        </div>
+        <div class="bc-footer-col">
+          <h4>Legal &amp; Keamanan</h4>
+          <div class="bc-footer-links">
+            <a href="/privacy">Kebijakan Privasi</a>
+            <a href="/terms">Ketentuan Layanan</a>
+            <a href="/security">Keamanan Platform</a>
+          </div>
+        </div>
+      </div>
+      <div class="bc-footer-bottom">
+        <div>&copy; 2026 BotConnector. Hak cipta dilindungi undang-undang.</div>
+        <div style="display:flex;gap:16px">
+          <a href="/privacy" style="color:inherit;text-decoration:none">Privasi</a>
+          <a href="/terms" style="color:inherit;text-decoration:none">Ketentuan</a>
+          <a href="/security" style="color:inherit;text-decoration:none">Keamanan</a>
+          <a href="/support" style="color:inherit;text-decoration:none">Bantuan</a>
+        </div>
+      </div>
+    </div>
+  </footer>
+  <script src="/static/js/support_ai_widget.js" defer></script>
+</body>
+</html>
+

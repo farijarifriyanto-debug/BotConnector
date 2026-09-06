@@ -382,3 +382,135 @@ REAL_E2E_PROVEN=NO (not exercised — this is an internal admin tool, not someth
 STATUS=LIVE (container healthy at audit time)
 PUBLIC_READY=N/A — this is not a customer-facing product-page capability, it's how the business licenses restaurant sellers internally; it should not appear as a public feature card at all
 RECOMMENDATION=KEEP, but make sure nothing on the public site conflates this with the Restaurant POS capability (see naming collision note, CURRENT-STATE.md)
+
+---
+
+## Homepage Runtime (apps/homepage-runtime, imported 2026-09-06)
+
+Runtime existence does not imply public readiness — each row below is
+classified on its own evidence, not on "the route exists so it must be
+fine."
+
+CAPABILITY=Authentication (login, register, session)
+PRODUCT_AREA=Homepage Runtime
+UI_EXISTS=YES
+API_EXISTS=YES (`/login`, `/register`, `/logout`, `/api/auth/check`)
+DATA_MODEL_EXISTS=YES (Postgres users table, implied by route bodies)
+WRITE_PATH=YES
+READ_PATH=YES
+LIVE_RUNTIME=botconnector-platform-home (Docker, port 8020) — this is the platform's actual, currently-serving auth system
+EXTERNAL_PROVIDER=none
+PROVIDER_READY=N/A
+REAL_E2E_PROVEN=PARTIAL — proven to LOAD (GET routes return 200) against an isolated instance; a real login was not exercised against production, and this session deliberately did not submit any live form
+STATUS=LIVE (this is real production traffic today, not a candidate)
+PUBLIC_READY=YES
+RECOMMENDATION=KEEP
+
+CAPABILITY=Product catalog
+PRODUCT_AREA=Homepage Runtime
+UI_EXISTS=YES
+API_EXISTS=YES (`/products`, `/api/products`, `/api/public-products`)
+DATA_MODEL_EXISTS=YES (Postgres)
+WRITE_PATH=UNKNOWN (admin-side product management not traced)
+READ_PATH=YES — confirmed to render cleanly even against an empty ephemeral database in this session's isolated proof
+LIVE_RUNTIME=botconnector-platform-home
+EXTERNAL_PROVIDER=none
+PROVIDER_READY=N/A
+REAL_E2E_PROVEN=PARTIAL (load-tested in isolation, not against real data)
+STATUS=LIVE
+PUBLIC_READY=YES
+RECOMMENDATION=KEEP
+
+CAPABILITY=Application gateway (`/app/{slug}/...` → Business Suite, Parking, etc.)
+PRODUCT_AREA=Homepage Runtime
+UI_EXISTS=YES
+API_EXISTS=YES
+DATA_MODEL_EXISTS=YES (session + proxy routing table in `core_bridge.py`)
+WRITE_PATH=YES (proxied writes reach the real backend products)
+READ_PATH=YES
+LIVE_RUNTIME=botconnector-platform-home
+EXTERNAL_PROVIDER=none (internal platform routing, not a third party)
+PROVIDER_READY=N/A
+REAL_E2E_PROVEN=PARTIAL — confirmed the auth gate itself works correctly (unauthenticated `GET /app` → 303 redirect to `/login`, proven this session); the full authenticated proxy hop to Business Suite/Parking was not exercised
+STATUS=LIVE — this is how real customers reach Business Suite/Parking through the homepage today
+PUBLIC_READY=YES
+RECOMMENDATION=KEEP — this is core platform plumbing, not a marketing feature; do not let a future public-site redesign accidentally drop this gateway
+
+CAPABILITY=Support ticketing
+PRODUCT_AREA=Homepage Runtime
+UI_EXISTS=YES
+API_EXISTS=YES (`/support`, `/support/tickets`, `/api/support/tickets*`)
+DATA_MODEL_EXISTS=YES (Postgres tickets table)
+WRITE_PATH=YES
+READ_PATH=YES
+LIVE_RUNTIME=botconnector-platform-home
+EXTERNAL_PROVIDER=none direct; SMTP is used for notification (see EXTERNAL-PROVIDERS.md note below)
+PROVIDER_READY=N/A
+REAL_E2E_PROVEN=PARTIAL (GET route loaded in isolation; ticket creation not exercised against real data)
+STATUS=LIVE
+PUBLIC_READY=YES
+RECOMMENDATION=KEEP
+NOTES=Redis-backed rate limiting fails open (allows the request) if Redis is unreachable — a deliberate, safe degradation, not a bug.
+
+CAPABILITY=Health/status API
+PRODUCT_AREA=Homepage Runtime
+UI_EXISTS=NO (API only)
+API_EXISTS=YES (`/health`, `/api/health`, `/api/status`)
+DATA_MODEL_EXISTS=NO
+WRITE_PATH=NO
+READ_PATH=YES
+LIVE_RUNTIME=botconnector-platform-home
+REAL_E2E_PROVEN=YES (confirmed stateless, returns a clean JSON payload with zero DB dependency — verified in this session's isolated proof)
+STATUS=LIVE
+PUBLIC_READY=N/A (operational endpoint, not a customer feature)
+RECOMMENDATION=KEEP
+
+CAPABILITY=Drive sharing/preview suite
+PRODUCT_AREA=Homepage Runtime
+UI_EXISTS=YES (10 templates, dedicated CSS/JS)
+API_EXISTS=YES (GET/PUT/POST/DELETE across ~7 modules)
+DATA_MODEL_EXISTS=UNKNOWN
+WRITE_PATH=UNKNOWN
+READ_PATH=UNKNOWN
+LIVE_RUNTIME=botconnector-platform-home
+EXTERNAL_PROVIDER=possibly `apps/drive`'s storage API, or a separate unidentified backend — see the Duplication Check in HOMEPAGE-CONVERGENCE.md
+PROVIDER_READY=UNKNOWN
+REAL_E2E_PROVEN=NO
+STATUS=UNKNOWN — genuinely unresolved, not rounded to LIVE or LEGACY
+PUBLIC_READY=UNKNOWN
+RECOMMENDATION=FINISH the backend-identification investigation before making any public claim about this either way
+
+CAPABILITY=SmartBiz dashboard/operations/AI studio
+PRODUCT_AREA=Homepage Runtime
+UI_EXISTS=YES (4 templates + 3 modules)
+API_EXISTS=UNKNOWN (routes not individually itemized this pass)
+DATA_MODEL_EXISTS=UNKNOWN
+WRITE_PATH=UNKNOWN
+READ_PATH=UNKNOWN
+LIVE_RUNTIME=botconnector-platform-home
+REAL_E2E_PROVEN=NO
+STATUS=UNKNOWN
+PUBLIC_READY=UNKNOWN
+RECOMMENDATION=FINISH — needs its own dedicated audit; possible overlap with Business Suite not checked
+
+CAPABILITY=AI support widget
+PRODUCT_AREA=Homepage Runtime
+UI_EXISTS=YES
+API_EXISTS=UNKNOWN
+DATA_MODEL_EXISTS=UNKNOWN
+LIVE_RUNTIME=botconnector-platform-home
+EXTERNAL_PROVIDER=possibly the excluded internal AI cluster (ai-console/ai-tool-platform/etc.) — not confirmed
+REAL_E2E_PROVEN=NO
+STATUS=UNKNOWN
+PUBLIC_READY=UNKNOWN
+RECOMMENDATION=FINISH — if this calls the excluded AI cluster, its public status is tied to that exclusion decision, not this audit
+
+CAPABILITY=Visual builder tools
+PRODUCT_AREA=Homepage Runtime
+UI_EXISTS=UNKNOWN
+API_EXISTS=UNKNOWN
+LIVE_RUNTIME=botconnector-platform-home
+REAL_E2E_PROVEN=NO
+STATUS=UNKNOWN
+PUBLIC_READY=UNKNOWN
+RECOMMENDATION=FINISH — not traced beyond file presence (`visual_wizard.py`, `visual_composer.py`, `creator_visual.py`)

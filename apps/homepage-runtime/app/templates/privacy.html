@@ -1,0 +1,247 @@
+{% extends "base.html" %}
+{% block title %}Kebijakan Privasi Platform — BotConnector{% endblock %}
+{% block content %}
+<style>
+  .platform-doc{background:#F6F7FB;min-height:calc(100vh - 120px);padding:48px 0 80px}
+  .platform-doc-shell{width:min(1080px,calc(100% - 48px));margin:0 auto}
+  .platform-doc-hero{margin-bottom:30px}
+  .platform-doc-kicker{font-size:11px;font-weight:800;letter-spacing:.12em;color:#5B5FEF;text-transform:uppercase;margin-bottom:8px}
+  .platform-doc h1{font-size:36px;line-height:1.12;font-weight:850;color:#101828;margin:0 0 10px;letter-spacing:-.04em}
+  .platform-doc-lead{font-size:16px;color:#667085;line-height:1.65;margin:0;max-width:760px}
+  .platform-doc-meta{margin-top:12px;font-size:12px;color:#98A2B3}
+  .platform-doc-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:20px}
+  .platform-doc-section{background:#FFF;border:1px solid #E7E9F2;border-radius:20px;padding:28px;box-shadow:0 8px 24px rgba(11,16,32,.035)}
+  .platform-doc-section.wide{grid-column:1/-1}
+  .platform-doc-section h2{font-size:18px;line-height:1.3;font-weight:850;color:#101828;margin:0 0 18px;letter-spacing:-.025em}
+  .platform-doc-section h3{font-size:14px;line-height:1.4;font-weight:800;color:#344054;margin:22px 0 8px}
+  .platform-doc-section h3:first-of-type{margin-top:0}
+  .platform-doc-section p,.platform-doc-section li{font-size:14px;color:#475467;line-height:1.72}
+  .platform-doc-section p{margin:0 0 12px}
+  .platform-doc-section p:last-child{margin-bottom:0}
+  .platform-doc-section ul{margin:0;padding-left:20px;display:flex;flex-direction:column;gap:7px}
+  .platform-doc-section li strong{color:#344054}
+  .platform-doc-section a{color:#5B5FEF;text-decoration:none;font-weight:750}
+  .platform-doc-section a:hover{text-decoration:underline}
+  .platform-doc-note{background:#EEF0FF;border-color:#DDE1FF}
+  .platform-doc-code{background:#F6F7FB;padding:2px 6px;border-radius:6px;border:1px solid #E7E9F2;font-size:12px}
+  @media(max-width:700px){.platform-doc{padding:32px 0 56px}.platform-doc-shell{width:min(100% - 28px,1080px)}.platform-doc h1{font-size:30px}.platform-doc-grid{grid-template-columns:1fr}.platform-doc-section.wide{grid-column:auto}.platform-doc-section{padding:22px}}
+</style>
+
+<main class="platform-doc">
+  <div class="platform-doc-shell">
+    <header class="platform-doc-hero">
+      <div class="platform-doc-kicker">Kebijakan Privasi Platform</div>
+      <h1>Kebijakan Privasi Platform</h1>
+      <p class="platform-doc-lead">Bagaimana BotConnector mengelola data akun, operasional bisnis, file, dan integrasi yang Anda gunakan di dalam platform.</p>
+      <div class="platform-doc-meta">Terakhir diperbarui: 29 Agustus 2026</div>
+    </header>
+
+    <div class="platform-doc-grid">
+      <section class="platform-doc-section wide">
+        <h2>01 Data &amp; Ruang Lingkup</h2>
+        <h3>Ruang lingkup kebijakan</h3>
+        <p>Kebijakan Privasi ini menjelaskan bagaimana BotConnector memperoleh, menggunakan, menyimpan, melindungi, dan mengelola data ketika Anda menggunakan platform BotConnector.</p>
+        <p>Kebijakan ini berlaku untuk layanan platform utama BotConnector, termasuk akun BotConnector, Business Suite, My Drive, integrasi Telegram, serta layanan platform lain yang tersedia melalui akun Anda.</p>
+        <p>BotConnector Connect merupakan produk khusus di dalam ekosistem BotConnector dan memiliki informasi privasi tambahan untuk pemrosesan yang berkaitan dengan TradingView, MetaTrader, webhook, dan fungsi Connect lainnya. Informasi tersebut tersedia pada <a href="/connect-v2/privacy">halaman Privasi BotConnector Connect</a>.</p>
+
+        <h3>Data akun dan identitas</h3>
+        <p>BotConnector dapat mengelola informasi yang diperlukan untuk membuat, mengamankan, dan mengoperasikan akun, seperti:</p>
+        <ul>
+          <li>nama atau nama tampilan;</li>
+          <li>alamat email;</li>
+          <li>pengenal akun internal;</li>
+          <li>informasi sesi dan autentikasi;</li>
+          <li>status produk atau hak akses;</li>
+          <li>keanggotaan dan peran dalam bisnis.</li>
+        </ul>
+        <p>BotConnector tidak meminta pengguna memberikan informasi yang tidak diperlukan untuk menjalankan layanan yang digunakan.</p>
+      </section>
+
+      <section class="platform-doc-section">
+        <h2>02 Business Suite</h2>
+        <h3>Data Business Suite</h3>
+        <p>Jika Anda menggunakan Business Suite, platform dapat menyimpan dan memproses data operasional yang Anda atau anggota bisnis Anda masukkan atau hasilkan, antara lain:</p>
+        <ul>
+          <li>profil bisnis;</li>
+          <li>cabang dan lokasi operasional;</li>
+          <li>anggota bisnis dan perannya;</li>
+          <li>katalog produk dan harga;</li>
+          <li>data stok dan inventori;</li>
+          <li>gudang dan perpindahan stok;</li>
+          <li>transaksi penjualan;</li>
+          <li>pesanan;</li>
+          <li>data restoran;</li>
+          <li>menu dan KOT;</li>
+          <li>data pelanggan atau pemasok yang dimasukkan oleh bisnis;</li>
+          <li>laporan dan catatan operasional lainnya.</li>
+        </ul>
+        <p>Data tersebut dipisahkan berdasarkan konteks bisnis dan hanya dapat diakses oleh akun yang memiliki kewenangan sesuai keanggotaan dan perannya.</p>
+      </section>
+
+      <section class="platform-doc-section">
+        <h2>03 My Drive &amp; Telegram</h2>
+        <h3>Data My Drive</h3>
+        <p>Jika Anda menggunakan My Drive, BotConnector dapat mengelola:</p>
+        <ul>
+          <li>file yang Anda unggah;</li>
+          <li>nama dan metadata file;</li>
+          <li>informasi pemilik atau akses;</li>
+          <li>waktu unggah atau perubahan;</li>
+          <li>metadata yang diperlukan untuk penyimpanan dan pengelolaan file.</li>
+        </ul>
+        <p>Isi file tetap merupakan data yang Anda atau bisnis Anda berikan kepada layanan.</p>
+
+        <h3>Data integrasi Telegram</h3>
+        <p>Jika Anda mengaktifkan integrasi Telegram, BotConnector dapat memproses data yang diperlukan agar integrasi bekerja, seperti:</p>
+        <ul>
+          <li>Telegram user ID atau chat ID;</li>
+          <li>informasi bot;</li>
+          <li>nama tampilan bot;</li>
+          <li>grup atau tujuan notifikasi;</li>
+          <li>cabang atau konteks bisnis tujuan;</li>
+          <li>pilihan aturan notifikasi;</li>
+          <li>status koneksi dan pairing.</li>
+        </ul>
+        <p>Jika Anda menggunakan bot Telegram milik bisnis sendiri melalui BotFather, credential bot diproses oleh backend untuk menjalankan integrasi dan tidak ditampilkan kembali secara penuh setelah disimpan.</p>
+      </section>
+
+      <section class="platform-doc-section">
+        <h2>04 Tujuan &amp; Prinsip</h2>
+        <h3>Data teknis dan keamanan</h3>
+        <p>Untuk mengoperasikan dan melindungi layanan, BotConnector dapat mencatat informasi teknis yang relevan, seperti:</p>
+        <ul>
+          <li>waktu akses;</li>
+          <li>kejadian autentikasi;</li>
+          <li>aktivitas layanan;</li>
+          <li>jenis permintaan;</li>
+          <li>status keberhasilan atau kegagalan;</li>
+          <li>informasi diagnostik;</li>
+          <li>kejadian keamanan;</li>
+          <li>metadata perangkat atau browser yang diperlukan untuk pengoperasian dan keamanan.</li>
+        </ul>
+        <p>Informasi rahasia seperti password, token sesi lengkap, atau credential integrasi tidak dimaksudkan untuk dicatat sebagai isi log aplikasi biasa.</p>
+
+        <h3>Tujuan penggunaan data</h3>
+        <p>BotConnector memproses data sesuai dengan fungsi layanan yang digunakan. Tujuan tersebut dapat mencakup:</p>
+        <ul>
+          <li>membuat dan mengelola akun;</li>
+          <li>melakukan autentikasi dan menjaga sesi pengguna;</li>
+          <li>menentukan produk dan fitur yang dapat diakses;</li>
+          <li>menjalankan Business Suite;</li>
+          <li>memisahkan data antar-bisnis;</li>
+          <li>mengelola cabang, produk, stok, transaksi, pesanan, dan laporan;</li>
+          <li>menyimpan dan menyediakan file melalui My Drive;</li>
+          <li>menjalankan integrasi Telegram dan integrasi lain yang diaktifkan pengguna;</li>
+          <li>menyediakan notifikasi operasional;</li>
+          <li>menangani dukungan dan pemecahan masalah;</li>
+          <li>menjaga keamanan dan mencegah penyalahgunaan;</li>
+          <li>memelihara ketersediaan dan keandalan layanan;</li>
+          <li>memenuhi kewajiban hukum yang berlaku.</li>
+        </ul>
+        <p>BotConnector tidak menggunakan data operasional suatu bisnis untuk memberikan akses kepada bisnis lain.</p>
+
+        <h3>Dasar dan prinsip pemrosesan</h3>
+        <p>BotConnector mengelola data hanya apabila terdapat dasar yang sesuai dengan jenis pemrosesan dan layanan yang digunakan. Dasar tersebut dapat mencakup, sesuai keadaan:</p>
+        <ul>
+          <li>persetujuan pengguna;</li>
+          <li>kebutuhan untuk memberikan layanan yang diminta pengguna;</li>
+          <li>pelaksanaan hubungan layanan atau kontraktual;</li>
+          <li>kewajiban hukum;</li>
+          <li>kepentingan yang sah untuk menjaga keamanan, keandalan, dan pengoperasian layanan sepanjang tidak mengesampingkan hak pengguna.</li>
+        </ul>
+        <p>BotConnector berupaya menjalankan pemrosesan secara terbatas, spesifik, transparan, relevan dengan tujuan layanan, serta dengan memperhatikan hak pengguna atas Data Pribadi.</p>
+      </section>
+
+      <section class="platform-doc-section">
+        <h2>05 Business Access</h2>
+        <h3>Akses dalam Business Suite</h3>
+        <p>Business Suite menggunakan model akses berdasarkan bisnis dan peran.</p>
+        <p>Hak akses dapat berbeda antara Owner, Admin, Manager, Cashier, dan Staff sesuai konfigurasi dan fungsi yang tersedia.</p>
+        <p>Memiliki akun BotConnector tidak otomatis memberikan akses kepada seluruh bisnis atau seluruh data dalam Business Suite. Akses terhadap resource bisnis diperiksa berdasarkan konteks bisnis dan otorisasi pengguna.</p>
+
+        <h3>Isolasi konteks bisnis</h3>
+        <p>Data Business Suite diproses dalam konteks bisnis yang sesuai. BotConnector tidak mencampuradukkan atau membagikan data operasional satu bisnis kepada pengguna bisnis lain.</p>
+      </section>
+
+      <section class="platform-doc-section">
+        <h2>06 Integrasi &amp; Connect</h2>
+        <h3>Integrasi pihak ketiga</h3>
+        <p>BotConnector dapat menyediakan integrasi dengan layanan pihak ketiga, misalnya Telegram atau layanan lain yang secara sengaja diaktifkan oleh pengguna.</p>
+        <p>Ketika integrasi diaktifkan, data yang relevan dapat dikirim atau diterima sejauh diperlukan untuk menjalankan fungsi integrasi tersebut.</p>
+        <p>Layanan pihak ketiga memiliki kebijakan, ketentuan, dan sistem mereka sendiri. BotConnector tidak mengendalikan praktik privasi layanan pihak ketiga.</p>
+        <p>Pengguna bertanggung jawab menjaga credential yang diterbitkan oleh layanan pihak ketiga, termasuk token BotFather, API key, atau credential lainnya yang digunakan untuk integrasi.</p>
+
+        <h3>BotConnector Connect</h3>
+        <p>BotConnector Connect memiliki fungsi dan alur data yang berbeda dari Business Suite dan layanan platform utama lainnya.</p>
+        <p>Pemrosesan yang secara khusus berkaitan dengan TradingView, MetaTrader, webhook, EA, terminal, dan eksekusi melalui BotConnector Connect dijelaskan lebih lanjut pada <a href="/connect-v2/privacy">Privasi BotConnector Connect</a>.</p>
+        <p>Ketentuan pada dokumen khusus tersebut berlaku untuk konteks Connect dan tidak menggantikan Kebijakan Privasi Platform ini untuk layanan platform lainnya.</p>
+      </section>
+
+      <section class="platform-doc-section">
+        <h2>07 Retensi &amp; Keamanan</h2>
+        <h3>Penyimpanan dan retensi</h3>
+        <p>BotConnector menyimpan data selama masih diperlukan untuk:</p>
+        <ul>
+          <li>menyediakan layanan yang digunakan;</li>
+          <li>mempertahankan akun atau hubungan layanan;</li>
+          <li>menjaga integritas dan keamanan sistem;</li>
+          <li>menyelesaikan kewajiban operasional;</li>
+          <li>memenuhi kewajiban hukum yang berlaku.</li>
+        </ul>
+        <p>Jenis data yang berbeda dapat memiliki kebutuhan retensi yang berbeda. BotConnector tidak menyatakan jangka waktu penghapusan tetap untuk semua kategori data apabila kebijakan atau mekanisme tersebut belum ditetapkan secara khusus.</p>
+        <p>Apabila data tidak lagi diperlukan, penghapusan, pemusnahan, atau anonimisasi dapat dilakukan sesuai kebutuhan operasional dan ketentuan yang berlaku.</p>
+
+        <h3>Keamanan data</h3>
+        <p>BotConnector menggunakan langkah teknis dan organisasi yang ditujukan untuk mengurangi risiko akses, penggunaan, perubahan, atau pengungkapan yang tidak sah.</p>
+        <p>Bergantung pada komponen layanan, langkah tersebut dapat mencakup:</p>
+        <ul>
+          <li>komunikasi HTTPS/TLS;</li>
+          <li>autentikasi akun;</li>
+          <li>pengelolaan sesi server-side;</li>
+          <li>otorisasi berdasarkan pengguna, bisnis, dan peran;</li>
+          <li>isolasi tenant Business Suite;</li>
+          <li>pembatasan akses credential;</li>
+          <li>enkripsi credential sensitif saat disimpan pada komponen yang menerapkannya;</li>
+          <li>validasi webhook;</li>
+          <li>perlindungan terhadap kebocoran secret melalui log;</li>
+          <li>pencatatan dan pemantauan kejadian operasional atau keamanan.</li>
+        </ul>
+        <p>Tidak ada sistem elektronik yang dapat dijamin bebas dari seluruh risiko. BotConnector terus mengembangkan pengamanan sesuai kebutuhan layanan.</p>
+      </section>
+
+      <section class="platform-doc-section">
+        <h2>08 Hak Pengguna</h2>
+        <h3>Hak pengguna atas Data Pribadi</h3>
+        <p>Sesuai ketentuan hukum yang berlaku dan konteks pemrosesan, pengguna dapat memiliki hak untuk:</p>
+        <ul>
+          <li>memperoleh informasi mengenai pemrosesan Data Pribadi;</li>
+          <li>mengakses Data Pribadi mengenai dirinya;</li>
+          <li>meminta perbaikan atau pembaruan data yang tidak akurat;</li>
+          <li>meminta penghentian, penghapusan, atau pemusnahan data dalam keadaan yang diperbolehkan hukum;</li>
+          <li>menarik persetujuan apabila pemrosesan didasarkan pada persetujuan;</li>
+          <li>meminta pembatasan pemrosesan dalam keadaan yang berlaku;</li>
+          <li>memperoleh atau memindahkan Data Pribadi dalam kondisi yang diatur hukum;</li>
+          <li>mengajukan keberatan terhadap pemrosesan tertentu yang sepenuhnya otomatis apabila ketentuan tersebut berlaku.</li>
+        </ul>
+        <p>Pelaksanaan hak dapat bergantung pada identifikasi pemohon, hubungan akun atau bisnis, kewajiban hukum, keamanan, serta pengecualian yang diperbolehkan peraturan.</p>
+        <p>Permintaan dapat diajukan melalui kanal dukungan resmi yang tersedia di platform BotConnector.</p>
+
+        <h3>Data milik bisnis</h3>
+        <p>Pengguna dan bisnis bertanggung jawab memastikan bahwa data yang mereka masukkan ke BotConnector diperoleh dan digunakan secara sah.</p>
+        <p>Apabila bisnis memasukkan Data Pribadi pelanggan, karyawan, pemasok, atau pihak lain ke dalam Business Suite, bisnis bertanggung jawab memastikan bahwa penggunaan data tersebut memiliki dasar dan tujuan yang sesuai.</p>
+        <p>BotConnector menyediakan sarana teknis untuk mengelola informasi tersebut sesuai fungsi layanan.</p>
+      </section>
+
+      <section class="platform-doc-section wide">
+        <h2>09 Perubahan &amp; Kontak</h2>
+        <h3>Perubahan kebijakan</h3>
+        <p>Kebijakan Privasi dapat diperbarui apabila layanan berubah, fitur baru ditambahkan, praktik pengelolaan data berubah, atau terdapat perubahan kewajiban hukum.</p>
+        <p>Versi terbaru akan tersedia melalui halaman ini. Perubahan penting dapat diberitahukan melalui platform atau sarana lain yang wajar apabila diperlukan.</p>
+
+        <h3>Kontak dan pertanyaan</h3>
+        <p>Pertanyaan, permintaan terkait Data Pribadi, atau laporan mengenai Kebijakan Privasi dapat disampaikan melalui <a href="/support?category=PRIVACY_REQUEST">Pusat Bantuan BotConnector</a>.</p>
+      </section>
+    </div>
+  </div>
+</main>
+{% endblock %}

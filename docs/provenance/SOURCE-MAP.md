@@ -4,9 +4,17 @@ Generated during Phase 2–4 of the BotConnector Platform consolidation
 (2026-09-06). Read-only investigation against live systemd units, nginx
 config, and on-disk layout — no runtime was modified to produce this.
 
-**COMPONENTS_TOTAL=20** (current, authoritative — grew from the original
+**COMPONENTS_TOTAL=21** (current, authoritative — grew from the original
 19-component skeleton after `apps/integrasi` was identified as a distinct
-live deployable; see the business-suite/integrasi entries below).
+live deployable (→20), then again after `apps/homepage-runtime` was
+identified and imported 2026-09-06 (→21); see the business-suite/integrasi
+and homepage-runtime entries below).
+
+```
+COMPONENTS_TOTAL=21
+DEPLOYABLE_COMPONENTS_TOTAL=20 (packages/shared-design remains the one non-deployable static asset package)
+NON_DEPLOYABLE_COMPONENTS=1 (packages/shared-design)
+```
 
 Format per component:
 
@@ -35,14 +43,20 @@ NOTES=Classified FUTURE_CANONICAL_SOURCE per explicit user decision — that cla
 
 ---
 
-COMPONENT=homepage-runtime (NEW — identified 2026-09-06, not yet imported into the canonical repo)
+COMPONENT=apps/homepage-runtime (IMPORTED 2026-09-06)
 ORIGINAL_SOURCE=/opt/botconnector-platform-starter-v0.3/homepage
 RESOLVED_SOURCE=/opt/botconnector-platform-starter-v0.3/homepage/app (the package actually running in the live container)
-CANONICAL_TARGET=NOT YET ASSIGNED — proposed `apps/homepage-runtime/` per HOMEPAGE-CONVERGENCE.md Section 7; import not performed this pass
+CANONICAL_TARGET=apps/homepage-runtime/ (imported via COPY, canonical source only — old source never moved, never modified)
 LIVE_RUNTIME=Docker container `botconnector-platform-home`, image `botconnector-platform-home:tenantization-v1-20260828`, uvicorn `app.main:app`, port 127.0.0.1:8020
 LIVE_ROUTE=botconnector.id apex (`location /` in nginx), plus `/products`, `/login`, `/register`, `/support`, `/docs`, `/status`, `/app/{slug}/...` (application gateway to business-suite/parking/webhook-connector/langkah/business-automation/personal-automation/monitor-resolve, per `core_bridge.py`'s routing table), and more — see HOMEPAGE-CONVERGENCE.md for the full route inventory
 PROVENANCE_CONFIDENCE=HIGH — hash-verified: all 94 files under the source's `app/` directory match the live image's `/app/app` contents byte-for-byte (SHA256), captured via a throwaway `docker run --rm` inspection, the live container itself untouched
-NOTES=This is real, load-bearing platform infrastructure: session/auth issuance (`bc_session` cookie — the same cookie name used elsewhere in the platform), Postgres and Redis backed, and the actual gateway customers go through to reach Business Suite/Parking/etc. It is explicitly classified `ACTIVE_LIVE_SOURCE_PENDING_CONVERGENCE`, not a delete candidate, not yet imported. Two open questions before import: whether its Drive-sharing suite overlaps with `apps/drive`, and whether its SmartBiz/AI-widget modules overlap with Business Suite or the excluded internal AI cluster.
+SOURCE_DELIVERY_MODE=baked into the Docker image at build time (not a live bind-mount)
+ENTRYPOINT=app/main.py (`uvicorn app.main:app`)
+DOCKERFILE=apps/homepage-runtime/Dockerfile (identical to the live source's Dockerfile — `python:3.12-slim`, copies `requirements.txt`, `app/`, `tests/`)
+COMPOSE_FILE=apps/homepage-runtime/docker-compose.yml (production reference — mounts `/etc/botconnector/credentials/{homepage-db-password,redis-password}` read-only to `/run/secrets/*`, plus `/var/lib/botconnector-platform` and two external networks; NOT used for this session's isolated proof, which used plain `docker run` with ephemeral Postgres/Redis instead)
+DEPENDENCY_MANIFEST=apps/homepage-runtime/requirements.txt (pre-existing, direct/intent, already near-exact pins) + apps/homepage-runtime/requirements.lock.txt (new, exact pins captured from the live image: Python 3.12.13)
+NOTES=Real, load-bearing platform infrastructure: session/auth issuance (`bc_session` cookie — the same cookie name used elsewhere in the platform), Postgres and Redis backed, and the actual gateway customers go through to reach Business Suite/Parking/etc. Classified `ACTIVE_LIVE_SOURCE_PENDING_CONVERGENCE` — not a delete candidate. **Security finding, fixed in the canonical copy only**: `app/support.py` had a hardcoded, real-looking SMTP password as the fallback default for `SMTP_PASSWORD` (confirmed not overridden by any `.env` on the box, meaning the hardcoded literal was the value actually in live use) — replaced with an empty-string safe default in the canonical copy, matching the same no-default pattern this file already correctly used for its Postgres/Redis passwords. The live source at `/opt/botconnector-platform-starter-v0.3/homepage` was NOT modified — this fix exists only in `apps/homepage-runtime`. Two open questions before this component is used for anything beyond documentation: whether its Drive-sharing suite overlaps with `apps/drive`, and whether its SmartBiz/AI-widget modules overlap with Business Suite or the excluded internal AI cluster (see `docs/architecture/PUBLIC-SITE-RUNTIME-CONTRACT.md` and `docs/capability-registry/CAPABILITIES.md` for what's classified so far).
+BUILD_PROOF=PASS — `docker build` from `apps/homepage-runtime` only (no reference to the old `/opt` source in the build), image ran isolated against ephemeral, disposable Postgres + Redis (random ports, dummy credentials, never the real ones) and `/health`, `/login`, `/register`, `/products`, `/app` (gateway — correctly redirected unauthenticated requests to `/login`, HTTP 303), and `/support` all loaded successfully (HTTP 200 or a correct redirect). No production Postgres/Redis was touched. Everything (container, image, ephemeral DB/Redis) was removed after the proof.
 
 ---
 

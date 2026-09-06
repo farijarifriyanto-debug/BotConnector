@@ -1,0 +1,226 @@
+{% extends "base.html" %}
+{% block title %}Keamanan Platform — BotConnector{% endblock %}
+{% block content %}
+<style>
+  .platform-doc{background:#F6F7FB;min-height:calc(100vh - 120px);padding:48px 0 80px}
+  .platform-doc-shell{width:min(1080px,calc(100% - 48px));margin:0 auto}
+  .platform-doc-hero{margin-bottom:30px}
+  .platform-doc-kicker{font-size:11px;font-weight:800;letter-spacing:.12em;color:#5B5FEF;text-transform:uppercase;margin-bottom:8px}
+  .platform-doc h1{font-size:36px;line-height:1.12;font-weight:850;color:#101828;margin:0 0 10px;letter-spacing:-.04em}
+  .platform-doc-lead{font-size:16px;color:#667085;line-height:1.65;margin:0;max-width:760px}
+  .platform-doc-meta{margin-top:12px;font-size:12px;color:#98A2B3}
+  .platform-doc-overview{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:12px;margin-bottom:20px}
+  .platform-doc-overview-card{background:#FFF;border:1px solid #E7E9F2;border-radius:16px;padding:20px;box-shadow:0 6px 18px rgba(11,16,32,.03)}
+  .platform-doc-overview-card span{display:block;font-size:11px;font-weight:800;letter-spacing:.08em;text-transform:uppercase;color:#5B5FEF;margin-bottom:8px}
+  .platform-doc-overview-card h2{font-size:15px;color:#101828;margin:0 0 6px;font-weight:850}
+  .platform-doc-overview-card p{font-size:12.5px;color:#667085;line-height:1.55;margin:0}
+  .platform-doc-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:20px}
+  .platform-doc-section{background:#FFF;border:1px solid #E7E9F2;border-radius:20px;padding:28px;box-shadow:0 8px 24px rgba(11,16,32,.035)}
+  .platform-doc-section.wide{grid-column:1/-1}
+  .platform-doc-section h2{font-size:18px;line-height:1.3;font-weight:850;color:#101828;margin:0 0 18px;letter-spacing:-.025em}
+  .platform-doc-section h3{font-size:14px;line-height:1.4;font-weight:800;color:#344054;margin:22px 0 8px}
+  .platform-doc-section h3:first-of-type{margin-top:0}
+  .platform-doc-section p,.platform-doc-section li{font-size:14px;color:#475467;line-height:1.72}
+  .platform-doc-section p{margin:0 0 12px}
+  .platform-doc-section p:last-child{margin-bottom:0}
+  .platform-doc-section ul{margin:0;padding-left:20px;display:flex;flex-direction:column;gap:7px}
+  .platform-doc-section a{color:#5B5FEF;text-decoration:none;font-weight:750}
+  .platform-doc-section a:hover{text-decoration:underline}
+  .platform-doc-note{background:#EEF0FF;border-color:#DDE1FF}
+  @media(max-width:800px){.platform-doc-overview{grid-template-columns:repeat(2,minmax(0,1fr))}}
+  @media(max-width:700px){.platform-doc{padding:32px 0 56px}.platform-doc-shell{width:min(100% - 28px,1080px)}.platform-doc h1{font-size:30px}.platform-doc-overview,.platform-doc-grid{grid-template-columns:1fr}.platform-doc-section.wide{grid-column:auto}.platform-doc-section{padding:22px}}
+</style>
+
+<main class="platform-doc">
+  <div class="platform-doc-shell">
+    <header class="platform-doc-hero">
+      <div class="platform-doc-kicker">Keamanan Platform</div>
+      <h1>Keamanan Platform</h1>
+      <p class="platform-doc-lead">Lapisan perlindungan untuk akun, tenant bisnis, file, credential, dan integrasi BotConnector.</p>
+      <div class="platform-doc-meta">Terakhir diperbarui: 29 Agustus 2026</div>
+    </header>
+
+    <p class="platform-doc-lead" style="font-size:14px;margin:0 0 22px;max-width:900px">BotConnector dirancang sebagai platform multi-produk yang menangani akun, operasional bisnis, file, dan integrasi. Keamanan platform diterapkan melalui beberapa lapisan yang mencakup autentikasi, otorisasi, isolasi data, perlindungan credential, validasi integrasi, logging yang aman, serta pemantauan layanan. Halaman ini menjelaskan prinsip keamanan platform utama BotConnector. Keamanan khusus BotConnector Connect dijelaskan secara terpisah karena Connect memiliki konteks TradingView, MetaTrader, webhook, dan eksekusi yang berbeda.</p>
+
+    <section class="platform-doc-overview" aria-label="Ringkasan lapisan keamanan">
+      <article class="platform-doc-overview-card"><span>Lapisan 01</span><h2>Akun &amp; Sesi</h2><p>Autentikasi dan sesi server-side menjaga identitas pengguna.</p></article>
+      <article class="platform-doc-overview-card"><span>Lapisan 02</span><h2>Isolasi Tenant</h2><p>Data operasional diproses dalam konteks bisnis yang terotorisasi.</p></article>
+      <article class="platform-doc-overview-card"><span>Lapisan 03</span><h2>Kontrol Akses</h2><p>Peran dan kewenangan membatasi tindakan di Business Suite.</p></article>
+      <article class="platform-doc-overview-card"><span>Lapisan 04</span><h2>Credential &amp; Secret</h2><p>Credential integrasi diperlakukan sebagai data sensitif.</p></article>
+    </section>
+
+    <div class="platform-doc-grid">
+      <section class="platform-doc-section">
+        <h2>01 Akun &amp; Sesi</h2>
+        <p>Akses ke fungsi pribadi BotConnector membutuhkan autentikasi.</p>
+        <p>Platform menggunakan mekanisme sesi untuk mempertahankan identitas pengguna setelah login dan menerapkan kontrol akses terhadap permintaan berikutnya.</p>
+        <p>Pada bagian layanan yang menerapkannya, perlindungan sesi dapat mencakup:</p>
+        <ul>
+          <li>cookie aman;</li>
+          <li>validasi sesi server-side;</li>
+          <li>masa berlaku sesi;</li>
+          <li>pencabutan sesi;</li>
+          <li>logout;</li>
+          <li>pemeriksaan hak akses pada backend.</li>
+        </ul>
+        <p>Session identifier dan credential autentikasi diperlakukan sebagai data sensitif dan tidak dimaksudkan untuk ditampilkan pada halaman publik atau dicatat secara penuh pada log aplikasi.</p>
+      </section>
+
+      <section class="platform-doc-section">
+        <h2>02 Isolasi Tenant</h2>
+        <p>Business Suite menggunakan konteks bisnis sebagai salah satu batas otorisasi utama.</p>
+        <p>Artinya, pengguna tidak memperoleh akses terhadap suatu bisnis hanya karena telah memiliki akun BotConnector.</p>
+        <p>Untuk mengakses data suatu bisnis, backend memeriksa hubungan pengguna dengan bisnis tersebut dan hak yang diberikan.</p>
+        <p>Resource operasional seperti cabang, produk, inventori, transaksi, order, restoran, KOT, transfer, laporan, dan integrasi diproses dalam konteks bisnis yang terotorisasi.</p>
+        <p>BotConnector tidak mengandalkan business ID yang dikirim dari browser sebagai satu-satunya sumber kewenangan.</p>
+      </section>
+
+      <section class="platform-doc-section">
+        <h2>03 Kontrol Akses Berdasarkan Peran</h2>
+        <p>Business Suite dapat menggunakan peran seperti Owner, Admin, Manager, Cashier, dan Staff sesuai fungsi layanan.</p>
+        <p>Setiap peran dapat mempunyai kemampuan yang berbeda.</p>
+        <p>Tindakan yang mempunyai dampak lebih besar, seperti pengelolaan akses atau konfigurasi tertentu, dapat dibatasi untuk peran yang memiliki kewenangan sesuai aturan backend.</p>
+        <p>Pengguna disarankan memberikan hak minimum yang memang diperlukan oleh setiap anggota bisnis.</p>
+      </section>
+
+      <section class="platform-doc-section">
+        <h2>04 Credential &amp; Secret</h2>
+        <p>Credential yang digunakan untuk menjalankan integrasi diperlakukan sebagai data sensitif.</p>
+        <p>Bergantung pada jenis credential, perlindungan dapat mencakup:</p>
+        <ul>
+          <li>pemrosesan server-side;</li>
+          <li>pembatasan siapa yang dapat menyimpan atau mengganti credential;</li>
+          <li>tidak mengirimkan kembali secret penuh ke browser setelah disimpan;</li>
+          <li>enkripsi saat disimpan pada komponen yang menerapkannya;</li>
+          <li>pencegahan secret muncul dalam log;</li>
+          <li>penggantian atau pencabutan credential apabila diperlukan.</li>
+        </ul>
+        <p>Pengguna harus memperlakukan API key, webhook secret, BotFather token, dan credential lain sebagaimana password.</p>
+      </section>
+
+      <section class="platform-doc-section wide">
+        <h2>05 Telegram &amp; Integrasi</h2>
+        <h3>Keamanan Telegram V2</h3>
+        <p>Integrasi Telegram Business Suite memiliki lapisan keamanan yang berbeda antara bot global BotConnector dan bot milik bisnis sendiri.</p>
+        <h3>Pairing</h3>
+        <p>Proses pairing menggunakan mekanisme sementara untuk menghubungkan akun atau tujuan Telegram dengan bisnis yang benar. Kode pairing mempunyai masa berlaku terbatas dan tidak dimaksudkan untuk digunakan berulang kali setelah berhasil dipakai.</p>
+        <h3>Bot milik bisnis</h3>
+        <p>Untuk bot Telegram yang dibuat sendiri melalui BotFather:</p>
+        <ul>
+          <li>bot didaftarkan kepada bisnis yang terotorisasi;</li>
+          <li>credential diproses pada backend;</li>
+          <li>credential sensitif tidak ditampilkan kembali secara penuh;</li>
+          <li>webhook divalidasi sebelum update diproses;</li>
+          <li>bot dan destination tetap terikat pada konteks bisnis pemiliknya.</li>
+        </ul>
+        <h3>Tujuan notifikasi</h3>
+        <p>Private chat dan grup disimpan sebagai destination tersendiri agar notifikasi dapat diarahkan sesuai konfigurasi bisnis. Memiliki akses ke suatu grup Telegram tidak otomatis memberikan hak administratif pada Business Suite.</p>
+
+        <h3>Validasi webhook dan integrasi</h3>
+        <p>Webhook dapat menjadi pintu masuk dari layanan pihak ketiga. Karena itu, endpoint yang relevan menggunakan mekanisme validasi sesuai jenis integrasinya sebelum menerima suatu request sebagai request yang sah.</p>
+        <p>Credential validasi tidak dimaksudkan untuk disertakan dalam URL publik atau respons browser.</p>
+        <p>Integrasi yang berbeda dapat menggunakan mekanisme autentikasi yang berbeda sesuai kebutuhan layanan.</p>
+      </section>
+
+      <section class="platform-doc-section">
+        <h2>06 My Drive &amp; File</h2>
+        <p>Akses ke My Drive dikaitkan dengan akun yang terautentikasi dan kontrol akses yang berlaku pada layanan.</p>
+        <p>BotConnector membatasi akses file berdasarkan mekanisme layanan yang tersedia.</p>
+        <p>Pengguna tetap bertanggung jawab untuk:</p>
+        <ul>
+          <li>menjaga keamanan akunnya;</li>
+          <li>tidak membagikan file kepada pihak yang tidak berwenang;</li>
+          <li>memeriksa izin atau sharing yang diberikan;</li>
+          <li>memiliki cadangan tambahan untuk data yang sangat penting apabila diperlukan oleh proses bisnisnya.</li>
+        </ul>
+      </section>
+
+      <section class="platform-doc-section">
+        <h2>07 Keamanan Aplikasi</h2>
+        <p>Backend BotConnector menggunakan kontrol teknis untuk mengurangi risiko akses atau perubahan yang tidak sah.</p>
+        <p>Kontrol dapat mencakup:</p>
+        <ul>
+          <li>autentikasi;</li>
+          <li>otorisasi server-side;</li>
+          <li>validasi input;</li>
+          <li>query yang mempertimbangkan konteks tenant;</li>
+          <li>kontrol role;</li>
+          <li>error handling yang tidak menampilkan detail internal secara berlebihan;</li>
+          <li>pembatasan credential;</li>
+          <li>logging dan monitoring;</li>
+          <li>pembaruan komponen layanan.</li>
+        </ul>
+        <p>Halaman error publik tidak dimaksudkan untuk menampilkan traceback, secret, credential, atau detail infrastruktur sensitif.</p>
+      </section>
+
+      <section class="platform-doc-section">
+        <h2>08 Logging &amp; Informasi Sensitif</h2>
+        <p>Logging diperlukan untuk operasi, diagnosis, dan keamanan.</p>
+        <p>Namun informasi sensitif seperti password, token sesi penuh, BotFather token, API secret, dan encryption key tidak dimaksudkan untuk ditulis sebagai isi log normal.</p>
+        <p>Jika informasi diperlukan untuk korelasi keamanan, sistem sebaiknya menggunakan identifier atau representasi yang tidak membuka secret asli.</p>
+      </section>
+
+      <section class="platform-doc-section">
+        <h2>09 Monitoring &amp; Pemulihan</h2>
+        <p>BotConnector memantau bagian layanan yang relevan untuk mendeteksi gangguan dan kejadian yang membutuhkan perhatian.</p>
+        <p>Pendekatan keamanan mencakup kegiatan seperti:</p>
+        <ul>
+          <li>menjaga konfigurasi dan akses;</li>
+          <li>melindungi layanan;</li>
+          <li>mendeteksi gangguan atau kejadian keamanan;</li>
+          <li>merespons kejadian;</li>
+          <li>memulihkan layanan apabila terjadi kegagalan.</li>
+        </ul>
+        <p><a href="/status">Halaman Status</a> dapat memberikan informasi mengenai kondisi layanan utama yang dipantau.</p>
+      </section>
+
+      <section class="platform-doc-section">
+        <h2>10 Pemisahan Admin &amp; Customer</h2>
+        <p>BotConnector memisahkan konteks customer dan administrasi internal.</p>
+        <p>Customer menggunakan jalur akun dan produk customer. Akses administratif memiliki jalur dan kontrol tersendiri.</p>
+        <p>Akun customer tidak otomatis memperoleh hak administratif internal.</p>
+      </section>
+
+      <section class="platform-doc-section">
+        <h2>11 Tanggung Jawab Pengguna</h2>
+        <p>Keamanan platform juga bergantung pada praktik pengguna. Pengguna sebaiknya:</p>
+        <ul>
+          <li>menggunakan password yang kuat;</li>
+          <li>menjaga perangkat tetap aman;</li>
+          <li>keluar dari sesi pada perangkat bersama;</li>
+          <li>tidak membagikan token atau API key;</li>
+          <li>segera mengganti credential yang diduga bocor;</li>
+          <li>membatasi jumlah akun dengan hak Owner/Admin;</li>
+          <li>meninjau anggota dan peran bisnis;</li>
+          <li>memeriksa tujuan Telegram dan integrasi yang aktif;</li>
+          <li>tidak memasukkan credential ke chat, screenshot publik, atau media yang tidak aman.</li>
+        </ul>
+      </section>
+
+      <section class="platform-doc-section platform-doc-note">
+        <h2>12 Keamanan BotConnector Connect</h2>
+        <p>BotConnector Connect memiliki model teknis yang berbeda karena berhubungan dengan webhook, TradingView, MetaTrader, terminal, serta alur eksekusi.</p>
+        <p>Informasi keamanan khusus Connect tersedia pada <a href="/connect-v2/security">Keamanan BotConnector Connect</a>.</p>
+        <p>Halaman Keamanan Platform ini tidak menggantikan kontrol dan ketentuan keamanan khusus Connect.</p>
+      </section>
+
+      <section class="platform-doc-section">
+        <h2>13 Pelaporan Masalah</h2>
+        <p>Jika pengguna menemukan masalah keamanan yang diduga mempengaruhi BotConnector, pengguna dapat menyampaikannya melalui <a href="/support?category=SECURITY_REPORT">Pusat Bantuan BotConnector</a>.</p>
+        <p>Saat melaporkan masalah:</p>
+        <ul>
+          <li>hindari menyertakan password atau secret yang tidak diperlukan;</li>
+          <li>jelaskan layanan dan langkah yang memicu masalah;</li>
+          <li>jangan melakukan tindakan yang merusak data atau mengganggu pengguna lain.</li>
+        </ul>
+      </section>
+
+      <section class="platform-doc-section wide">
+        <h2>14 Perubahan Keamanan</h2>
+        <p>Arsitektur dan kontrol keamanan dapat berkembang seiring perubahan fitur, teknologi, ancaman, dan kebutuhan operasional.</p>
+        <p>Informasi pada halaman ini dapat diperbarui untuk mencerminkan perubahan tersebut tanpa mengungkap detail yang dapat meningkatkan risiko keamanan.</p>
+      </section>
+    </div>
+  </div>
+</main>
+{% endblock %}

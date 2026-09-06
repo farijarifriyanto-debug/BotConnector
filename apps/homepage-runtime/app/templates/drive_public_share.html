@@ -1,0 +1,353 @@
+<!doctype html>
+<html lang="id">
+<head>
+  <meta charset="utf-8">
+  <meta
+    name="viewport"
+    content="width=device-width,initial-scale=1"
+  >
+  <title>Link Publik — BotConnector Drive</title>
+
+  <link
+    rel="stylesheet"
+    href="/static/drive_public_share.css"
+  >
+</head>
+
+<body class="bc-public-owner">
+
+  <header class="bc-topbar">
+    <a
+      class="bc-brand"
+      href="/drive"
+    >
+      <span class="bc-brand-mark">B</span>
+      <span>BotConnector Drive</span>
+    </a>
+
+    <a
+      class="bc-back-link"
+      href="/drive"
+    >
+      ← Kembali ke My Drive
+    </a>
+  </header>
+
+  <main class="bc-shell">
+
+    <section class="bc-hero">
+
+      <div>
+        <div class="bc-eyebrow">
+          PUBLIC SHARE
+        </div>
+
+        <h1>
+          Buat link publik
+        </h1>
+
+        <p>
+          Bagikan file atau folder tanpa
+          memberikan akses ke akun
+          BotConnector Anda.
+        </p>
+      </div>
+
+      <div class="bc-security-badge">
+        Read only
+      </div>
+
+    </section>
+
+
+    {% if notice %}
+    <div class="bc-alert bc-success">
+      {{ notice }}
+    </div>
+    {% endif %}
+
+
+    {% if error %}
+    <div class="bc-alert bc-error">
+      {{ error }}
+    </div>
+    {% endif %}
+
+
+    <section class="bc-card">
+
+      <div class="bc-card-heading">
+        <div>
+          <div class="bc-label">
+            ITEM
+          </div>
+
+          <h2>
+            {{ item_name }}
+          </h2>
+
+          <div class="bc-path">
+            {{ item_path }}
+          </div>
+        </div>
+      </div>
+
+
+      <form
+        method="post"
+        action="/drive/public-share"
+        class="bc-create-form"
+      >
+
+        <input
+          type="hidden"
+          name="item_path"
+          value="{{ item_path }}"
+        >
+
+        <input
+          type="hidden"
+          name="csrf_token"
+          value="{{ csrf_token }}"
+        >
+
+
+        <label class="bc-field">
+
+          <span>
+            Masa berlaku
+          </span>
+
+          <select
+            name="expires_in_days"
+          >
+            <option value="">
+              Tidak pernah kedaluwarsa
+            </option>
+
+            <option value="1">
+              1 hari
+            </option>
+
+            <option value="7">
+              7 hari
+            </option>
+
+            <option value="30">
+              30 hari
+            </option>
+
+            <option value="90">
+              90 hari
+            </option>
+          </select>
+
+        </label>
+
+
+        <button
+          type="submit"
+          class="bc-primary"
+        >
+          Buat link publik
+        </button>
+
+      </form>
+
+    </section>
+
+
+    {% if created_link %}
+
+    <section class="bc-card bc-created">
+
+      <div class="bc-label">
+        LINK BARU
+      </div>
+
+      <h2>
+        Link siap dibagikan
+      </h2>
+
+      <p class="bc-muted">
+        Salin sekarang. Demi keamanan,
+        token asli tidak disimpan di
+        database dan tidak dapat
+        ditampilkan lagi setelah Anda
+        meninggalkan halaman ini.
+      </p>
+
+
+      <div class="bc-copy-row">
+
+        <input
+          id="public-link-value"
+          type="text"
+          value="{{ created_link }}"
+          readonly
+          spellcheck="false"
+        >
+
+        <button
+          type="button"
+          class="bc-copy"
+          data-copy-target="public-link-value"
+        >
+          Salin link
+        </button>
+
+      </div>
+
+
+      <a
+        href="{{ created_link }}"
+        target="_blank"
+        rel="noopener noreferrer"
+        class="bc-open-link"
+      >
+        Buka link publik ↗
+      </a>
+
+    </section>
+
+    {% endif %}
+
+
+    <section class="bc-card">
+
+      <div class="bc-card-heading">
+
+        <div>
+          <div class="bc-label">
+            LINK AKTIF
+          </div>
+
+          <h2>
+            Link untuk item ini
+          </h2>
+        </div>
+
+        <div class="bc-count">
+          {{ links|length }}
+        </div>
+
+      </div>
+
+
+      {% if links %}
+
+      <div class="bc-link-list">
+
+        {% for public_link in links %}
+
+        <article class="bc-link-item">
+
+          <div class="bc-link-info">
+
+            <strong>
+              {{ public_link.item_name }}
+            </strong>
+
+            <div class="bc-meta">
+
+              {% if public_link.expired %}
+                <span class="bc-expired">
+                  Kedaluwarsa
+                </span>
+              {% elif public_link.expires_at %}
+                <span>
+                  Kedaluwarsa:
+                  {{ public_link.expires_at }}
+                </span>
+              {% else %}
+                <span>
+                  Tanpa kedaluwarsa
+                </span>
+              {% endif %}
+
+              <span>
+                •
+              </span>
+
+              <span>
+                {{ public_link.item_type }}
+              </span>
+
+            </div>
+
+          </div>
+
+
+          <form
+            method="post"
+            action="/drive/public-share/revoke"
+          >
+
+            <input
+              type="hidden"
+              name="link_id"
+              value="{{ public_link.id }}"
+            >
+
+            <input
+              type="hidden"
+              name="item_path"
+              value="{{ item_path }}"
+            >
+
+            <input
+              type="hidden"
+              name="csrf_token"
+              value="{{ csrf_token }}"
+            >
+
+            <button
+              type="submit"
+              class="bc-danger"
+            >
+              Cabut link
+            </button>
+
+          </form>
+
+        </article>
+
+        {% endfor %}
+
+      </div>
+
+      {% else %}
+
+      <div class="bc-empty">
+        Belum ada link publik aktif
+        untuk item ini.
+      </div>
+
+      {% endif %}
+
+
+      <div class="bc-security-note">
+
+        <strong>
+          Keamanan:
+        </strong>
+
+        link publik hanya memberikan
+        akses baca dan download.
+        Pengunjung tidak dapat rename,
+        move, delete, upload, atau melihat
+        bagian Drive lainnya.
+
+      </div>
+
+    </section>
+
+  </main>
+
+  <script
+    src="/static/drive_public_share.js"
+    defer
+  ></script>
+
+</body>
+</html>

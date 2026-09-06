@@ -1,0 +1,16 @@
+BotConnector Platform Homepage v0.15.0
+BotConnector AI Service v0.4.0 (preserved)
+- WhatsApp simulator to Business Operations synchronization
+- Customer deduplication
+- Active lead deduplication/update
+- Multi-level approval
+- Saved reply templates
+- SLA rules and SLA task status
+- Admin task dashboard
+- CSV export
+- Core API versioning
+- Live WhatsApp disabled
+- Message sending disabled
+- Automatic booking disabled
+- Automatic follow-up disabled
+- No database schema change

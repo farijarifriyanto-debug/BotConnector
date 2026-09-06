@@ -1,0 +1,386 @@
+{% extends "base.html" %}
+{% block title %}Operasional SmartBiz | BotConnector{% endblock %}
+{% block content %}
+<style>
+  .sbo-shell{width:min(1240px,calc(100% - 32px));margin:0 auto;padding:44px 0 90px}.sbo-head{display:flex;justify-content:space-between;gap:24px;align-items:flex-start}.sbo-head h1{margin:4px 0 8px;font-size:clamp(32px,5vw,52px);letter-spacing:-.04em}.sbo-kicker{color:#247c56;font-size:13px;font-weight:800;text-transform:uppercase;letter-spacing:.08em}.sbo-actions{display:flex;gap:10px;flex-wrap:wrap}.sbo-btn{display:inline-flex;align-items:center;justify-content:center;border:0;border-radius:11px;padding:10px 14px;background:#247c56;color:#fff;text-decoration:none;font-weight:750;cursor:pointer}.sbo-btn.secondary{background:#eef6f1;color:#1f6247}.sbo-btn.warn{background:#8b5422}.sbo-btn.danger{background:#a23a3a}.sbo-alert{margin:16px 0;padding:13px 16px;border-radius:12px}.sbo-alert.notice{background:#eaf8ef;color:#236743}.sbo-alert.error{background:#fff0f0;color:#983232}.sbo-safe{margin:18px 0;padding:14px 16px;border-radius:13px;background:#f4f7f5;color:#526057}.sbo-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:18px;margin-top:18px}.sbo-card{padding:20px;border:1px solid #dfe7e1;border-radius:18px;background:#fff;box-shadow:0 12px 34px rgba(24,48,34,.05)}.sbo-card h2,.sbo-card h3{margin-top:0}.sbo-form{display:grid;gap:11px}.sbo-form.two{grid-template-columns:repeat(2,minmax(0,1fr))}.sbo-field{display:grid;gap:6px}.sbo-field label{font-size:13px;font-weight:700}.sbo-field input,.sbo-field select,.sbo-field textarea{width:100%;box-sizing:border-box;padding:10px 11px;border:1px solid #ccd7d0;border-radius:10px;background:#fff;font:inherit}.sbo-table-wrap{overflow:auto}.sbo-table{width:100%;border-collapse:collapse}.sbo-table th,.sbo-table td{padding:11px 9px;border-bottom:1px solid #edf0ee;text-align:left;white-space:nowrap;vertical-align:top}.sbo-table th{color:#69736c;font-size:12px;text-transform:uppercase;letter-spacing:.05em}.sbo-badge{display:inline-block;padding:4px 8px;border-radius:999px;background:#eef6f1;color:#247c56;font-size:12px;font-weight:750}.sbo-muted{color:#758077}.sbo-wide{grid-column:1/-1}.sbo-inline{display:flex;gap:8px;align-items:center;flex-wrap:wrap}.sbo-inline form{display:inline}.sbo-item-row{display:grid;grid-template-columns:1.7fr .7fr;gap:8px}.sbo-empty{padding:18px;text-align:center;color:#758077}@media(max-width:900px){.sbo-grid{grid-template-columns:1fr}.sbo-head{display:block}.sbo-actions{margin-top:16px}}@media(max-width:560px){.sbo-shell{width:min(100% - 22px,1240px)}.sbo-form.two,.sbo-item-row{grid-template-columns:1fr}}
+</style>
+<section class="sbo-shell">
+  <header class="sbo-head">
+    <div>
+      <div class="sbo-kicker">SmartBiz · Operasional</div>
+      <h1>{{ selected_business.name }}</h1>
+      <p class="sbo-muted">Stok, pesanan, invoice, pembayaran, dan antrean tindakan AI dalam satu alur.</p>
+    </div>
+    <div class="sbo-actions">
+      <a class="sbo-btn secondary" href="/smartbiz/{{ selected_business.id }}">Dashboard</a>
+      <a class="sbo-btn secondary" href="/app/business/chat">WhatsApp AI</a>
+    </div>
+  </header>
+
+  {% if notice %}<div class="sbo-alert notice">{{ notice }}</div>{% endif %}
+  {% if error %}<div class="sbo-alert error">{{ error }}</div>{% endif %}
+  <div class="sbo-safe"><strong>Mode aman:</strong> WhatsApp tidak dikirim otomatis. Persetujuan AI hanya masuk antrean tindak lanjut manual.</div>
+
+  <div class="sbo-grid">
+    <section class="sbo-card">
+      <h2>Stok masuk / keluar</h2>
+
+      <form
+        id="smartbiz-stock-form"
+        class="sbo-form"
+        method="post"
+        action="/smartbiz/{{ selected_business.id }}/stock-movements"
+      >
+        <div class="sbo-field">
+          <label>Scan barcode barang</label>
+
+          <div class="sbscan-row">
+            <input
+              id="smartbiz-stock-barcode"
+              data-barcode-entry
+              data-use="#smartbiz-stock-barcode-use"
+              autocomplete="off"
+              spellcheck="false"
+              placeholder="Scan USB atau ketik lalu Enter"
+            >
+
+            <button
+              id="smartbiz-stock-barcode-use"
+              class="sbscan-button"
+              type="button"
+              data-barcode-use
+              data-input="#smartbiz-stock-barcode"
+              data-mode="select"
+              data-target="#smartbiz-stock-product"
+              data-focus="#smartbiz-stock-quantity"
+              data-message="#smartbiz-stock-scan-message"
+            >Pilih</button>
+
+            <button
+              class="sbscan-button primary"
+              type="button"
+              data-barcode-camera
+              data-mode="select"
+              data-target="#smartbiz-stock-product"
+              data-focus="#smartbiz-stock-quantity"
+            >Kamera</button>
+          </div>
+
+          <p
+            id="smartbiz-stock-scan-message"
+            class="sbscan-message"
+          ></p>
+        </div>
+
+        <div class="sbo-field">
+          <label>Produk</label>
+
+          <select
+            id="smartbiz-stock-product"
+            name="product_id"
+            required
+          >
+            <option value="">Pilih produk</option>
+
+            {% for product in smartbiz_products %}
+              {% if product.track_stock %}
+                <option
+                  value="{{ product.id }}"
+                  data-barcode="{{ product.sku or '' }}"
+                >
+                  {{ product.name }} · stok
+                  {{ product.stock_quantity|smart_number }}
+                </option>
+              {% endif %}
+            {% endfor %}
+          </select>
+        </div>
+
+        <div class="sbo-form two">
+          <div class="sbo-field">
+            <label>Jenis</label>
+
+            <select name="movement_type">
+              <option value="purchase">
+                Pembelian / stok masuk
+              </option>
+
+              <option value="adjustment_in">
+                Penyesuaian masuk
+              </option>
+
+              <option value="adjustment_out">
+                Penyesuaian keluar
+              </option>
+
+              <option value="return_in">
+                Retur masuk
+              </option>
+
+              <option value="return_out">
+                Retur keluar
+              </option>
+            </select>
+          </div>
+
+          <div class="sbo-field">
+            <label>Lokasi</label>
+
+            <select name="location_id">
+              <option value="">Lokasi utama</option>
+
+              {% for location in smartbiz_locations %}
+                <option value="{{ location.id }}">
+                  {{ location.name }}
+                </option>
+              {% endfor %}
+            </select>
+          </div>
+        </div>
+
+        <div class="sbo-form two">
+          <div class="sbo-field">
+            <label>Jumlah</label>
+
+            <input
+              id="smartbiz-stock-quantity"
+              name="quantity"
+              inputmode="decimal"
+              required
+            >
+          </div>
+
+          <div class="sbo-field">
+            <label>Biaya per unit</label>
+
+            <input
+              name="unit_cost"
+              inputmode="decimal"
+              placeholder="Opsional"
+            >
+          </div>
+        </div>
+
+        <div class="sbo-field">
+          <label>Catatan</label>
+
+          <textarea
+            name="notes"
+            rows="2"
+            maxlength="1000"
+          ></textarea>
+        </div>
+
+        <button class="sbo-btn" type="submit">
+          Catat stok
+        </button>
+      </form>
+    </section>
+
+    <section class="sbo-card">
+      <h2>Buat draft pesanan</h2>
+
+      <form
+        id="smartbiz-order-form"
+        class="sbo-form"
+        method="post"
+        action="/smartbiz/{{ selected_business.id }}/orders"
+      >
+        <div class="sbo-field">
+          <label>Scan barcode penjualan</label>
+
+          <div class="sbscan-row">
+            <input
+              id="smartbiz-order-barcode"
+              data-barcode-entry
+              data-use="#smartbiz-order-barcode-use"
+              autocomplete="off"
+              spellcheck="false"
+              placeholder="Setiap scan menambah jumlah 1"
+            >
+
+            <button
+              id="smartbiz-order-barcode-use"
+              class="sbscan-button"
+              type="button"
+              data-barcode-use
+              data-input="#smartbiz-order-barcode"
+              data-mode="cart"
+              data-form="#smartbiz-order-form"
+              data-message="#smartbiz-order-scan-message"
+            >Tambah</button>
+
+            <button
+              class="sbscan-button primary"
+              type="button"
+              data-barcode-camera
+              data-mode="cart"
+              data-form="#smartbiz-order-form"
+            >Kamera</button>
+          </div>
+
+          <p
+            id="smartbiz-order-scan-message"
+            class="sbscan-message"
+          ></p>
+
+          <p class="sbscan-help">
+            Scan produk yang sama berulang kali untuk menambah jumlah.
+          </p>
+        </div>
+
+        <div class="sbo-field">
+          <label>Pelanggan</label>
+
+          <select name="customer_id">
+            <option value="">Tanpa pelanggan</option>
+
+            {% for customer in smartbiz_customers %}
+              <option value="{{ customer.id }}">
+                {{ customer.name }}
+              </option>
+            {% endfor %}
+          </select>
+        </div>
+
+        <div data-order-items>
+          {% for row in range(3) %}
+            <div class="sbo-item-row">
+              <div class="sbo-field">
+                <label>
+                  Produk
+                  {% if row > 0 %}(opsional){% endif %}
+                </label>
+
+                <select
+                  name="product_id"
+                  {% if row == 0 %}required{% endif %}
+                >
+                  <option value="">Pilih produk</option>
+
+                  {% for product in smartbiz_products %}
+                    <option
+                      value="{{ product.id }}"
+                      data-barcode="{{ product.sku or '' }}"
+                    >
+                      {{ product.name }} ·
+                      {{ product.sell_price|smart_number }}
+                    </option>
+                  {% endfor %}
+                </select>
+              </div>
+
+              <div class="sbo-field">
+                <label>Jumlah</label>
+
+                <input
+                  name="quantity"
+                  inputmode="decimal"
+                  {% if row == 0 %}required{% endif %}
+                >
+              </div>
+            </div>
+          {% endfor %}
+        </div>
+
+        <div class="sbo-field">
+          <label>Catatan</label>
+
+          <textarea
+            name="notes"
+            rows="2"
+            maxlength="2000"
+          ></textarea>
+        </div>
+
+        <button class="sbo-btn" type="submit">
+          Buat draft
+        </button>
+      </form>
+    </section>
+
+    <section class="sbo-card sbo-wide">
+      <h2>Pesanan</h2>
+      <div class="sbo-table-wrap"><table class="sbo-table"><thead><tr><th>Nomor</th><th>Pelanggan</th><th>Status</th><th>Pembayaran</th><th>Jenis / jumlah</th><th>Total</th><th>Tindakan</th></tr></thead><tbody>
+      {% for order in smartbiz_orders %}<tr><td>{{ order.order_number }}</td><td>{{ order.customer_name or '-' }}</td><td><span class="sbo-badge">{{ order.status }}</span></td><td>{{ order.payment_status }}</td><td>{{ order.item_count }} jenis · {{ order.total_quantity|smart_number }}</td><td>{{ order.total|smart_number }}</td><td><div class="sbo-inline">{% if order.status in ['draft','pending'] %}<a class="sbo-btn secondary" href="/smartbiz/{{ selected_business.id }}/orders/{{ order.id }}/edit">Ubah</a><form method="post" action="/smartbiz/{{ selected_business.id }}/orders/{{ order.id }}/cancel" onsubmit="return confirm('Batalkan draft pesanan ini?');"><button class="sbo-btn danger" type="submit">Batalkan</button></form><form method="post" action="/smartbiz/{{ selected_business.id }}/orders/{{ order.id }}/confirm"><button class="sbo-btn warn" type="submit">Konfirmasi &amp; invoice</button></form>{% elif order.status in ['confirmed','processing','completed'] %}<form method="post" action="/smartbiz/{{ selected_business.id }}/orders/{{ order.id }}/invoice"><button class="sbo-btn secondary" type="submit">Buat invoice sekarang</button></form>{% endif %}</div></td></tr>{% else %}<tr><td colspan="7" class="sbo-empty">Belum ada pesanan.</td></tr>{% endfor %}
+      </tbody></table></div>
+    </section>
+
+    <section class="sbo-card">
+      <h2>Catat pembayaran</h2>
+      <form class="sbo-form" method="post" action="/smartbiz/{{ selected_business.id }}/payments">
+        <div class="sbo-field"><label>Invoice</label><select name="invoice_id" required><option value="">Pilih invoice</option>{% for invoice in smartbiz_invoices %}{% if invoice.status not in ['paid','void'] %}<option value="{{ invoice.id }}">{{ invoice.invoice_number }} · sisa {{ invoice.total|smart_number(invoice.amount_paid) }}</option>{% endif %}{% endfor %}</select></div>
+        <div class="sbo-form two"><div class="sbo-field"><label>Metode</label><select name="payment_method"><option value="cash">Tunai</option><option value="transfer">Transfer</option><option value="qris">QRIS</option><option value="card">Kartu</option><option value="other">Lainnya</option></select></div><div class="sbo-field"><label>Jumlah</label><input name="amount" inputmode="decimal" required></div></div>
+        <div class="sbo-field"><label>Referensi</label><input name="external_ref" maxlength="160" placeholder="Nomor transfer / catatan"></div>
+        <button class="sbo-btn" type="submit">Simpan pembayaran</button>
+      </form>
+    </section>
+
+    <section class="sbo-card">
+      <h2>Invoice</h2>
+      <div class="sbo-table-wrap"><table class="sbo-table"><thead><tr><th>Nomor</th><th>Pesanan</th><th>Status</th><th>Total</th><th>Dibayar</th></tr></thead><tbody>{% for invoice in smartbiz_invoices %}<tr><td>{{ invoice.invoice_number }}</td><td>{{ invoice.order_number or '-' }}</td><td>{{ invoice.status }}</td><td>{{ invoice.total|smart_number }}</td><td>{{ invoice.amount_paid|smart_number }}</td></tr>{% else %}<tr><td colspan="5" class="sbo-empty">Belum ada invoice.</td></tr>{% endfor %}</tbody></table></div>
+    </section>
+
+    <section class="sbo-card sbo-wide">
+      <h2>Riwayat stok</h2>
+      <div class="sbo-table-wrap"><table class="sbo-table"><thead><tr><th>Waktu</th><th>Produk</th><th>Jenis</th><th>Perubahan</th><th>Saldo</th><th>Catatan</th></tr></thead><tbody>{% for movement in smartbiz_movements %}<tr><td>{{ movement.created_at }}</td><td>{{ movement.product_name }}</td><td>{{ movement.movement_type }}</td><td>{{ movement.quantity_delta|smart_number }}</td><td>{{ movement.balance_after|smart_number }}</td><td>{{ movement.notes or '-' }}</td></tr>{% else %}<tr><td colspan="6" class="sbo-empty">Belum ada pergerakan stok.</td></tr>{% endfor %}</tbody></table></div>
+    </section>
+
+    <section class="sbo-card">
+      <h2>Pembayaran terbaru</h2>
+      <div class="sbo-table-wrap"><table class="sbo-table"><thead><tr><th>Invoice</th><th>Metode</th><th>Jumlah</th><th>Status</th></tr></thead><tbody>{% for payment in smartbiz_payments %}<tr><td>{{ payment.invoice_number or '-' }}</td><td>{{ payment.payment_method }}</td><td>{{ payment.amount|smart_number }}</td><td>{{ payment.status }}</td></tr>{% else %}<tr><td colspan="4" class="sbo-empty">Belum ada pembayaran.</td></tr>{% endfor %}</tbody></table></div>
+    </section>
+
+    <section class="sbo-card">
+      <h2>Antrean WhatsApp AI</h2>
+      <div class="sbo-table-wrap"><table class="sbo-table"><thead><tr><th>Tindakan</th><th>Status</th><th>Keputusan</th></tr></thead><tbody>{% for action in smartbiz_actions %}<tr><td>{{ action.action_type }}</td><td>{{ action.status }}</td><td>{% if action.status == 'proposed' %}<div class="sbo-inline"><form method="post" action="/smartbiz/{{ selected_business.id }}/actions/{{ action.id }}/review"><input type="hidden" name="decision" value="approve"><button class="sbo-btn secondary" type="submit">Setujui</button></form><form method="post" action="/smartbiz/{{ selected_business.id }}/actions/{{ action.id }}/review"><input type="hidden" name="decision" value="reject"><button class="sbo-btn danger" type="submit">Tolak</button></form></div>{% else %}-{% endif %}</td></tr>{% else %}<tr><td colspan="3" class="sbo-empty">Belum ada permintaan AI.</td></tr>{% endfor %}</tbody></table></div>
+    </section>
+  </div>
+</section>
+
+<!-- SMARTBIZ_BARCODE_ASSETS_V061 -->
+<link
+  rel="stylesheet"
+  href="/static/smartbiz-barcode.css?v=0.6.1"
+>
+
+<div
+  class="sbscan-modal"
+  data-barcode-modal
+  hidden
+>
+  <div
+    class="sbscan-dialog"
+    role="dialog"
+    aria-modal="true"
+    aria-label="Scanner barcode"
+  >
+    <div class="sbscan-head">
+      <h2>Scan barcode</h2>
+
+      <button
+        class="sbscan-close"
+        type="button"
+        data-barcode-close
+        aria-label="Tutup scanner"
+      >×</button>
+    </div>
+
+    <video
+      class="sbscan-video"
+      data-barcode-video
+      muted
+      playsinline
+    ></video>
+
+    <p
+      class="sbscan-status"
+      data-barcode-status
+    >Menyiapkan kamera...</p>
+  </div>
+</div>
+
+<script src="/static/vendor/zxing-browser-0.2.1.js?v=0.2.1"></script>
+<script src="/static/smartbiz-barcode.js?v=0.6.1"></script>
+
+{% endblock %}

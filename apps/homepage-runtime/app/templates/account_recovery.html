@@ -1,0 +1,296 @@
+{% extends "base.html" %}
+{% block title %}Keamanan akun — BotConnector{% endblock %}
+
+{% block content %}
+<section class="auth-page shell">
+
+  <div class="auth-copy reveal">
+    <span class="eyebrow">
+      KEAMANAN AKUN BOTCONNECTOR
+    </span>
+
+    {% if recovery_mode in ["forgot", "forgot_sent"] %}
+      <h1>Atur ulang password Anda.</h1>
+      <p>
+        Gunakan email yang terhubung dengan akun BotConnector.
+      </p>
+
+    {% elif recovery_mode in ["reset", "reset_done"] %}
+      <h1>Buat password baru.</h1>
+      <p>
+        Gunakan password yang kuat dan berbeda dari layanan lain.
+      </p>
+
+    {% else %}
+      <h1>Verifikasi email akun.</h1>
+      <p>
+        Verifikasi email membantu melindungi akun dan proses pemulihan.
+      </p>
+    {% endif %}
+  </div>
+
+  <div class="auth-card reveal">
+
+    {% if error %}
+      <div class="form-error">
+        {{ error }}
+      </div>
+    {% endif %}
+
+    {% if message %}
+      <div class="candidate-note production-note">
+        {{ message }}
+      </div>
+    {% endif %}
+
+    {% if recovery_mode == "forgot" %}
+
+      <h2>Lupa password</h2>
+
+      <form
+        method="post"
+        action="/forgot-password"
+        class="auth-form"
+      >
+        <input
+          type="hidden"
+          name="csrf_token"
+          value="{{ csrf_token }}"
+        >
+
+        <label>
+          Email
+          <input
+            type="email"
+            name="email"
+            autocomplete="email"
+            value="{{ email or '' }}"
+            placeholder="nama@email.com"
+            required
+          >
+        </label>
+
+        <button
+          class="button primary auth-submit"
+          type="submit"
+        >
+          Kirim tautan reset
+        </button>
+      </form>
+
+      <p class="auth-switch">
+        <a href="/login">
+          Kembali ke halaman masuk
+        </a>
+      </p>
+
+    {% elif recovery_mode == "forgot_sent" %}
+
+      <h2>Periksa email Anda</h2>
+
+      <p class="auth-switch">
+        <a href="/forgot-password">
+          Kirim ulang permintaan
+        </a>
+      </p>
+
+      <p class="auth-switch">
+        <a href="/login">
+          Kembali ke halaman masuk
+        </a>
+      </p>
+
+    {% elif recovery_mode == "reset" %}
+
+      <h2>Password baru</h2>
+
+      {% if token %}
+      <form
+        method="post"
+        action="/reset-password"
+        class="auth-form"
+      >
+        <input
+          type="hidden"
+          name="csrf_token"
+          value="{{ csrf_token }}"
+        >
+
+        <input
+          type="hidden"
+          name="token"
+          value="{{ token }}"
+        >
+
+        <label>
+          Password baru
+          <input
+            type="password"
+            name="new_password"
+            autocomplete="new-password"
+            placeholder="Minimal 10 karakter"
+            required
+          >
+        </label>
+
+        <label>
+          Ulangi password baru
+          <input
+            type="password"
+            name="confirm_password"
+            autocomplete="new-password"
+            required
+          >
+        </label>
+
+        <p class="password-hint">
+          Minimal 10 karakter dan setidaknya tiga kategori:
+          huruf kecil, huruf besar, angka, atau simbol.
+        </p>
+
+        <button
+          class="button primary auth-submit"
+          type="submit"
+        >
+          Simpan password baru
+        </button>
+      </form>
+      {% endif %}
+
+      <p class="auth-switch">
+        <a href="/forgot-password">
+          Minta tautan reset baru
+        </a>
+      </p>
+
+    {% elif recovery_mode == "reset_done" %}
+
+      <h2>Password berhasil diubah</h2>
+
+      <p class="auth-switch">
+        <a
+          class="button primary"
+          href="/login"
+        >
+          Masuk dengan password baru
+        </a>
+      </p>
+
+    {% elif recovery_mode == "verify_request" %}
+
+      <h2>Kirim ulang verifikasi</h2>
+
+      <form
+        method="post"
+        action="/verify-email"
+        class="auth-form"
+      >
+        <input
+          type="hidden"
+          name="csrf_token"
+          value="{{ csrf_token }}"
+        >
+
+        <label>
+          Email
+          <input
+            type="email"
+            name="email"
+            autocomplete="email"
+            value="{{ email or '' }}"
+            placeholder="nama@email.com"
+            required
+          >
+        </label>
+
+        <button
+          class="button primary auth-submit"
+          type="submit"
+        >
+          Kirim email verifikasi
+        </button>
+      </form>
+
+      <p class="auth-switch">
+        <a href="/login">
+          Kembali ke halaman masuk
+        </a>
+      </p>
+
+    {% elif recovery_mode == "verify_confirm" %}
+
+      <h2>Konfirmasi verifikasi email</h2>
+
+      <p>
+        Klik tombol berikut untuk menyelesaikan verifikasi.
+      </p>
+
+      <form
+        method="post"
+        action="/verify-email"
+        class="auth-form"
+      >
+        <input
+          type="hidden"
+          name="csrf_token"
+          value="{{ csrf_token }}"
+        >
+
+        <input
+          type="hidden"
+          name="token"
+          value="{{ token }}"
+        >
+
+        <button
+          class="button primary auth-submit"
+          type="submit"
+        >
+          Verifikasi email sekarang
+        </button>
+      </form>
+
+    {% elif recovery_mode == "verify_sent" %}
+
+      <h2>Periksa email Anda</h2>
+
+      <p class="auth-switch">
+        <a href="/verify-email">
+          Kirim ulang lagi
+        </a>
+      </p>
+
+      <p class="auth-switch">
+        <a href="/login">
+          Masuk
+        </a>
+      </p>
+
+    {% elif recovery_mode == "verified" %}
+
+      <h2>Email berhasil diverifikasi</h2>
+
+      <p class="auth-switch">
+        <a
+          class="button primary"
+          href="/my-products"
+        >
+          Buka akun saya
+        </a>
+      </p>
+
+    {% elif recovery_mode == "verify_error" %}
+
+      <h2>Tautan tidak dapat digunakan</h2>
+
+      <p class="auth-switch">
+        <a href="/verify-email">
+          Kirim tautan verifikasi baru
+        </a>
+      </p>
+
+    {% endif %}
+
+  </div>
+</section>
+{% endblock %}

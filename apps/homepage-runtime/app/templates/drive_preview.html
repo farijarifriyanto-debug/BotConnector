@@ -1,0 +1,184 @@
+<!doctype html>
+<html lang="id">
+
+<head>
+
+  <meta charset="utf-8">
+
+  <meta
+    name="viewport"
+    content="width=device-width,initial-scale=1"
+  >
+
+  <meta
+    name="robots"
+    content="noindex,nofollow,noarchive"
+  >
+
+  <title>
+    {{ name }} — BotConnector Drive
+  </title>
+
+  <link
+    rel="stylesheet"
+    href="/static/drive_preview.css?v=0.1.0"
+  >
+
+</head>
+
+
+<body>
+
+<header class="pv-top">
+
+  <a
+    href="{{ back_url }}"
+    class="pv-brand"
+  >
+
+    <span class="pv-logo">
+      B
+    </span>
+
+    <span>
+      <strong>
+        BotConnector
+      </strong>
+
+      <small>
+        Drive Preview
+      </small>
+    </span>
+
+  </a>
+
+
+  <div class="pv-actions">
+
+    <a
+      href="{{ download_url }}"
+      class="pv-download"
+    >
+      ↓ Unduh
+    </a>
+
+    <a
+      href="{{ back_url }}"
+      class="pv-close"
+      title="Kembali ke Drive"
+    >
+      ×
+    </a>
+
+  </div>
+
+</header>
+
+
+<main class="pv-shell">
+
+  <section class="pv-file-head">
+
+    <div class="pv-file-icon">
+
+      {% if kind == "pdf" %}
+        PDF
+      {% elif kind == "image" %}
+        ◫
+      {% elif kind == "text" %}
+        TXT
+      {% else %}
+        {{ suffix[:4] }}
+      {% endif %}
+
+    </div>
+
+
+    <div class="pv-title">
+
+      <h1>
+        {{ name }}
+      </h1>
+
+      <p>
+        {{ suffix }}
+
+        {% if size_bytes %}
+          · {{ "%.1f"|format(size_bytes / 1024 / 1024) }} MB
+        {% endif %}
+      </p>
+
+    </div>
+
+  </section>
+
+
+  {% if kind == "pdf" %}
+
+  <section class="pv-viewer">
+
+    <iframe
+      src="{{ content_url }}"
+      title="{{ name }}"
+    ></iframe>
+
+  </section>
+
+
+  {% elif kind == "image" %}
+
+  <section class="pv-viewer pv-image">
+
+    <img
+      src="{{ content_url }}"
+      alt="{{ name }}"
+    >
+
+  </section>
+
+
+  {% elif kind == "text" %}
+
+  <section class="pv-viewer pv-text">
+
+    <iframe
+      src="{{ content_url }}"
+      title="{{ name }}"
+    ></iframe>
+
+  </section>
+
+
+  {% else %}
+
+  <section class="pv-unsupported">
+
+    <div class="pv-big-icon">
+      {{ suffix[:4] }}
+    </div>
+
+    <h2>
+      Preview belum tersedia
+    </h2>
+
+    <p>
+      Format {{ suffix }} tidak ditampilkan
+      melalui viewer eksternal sehingga file
+      tetap berada di BotConnector Drive.
+    </p>
+
+    <a
+      href="{{ download_url }}"
+      class="pv-primary"
+    >
+      ↓ Unduh file
+    </a>
+
+  </section>
+
+  {% endif %}
+
+</main>
+
+</body>
+</html>

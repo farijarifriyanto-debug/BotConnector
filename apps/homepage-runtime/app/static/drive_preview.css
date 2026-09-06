@@ -1,0 +1,261 @@
+:root {
+  --pv-bg:#f5f7fb;
+  --pv-card:#fff;
+  --pv-ink:#18202f;
+  --pv-muted:#667085;
+  --pv-line:#e4e7ec;
+  --pv-blue:#3d5bea;
+  --pv-soft:#eef1ff;
+  --pv-shadow:
+    0 18px 50px
+    rgba(24,32,47,.09);
+}
+
+* {
+  box-sizing:border-box;
+}
+
+html,
+body {
+  margin:0;
+  min-height:100%;
+  background:var(--pv-bg);
+  color:var(--pv-ink);
+  font-family:
+    Inter,
+    ui-sans-serif,
+    system-ui,
+    -apple-system,
+    BlinkMacSystemFont,
+    "Segoe UI",
+    sans-serif;
+}
+
+.pv-top {
+  height:72px;
+  padding:0 24px;
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:16px;
+  background:#fff;
+  border-bottom:1px solid var(--pv-line);
+}
+
+.pv-brand {
+  min-width:0;
+  display:flex;
+  align-items:center;
+  gap:11px;
+  color:var(--pv-ink);
+  text-decoration:none;
+}
+
+.pv-brand > span:last-child {
+  min-width:0;
+  display:grid;
+}
+
+.pv-brand small {
+  color:var(--pv-muted);
+  font-size:11px;
+}
+
+.pv-logo {
+  width:36px;
+  height:36px;
+  flex:0 0 auto;
+  display:grid;
+  place-items:center;
+  border-radius:11px;
+  background:var(--pv-blue);
+  color:#fff;
+  font-weight:900;
+}
+
+.pv-actions {
+  display:flex;
+  align-items:center;
+  gap:10px;
+}
+
+.pv-download,
+.pv-primary {
+  min-height:42px;
+  padding:0 16px;
+  display:inline-flex;
+  align-items:center;
+  justify-content:center;
+  border-radius:10px;
+  background:var(--pv-blue);
+  color:#fff;
+  text-decoration:none;
+  font-size:13px;
+  font-weight:800;
+}
+
+.pv-close {
+  width:42px;
+  height:42px;
+  display:grid;
+  place-items:center;
+  border:1px solid var(--pv-line);
+  border-radius:10px;
+  background:#fff;
+  color:#475467;
+  text-decoration:none;
+  font-size:26px;
+}
+
+.pv-shell {
+  width:min(
+    1320px,
+    calc(100% - 30px)
+  );
+  margin:22px auto 40px;
+}
+
+.pv-file-head {
+  margin-bottom:15px;
+  display:flex;
+  align-items:center;
+  gap:13px;
+}
+
+.pv-file-icon {
+  width:45px;
+  height:45px;
+  flex:0 0 auto;
+  display:grid;
+  place-items:center;
+  border-radius:13px;
+  background:var(--pv-soft);
+  color:var(--pv-blue);
+  font-size:12px;
+  font-weight:900;
+}
+
+.pv-title {
+  min-width:0;
+}
+
+.pv-title h1 {
+  margin:0 0 4px;
+  overflow-wrap:anywhere;
+  font-size:
+    clamp(18px,2.5vw,24px);
+  line-height:1.25;
+}
+
+.pv-title p {
+  margin:0;
+  color:var(--pv-muted);
+  font-size:12px;
+}
+
+.pv-viewer {
+  min-height:
+    calc(100vh - 155px);
+  overflow:hidden;
+  border:1px solid var(--pv-line);
+  border-radius:16px;
+  background:#fff;
+  box-shadow:var(--pv-shadow);
+}
+
+.pv-viewer iframe {
+  display:block;
+  width:100%;
+  height:
+    calc(100vh - 155px);
+  min-height:600px;
+  border:0;
+  background:#fff;
+}
+
+.pv-image {
+  padding:24px;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  background:#f8f9fc;
+}
+
+.pv-image img {
+  max-width:100%;
+  max-height:
+    calc(100vh - 200px);
+  object-fit:contain;
+  border-radius:8px;
+  box-shadow:
+    0 10px 30px
+    rgba(16,24,40,.12);
+}
+
+.pv-unsupported {
+  min-height:460px;
+  padding:50px 24px;
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+  justify-content:center;
+  text-align:center;
+  border:1px solid var(--pv-line);
+  border-radius:16px;
+  background:#fff;
+  box-shadow:var(--pv-shadow);
+}
+
+.pv-big-icon {
+  width:82px;
+  height:82px;
+  margin-bottom:18px;
+  display:grid;
+  place-items:center;
+  border-radius:22px;
+  background:var(--pv-soft);
+  color:var(--pv-blue);
+  font-size:18px;
+  font-weight:900;
+}
+
+.pv-unsupported h2 {
+  margin:0 0 9px;
+}
+
+.pv-unsupported p {
+  max-width:560px;
+  margin:0 0 24px;
+  color:var(--pv-muted);
+  line-height:1.65;
+}
+
+@media (max-width:700px) {
+
+  .pv-top {
+    height:64px;
+    padding:0 13px;
+  }
+
+  .pv-brand small {
+    display:none;
+  }
+
+  .pv-shell {
+    width:calc(100% - 18px);
+    margin-top:14px;
+  }
+
+  .pv-viewer,
+  .pv-viewer iframe {
+    min-height:
+      calc(100vh - 135px);
+    height:
+      calc(100vh - 135px);
+    border-radius:12px;
+  }
+
+  .pv-image {
+    padding:10px;
+  }
+}

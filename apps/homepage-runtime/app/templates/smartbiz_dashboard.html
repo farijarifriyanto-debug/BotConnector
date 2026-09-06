@@ -1,0 +1,282 @@
+{% extends "base.html" %}
+{% block title %}SmartBiz | BotConnector{% endblock %}
+{% block content %}
+<style>
+  .sb-shell{width:min(1180px,calc(100% - 32px));margin:0 auto;padding:54px 0 90px}.sb-hero{display:flex;justify-content:space-between;gap:24px;align-items:flex-start;margin-bottom:24px}.sb-kicker{margin:0 0 8px;color:#247c56;font-size:13px;font-weight:800;text-transform:uppercase;letter-spacing:.08em}.sb-hero h1{margin:0;font-size:clamp(34px,5vw,58px);letter-spacing:-.045em}.sb-hero p{max-width:720px;color:#687166}.sb-actions{display:flex;gap:10px;flex-wrap:wrap}.sb-button{display:inline-flex;align-items:center;justify-content:center;padding:11px 15px;border:0;border-radius:11px;background:#247c56;color:#fff;text-decoration:none;font-weight:750;cursor:pointer}.sb-button.secondary{background:#eef6f1;color:#1d6246}.sb-alert{padding:13px 16px;margin:14px 0;border-radius:12px}.sb-alert.error{background:#fff0f0;color:#9a3030}.sb-alert.notice{background:#eaf8ef;color:#236743}.sb-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:14px}.sb-card{padding:20px;border:1px solid #dfe7e1;border-radius:18px;background:#fff;box-shadow:0 12px 34px rgba(24,48,34,.06)}.sb-card span{color:#758077;font-size:13px}.sb-card strong{display:block;margin-top:15px;font-size:28px}.sb-layout{display:grid;grid-template-columns:1.65fr .85fr;gap:18px;margin-top:18px}.sb-section{margin-top:18px;padding:22px;border:1px solid #dfe7e1;border-radius:18px;background:#fff}.sb-section h2,.sb-section h3{margin-top:0}.sb-table-wrap{overflow:auto}.sb-table{width:100%;border-collapse:collapse}.sb-table th,.sb-table td{padding:12px 10px;border-bottom:1px solid #edf0ee;text-align:left;white-space:nowrap}.sb-table th{color:#687166;font-size:12px;text-transform:uppercase;letter-spacing:.05em}.sb-form{display:grid;gap:12px}.sb-form.two{grid-template-columns:repeat(2,minmax(0,1fr))}.sb-field{display:grid;gap:6px}.sb-field label{font-size:13px;font-weight:700}.sb-field input,.sb-field select,.sb-field textarea{width:100%;box-sizing:border-box;padding:11px 12px;border:1px solid #cfd8d2;border-radius:10px;background:#fff;font:inherit}.sb-businesses{display:flex;gap:8px;flex-wrap:wrap;margin:16px 0}.sb-business-link{padding:9px 12px;border:1px solid #d6dfd9;border-radius:999px;color:#526059;text-decoration:none}.sb-business-link.active{background:#247c56;color:#fff;border-color:#247c56}.sb-safe{display:flex;gap:10px;align-items:flex-start;padding:14px;border-radius:13px;background:#f4f7f5;color:#536057}.sb-empty{padding:36px;border:1px dashed #bfcac2;border-radius:18px;text-align:center}.sb-muted{color:#758077}.sb-checkbox{display:flex;gap:8px;align-items:center}.sb-checkbox input{width:auto}.sb-badge{display:inline-block;padding:5px 9px;border-radius:999px;background:#eef6f1;color:#247c56;font-size:12px;font-weight:750}@media(max-width:900px){.sb-grid{grid-template-columns:repeat(2,minmax(0,1fr))}.sb-layout{grid-template-columns:1fr}.sb-hero{display:block}.sb-actions{margin-top:18px}}@media(max-width:560px){.sb-grid,.sb-form.two{grid-template-columns:1fr}.sb-shell{width:min(100% - 22px,1180px);padding-top:34px}}
+</style>
+<section class="sb-shell">
+  <div class="sb-hero">
+    <div>
+      <p class="sb-kicker">Business Automation</p>
+      <h1>SmartBiz</h1>
+      <p>Kelola usaha, produk, stok, dan pelanggan dari akun BotConnector yang sama. WhatsApp AI tetap memakai mesin yang sudah ada dan masih dalam mode draft aman.</p>
+    </div>
+    <div class="sb-actions">
+      {% if selected_business %}<a class="sb-button" href="/smartbiz/{{ selected_business.id }}/operations">Operasional</a>{% endif %}<!-- SMARTBIZ_OPERATIONS_LINK_V0_4 -->
+      <a class="sb-button secondary" href="/app/business/chat">WhatsApp AI</a>
+      <a class="sb-button secondary" href="/business">Business Automation</a>
+    </div>
+  </div>
+
+  {% if notice %}<div class="sb-alert notice">{{ notice }}</div>{% endif %}
+  {% if error %}<div class="sb-alert error">{{ error }}</div>{% endif %}
+
+  {% if businesses %}
+  <div class="sb-businesses">
+    {% for business in businesses %}
+      <a class="sb-business-link {% if selected_business and business.id|string == selected_business.id|string %}active{% endif %}" href="/smartbiz/{{ business.id }}">{{ business.name }}</a>
+    {% endfor %}
+  </div>
+  {% endif %}
+
+  {% if not selected_business %}
+    <div class="sb-empty">
+      <h2>Buat usaha pertama Anda</h2>
+      <p class="sb-muted">Data usaha akan terisolasi berdasarkan akun dan keanggotaan SmartBiz.</p>
+      <form class="sb-form two" method="post" action="/smartbiz/businesses">
+        <div class="sb-field"><label>Nama usaha</label><input name="name" required maxlength="160" placeholder="Contoh: Toko Maju Jaya"></div>
+        <div class="sb-field"><label>Slug usaha</label><input name="slug" maxlength="63" placeholder="toko-maju-jaya"></div>
+        <div class="sb-field"><label>Jenis usaha</label><select name="business_type"><option value="retail">Toko / retail</option><option value="service">Jasa</option><option value="restaurant">Kuliner</option><option value="distribution">Distributor</option></select></div>
+        <div class="sb-field" style="align-content:end"><button class="sb-button" type="submit">Buat usaha</button></div>
+      </form>
+    </div>
+  {% else %}
+    {% set summary = smartbiz_dashboard.get('summary', {}) %}
+    <div class="sb-grid">
+      <article class="sb-card"><span>Pelanggan</span><strong>{{ summary.get('customers', 0) }}</strong></article>
+      <article class="sb-card"><span>Produk</span><strong>{{ summary.get('products', 0) }}</strong></article>
+      <article class="sb-card"><span>Draft pesanan</span><strong>{{ summary.get('draft_orders', 0) }}</strong></article>
+      <article class="sb-card"><span>Stok kosong</span><strong>{{ summary.get('empty_stock', 0) }}</strong></article>
+    </div>
+
+    <div class="sb-layout">
+      <div>
+        <section class="sb-section">
+          <div style="display:flex;justify-content:space-between;gap:16px;align-items:center"><div><span class="sb-badge">{{ selected_business.role }}</span><h2>{{ selected_business.name }}</h2></div><small class="sb-muted">{{ selected_business.currency }} · {{ selected_business.timezone }}</small></div>
+          <div class="sb-safe"><strong>Mode aman:</strong><span>pengiriman WhatsApp, booking otomatis, dan tindakan eksternal masih dinonaktifkan.</span></div>
+        </section>
+
+        <section class="sb-section">
+          <h2>Produk dan stok</h2>
+
+          <div class="sb-table-wrap">
+            <table class="sb-table">
+              <thead>
+                <tr>
+                  <th>Barcode / SKU</th>
+                  <th>Produk</th>
+                  <th>Jenis</th>
+                  <th>Harga jual</th>
+                  <th>Stok</th>
+                </tr>
+              </thead>
+
+              <tbody>
+                {% for product in smartbiz_products %}
+                  <tr>
+                    <td>
+                      <form
+                        class="sbscan-mini-form"
+                        method="post"
+                        action="/smartbiz/{{ selected_business.id }}/products/{{ product.id }}/barcode"
+                      >
+                        <input
+                          id="product-barcode-{{ product.id }}"
+                          name="barcode"
+                          value="{{ product.sku or '' }}"
+                          maxlength="80"
+                          autocomplete="off"
+                          spellcheck="false"
+                          placeholder="Scan atau ketik"
+                        >
+
+                        <button
+                          class="sbscan-button"
+                          type="button"
+                          data-barcode-camera
+                          data-mode="fill"
+                          data-target="#product-barcode-{{ product.id }}"
+                        >Kamera</button>
+
+                        <button
+                          class="sbscan-button primary"
+                          type="submit"
+                        >Simpan</button>
+                      </form>
+                    </td>
+
+                    <td>{{ product.name }}</td>
+                    <td>{{ product.product_type }}</td>
+                    <td>{{ product.sell_price|smart_number }}</td>
+                    <td>{{ product.stock_quantity|smart_number }}</td>
+                  </tr>
+
+                {% else %}
+                  <tr>
+                    <td colspan="5">Belum ada produk.</td>
+                  </tr>
+                {% endfor %}
+              </tbody>
+            </table>
+          </div>
+        </section>
+
+        <section class="sb-section">
+          <h2>Pelanggan</h2>
+          <div class="sb-table-wrap"><table class="sb-table"><thead><tr><th>Nama</th><th>Telepon</th><th>Email</th><th>Catatan</th></tr></thead><tbody>
+          {% for customer in smartbiz_customers %}<tr><td>{{ customer.name }}</td><td>{{ customer.phone or '-' }}</td><td>{{ customer.email or '-' }}</td><td>{{ customer.notes or '-' }}</td></tr>{% else %}<tr><td colspan="4">Belum ada pelanggan.</td></tr>{% endfor %}
+          </tbody></table></div>
+        </section>
+      </div>
+
+      <aside>
+        <section class="sb-section">
+          <h3>Tambah produk</h3>
+
+          <form
+            class="sb-form"
+            method="post"
+            action="/smartbiz/{{ selected_business.id }}/products"
+          >
+            <div class="sb-field">
+              <label>Nama produk</label>
+              <input name="name" required maxlength="180">
+            </div>
+
+            <div class="sb-field">
+              <label>Barcode / SKU</label>
+
+              <div class="sbscan-row">
+                <input
+                  id="smartbiz-new-product-barcode"
+                  name="sku"
+                  maxlength="80"
+                  autocomplete="off"
+                  spellcheck="false"
+                  placeholder="Scan kamera atau scanner USB"
+                >
+
+                <button
+                  class="sbscan-button primary"
+                  type="button"
+                  data-barcode-camera
+                  data-mode="fill"
+                  data-target="#smartbiz-new-product-barcode"
+                >Kamera</button>
+              </div>
+
+              <p class="sbscan-help">
+                Scanner USB dapat digunakan dengan memfokuskan kolom ini.
+              </p>
+            </div>
+
+            <div class="sb-field">
+              <label>Unit</label>
+              <input name="unit" value="pcs" maxlength="32">
+            </div>
+
+            <div class="sb-field">
+              <label>Jenis</label>
+
+              <select name="product_type">
+                <option value="goods">Barang</option>
+                <option value="service">Jasa</option>
+              </select>
+            </div>
+
+            <div class="sb-form two">
+              <div class="sb-field">
+                <label>Harga modal</label>
+                <input
+                  name="cost_price"
+                  inputmode="decimal"
+                  value="0"
+                >
+              </div>
+
+              <div class="sb-field">
+                <label>Harga jual</label>
+                <input
+                  name="sell_price"
+                  inputmode="decimal"
+                  value="0"
+                >
+              </div>
+            </div>
+
+            <label class="sb-checkbox">
+              <input
+                type="checkbox"
+                name="track_stock"
+                checked
+              >
+              Lacak stok
+            </label>
+
+            <button class="sb-button" type="submit">
+              Simpan produk
+            </button>
+          </form>
+        </section>
+
+        <section class="sb-section">
+          <h3>Tambah pelanggan</h3>
+          <form class="sb-form" method="post" action="/smartbiz/{{ selected_business.id }}/customers">
+            <div class="sb-field"><label>Nama</label><input name="name" required maxlength="180"></div>
+            <div class="sb-field"><label>WhatsApp / telepon</label><input name="phone" maxlength="40"></div>
+            <div class="sb-field"><label>Email</label><input type="email" name="email" maxlength="254"></div>
+            <div class="sb-field"><label>Catatan</label><textarea name="notes" rows="3" maxlength="2000"></textarea></div>
+            <button class="sb-button" type="submit">Simpan pelanggan</button>
+          </form>
+        </section>
+      </aside>
+    </div>
+  {% endif %}
+</section>
+
+<!-- SMARTBIZ_BARCODE_ASSETS_V061 -->
+<link
+  rel="stylesheet"
+  href="/static/smartbiz-barcode.css?v=0.6.1"
+>
+
+<div
+  class="sbscan-modal"
+  data-barcode-modal
+  hidden
+>
+  <div
+    class="sbscan-dialog"
+    role="dialog"
+    aria-modal="true"
+    aria-label="Scanner barcode"
+  >
+    <div class="sbscan-head">
+      <h2>Scan barcode</h2>
+
+      <button
+        class="sbscan-close"
+        type="button"
+        data-barcode-close
+        aria-label="Tutup scanner"
+      >×</button>
+    </div>
+
+    <video
+      class="sbscan-video"
+      data-barcode-video
+      muted
+      playsinline
+    ></video>
+
+    <p
+      class="sbscan-status"
+      data-barcode-status
+    >Menyiapkan kamera...</p>
+  </div>
+</div>
+
+<script src="/static/vendor/zxing-browser-0.2.1.js?v=0.2.1"></script>
+<script src="/static/smartbiz-barcode.js?v=0.6.1"></script>
+
+{% endblock %}

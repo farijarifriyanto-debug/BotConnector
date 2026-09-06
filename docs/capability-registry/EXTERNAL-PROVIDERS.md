@@ -166,3 +166,17 @@ lives inside the excluded internal AI cluster (ai-console,
 ai-tool-platform, ai-mission-runner, etc.), per your Phase 1 provenance
 decision. AI Preview's true external-provider dependency, if any, is
 inside excluded scope and wasn't auditable from this repo alone.
+
+---
+
+PROVIDER=SMTP (Hostinger — `smtp.hostinger.com`)
+CAPABILITY=Support ticket email notifications (apps/homepage-runtime)
+CODE_EXISTS=YES (`app/support.py`)
+CONFIGURED=YES — `SMTP_HOST`, `SMTP_USERNAME` (`admin@botconnector.id`) hardcoded as non-secret config defaults (host/username are not secrets); `SMTP_PASSWORD` was found as a **hardcoded, real-looking literal fallback** (not a placeholder) in the live source, confirmed not overridden by any `.env` on the box — meaning it was the password actually in active use. **Fixed in the canonical copy** (`apps/homepage-runtime`) by removing the literal and requiring the env var, matching the safe pattern this same file already used correctly for its Postgres/Redis passwords. The live source and live container were NOT modified — this is a canonical-repo-only fix, and the exposure on the live box itself is unresolved (flagging for you to rotate that SMTP password and set `SMTP_PASSWORD` via the same protected mechanism the Postgres/Redis credentials already use).
+SANDBOX_OR_LIVE=LIVE
+REAL_E2E_PROVEN=NO (not tested — sending a real email has a real external side effect, deliberately not attempted)
+ACCOUNT_PLAN_READY=YES (real account, real host, apparently in active use)
+FAILURE_HANDLING=UNKNOWN
+PUBLIC_READY=N/A — this is a notification side-channel for the support capability above, not a standalone public claim
+STATUS=LIVE
+NOTES=**Security finding, not just a provenance note**: treat the exposed literal as a credential that should be rotated, independent of anything else in this consolidation.

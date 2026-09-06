@@ -1,0 +1,510 @@
+<!doctype html>
+<html lang="id">
+
+<head>
+
+<meta charset="utf-8">
+
+<meta
+  name="viewport"
+  content="width=device-width,initial-scale=1"
+>
+
+<title>
+  Shared | BotConnector Drive
+</title>
+
+<link
+  rel="stylesheet"
+  href="/static/style.css"
+>
+
+<link
+  rel="stylesheet"
+  href="/static/drive.css?v=0.7.0"
+>
+
+</head>
+
+
+<body class="bc-drive-body">
+
+
+<header class="bc-drive-top">
+
+  <a
+    class="bc-drive-brand"
+    href="/drive"
+  >
+
+    <span class="bc-drive-logo">
+      B
+    </span>
+
+    <span>
+
+      <strong>
+        BotConnector
+      </strong>
+
+      <small>
+        Shared
+      </small>
+
+    </span>
+
+  </a>
+
+
+  <div class="bc-drive-top-actions">
+
+    <a href="/drive">
+      My Drive
+    </a>
+
+    <a
+      href="/drive/shared"
+      class="active"
+    >
+      Shared
+    </a>
+
+  </div>
+
+</header>
+
+
+<main class="bc-shared-page">
+
+
+  <div class="bc-shared-heading">
+
+    <div>
+
+      <span class="bc-drive-eyebrow">
+        BOTCONNECTOR DRIVE
+      </span>
+
+      <h1>
+        Shared
+      </h1>
+
+      <p>
+        File dan folder yang dibagikan
+        antar pengguna BotConnector.
+      </p>
+
+    </div>
+
+
+    <a
+      class="bc-shared-my-drive"
+      href="/drive"
+    >
+      Kembali ke My Drive
+    </a>
+
+  </div>
+
+
+  {% if notice %}
+
+  <div class="bc-drive-alert success">
+
+    <strong>
+      Berhasil
+    </strong>
+
+    <span>
+      {{ notice }}
+    </span>
+
+  </div>
+
+  {% endif %}
+
+
+  {% if error %}
+
+  <div class="bc-drive-alert error">
+
+    <strong>
+      Shared
+    </strong>
+
+    <span>
+      {{ error }}
+    </span>
+
+  </div>
+
+  {% endif %}
+
+
+  {% if folder %}
+
+  <section class="bc-shared-card">
+
+    <div class="bc-shared-folder-head">
+
+      <div>
+
+        <small>
+          Folder shared
+        </small>
+
+        <h2>
+          {{ folder.share.name }}
+        </h2>
+
+        <p>
+          Dibagikan oleh
+          {{ folder.share.owner_name or folder.share.owner_email }}
+        </p>
+
+      </div>
+
+
+      <span class="bc-shared-viewer">
+        Viewer
+      </span>
+
+    </div>
+
+
+    <div class="bc-shared-breadcrumb">
+
+      <a href="/drive/shared">
+        Shared
+      </a>
+
+      <span>›</span>
+
+      <a
+        href="/drive/shared?share_id={{ share_id }}"
+      >
+        {{ folder.share.name }}
+      </a>
+
+
+      {% if path %}
+
+      <span>›</span>
+
+      <span>
+        {{ path }}
+      </span>
+
+      {% endif %}
+
+    </div>
+
+
+    {% if path %}
+
+    <a
+      class="bc-shared-parent"
+      href="/drive/shared?share_id={{ share_id }}{% if parent_path %}&amp;path={{ parent_path }}{% endif %}"
+    >
+      ← Folder sebelumnya
+    </a>
+
+    {% endif %}
+
+
+    <div class="bc-shared-list">
+
+      {% for item in folder.items %}
+
+      <div class="bc-shared-row">
+
+        <div class="bc-shared-file">
+
+          <span class="bc-shared-file-icon">
+
+            {% if item.type == 'folder' %}
+              📁
+            {% else %}
+              📄
+            {% endif %}
+
+          </span>
+
+
+          <div>
+
+            <strong>
+              {{ item.name }}
+            </strong>
+
+            <small>
+
+              {% if item.type == 'folder' %}
+                Folder
+              {% else %}
+                {{ item.size_bytes or 0 }} bytes
+              {% endif %}
+
+            </small>
+
+          </div>
+
+        </div>
+
+
+        <div class="bc-shared-row-actions">
+
+          {% if item.type == 'folder' %}
+
+          <a
+            href="/drive/shared?share_id={{ share_id }}&amp;path={{ item.path }}"
+          >
+            Buka
+          </a>
+
+          {% else %}
+
+          <a
+            href="/drive/shared/download?share_id={{ share_id }}&amp;path={{ item.path }}"
+          >
+            Unduh
+          </a>
+
+          {% endif %}
+
+        </div>
+
+      </div>
+
+      {% else %}
+
+      <div class="bc-shared-empty">
+        Folder ini kosong.
+      </div>
+
+      {% endfor %}
+
+    </div>
+
+  </section>
+
+
+  {% else %}
+
+
+  <section class="bc-shared-card">
+
+    <div class="bc-shared-section-title">
+
+      <div>
+
+        <h2>
+          Dibagikan kepada saya
+        </h2>
+
+        <p>
+          Akses viewer dari pengguna
+          BotConnector lain.
+        </p>
+
+      </div>
+
+      <span>
+        {{ incoming|length }}
+      </span>
+
+    </div>
+
+
+    <div class="bc-shared-list">
+
+      {% for item in incoming %}
+
+      <div class="bc-shared-row">
+
+        <div class="bc-shared-file">
+
+          <span class="bc-shared-file-icon">
+
+            {% if item.type == 'folder' %}
+              📁
+            {% else %}
+              📄
+            {% endif %}
+
+          </span>
+
+
+          <div>
+
+            <strong>
+              {{ item.name }}
+            </strong>
+
+            <small>
+              Dari
+              {{ item.owner_name or item.owner_email }}
+              · Viewer
+            </small>
+
+          </div>
+
+        </div>
+
+
+        <div class="bc-shared-row-actions">
+
+          {% if item.type == 'folder' %}
+
+          <a
+            href="/drive/shared?share_id={{ item.share_id }}"
+          >
+            Buka
+          </a>
+
+          {% else %}
+
+          <a
+            href="/drive/shared/download?share_id={{ item.share_id }}"
+          >
+            Unduh
+          </a>
+
+          {% endif %}
+
+        </div>
+
+      </div>
+
+      {% else %}
+
+      <div class="bc-shared-empty">
+
+        Belum ada file atau folder
+        yang dibagikan kepada Anda.
+
+      </div>
+
+      {% endfor %}
+
+    </div>
+
+  </section>
+
+
+  <section class="bc-shared-card">
+
+    <div class="bc-shared-section-title">
+
+      <div>
+
+        <h2>
+          Dibagikan oleh saya
+        </h2>
+
+        <p>
+          Kelola akses viewer yang
+          pernah Anda berikan.
+        </p>
+
+      </div>
+
+      <span>
+        {{ outgoing|length }}
+      </span>
+
+    </div>
+
+
+    <div class="bc-shared-list">
+
+      {% for item in outgoing %}
+
+      <div class="bc-shared-row">
+
+        <div class="bc-shared-file">
+
+          <span class="bc-shared-file-icon">
+
+            {% if item.item_type == 'folder' %}
+              📁
+            {% else %}
+              📄
+            {% endif %}
+
+          </span>
+
+
+          <div>
+
+            <strong>
+              {{ item.item_name }}
+            </strong>
+
+            <small>
+              Kepada
+              {{ item.recipient_name or item.recipient_email }}
+              · Viewer
+            </small>
+
+          </div>
+
+        </div>
+
+
+        <div class="bc-shared-row-actions">
+
+          <form
+            method="post"
+            action="/drive/share/revoke"
+            onsubmit="return confirm('Cabut akses shared ini?');"
+          >
+
+            <input
+              type="hidden"
+              name="share_id"
+              value="{{ item.id }}"
+            >
+
+            <input
+              type="hidden"
+              name="csrf_token"
+              value="{{ csrf_token }}"
+            >
+
+            <button
+              type="submit"
+              class="danger"
+            >
+              Cabut akses
+            </button>
+
+          </form>
+
+        </div>
+
+      </div>
+
+      {% else %}
+
+      <div class="bc-shared-empty">
+
+        Anda belum membagikan
+        file atau folder.
+
+      </div>
+
+      {% endfor %}
+
+    </div>
+
+  </section>
+
+  {% endif %}
+
+
+</main>
+
+
+</body>
+</html>

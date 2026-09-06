@@ -1,0 +1,14 @@
+{% extends "base.html" %}
+{% block title %}{{ product.name }} — BotConnector{% endblock %}
+{% block content %}
+<section class="page-hero shell product-page-hero">
+  <div class="eyebrow">{{ product.eyebrow }}</div>
+  <span class="product-status {{ product.status_class }}">{{ product.status }}</span>
+  <h1>{{ product.name }}</h1>
+  <p>{{ product.summary }}</p>
+  <div class="hero-actions"><a class="button primary" href="{{ product.url }}">{{ product.cta }}</a><a class="button ghost" href="/products">Lihat produk lain</a></div>
+</section>
+<section class="shell feature-slab">
+  {% for feature in product.features %}<div><span>0{{ loop.index }}</span><strong>{{ feature }}</strong></div>{% endfor %}
+</section>
+{% endblock %}

@@ -1,0 +1,72 @@
+{% extends "base.html" %}
+{% block title %}Business Operations | BotConnector{% endblock %}
+{% block content %}
+<section class="operations-detail-hero">
+  <div class="shell assistant-detail-inner reveal">
+    <nav class="assistant-breadcrumb" aria-label="Breadcrumb">
+      <a href="/products">Semua produk</a>
+      <span>›</span>
+      <a href="/business">Business Automation</a>
+      <span>›</span>
+      <strong>Business Operations</strong>
+    </nav>
+    <div class="operations-detail-icon">OP</div>
+    <span class="business-public-badge">OPERATIONS PILOT · RECORD ONLY</span>
+    <h1>Kelola alur bisnis sebelum automasi dijalankan.</h1>
+    <p>
+      Simpan profil, katalog layanan, pelanggan, prospek, booking,
+      follow-up, approval admin, dan audit log dalam satu ruang kerja.
+    </p>
+    <div class="personal-public-actions">
+      <a class="button primary business-start-button" href="{{ start_url }}">{{ start_label }}</a>
+      {% if not user %}<a class="button ghost" href="{{ login_url }}">Masuk</a>{% endif %}
+    </div>
+    <small>
+      Semua tindakan masih record-only. Tidak ada pesan, booking,
+      follow-up, atau pembayaran yang dieksekusi otomatis.
+    </small>
+  </div>
+</section>
+
+<section class="shell assistant-feature-section">
+  <div class="personal-section-heading reveal">
+    <span>OPERASIONAL TERSTRUKTUR</span>
+    <h2>Satu dashboard untuk pekerjaan admin harian.</h2>
+  </div>
+  <div class="assistant-feature-grid">
+    {% for feature in [
+      "Profil bisnis, jam operasional, gaya balasan, dan aturan eskalasi",
+      "Katalog layanan dengan durasi, catatan harga, dan ketersediaan",
+      "Database pelanggan dengan deduplikasi dari WhatsApp simulator",
+      "Pipeline prospek dan tugas admin berbasis SLA",
+      "Approval bertingkat: admin lalu manager untuk risiko tinggi",
+      "Template balasan, booking simulator, follow-up, audit, dan ekspor CSV"
+    ] %}
+    <article class="assistant-feature-item reveal">
+      <span>✓</span><p>{{ feature }}</p>
+    </article>
+    {% endfor %}
+  </div>
+</section>
+
+<section class="shell business-control-card reveal">
+  <strong>Persetujuan bukan pengiriman.</strong>
+  <p>
+    Pesan simulasi dapat disinkronkan ke pelanggan, prospek, dan approval.
+    Draft yang disetujui tetap approved_not_sent; follow-up planned_not_sent;
+    booking tetap tentative.
+  </p>
+</section>
+
+<section class="shell personal-public-cta reveal">
+  <div>
+    <span class="personal-card-label">BUSINESS OPERATIONS</span>
+    <h2>Bangun prosesnya dulu, aktifkan koneksi belakangan.</h2>
+    <p>Data tersimpan di PostgreSQL melalui Core API tanpa schema baru.</p>
+  </div>
+  <div class="personal-public-actions">
+    <a class="button primary business-start-button" href="{{ start_url }}">{{ start_label }}</a>
+    {% if not user %}<a class="button ghost" href="{{ login_url }}">Sudah punya akun? Masuk</a>{% endif %}
+  </div>
+</section>
+{% endblock %}

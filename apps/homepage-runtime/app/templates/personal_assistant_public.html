@@ -1,0 +1,110 @@
+{% extends "base.html" %}
+{% block title %}{{ assistant.name }} | Personal Automation BotConnector{% endblock %}
+{% block content %}
+<section class="assistant-detail-hero {{ assistant.accent }}">
+  <div class="shell assistant-detail-inner reveal">
+    <nav class="assistant-breadcrumb" aria-label="Breadcrumb">
+      <a href="/products">Semua produk</a>
+      <span>›</span>
+      <a href="/personal">Personal Automation</a>
+      <span>›</span>
+      <strong>{{ assistant.name }}</strong>
+    </nav>
+
+    <div class="assistant-detail-icon" aria-hidden="true">{{ assistant.icon }}</div>
+    <span class="assistant-detail-badge">{{ assistant.eyebrow }} · PILOT</span>
+    <h1>{{ assistant.headline }}</h1>
+    <p>{{ assistant.lead }}</p>
+
+    <div class="personal-public-actions">
+      <a class="button primary personal-start-button" href="{{ start_url }}">{{ start_label }}</a>
+      {% if not user %}
+      <a class="button ghost" href="{{ login_url }}">Masuk</a>
+      {% endif %}
+    </div>
+
+    <small>
+      Penjelasan dapat dibuka tanpa akun. Login diperlukan untuk menyimpan
+      data dan membuka ruang kerja pribadi.
+    </small>
+  </div>
+</section>
+
+<section class="shell assistant-feature-section">
+  <div class="personal-section-heading reveal">
+    <span>Fitur utama</span>
+    <h2>Apa yang dibantu {{ assistant.name }}?</h2>
+  </div>
+
+  <div class="assistant-feature-grid">
+    {% for feature in assistant.features %}
+    <article class="assistant-feature-item reveal">
+      <span>✓</span>
+      <p>{{ feature }}</p>
+    </article>
+    {% endfor %}
+  </div>
+</section>
+
+<section class="assistant-workflow-wrap">
+  <div class="shell">
+    <div class="personal-section-heading reveal">
+      <span>Alur kerja</span>
+      <h2>Dari kebutuhan sampai hasil siap diperiksa.</h2>
+    </div>
+
+    <ol class="assistant-workflow-grid">
+      {% for item in assistant.workflow %}
+      <li class="reveal">
+        <span>{{ loop.index }}</span>
+        <h3>{{ item.title }}</h3>
+        <p>{{ item.text }}</p>
+      </li>
+      {% endfor %}
+    </ol>
+  </div>
+</section>
+
+<section class="shell assistant-example-section">
+  <div class="assistant-example-card reveal">
+    <div>
+      <span class="personal-card-label">CONTOH PENGGUNAAN</span>
+      <h2>{{ assistant.example_title }}</h2>
+      <p class="assistant-example-input">
+        <strong>Masukan:</strong> {{ assistant.example_input }}
+      </p>
+    </div>
+
+    <div class="assistant-example-output">
+      <strong>Hasil yang disiapkan</strong>
+      <ul>
+        {% for output in assistant.example_output %}
+        <li>{{ output }}</li>
+        {% endfor %}
+      </ul>
+    </div>
+  </div>
+</section>
+
+<section class="shell assistant-control-section reveal">
+  <strong>Kontrol tetap di tangan pengguna.</strong>
+  <p>{{ assistant.safety }}</p>
+</section>
+
+<section class="shell personal-public-cta reveal">
+  <div>
+    <span class="personal-card-label">{{ assistant.name }}</span>
+    <h2>Mulai dengan kebutuhan nyata Anda.</h2>
+    <p>
+      Pilihan {{ assistant.name }} akan dibawa ke registrasi, onboarding,
+      lalu langsung membuka ruang kerja yang sesuai.
+    </p>
+  </div>
+  <div class="personal-public-actions">
+    <a class="button primary personal-start-button" href="{{ start_url }}">{{ start_label }}</a>
+    {% if not user %}
+    <a class="button ghost" href="{{ login_url }}">Sudah punya akun? Masuk</a>
+    {% endif %}
+  </div>
+</section>
+{% endblock %}

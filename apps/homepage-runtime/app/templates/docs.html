@@ -1,0 +1,169 @@
+{% extends "base.html" %}
+
+{% block title %}
+Panduan &amp; Dokumentasi — BotConnector Platform
+{% endblock %}
+
+{% block content %}
+<style>
+  .bc-docs-page {
+    background: #F6F7FB;
+    color: #101828;
+    min-height: calc(100vh - 140px);
+    padding: 56px 0 80px;
+  }
+  .bc-docs-shell {
+    max-width: 1140px;
+    margin: 0 auto;
+    padding: 0 24px;
+  }
+  .bc-docs-hero {
+    text-align: center;
+    margin-bottom: 48px;
+  }
+  .bc-docs-kicker {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    background: #EEF0FF;
+    color: #5B5FEF;
+    padding: 6px 16px;
+    border-radius: 99px;
+    font-size: 11.5px;
+    font-weight: 850;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    margin-bottom: 16px;
+  }
+  .bc-docs-title {
+    font-size: clamp(32px, 4.5vw, 44px);
+    font-weight: 900;
+    letter-spacing: -0.035em;
+    color: #101828;
+    margin: 0 0 12px;
+  }
+  .bc-docs-lead {
+    font-size: 15.5px;
+    color: #667085;
+    max-width: 600px;
+    margin: 0 auto;
+    line-height: 1.6;
+  }
+  .bc-docs-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+    gap: 22px;
+    margin-bottom: 48px;
+  }
+  .bc-docs-card {
+    background: #FFFFFF;
+    border: 1px solid #E7E9F2;
+    border-radius: 20px;
+    padding: 30px;
+    text-decoration: none;
+    color: inherit;
+    box-shadow: 0 4px 20px rgba(11, 16, 32, 0.03);
+    transition: transform 0.2s ease, box-shadow 0.2s ease, border-color 0.2s ease;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+  }
+  .bc-docs-card:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 14px 34px rgba(91, 95, 239, 0.08);
+    border-color: #C7CBF8;
+  }
+  .bc-docs-card h3 {
+    font-size: 19px;
+    font-weight: 850;
+    color: #101828;
+    margin: 0 0 8px;
+  }
+  .bc-docs-card p {
+    font-size: 14px;
+    color: #667085;
+    line-height: 1.6;
+    margin: 0 0 16px;
+  }
+  .bc-docs-action {
+    font-size: 13.5px;
+    font-weight: 800;
+    color: #5B5FEF;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+</style>
+
+<main class="bc-docs-page">
+  <div class="bc-docs-shell">
+
+    <section class="bc-docs-hero">
+      <div class="bc-docs-kicker">
+        <span>✦</span> PANDUAN &amp; DOKUMENTASI
+      </div>
+      <h1 class="bc-docs-title">Panduan Operasional BotConnector</h1>
+      <p class="bc-docs-lead">
+        Pelajari cara menggunakan modul kasir POS, konfigurasi cabang, resep restoran, notifikasi Telegram, dan otomasi sinyal trading.
+      </p>
+    </section>
+
+    <div class="bc-docs-grid">
+      <a class="bc-docs-card" href="/bisnis/">
+        <div>
+          <div style="font-size:11px;font-weight:800;color:#5B5FEF;letter-spacing:0.08em;text-transform:uppercase;margin-bottom:8px">PANDUAN UTAMA</div>
+          <h3>Business Suite &amp; Kasir POS</h3>
+          <p>Panduan lengkap pembukaan kasir, transaksi barcode, split payment, dan penutupan shift harian.</p>
+        </div>
+        <div class="bc-docs-action">Buka Panduan POS &rarr;</div>
+      </a>
+
+      <a class="bc-docs-card" href="/bisnis/#/restaurant">
+        <div>
+          <div style="font-size:11px;font-weight:800;color:#5B5FEF;letter-spacing:0.08em;text-transform:uppercase;margin-bottom:8px">RESTORAN &amp; KITCHEN</div>
+          <h3>Meja, Resep &amp; KOT Dapur</h3>
+          <p>Tata cara setup denah meja, pesanan dine-in, konfigurasi resep BOM, dan pencetakan tiket pesanan dapur.</p>
+        </div>
+        <div class="bc-docs-action">Pelajari Resto &rarr;</div>
+      </a>
+
+      <a class="bc-docs-card" href="/bisnis/#/inventory">
+        <div>
+          <div style="font-size:11px;font-weight:800;color:#5B5FEF;letter-spacing:0.08em;text-transform:uppercase;margin-bottom:8px">INVENTORI &amp; TRANSFER</div>
+          <h3>Stok Multi-Cabang &amp; Transfer</h3>
+          <p>Kelola stok per lokasi cabang, lakukan stock opname, dan kirim dokumen transfer antar gudang.</p>
+        </div>
+        <div class="bc-docs-action">Panduan Inventori &rarr;</div>
+      </a>
+
+      <a class="bc-docs-card" href="/bisnis/#/integrasi">
+        <div>
+          <div style="font-size:11px;font-weight:800;color:#5B5FEF;letter-spacing:0.08em;text-transform:uppercase;margin-bottom:8px">INTEGRASI TELEGRAM</div>
+          <h3>Bot Telegram V2 &amp; Alert</h3>
+          <p>Panduan menghubungkan bot Telegram pribadi/bisnis (BYOB) dan mengaktifkan notifikasi rekap penjualan.</p>
+        </div>
+        <div class="bc-docs-action">Setup Telegram &rarr;</div>
+      </a>
+
+      <a class="bc-docs-card" href="/connect-v2/">
+        <div>
+          <div style="font-size:11px;font-weight:800;color:#5B5FEF;letter-spacing:0.08em;text-transform:uppercase;margin-bottom:8px">OTOMASI CONNECT</div>
+          <h3>TradingView &amp; MetaTrader Bridge</h3>
+          <p>Konfigurasi webhook payload, instalasi EA MetaTrader 5, dan eksekusi sinyal trading event-driven.</p>
+        </div>
+        <div class="bc-docs-action">Buka Dokumentasi Connect &rarr;</div>
+      </a>
+
+      <a class="bc-docs-card" href="/support">
+        <div>
+          <div style="font-size:11px;font-weight:800;color:#5B5FEF;letter-spacing:0.08em;text-transform:uppercase;margin-bottom:8px">BANTUAN TEKNIS</div>
+          <h3>Pusat Dukungan &amp; Tiket</h3>
+          <p>Hubungi tim dukungan BotConnector untuk kendala akun, integrasi teknis, atau permintaan bantuan operasional.</p>
+        </div>
+        <div class="bc-docs-action">Kirim Tiket &rarr;</div>
+      </a>
+    </div>
+
+  </div>
+</main>
+{% endblock %}

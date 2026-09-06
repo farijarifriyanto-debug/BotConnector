@@ -1,0 +1,54 @@
+from functools import lru_cache
+
+from pydantic_settings import BaseSettings, SettingsConfigDict
+
+
+class Settings(BaseSettings):
+    app_name: str = "BotConnector"
+    app_env: str = "development"
+    session_secret: str = "change-this-in-production"
+    webhook_url: str = "/webhook"
+    langkah_url: str = "http://127.0.0.1:8040"
+    business_url: str = "/business"
+    monitor_url: str = "/monitor"
+    login_url: str = "/login"
+    register_url: str = "/register"
+    status_url: str = "/status"
+    docs_url: str = "/docs"
+
+    core_integration_enabled: bool = False
+    core_api_url: str = "http://botconnector-backend-api:8050"
+    core_cookie_name: str = "bc_session"
+    core_cookie_secure: bool = False
+    core_session_ttl_seconds: int = 604800
+    core_timeout_seconds: float = 12.0
+
+    creator_ai_enabled: bool = False
+    creator_ai_url: str = "http://botconnector-personal-ai:8000"
+    creator_ai_token: str = ""
+    creator_ai_timeout_seconds: float = 100.0
+
+    freelancer_ai_enabled: bool = False
+    freelancer_ai_url: str = "http://botconnector-personal-ai:8000"
+    freelancer_ai_token: str = ""
+    freelancer_ai_timeout_seconds: float = 100.0
+
+    business_ai_enabled: bool = False
+    business_ai_url: str = "http://botconnector-personal-ai:8000"
+    business_ai_token: str = ""
+    business_ai_timeout_seconds: float = 100.0
+    business_simulation_history_limit: int = 50
+
+    business_operations_enabled: bool = False
+    business_operations_record_limit: int = 250
+    business_operations_audit_limit: int = 100
+
+    business_workflow_enabled: bool = False
+    business_workflow_export_limit: int = 1000
+
+    model_config = SettingsConfigDict(env_file=".env", extra="ignore")
+
+
+@lru_cache
+def get_settings() -> Settings:
+    return Settings()

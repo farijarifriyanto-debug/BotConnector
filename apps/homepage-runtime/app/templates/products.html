@@ -1,0 +1,379 @@
+{% extends "base.html" %}
+
+{% block title %}
+Produk BotConnector — Platform Operasional Bisnis, POS Kasir &amp; Otomasi Terhubung
+{% endblock %}
+
+{% block content %}
+<style>
+  .bc-prod-page {
+    background: #F6F7FB;
+    color: #101828;
+    min-height: calc(100vh - 140px);
+    padding: 56px 0 80px;
+    overflow-x: hidden;
+  }
+  .bc-prod-shell {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 0 24px;
+  }
+
+  /* Hero Section */
+  .bc-prod-hero {
+    text-align: center;
+    margin-bottom: 56px;
+  }
+  .bc-prod-kicker {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    background: #EEF0FF;
+    color: #5B5FEF;
+    padding: 6px 16px;
+    border-radius: 99px;
+    font-size: 11.5px;
+    font-weight: 850;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    margin-bottom: 18px;
+    box-shadow: 0 2px 8px rgba(91, 95, 239, 0.06);
+  }
+  .bc-prod-title {
+    font-size: clamp(32px, 4.5vw, 48px);
+    font-weight: 900;
+    letter-spacing: -0.035em;
+    line-height: 1.15;
+    color: #101828;
+    margin: 0 auto 16px;
+    max-width: 780px;
+  }
+  .bc-prod-title span {
+    color: #5B5FEF;
+    background: linear-gradient(135deg, #5B5FEF 0%, #3B82F6 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+  }
+  .bc-prod-lead {
+    font-size: 16px;
+    color: #667085;
+    line-height: 1.65;
+    margin: 0 auto 24px;
+    max-width: 640px;
+  }
+
+  /* Bento Product Grid */
+  .bc-prod-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 24px;
+    margin-bottom: 56px;
+  }
+  .bc-prod-card {
+    background: #FFFFFF;
+    border: 1px solid #E7E9F2;
+    border-radius: 24px;
+    padding: 36px;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    box-shadow: 0 4px 20px rgba(11, 16, 32, 0.03);
+    transition: transform 0.2s ease, box-shadow 0.2s ease, border-color 0.2s ease;
+    text-decoration: none;
+    color: inherit;
+  }
+  .bc-prod-card:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 16px 40px rgba(91, 95, 239, 0.08);
+    border-color: #C7CBF8;
+  }
+  .bc-prod-card.featured {
+    grid-column: span 2;
+    background: linear-gradient(180deg, #FFFFFF 0%, #F9FAFF 100%);
+    border: 2px solid #5B5FEF;
+    position: relative;
+  }
+
+  .bc-prod-badge {
+    font-size: 11px;
+    font-weight: 850;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    padding: 4px 12px;
+    border-radius: 99px;
+    background: #EEF0FF;
+    color: #5B5FEF;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    margin-bottom: 18px;
+  }
+  .bc-prod-badge.green {
+    background: #e8f9ef;
+    color: #22C55E;
+    border: 1px solid #BBF7D0;
+  }
+  .bc-prod-card h3 {
+    font-size: 24px;
+    font-weight: 850;
+    color: #101828;
+    margin: 0 0 10px;
+    letter-spacing: -0.02em;
+  }
+  .bc-prod-card h4 {
+    font-size: 20px;
+    font-weight: 850;
+    color: #101828;
+    margin: 0 0 10px;
+    letter-spacing: -0.02em;
+  }
+  .bc-prod-card p {
+    font-size: 14.5px;
+    color: #667085;
+    line-height: 1.65;
+    margin: 0 0 24px;
+  }
+
+  .bc-prod-tags {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin-bottom: 28px;
+  }
+  .bc-prod-tag {
+    background: #F6F7FB;
+    border: 1px solid #E7E9F2;
+    padding: 5px 12px;
+    border-radius: 8px;
+    font-size: 12px;
+    font-weight: 700;
+    color: #344054;
+  }
+
+  .bc-prod-card-action {
+    font-size: 14px;
+    font-weight: 800;
+    color: #5B5FEF;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    border-top: 1px solid #F0F2F8;
+    padding-top: 20px;
+  }
+
+  /* Bottom CTA Banner */
+  .bc-prod-cta-banner {
+    background: #0B1020;
+    border-radius: 28px;
+    padding: 48px;
+    text-align: center;
+    color: #FFFFFF;
+    position: relative;
+    overflow: hidden;
+    box-shadow: 0 20px 50px rgba(11, 16, 32, 0.14);
+  }
+  .bc-prod-cta-banner::before {
+    content: "";
+    position: absolute;
+    top: -100px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 500px;
+    height: 300px;
+    border-radius: 50%;
+    background: radial-gradient(circle, rgba(91, 95, 239, 0.35) 0%, rgba(91, 95, 239, 0) 70%);
+    pointer-events: none;
+  }
+
+  @media(max-width: 980px) {
+    .bc-prod-grid { grid-template-columns: 1fr; }
+    .bc-prod-card.featured { grid-column: span 1; }
+  }
+  @media(max-width: 600px) {
+    .bc-prod-page { padding: 36px 0 60px; }
+    .bc-prod-card { padding: 24px 20px; border-radius: 20px; }
+    .bc-prod-cta-banner { padding: 32px 20px; border-radius: 20px; }
+  }
+</style>
+
+<main class="bc-prod-page">
+  <div class="bc-prod-shell">
+
+    <!-- HERO SECTION -->
+    <section class="bc-prod-hero">
+      <div class="bc-prod-kicker">
+        <span>✦</span> KATALOG PRODUK &amp; LAYANAN
+      </div>
+      <h1 class="bc-prod-title">
+        Alat yang tepat untuk<br>
+        <span>operasional dan otomasi bisnis.</span>
+      </h1>
+      <p class="bc-prod-lead">
+        Gunakan satu akun BotConnector untuk mengelola kasir POS, inventori multi-cabang, resep resto, otomasi webhook, dan penyimpanan dokumen bisnis.
+      </p>
+    </section>
+
+    <!-- PRODUCT CATALOG BENTO GRID -->
+    <div class="bc-prod-grid">
+
+      <!-- Featured: Business Suite -->
+      <a class="bc-prod-card featured" href="/bisnis/">
+        <div>
+          <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px">
+            <span class="bc-prod-badge green">
+              <span style="width:6px;height:6px;border-radius:50%;background:#22C55E"></span> UTAMA &middot; OPERASIONAL
+            </span>
+            <span style="font-size:12px;color:#5B5FEF;font-weight:800">Cloud &amp; Offline-Ready</span>
+          </div>
+          <h3>Business Suite — Manajemen Bisnis Terintegrasi</h3>
+          <p>
+            Pusat operasional bisnis retail, POS kasir ultra-responsif, manajemen meja &amp; tiket dapur (KOT) restoran, inventori multi-cabang terpusat, transfer stok antar gudang, rekap laporan laba rugi real-time, dan alert Telegram V2.
+          </p>
+          <div class="bc-prod-tags">
+            <span class="bc-prod-tag">Retail POS Kasir</span>
+            <span class="bc-prod-tag">Restaurant &amp; KDS</span>
+            <span class="bc-prod-tag">Multi-Cabang Inventory</span>
+            <span class="bc-prod-tag">Transfer Stok Gudang</span>
+            <span class="bc-prod-tag">Laporan Laba Rugi</span>
+            <span class="bc-prod-tag">Telegram V2 Alerts</span>
+          </div>
+        </div>
+        <div class="bc-prod-card-action">
+          <span>Buka Business Suite</span> &rarr;
+        </div>
+      </a>
+
+      <!-- BotConnector Parking -->
+      <a class="bc-prod-card" href="/parking/">
+        <div>
+          <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px">
+            <span class="bc-prod-badge">PARKIR &amp; AKSES</span>
+            <span style="font-size:12px;color:#22C55E;font-weight:800">● Aktif</span>
+          </div>
+          <h4>BotConnector Parking</h4>
+          <p>
+            Kelola operasional parkir, tarif, pembayaran, ANPR, perangkat gerbang, dan multi-lokasi dalam satu sistem.
+          </p>
+          <div class="bc-prod-tags">
+            <span class="bc-prod-tag">Multi-Lokasi</span>
+            <span class="bc-prod-tag">ANPR Ready</span>
+            <span class="bc-prod-tag">Barrier Integration</span>
+            <span class="bc-prod-tag">Payment &amp; QRIS Ready</span>
+            <span class="bc-prod-tag">Offline Edge</span>
+          </div>
+        </div>
+        <div class="bc-prod-card-action">
+          <span>Buka Parking</span> &rarr;
+        </div>
+      </a>
+
+      <!-- Connect -->
+      <a class="bc-prod-card" href="/connect-v2/">
+        <div>
+          <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px">
+            <span class="bc-prod-badge">OTOMASI &amp; WEBHOOK</span>
+            <span style="font-size:12px;color:#22C55E;font-weight:800">● Aktif</span>
+          </div>
+          <h4>BotConnector Connect</h4>
+          <p>
+            Hubungkan sinyal webhook TradingView ke MetaTrader 5 atau Binance. Otomasi eksekusi cepat, bridge aman, dan manajemen webhook trading.
+          </p>
+          <div class="bc-prod-tags">
+            <span class="bc-prod-tag">TradingView Webhook</span>
+            <span class="bc-prod-tag">MetaTrader 5 EA</span>
+            <span class="bc-prod-tag">Binance API</span>
+            <span class="bc-prod-tag">Retry &amp; Idempotency</span>
+          </div>
+        </div>
+        <div class="bc-prod-card-action">
+          <span>Buka Connect</span> &rarr;
+        </div>
+      </a>
+
+      <!-- My Drive -->
+      <a class="bc-prod-card" href="/drive">
+        <div>
+          <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px">
+            <span class="bc-prod-badge">PENYIMPANAN CLOUD</span>
+            <span style="font-size:12px;color:#5B5FEF;font-weight:800">Universal</span>
+          </div>
+          <h4>My Drive Cloud</h4>
+          <p>
+            Penyimpanan file terintegrasi untuk seluruh aplikasi, laporan keuangan, dokumen usaha, dan aset produk akun BotConnector Anda.
+          </p>
+          <div class="bc-prod-tags">
+            <span class="bc-prod-tag">Penyimpanan Aman</span>
+            <span class="bc-prod-tag">File Sharing &amp; Public Link</span>
+            <span class="bc-prod-tag">Integrasi Aplikasi</span>
+          </div>
+        </div>
+        <div class="bc-prod-card-action">
+          <span>Buka My Drive</span> &rarr;
+        </div>
+      </a>
+
+      <!-- Integrasi & Hardware (POS Hardware, Printer, Telegram) -->
+      <a class="bc-prod-card" href="/bisnis/#/integrasi">
+        <div>
+          <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px">
+            <span class="bc-prod-badge">HARDWARE &amp; BOT</span>
+            <span style="font-size:12px;color:#5B5FEF;font-weight:800">Tersedia</span>
+          </div>
+          <h4>Hardware POS &amp; Telegram Bot</h4>
+          <p>
+            Dukungan printer receipt thermal 58mm/80mm, barcode scanner USB/Bluetooth, timbangan digital, dan integrasi Bot Telegram kustom (BYOB).
+          </p>
+          <div class="bc-prod-tags">
+            <span class="bc-prod-tag">Thermal Receipt Printer</span>
+            <span class="bc-prod-tag">Barcode Scanner</span>
+            <span class="bc-prod-tag">Telegram Bot BYOB</span>
+          </div>
+        </div>
+        <div class="bc-prod-card-action">
+          <span>Lihat Integrasi</span> &rarr;
+        </div>
+      </a>
+
+      <!-- Laporan & Finance -->
+      <a class="bc-prod-card" href="/bisnis/#/reports">
+        <div>
+          <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px">
+            <span class="bc-prod-badge">FINANCE &amp; LAPORAN</span>
+            <span style="font-size:12px;color:#5B5FEF;font-weight:800">Real-time</span>
+          </div>
+          <h4>Laporan Keuangan &amp; Laba Rugi</h4>
+          <p>
+            Pantau COGS/HPP, margin per produk, ringkasan shift kasir harian, laporan penjualan per cabang, dan grafik performa operasional.
+          </p>
+          <div class="bc-prod-tags">
+            <span class="bc-prod-tag">Laba Rugi Realtime</span>
+            <span class="bc-prod-tag">Analisis COGS &amp; Margin</span>
+            <span class="bc-prod-tag">Export CSV &amp; Excel</span>
+          </div>
+        </div>
+        <div class="bc-prod-card-action">
+          <span>Buka Laporan</span> &rarr;
+        </div>
+      </a>
+
+    </div>
+
+    <!-- CONVERSION CTA BANNER -->
+    <section class="bc-prod-cta-banner">
+      <div style="font-size:11.5px;font-weight:850;letter-spacing:0.12em;text-transform:uppercase;color:#8E92FC;margin-bottom:12px">
+        MULAI HARI INI
+      </div>
+      <h2 style="font-size:clamp(26px, 3.5vw, 38px);font-weight:900;letter-spacing:-0.03em;margin:0 0 14px;color:#FFFFFF">
+        Siap Mengembangkan Operasional Bisnis Anda?
+      </h2>
+      <p style="font-size:15px;color:#94A3B8;max-width:540px;margin:0 auto 28px;line-height:1.6">
+        Daftar akun gratis dan rasakan kemudahan menjalankan bisnis, kasir, dan multi-cabang dalam satu sistem.
+      </p>
+      <a class="bc-btn primary" href="/register" style="font-size:15px;padding:0 32px;min-height:48px;box-shadow:0 8px 24px rgba(91,95,239,0.4)">
+        Daftar Gratis Sekarang &rarr;
+      </a>
+    </section>
+
+  </div>
+</main>
+{% endblock %}

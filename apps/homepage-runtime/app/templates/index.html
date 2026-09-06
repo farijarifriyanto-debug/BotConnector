@@ -1,0 +1,553 @@
+{% extends "base.html" %}
+
+{% block title %}
+BotConnector — Platform Operasional Bisnis, POS Kasir &amp; Otomasi Terhubung
+{% endblock %}
+
+{% block content %}
+<style>
+  /* Homepage V2 Styles - BotConnector Approved Visual DNA */
+  .bc-home {
+    background: #F6F7FB;
+    color: #101828;
+    overflow-x: hidden;
+  }
+  .bc-shell {
+    max-width: 1240px;
+    margin: 0 auto;
+    padding: 0 24px;
+  }
+  
+  /* Hero Section */
+  .bc-hero-section {
+    padding: 56px 0 32px;
+    text-align: center;
+  }
+  .bc-hero-kicker {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    background: #EEF0FF;
+    color: #5B5FEF;
+    padding: 6px 16px;
+    border-radius: 99px;
+    font-size: 12px;
+    font-weight: 800;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    margin-bottom: 20px;
+    box-shadow: 0 2px 8px rgba(91, 95, 239, 0.08);
+  }
+  .bc-hero-title {
+    font-size: clamp(34px, 5vw, 56px);
+    font-weight: 900;
+    letter-spacing: -0.04em;
+    line-height: 1.1;
+    color: #101828;
+    margin: 0 auto 18px;
+    max-width: 860px;
+  }
+  .bc-hero-title span {
+    color: #5B5FEF;
+    background: linear-gradient(135deg, #5B5FEF 0%, #3B82F6 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+  }
+  .bc-hero-lead {
+    font-size: clamp(15px, 2vw, 18px);
+    color: #667085;
+    line-height: 1.6;
+    margin: 0 auto 28px;
+    max-width: 680px;
+  }
+  .bc-hero-actions {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 14px;
+    flex-wrap: wrap;
+    margin-bottom: 32px;
+  }
+  .bc-chips-row {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    flex-wrap: wrap;
+    margin-bottom: 48px;
+  }
+  .bc-chip {
+    font-size: 12.5px;
+    font-weight: 700;
+    color: #475467;
+    background: #FFFFFF;
+    border: 1px solid #E7E9F2;
+    padding: 6px 14px;
+    border-radius: 99px;
+    box-shadow: 0 2px 6px rgba(16, 24, 40, 0.03);
+  }
+
+  /* Centerpiece Multi-Branch Dark Navy Surface (#0B1020) */
+  .bc-centerpiece-card {
+    background: #0B1020;
+    border-radius: 28px;
+    padding: 36px 40px;
+    color: #FFFFFF;
+    position: relative;
+    overflow: hidden;
+    box-shadow: 0 24px 60px rgba(11, 16, 32, 0.18);
+    border: 1px solid #1E2640;
+    margin-bottom: 64px;
+  }
+  .bc-centerpiece-card::after {
+    content: "";
+    position: absolute;
+    top: -150px;
+    right: -100px;
+    width: 450px;
+    height: 450px;
+    border-radius: 50%;
+    background: radial-gradient(circle, rgba(91, 95, 239, 0.3) 0%, rgba(91, 95, 239, 0) 70%);
+    pointer-events: none;
+  }
+  .bc-centerpiece-head {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 16px;
+    padding-bottom: 24px;
+    border-bottom: 1px solid #1E2640;
+    margin-bottom: 28px;
+  }
+  .bc-live-pill {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    background: rgba(34, 197, 94, 0.15);
+    border: 1px solid rgba(34, 197, 94, 0.3);
+    color: #4ADE80;
+    font-size: 11.5px;
+    font-weight: 800;
+    padding: 4px 12px;
+    border-radius: 99px;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+  }
+  .bc-branch-tags {
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+  }
+  .bc-branch-tag {
+    font-size: 12px;
+    font-weight: 750;
+    background: #141B30;
+    border: 1px solid #283354;
+    padding: 5px 12px;
+    border-radius: 8px;
+    color: #94A3B8;
+  }
+  .bc-branch-tag.active {
+    background: #5B5FEF;
+    border-color: #5B5FEF;
+    color: #FFFFFF;
+  }
+
+  /* Bento KPI Grid in Navy Centerpiece */
+  .bc-centerpiece-kpi-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 18px;
+    margin-bottom: 32px;
+  }
+  .bc-kpi-box {
+    background: #121829;
+    border: 1px solid #1E2640;
+    border-radius: 18px;
+    padding: 20px;
+    position: relative;
+  }
+  .bc-kpi-label {
+    font-size: 12px;
+    font-weight: 700;
+    color: #94A3B8;
+    margin-bottom: 6px;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+  }
+  .bc-kpi-value {
+    font-size: 26px;
+    font-weight: 900;
+    color: #FFFFFF;
+    letter-spacing: -0.02em;
+    margin-bottom: 4px;
+  }
+  .bc-kpi-sub {
+    font-size: 12px;
+    font-weight: 700;
+    color: #34D399;
+  }
+
+  /* Live Pipeline Ribbon */
+  .bc-pipeline-strip {
+    background: #141B30;
+    border: 1px solid #232C4A;
+    border-radius: 16px;
+    padding: 18px 24px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 16px;
+  }
+  .bc-pipeline-step {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-size: 13.5px;
+    font-weight: 800;
+    color: #E2E8F0;
+  }
+  .bc-pipeline-dot {
+    width: 28px;
+    height: 28px;
+    border-radius: 8px;
+    background: #5B5FEF;
+    color: #fff;
+    display: grid;
+    place-items: center;
+    font-size: 12px;
+    font-weight: 900;
+  }
+  .bc-pipeline-arrow {
+    color: #475569;
+    font-size: 16px;
+    font-weight: 900;
+  }
+
+  /* Section Styles */
+  .bc-section {
+    padding: 48px 0;
+  }
+  .bc-section-head {
+    text-align: center;
+    margin-bottom: 40px;
+  }
+  .bc-section-eyebrow {
+    font-size: 11.5px;
+    font-weight: 850;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: #5B5FEF;
+    margin-bottom: 8px;
+  }
+  .bc-section-title {
+    font-size: clamp(26px, 3.5vw, 36px);
+    font-weight: 850;
+    letter-spacing: -0.03em;
+    color: #101828;
+    margin: 0 0 10px;
+  }
+  .bc-section-desc {
+    font-size: 15px;
+    color: #667085;
+    max-width: 600px;
+    margin: 0 auto;
+    line-height: 1.6;
+  }
+
+  /* Bento Product Cards Grid */
+  .bc-bento-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 24px;
+    margin-bottom: 48px;
+  }
+  .bc-bento-card {
+    background: #FFFFFF;
+    border: 1px solid #E7E9F2;
+    border-radius: 24px;
+    padding: 32px;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    transition: transform 0.2s ease, box-shadow 0.2s ease, border-color 0.2s ease;
+    box-shadow: 0 4px 20px rgba(11, 16, 32, 0.03);
+    text-decoration: none;
+    color: inherit;
+  }
+  .bc-bento-card:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 14px 36px rgba(91, 95, 239, 0.09);
+    border-color: #C7CBF8;
+  }
+  .bc-bento-card.featured {
+    grid-column: span 2;
+    background: linear-gradient(180deg, #FFFFFF 0%, #F9FAFF 100%);
+    border: 2px solid #5B5FEF;
+    position: relative;
+  }
+  .bc-card-badge {
+    font-size: 11px;
+    font-weight: 850;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    padding: 4px 10px;
+    border-radius: 99px;
+    background: #EEF0FF;
+    color: #5B5FEF;
+    display: inline-block;
+    margin-bottom: 16px;
+  }
+  .bc-bento-card h3 {
+    font-size: 20px;
+    font-weight: 850;
+    color: #101828;
+    margin: 0 0 10px;
+    letter-spacing: -0.02em;
+  }
+  .bc-bento-card p {
+    font-size: 14px;
+    color: #667085;
+    line-height: 1.65;
+    margin: 0 0 20px;
+  }
+  .bc-card-action {
+    font-size: 13.5px;
+    font-weight: 800;
+    color: #5B5FEF;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+
+  /* Bottom Conversion CTA Banner */
+  .bc-cta-banner {
+    background: #0B1020;
+    border-radius: 28px;
+    padding: 48px;
+    text-align: center;
+    color: #FFFFFF;
+    position: relative;
+    overflow: hidden;
+    margin-bottom: 40px;
+    box-shadow: 0 20px 50px rgba(11, 16, 32, 0.14);
+  }
+  .bc-cta-banner::before {
+    content: "";
+    position: absolute;
+    top: -100px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 500px;
+    height: 300px;
+    border-radius: 50%;
+    background: radial-gradient(circle, rgba(91, 95, 239, 0.35) 0%, rgba(91, 95, 239, 0) 70%);
+    pointer-events: none;
+  }
+
+  @media(max-width: 980px) {
+    .bc-centerpiece-kpi-grid { grid-template-columns: repeat(2, 1fr); }
+    .bc-bento-grid { grid-template-columns: 1fr; }
+    .bc-bento-card.featured { grid-column: span 1; }
+    .bc-pipeline-strip { justify-content: center; gap: 12px; }
+  }
+  @media(max-width: 600px) {
+    .bc-hero-actions { flex-direction: column; width: 100%; }
+    .bc-hero-actions .bc-btn { width: 100%; justify-content: center; box-sizing: border-box; }
+    .bc-centerpiece-kpi-grid { grid-template-columns: 1fr; }
+    .bc-centerpiece-card { padding: 24px 18px; border-radius: 20px; }
+    .bc-cta-banner { padding: 32px 18px; border-radius: 20px; }
+    .bc-hero-section { padding: 32px 0 20px; }
+    .bc-pipeline-strip { flex-direction: column; align-items: stretch; gap: 10px; padding: 14px; }
+    .bc-pipeline-arrow { display: none; }
+  }
+</style>
+
+<main class="bc-home">
+  <div class="bc-shell">
+
+    <!-- HERO SECTION -->
+    <section class="bc-hero-section">
+      <div class="bc-hero-kicker">
+        <span>✦</span> PLATFORM OPERASIONAL BISNIS &amp; OTOMASI TERHUBUNG
+      </div>
+      <h1 class="bc-hero-title">
+        Hubungkan sistem.<br>
+        <span>Jalankan bisnis dari satu tempat.</span>
+      </h1>
+      <p class="bc-hero-lead">
+        BotConnector menyatukan POS kasir retail &amp; restoran, inventori pusat, manajemen multi-cabang, dapur, laporan laba-rugi, dan notifikasi Telegram terintegrasi.
+      </p>
+
+      <div class="bc-hero-actions">
+        <a class="bc-btn primary" href="/register" style="font-size:15px;padding:0 26px;min-height:48px">
+          Mulai Gratis Sekarang &rarr;
+        </a>
+        <a class="bc-btn line" href="/bisnis/" style="font-size:15px;padding:0 22px;min-height:48px">
+          Buka Business Suite
+        </a>
+      </div>
+
+      <div class="bc-chips-row">
+        <span class="bc-chip">✓ POS Retail &amp; Kasir</span>
+        <span class="bc-chip">✓ POS Restoran &amp; KOT</span>
+        <span class="bc-chip">✓ Inventori Multi-Cabang</span>
+        <span class="bc-chip">✓ Laporan Real-time</span>
+        <span class="bc-chip">✓ Bot Telegram V2</span>
+        <span class="bc-chip">✓ Connect Webhook</span>
+      </div>
+    </section>
+
+    <!-- CENTERPIECE MULTI-BRANCH DASHBOARD CARD (Navy #0B1020) -->
+    <section class="bc-centerpiece-card">
+      <div class="bc-centerpiece-head">
+        <div>
+          <div style="font-size:11px;font-weight:850;letter-spacing:0.12em;text-transform:uppercase;color:#8E92FC;margin-bottom:6px">
+            MULTI-BRANCH REAL-TIME DASHBOARD
+          </div>
+          <div style="font-size:20px;font-weight:850;color:#FFFFFF">
+            Pusat Operasional Bisnis Terkonsolidasi
+          </div>
+        </div>
+        <div style="display:flex;align-items:center;gap:12px;flex-wrap:wrap">
+          <div class="bc-branch-tags">
+            <span class="bc-branch-tag active">Cabang Jakarta (Utama)</span>
+            <span class="bc-branch-tag">Cabang Bandung (Resto)</span>
+            <span class="bc-branch-tag">Cabang Surabaya</span>
+          </div>
+          <span class="bc-live-pill">● LIVE SYNC</span>
+        </div>
+      </div>
+
+      <!-- Bento KPI Grid -->
+      <div class="bc-centerpiece-kpi-grid">
+        <div class="bc-kpi-box">
+          <div class="bc-kpi-label">Penjualan Hari Ini</div>
+          <div class="bc-kpi-value">Rp 14.850.000</div>
+          <div class="bc-kpi-sub">+18.4% vs kemarin</div>
+        </div>
+        <div class="bc-kpi-box">
+          <div class="bc-kpi-label">Transaksi POS</div>
+          <div class="bc-kpi-value">142 Transaksi</div>
+          <div class="bc-kpi-sub">100% tersinkronisasi</div>
+        </div>
+        <div class="bc-kpi-box">
+          <div class="bc-kpi-label">Status Inventori</div>
+          <div class="bc-kpi-value">94.2% Aman</div>
+          <div class="bc-kpi-sub">0 transfer pending</div>
+        </div>
+        <div class="bc-kpi-box">
+          <div class="bc-kpi-label">Integrasi Aktif</div>
+          <div class="bc-kpi-value">Telegram V2</div>
+          <div class="bc-kpi-sub">Notifikasi real-time</div>
+        </div>
+      </div>
+
+      <!-- Live Operations Pipeline -->
+      <div class="bc-pipeline-strip">
+        <div class="bc-pipeline-step">
+          <div class="bc-pipeline-dot">1</div>
+          <span>Transaksi POS Kasir</span>
+        </div>
+        <span class="bc-pipeline-arrow">&rarr;</span>
+        <div class="bc-pipeline-step">
+          <div class="bc-pipeline-dot">2</div>
+          <span>Potong Stok Otomatis</span>
+        </div>
+        <span class="bc-pipeline-arrow">&rarr;</span>
+        <div class="bc-pipeline-step">
+          <div class="bc-pipeline-dot">3</div>
+          <span>KOT Cetak ke Dapur</span>
+        </div>
+        <span class="bc-pipeline-arrow">&rarr;</span>
+        <div class="bc-pipeline-step">
+          <div class="bc-pipeline-dot">4</div>
+          <span>Notifikasi Telegram</span>
+        </div>
+      </div>
+    </section>
+
+    <!-- CORE PRODUCT BENTO GRID SECTION -->
+    <section class="bc-section" id="solutions">
+      <div class="bc-section-head">
+        <div class="bc-section-eyebrow">SOLUSI MODULAR TERPADU</div>
+        <h2 class="bc-section-title">Satu Platform untuk Seluruh Kebutuhan Operasional</h2>
+        <p class="bc-section-desc">Pilih modul yang dibutuhkan hari ini, kembangkan cabang dan otomasi bisnis kapan saja tanpa migrasi data.</p>
+      </div>
+
+      <div class="bc-bento-grid">
+        
+        <!-- Featured Business Suite Card -->
+        <a class="bc-bento-card featured" href="/bisnis/">
+          <div>
+            <span class="bc-card-badge">MODUL UTAMA</span>
+            <h3>Business Suite — Manajemen Bisnis Terintegrasi</h3>
+            <p>Kelola kasir POS retail &amp; restoran, pesanan, katalog produk, transfer gudang, manajemen stok multi-lokasi, hingga pembukuan laba-rugi secara real-time dari satu dashboard.</p>
+          </div>
+          <div class="bc-card-action">Buka Business Suite &rarr;</div>
+        </a>
+
+        <!-- POS Retail -->
+        <a class="bc-bento-card" href="/bisnis/">
+          <div>
+            <span class="bc-card-badge">POS RETAIL</span>
+            <h3>Kasir Cepat &amp; Barcode Scanner</h3>
+            <p>Transaksi kasir ultra-responsif, pencarian barcode instan, cetak struk thermal, split payment, dan update stok otomatis.</p>
+          </div>
+          <div class="bc-card-action">Jelajahi POS &rarr;</div>
+        </a>
+
+        <!-- Restaurant & Kitchen -->
+        <a class="bc-bento-card" href="/bisnis/">
+          <div>
+            <span class="bc-card-badge">RESTORAN</span>
+            <h3>Meja, Resep &amp; KOT Dapur</h3>
+            <p>Manajemen meja dine-in/takeaway, cetak tiket pesanan dapur (KOT), manajemen resep BOM, dan kalkulasi HPP otomatis.</p>
+          </div>
+          <div class="bc-card-action">Lihat Modul Resto &rarr;</div>
+        </a>
+
+        <!-- Telegram V2 -->
+        <a class="bc-bento-card" href="/bisnis/">
+          <div>
+            <span class="bc-card-badge">TELEGRAM V2</span>
+            <h3>Notifikasi &amp; BYOB Telegram</h3>
+            <p>Terima laporan harian, rekap kasir, dan peringatan stok menipis langsung ke Telegram pribadi atau grup tim.</p>
+          </div>
+          <div class="bc-card-action">Konfigurasi Bot &rarr;</div>
+        </a>
+
+        <!-- Connect & Automation -->
+        <a class="bc-bento-card" href="/connect-v2">
+          <div>
+            <span class="bc-card-badge">CONNECT</span>
+            <h3>BotConnector Connect &amp; Webhook</h3>
+            <p>Hubungkan sinyal webhook, trading bridge MetaTrader &amp; TradingView, serta otomasi event-driven dengan retry aman.</p>
+          </div>
+          <div class="bc-card-action">Buka Connect &rarr;</div>
+        </a>
+
+      </div>
+    </section>
+
+    <!-- CONVERSION CTA BANNER -->
+    <section class="bc-cta-banner">
+      <div style="font-size:12px;font-weight:850;letter-spacing:0.12em;text-transform:uppercase;color:#8E92FC;margin-bottom:12px">
+        SIAP MENGEMBANGKAN BISNIS ANDA?
+      </div>
+      <h2 style="font-size:clamp(28px, 4vw, 42px);font-weight:900;letter-spacing:-0.03em;margin:0 0 14px;color:#FFFFFF">
+        Mulai Kelola Operasional Lebih Cepat Hari Ini
+      </h2>
+      <p style="font-size:16px;color:#94A3B8;max-width:540px;margin:0 auto 28px;line-height:1.6">
+        Daftar akun gratis dan rasakan kemudahan mengelola kasir, stok, dan multi-cabang dalam satu platform.
+      </p>
+      <a class="bc-btn primary" href="/register" style="font-size:16px;padding:0 36px;min-height:50px;box-shadow:0 8px 24px rgba(91,95,239,0.4)">
+        Daftar Gratis Sekarang &rarr;
+      </a>
+    </section>
+
+  </div>
+</main>
+{% endblock %}

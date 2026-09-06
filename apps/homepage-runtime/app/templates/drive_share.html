@@ -1,0 +1,189 @@
+<!doctype html>
+<html lang="id">
+
+<head>
+
+<meta charset="utf-8">
+
+<meta
+  name="viewport"
+  content="width=device-width,initial-scale=1"
+>
+
+<title>
+  Bagikan | BotConnector Drive
+</title>
+
+<link
+  rel="stylesheet"
+  href="/static/style.css"
+>
+
+<link
+  rel="stylesheet"
+  href="/static/drive.css?v=0.7.0"
+>
+
+</head>
+
+
+<body class="bc-drive-body">
+
+
+<header class="bc-drive-top">
+
+  <a
+    class="bc-drive-brand"
+    href="/drive"
+  >
+
+    <span class="bc-drive-logo">
+      B
+    </span>
+
+    <span>
+
+      <strong>
+        BotConnector
+      </strong>
+
+      <small>
+        Bagikan
+      </small>
+
+    </span>
+
+  </a>
+
+</header>
+
+
+<main class="bc-share-form-page">
+
+  <span class="bc-drive-eyebrow">
+    INTERNAL SHARING
+  </span>
+
+  <h1>
+    Bagikan ke pengguna BotConnector
+  </h1>
+
+
+  {% if error %}
+
+  <div class="bc-drive-alert error">
+
+    <strong>
+      Gagal membagikan
+    </strong>
+
+    <span>
+      {{ error }}
+    </span>
+
+  </div>
+
+  {% endif %}
+
+
+  <section class="bc-share-form-card">
+
+    <div class="bc-share-selected">
+
+      <small>
+        Item yang dibagikan
+      </small>
+
+      <strong>
+        {{ item_path or 'Tidak ada item dipilih' }}
+      </strong>
+
+    </div>
+
+
+    {% if item_path %}
+
+    <form
+      method="post"
+      action="/drive/share"
+    >
+
+      <input
+        type="hidden"
+        name="item_path"
+        value="{{ item_path }}"
+      >
+
+      <input
+        type="hidden"
+        name="csrf_token"
+        value="{{ csrf_token }}"
+      >
+
+
+      <label for="recipient-email">
+        Email pengguna BotConnector
+      </label>
+
+
+      <input
+        id="recipient-email"
+        type="email"
+        name="recipient_email"
+        autocomplete="email"
+        placeholder="user@contoh.com"
+        required
+      >
+
+
+      <div class="bc-share-permission">
+
+        <span>
+          Permission
+        </span>
+
+        <strong>
+          Viewer · Read only
+        </strong>
+
+      </div>
+
+
+      <button
+        type="submit"
+        class="bc-google-button"
+      >
+        Bagikan
+      </button>
+
+    </form>
+
+    {% endif %}
+
+
+    <p class="bc-share-note">
+
+      Penerima dapat melihat folder
+      dan mengunduh file. Penerima
+      tidak dapat rename, move,
+      delete, trash, atau membagikan
+      kembali item ini.
+
+    </p>
+
+  </section>
+
+
+  <div class="bc-google-back">
+
+    <a href="/drive">
+      ← Kembali ke My Drive
+    </a>
+
+  </div>
+
+</main>
+
+
+</body>
+</html>

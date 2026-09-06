@@ -1,0 +1,1984 @@
+<!doctype html>
+<html lang="id">
+<head>
+  <meta charset="utf-8">
+  <meta
+    name="viewport"
+    content="width=device-width, initial-scale=1"
+  >
+  <meta
+    name="robots"
+    content="noindex,nofollow"
+  >
+
+  <title>Coba BotConnector Tanpa Login</title>
+
+  <!-- BOTCONNECTOR_PUBLIC_TRIAL_PAGE_V0157 -->
+
+  <style>
+    :root {
+      font-family:
+        Inter, system-ui, -apple-system,
+        BlinkMacSystemFont, "Segoe UI", sans-serif;
+      color: #111827;
+      background: #f4f6f3;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      background:
+        radial-gradient(
+          circle at top left,
+          rgba(102, 74, 255, 0.14),
+          transparent 32rem
+        ),
+        #f4f6f3;
+    }
+
+    .shell {
+      width: min(920px, calc(100% - 24px));
+      margin: auto;
+      padding: 18px 0 52px;
+    }
+
+    .nav,
+    .card {
+      border: 1px solid rgba(17, 24, 39, 0.08);
+      background: rgba(255, 255, 255, 0.96);
+      box-shadow: 0 22px 55px rgba(17, 24, 39, 0.08);
+    }
+
+    .nav {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 18px 20px;
+      border-radius: 20px;
+    }
+
+    .brand {
+      color: #111;
+      font-weight: 900;
+      letter-spacing: 0.12em;
+      text-decoration: none;
+    }
+
+    .login {
+      color: #5737dc;
+      font-weight: 850;
+      text-decoration: none;
+    }
+
+    .card {
+      margin-top: 20px;
+      padding: clamp(22px, 5vw, 44px);
+      border-radius: 28px;
+    }
+
+    .badge {
+      display: inline-block;
+      padding: 8px 12px;
+      border-radius: 999px;
+      background: #eee9ff;
+      color: #5534d7;
+      font-size: 0.8rem;
+      font-weight: 900;
+    }
+
+    h1 {
+      margin: 20px 0 10px;
+      font-size: clamp(2.3rem, 9vw, 4.3rem);
+      line-height: 0.98;
+      letter-spacing: -0.055em;
+    }
+
+    .lead {
+      color: #5f6675;
+      line-height: 1.7;
+    }
+
+    .notice {
+      margin: 22px 0;
+      padding: 16px;
+      border: 1px solid #ddd5ff;
+      border-radius: 16px;
+      background: #f8f6ff;
+      color: #554d6d;
+      line-height: 1.55;
+    }
+
+    label {
+      display: block;
+      margin-top: 18px;
+      font-weight: 850;
+    }
+
+    select,
+    textarea {
+      width: 100%;
+      margin-top: 9px;
+      border: 1px solid #d7dce4;
+      border-radius: 14px;
+      color: #111827;
+      background: #fff;
+      font: inherit;
+    }
+
+    select {
+      min-height: 54px;
+      padding: 0 14px;
+    }
+
+    textarea {
+      min-height: 170px;
+      padding: 15px;
+      resize: vertical;
+      line-height: 1.55;
+    }
+
+    button {
+      width: 100%;
+      min-height: 58px;
+      margin-top: 18px;
+      border: 0;
+      border-radius: 16px;
+      background: #101512;
+      color: #fff;
+      font: inherit;
+      font-weight: 900;
+    }
+
+    button:disabled {
+      opacity: 0.65;
+    }
+
+    .status {
+      min-height: 24px;
+      color: #687080;
+      text-align: center;
+    }
+
+    .result {
+      display: none;
+      margin-top: 24px;
+    }
+
+    .result.visible {
+      display: block;
+    }
+
+    .summary,
+    .tool,
+    .error {
+      margin-top: 14px;
+      padding: 18px;
+      border-radius: 16px;
+    }
+
+    .summary {
+      background: #edf8f0;
+    }
+
+    .tool {
+      border: 1px solid #e1e5ea;
+      background: #fafafa;
+    }
+
+    .error {
+      background: #fff0f0;
+      color: #9c2936;
+    }
+
+    pre {
+      overflow: auto;
+      max-height: 600px;
+      padding: 14px;
+      border-radius: 12px;
+      background: #f0f2f4;
+      white-space: pre-wrap;
+      word-break: break-word;
+    }
+
+    .footer {
+      margin-top: 22px;
+      color: #697080;
+      text-align: center;
+    }
+  
+    /* BOTCONNECTOR_PUBLIC_RESULT_UI_V0159 */
+
+    .result-heading {
+      margin: 26px 0 12px;
+      font-size: 1.55rem;
+      line-height: 1.2;
+    }
+
+    .result-intro {
+      margin-top: 14px;
+      padding: 18px;
+      border-radius: 16px;
+      background: #edf8f0;
+      line-height: 1.6;
+    }
+
+    .idea-grid {
+      display: grid;
+      gap: 18px;
+      margin-top: 16px;
+    }
+
+    .idea-card {
+      padding: 20px;
+      border: 1px solid #dfe4e9;
+      border-radius: 18px;
+      background: #fff;
+      box-shadow: 0 10px 28px rgba(17, 24, 39, 0.05);
+    }
+
+    .idea-card h3 {
+      margin: 0 0 8px;
+      font-size: 1.28rem;
+      line-height: 1.3;
+    }
+
+    .idea-meta {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin-bottom: 16px;
+    }
+
+    .idea-chip {
+      display: inline-flex;
+      padding: 6px 10px;
+      border-radius: 999px;
+      background: #efeaff;
+      color: #5537ce;
+      font-size: 0.82rem;
+      font-weight: 800;
+    }
+
+    .result-field {
+      margin-top: 15px;
+    }
+
+    .result-field strong {
+      display: block;
+      margin-bottom: 5px;
+    }
+
+    .result-field p {
+      margin: 0;
+      color: #353c49;
+      line-height: 1.65;
+    }
+
+    .result-list {
+      margin: 7px 0 0;
+      padding-left: 21px;
+      color: #353c49;
+      line-height: 1.65;
+    }
+
+    .hashtag-list {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 7px;
+      margin-top: 9px;
+    }
+
+    .hashtag {
+      padding: 6px 9px;
+      border-radius: 999px;
+      background: #f0f2f4;
+      color: #343b48;
+      font-size: 0.86rem;
+    }
+
+    .calendar-list {
+      display: grid;
+      gap: 10px;
+      margin-top: 14px;
+    }
+
+    .calendar-item {
+      padding: 14px;
+      border: 1px solid #e1e5e9;
+      border-radius: 14px;
+      background: #fafbfc;
+    }
+
+    .generic-card {
+      margin-top: 15px;
+      padding: 18px;
+      border: 1px solid #e0e4e9;
+      border-radius: 16px;
+      background: #fff;
+    }
+
+    .generic-card h3,
+    .generic-card h4 {
+      margin-top: 0;
+    }
+
+    .generic-row {
+      margin-top: 13px;
+    }
+
+    .generic-row > strong {
+      display: block;
+      margin-bottom: 5px;
+    }
+
+    .technical-result-hidden {
+      display: none !important;
+    }
+
+
+
+    /* BOTCONNECTOR_CREATOR_VISUAL_UI_V01 */
+    .creator-visual-box {
+      margin-top: 18px;
+      border: 1px solid rgba(100, 116, 139, 0.24);
+      border-radius: 18px;
+      overflow: hidden;
+      background:
+        linear-gradient(
+          145deg,
+          rgba(239, 246, 255, 0.95),
+          rgba(250, 245, 255, 0.95)
+        );
+    }
+
+    .creator-visual-preview {
+      min-height: 190px;
+      display: grid;
+      place-items: center;
+      padding: 18px;
+      text-align: center;
+      color: #64748b;
+      background:
+        radial-gradient(
+          circle at top right,
+          rgba(99, 102, 241, 0.14),
+          transparent 48%
+        );
+    }
+
+    .creator-visual-preview img {
+      display: block;
+      width: 100%;
+      height: auto;
+      max-height: 560px;
+      object-fit: cover;
+      border-radius: 14px;
+      box-shadow:
+        0 16px 38px rgba(15, 23, 42, 0.16);
+    }
+
+    .creator-visual-actions {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      gap: 10px;
+      padding: 14px 16px;
+      background: rgba(255, 255, 255, 0.88);
+      border-top: 1px solid rgba(100, 116, 139, 0.16);
+    }
+
+    .creator-visual-button {
+      appearance: none;
+      border: 0;
+      border-radius: 999px;
+      padding: 11px 17px;
+      font: inherit;
+      font-weight: 700;
+      color: #ffffff;
+      background:
+        linear-gradient(
+          135deg,
+          #4f46e5,
+          #7c3aed
+        );
+      cursor: pointer;
+      box-shadow:
+        0 8px 18px rgba(79, 70, 229, 0.24);
+    }
+
+    .creator-visual-button:hover {
+      transform: translateY(-1px);
+    }
+
+    .creator-visual-button:disabled {
+      cursor: wait;
+      opacity: 0.65;
+      transform: none;
+    }
+
+    .creator-visual-note {
+      flex: 1 1 220px;
+      margin: 0;
+      font-size: 0.84rem;
+      line-height: 1.45;
+      color: #64748b;
+    }
+
+    .creator-visual-status {
+      margin: 0;
+      font-size: 0.88rem;
+      line-height: 1.5;
+      color: #475569;
+    }
+
+
+    /* BOTCONNECTOR_VISUAL_WIZARD_CSS_V0164 */
+    .creator-visual-toolbar {
+      width: 100%;
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      gap: 9px;
+    }
+
+    .creator-visual-secondary {
+      color: #4338ca;
+      background: #eef2ff;
+      border: 1px solid rgba(79, 70, 229, 0.22);
+      box-shadow: none;
+    }
+
+    .creator-visual-file {
+      position: relative;
+      overflow: hidden;
+    }
+
+    .creator-visual-file-input {
+      position: absolute;
+      width: 1px;
+      height: 1px;
+      opacity: 0;
+      pointer-events: none;
+    }
+
+    .creator-visual-select {
+      width: 100%;
+      min-height: 44px;
+      padding: 9px 12px;
+      border: 1px solid rgba(100, 116, 139, 0.3);
+      border-radius: 12px;
+      color: #334155;
+      background: #ffffff;
+      font: inherit;
+    }
+
+    .creator-visual-download {
+      text-decoration: none;
+      background: #0f766e;
+    }
+
+    .creator-visual-button[hidden],
+    .creator-visual-select[hidden] {
+      display: none !important;
+    }
+
+
+    /* BOTCONNECTOR_CONTENT_LOCKED_CARDS_V0165 */
+    .creator-concept-heading {
+      display: block;
+      width: 100%;
+      margin-top: 6px;
+      color: #1e293b;
+      font-size: 0.94rem;
+    }
+
+    .creator-concept-grid {
+      width: 100%;
+      display: grid;
+      grid-template-columns:
+        repeat(3, minmax(0, 1fr));
+      gap: 10px;
+    }
+
+    .creator-concept-card {
+      min-width: 0;
+      padding: 14px;
+      border: 1px solid rgba(99, 102, 241, 0.2);
+      border-radius: 15px;
+      background: #ffffff;
+      color: #334155;
+      text-align: left;
+      font: inherit;
+      cursor: pointer;
+      transition:
+        border-color 160ms ease,
+        background 160ms ease,
+        transform 160ms ease,
+        box-shadow 160ms ease;
+    }
+
+    .creator-concept-card:hover {
+      border-color: rgba(79, 70, 229, 0.55);
+      transform: translateY(-1px);
+    }
+
+    .creator-concept-card.selected {
+      border-color: #4f46e5;
+      background: #eef2ff;
+      box-shadow:
+        0 0 0 2px rgba(79, 70, 229, 0.12);
+    }
+
+    .creator-concept-number {
+      display: inline-block;
+      margin-bottom: 8px;
+      padding: 3px 8px;
+      border-radius: 999px;
+      background: #ede9fe;
+      color: #5b21b6;
+      font-size: 0.72rem;
+      font-weight: 800;
+    }
+
+    .creator-concept-name {
+      display: block;
+      margin-bottom: 7px;
+      color: #172033;
+      line-height: 1.35;
+    }
+
+    .creator-concept-scene {
+      margin: 0 0 9px;
+      color: #475569;
+      font-size: 0.87rem;
+      line-height: 1.5;
+    }
+
+    .creator-concept-meta {
+      display: block;
+      color: #64748b;
+      font-size: 0.75rem;
+      line-height: 1.4;
+    }
+
+    @media (max-width: 780px) {
+      .creator-concept-grid {
+        grid-template-columns: 1fr;
+      }
+    }
+
+  </style>
+</head>
+
+<body>
+  <main class="shell">
+    <nav class="nav">
+      <a class="brand" href="/">
+        BOTCONNECTOR
+      </a>
+
+      <a class="login" href="/login">
+        Masuk
+      </a>
+    </nav>
+
+    <section class="card">
+      <span class="badge">
+        GRATIS · TANPA LOGIN
+      </span>
+
+      <h1>Coba Automation Brain</h1>
+
+      <p class="lead">
+        Pilih asisten, tulis tugas dengan bahasa biasa,
+        lalu BotConnector membuat draft untuk Anda.
+      </p>
+
+      <div class="notice">
+        Hasil tidak disimpan. Tidak ada WhatsApp atau
+        proposal yang dikirim, prospek yang disimpan,
+        booking yang dibuat, konten yang diterbitkan,
+        ataupun pembayaran yang dijalankan.
+        Batas uji coba:
+        <strong>{{ trial_limit }} kali per jam.</strong>
+      </div>
+
+      <form id="trial-form">
+        <label for="trial-mode">
+          Pilih asisten
+        </label>
+
+        <select id="trial-mode" required>
+          <option value="creator">
+            Creator Assistant
+          </option>
+          <option value="freelancer">
+            Freelancer Assistant
+          </option>
+          <option value="whatsapp">
+            WhatsApp AI Admin
+          </option>
+          <option value="business_operations">
+            Business Operations
+          </option>
+        </select>
+
+        <label for="trial-message">
+          Jelaskan tugas Anda
+        </label>
+
+        <textarea
+          id="trial-message"
+          minlength="8"
+          maxlength="2500"
+          required
+          placeholder="Contoh: buat 3 ide konten Instagram untuk promosi jasa admin otomatis, lengkap dengan hook dan CTA."
+        ></textarea>
+
+        <button id="trial-submit" type="submit">
+          Buat draft gratis
+        </button>
+
+        <p
+          class="status"
+          id="trial-status"
+          aria-live="polite"
+        >
+          Tidak perlu membuat akun.
+        </p>
+      </form>
+
+      <section
+        class="result"
+        id="trial-result"
+        aria-live="polite"
+      ></section>
+    </section>
+
+    <p class="footer">
+      Perlu menyimpan proyek dan riwayat?
+      <a href="/register">Buat akun BotConnector</a>.
+    </p>
+  </main>
+
+  <script>
+    (() => {
+      const form = document.getElementById("trial-form");
+      const mode = document.getElementById("trial-mode");
+      const message = document.getElementById("trial-message");
+      const submit = document.getElementById("trial-submit");
+      const status = document.getElementById("trial-status");
+      const result = document.getElementById("trial-result");
+
+      const addText = (parent, tag, value) => {
+        const node = document.createElement(tag);
+        node.textContent = value;
+        parent.appendChild(node);
+        return node;
+      };
+
+      const showError = (value) => {
+        result.replaceChildren();
+        result.classList.add("visible");
+
+        const error = document.createElement("div");
+        error.className = "error";
+        error.textContent = value;
+        result.appendChild(error);
+      };
+
+      const formatDetail = (detail) => {
+        if (typeof detail === "string") {
+          return detail;
+        }
+
+        try {
+          return JSON.stringify(detail, null, 2);
+        } catch (_) {
+          return "Uji coba belum berhasil.";
+        }
+      };
+
+      const labelMap = {
+        summary: "Ringkasan",
+        objective: "Tujuan",
+        audience: "Target audiens",
+        tone: "Gaya bahasa",
+        platforms: "Platform",
+        ideas: "Ide konten",
+        calendar: "Kalender konten",
+        review_notes: "Catatan pemeriksaan",
+        subject: "Judul proposal",
+        opening: "Pembuka",
+        understanding: "Pemahaman kebutuhan",
+        scope_included: "Ruang lingkup",
+        scope_excluded: "Di luar ruang lingkup",
+        deliverables: "Hasil pekerjaan",
+        timeline: "Timeline",
+        milestones: "Milestone",
+        pricing_guidance: "Panduan harga",
+        revision_terms: "Ketentuan revisi",
+        risks: "Risiko",
+        follow_up_message: "Pesan tindak lanjut",
+        reply: "Draft balasan",
+        recommended_reply: "Draft balasan",
+        customer_intent: "Maksud pelanggan",
+        sentiment: "Nada pelanggan",
+        missing_information: "Informasi yang belum tersedia",
+        admin_note: "Catatan admin",
+        safety_flags: "Catatan keamanan",
+        lead_summary: "Ringkasan prospek",
+        priorities: "Prioritas",
+        next_steps: "Langkah selanjutnya",
+        follow_up: "Draft tindak lanjut"
+      };
+
+      const technicalKeys = new Set([
+        "meta",
+        "usage",
+        "routing",
+        "provider",
+        "model",
+        "generated_at",
+        "request_id",
+        "latency_ms",
+        "external_effects"
+      ]);
+
+      const humanLabel = (key) => {
+        if (labelMap[key]) {
+          return labelMap[key];
+        }
+
+        return String(key)
+          .replaceAll("_", " ")
+          .replace(/\b\w/g, (letter) => letter.toUpperCase());
+      };
+
+      const addParagraph = (parent, value) => {
+        const paragraph = document.createElement("p");
+        paragraph.textContent = String(value ?? "");
+        parent.appendChild(paragraph);
+      };
+
+      const addList = (parent, items) => {
+        const list = document.createElement("ul");
+        list.className = "result-list";
+
+        for (const item of items) {
+          const entry = document.createElement("li");
+          entry.textContent = String(item ?? "");
+          list.appendChild(entry);
+        }
+
+        parent.appendChild(list);
+      };
+
+      const renderGenericValue = (
+        parent,
+        key,
+        value,
+        depth = 0
+      ) => {
+        if (
+          technicalKeys.has(key) ||
+          value === null ||
+          value === undefined ||
+          value === ""
+        ) {
+          return;
+        }
+
+        const wrapper = document.createElement("div");
+        wrapper.className = "generic-row";
+
+        const heading = document.createElement(
+          depth === 0 ? "strong" : "h4"
+        );
+
+        heading.textContent = humanLabel(key);
+        wrapper.appendChild(heading);
+
+        if (Array.isArray(value)) {
+          if (!value.length) {
+            return;
+          }
+
+          if (
+            value.every(
+              (item) =>
+                typeof item !== "object" ||
+                item === null
+            )
+          ) {
+            addList(wrapper, value);
+          } else {
+            for (const item of value) {
+              const card = document.createElement("div");
+              card.className = "generic-card";
+
+              if (item && typeof item === "object") {
+                for (const [childKey, childValue] of Object.entries(item)) {
+                  renderGenericValue(
+                    card,
+                    childKey,
+                    childValue,
+                    depth + 1
+                  );
+                }
+              } else {
+                addParagraph(card, item);
+              }
+
+              wrapper.appendChild(card);
+            }
+          }
+        } else if (typeof value === "object") {
+          for (const [childKey, childValue] of Object.entries(value)) {
+            renderGenericValue(
+              wrapper,
+              childKey,
+              childValue,
+              depth + 1
+            );
+          }
+        } else {
+          addParagraph(wrapper, value);
+        }
+
+        parent.appendChild(wrapper);
+      };
+
+
+
+      // BOTCONNECTOR_CREATOR_VISUAL_UI_V01
+      // BOTCONNECTOR_CREATOR_VISUAL_UI_V0166
+      const addCreatorVisualControls = (
+        card,
+        idea,
+        index,
+        plan
+      ) => {
+        const box = document.createElement("section");
+        box.className = "creator-visual-box";
+
+        const preview = document.createElement("div");
+        preview.className = "creator-visual-preview";
+
+        const status = document.createElement("p");
+        status.className = "creator-visual-status";
+        status.textContent =
+          "Ilustrasi kartun akan dibuat langsung dari isi ide konten ini.";
+
+        preview.appendChild(status);
+
+        const actions = document.createElement("div");
+        actions.className = "creator-visual-actions";
+
+        const toolbar = document.createElement("div");
+        toolbar.className = "creator-visual-toolbar";
+
+        const planButton = document.createElement("button");
+        planButton.type = "button";
+        planButton.className =
+          "creator-visual-button creator-visual-secondary";
+        planButton.textContent =
+          "Buat 3 pilihan visual";
+
+        const generateButton =
+          document.createElement("button");
+
+        generateButton.type = "button";
+        generateButton.className =
+          "creator-visual-button";
+        generateButton.textContent =
+          "Buat ilustrasi sesuai ide";
+
+        const fileLabel = document.createElement("label");
+        fileLabel.className =
+          "creator-visual-button creator-visual-secondary creator-visual-file";
+        fileLabel.textContent = "Pilih foto";
+
+        const fileInput = document.createElement("input");
+        fileInput.type = "file";
+        fileInput.accept =
+          "image/jpeg,image/png,image/webp";
+        fileInput.className =
+          "creator-visual-file-input";
+
+        fileLabel.appendChild(fileInput);
+
+        const removeButton =
+          document.createElement("button");
+
+        removeButton.type = "button";
+        removeButton.className =
+          "creator-visual-button creator-visual-secondary";
+        removeButton.textContent =
+          "Hapus background";
+        removeButton.hidden = true;
+
+        const conceptHeading =
+          document.createElement("strong");
+
+        conceptHeading.className =
+          "creator-concept-heading";
+        conceptHeading.textContent =
+          "Pilih visual yang paling sesuai";
+        conceptHeading.hidden = true;
+
+        const conceptGrid =
+          document.createElement("div");
+
+        conceptGrid.className =
+          "creator-concept-grid";
+        conceptGrid.hidden = true;
+
+        const downloadButton =
+          document.createElement("a");
+
+        downloadButton.className =
+          "creator-visual-button creator-visual-download";
+        downloadButton.textContent =
+          "Unduh PNG";
+        downloadButton.download =
+          "botconnector-background-transparan.png";
+        downloadButton.hidden = true;
+
+        const note = document.createElement("p");
+        note.className = "creator-visual-note";
+        note.textContent =
+          "AI membuat ilustrasi kartun editorial. Foto manusia hanya berasal dari file yang Anda pilih sendiri.";
+
+        let generated = false;
+        let selectedPrompt = "";
+        let selectedConceptCard = null;
+        let selectedFile = null;
+        let localPreviewUrl = "";
+
+        const visualValues = () => (
+          Array.isArray(idea.visuals)
+            ? idea.visuals.map(String).slice(0, 8)
+            : (
+                idea.visuals
+                  ? [String(idea.visuals)]
+                  : []
+              )
+        );
+
+        const scriptValues = () => (
+          Array.isArray(idea.script)
+            ? idea.script.map(String).slice(0, 8)
+            : (
+                idea.script
+                  ? [String(idea.script)]
+                  : []
+              )
+        );
+
+        const readPayload = async (response) => {
+          try {
+            return await response.json();
+          } catch (_) {
+            return {};
+          }
+        };
+
+        const responseError = (
+          payload,
+          response,
+          fallback
+        ) => {
+          if (
+            payload
+            && typeof payload.detail === "string"
+            && payload.detail
+          ) {
+            return payload.detail;
+          }
+
+          return fallback
+            || `Permintaan gagal (HTTP ${response.status}).`;
+        };
+
+        const showImage = (
+          source,
+          alt
+        ) => {
+          const image = document.createElement("img");
+          image.src = source;
+          image.alt = alt;
+          image.loading = "lazy";
+          preview.replaceChildren(image);
+        };
+
+        const chooseConcept = (
+          concept,
+          conceptCard
+        ) => {
+          if (selectedConceptCard) {
+            selectedConceptCard.classList.remove(
+              "selected"
+            );
+
+            selectedConceptCard.setAttribute(
+              "aria-pressed",
+              "false"
+            );
+          }
+
+          selectedConceptCard =
+            conceptCard;
+
+          selectedConceptCard.classList.add(
+            "selected"
+          );
+
+          selectedConceptCard.setAttribute(
+            "aria-pressed",
+            "true"
+          );
+
+          selectedPrompt = String(
+            concept.visual_prompt || ""
+          );
+
+          generateButton.textContent =
+            "Buat ilustrasi dari visual terpilih";
+
+          status.textContent =
+            "Pilihan terkunci ke isi konten. Tekan tombol buat gambar.";
+        };
+
+        planButton.addEventListener(
+          "click",
+          async () => {
+            planButton.disabled = true;
+            planButton.textContent =
+              "Menyiapkan pilihan...";
+
+            status.textContent =
+              "Membaca judul, hook, outline, dan ide visual.";
+
+            try {
+              const response = await fetch(
+                "/api/automation/public-trial/visual-wizard/plan",
+                {
+                  method: "POST",
+                  cache: "no-store",
+                  credentials: "same-origin",
+                  headers: {
+                    "Content-Type": "application/json",
+                    "X-BotConnector-Request":
+                      "visual-wizard"
+                  },
+                  body: JSON.stringify({
+                    title: String(
+                      idea.title
+                      || `Ide konten ${index + 1}`
+                    ),
+                    hook: String(
+                      idea.hook || ""
+                    ),
+                    angle: String(
+                      idea.angle || ""
+                    ),
+                    script: scriptValues(),
+                    visuals: visualValues(),
+                    platform: String(
+                      idea.platform
+                      || (
+                          Array.isArray(plan.platforms)
+                            ? plan.platforms[0]
+                            : "Instagram"
+                        )
+                      || "Instagram"
+                    ),
+                    audience: String(
+                      plan.audience || ""
+                    ),
+                    tone: String(
+                      plan.tone || ""
+                    ),
+                    target_output: "1:1",
+                    use_ai: false
+                  })
+                }
+              );
+
+              const payload =
+                await readPayload(response);
+
+              if (!response.ok) {
+                throw new Error(
+                  responseError(
+                    payload,
+                    response,
+                    "Pilihan visual gagal dibuat."
+                  )
+                );
+              }
+
+              const concepts =
+                Array.isArray(payload.concepts)
+                  ? payload.concepts
+                  : [];
+
+              if (
+                !payload.content_locked
+                || concepts.length !== 3
+              ) {
+                throw new Error(
+                  "Pilihan visual belum terkunci ke konten."
+                );
+              }
+
+              conceptGrid.replaceChildren();
+              selectedPrompt = "";
+              selectedConceptCard = null;
+
+              for (
+                const [conceptIndex, concept]
+                of concepts.entries()
+              ) {
+                const conceptCard =
+                  document.createElement("button");
+
+                conceptCard.type = "button";
+                conceptCard.className =
+                  "creator-concept-card";
+                conceptCard.setAttribute(
+                  "aria-pressed",
+                  "false"
+                );
+
+                const conceptNumber =
+                  document.createElement("span");
+
+                conceptNumber.className =
+                  "creator-concept-number";
+
+                conceptNumber.textContent =
+                  `Pilihan ${conceptIndex + 1}`;
+
+                const conceptName =
+                  document.createElement("strong");
+
+                conceptName.className =
+                  "creator-concept-name";
+
+                conceptName.textContent = String(
+                  concept.name
+                  || `Visual ${conceptIndex + 1}`
+                );
+
+                const conceptScene =
+                  document.createElement("p");
+
+                conceptScene.className =
+                  "creator-concept-scene";
+
+                conceptScene.textContent = String(
+                  concept.scene || ""
+                );
+
+                const conceptMeta =
+                  document.createElement("small");
+
+                conceptMeta.className =
+                  "creator-concept-meta";
+
+                conceptMeta.textContent = [
+                  String(concept.camera || ""),
+                  String(concept.location || "")
+                ].filter(Boolean).join(" · ");
+
+                conceptCard.appendChild(
+                  conceptNumber
+                );
+
+                conceptCard.appendChild(
+                  conceptName
+                );
+
+                conceptCard.appendChild(
+                  conceptScene
+                );
+
+                conceptCard.appendChild(
+                  conceptMeta
+                );
+
+                conceptCard.addEventListener(
+                  "click",
+                  () => {
+                    chooseConcept(
+                      concept,
+                      conceptCard
+                    );
+                  }
+                );
+
+                conceptGrid.appendChild(
+                  conceptCard
+                );
+
+                if (conceptIndex === 0) {
+                  chooseConcept(
+                    concept,
+                    conceptCard
+                  );
+                }
+              }
+
+              conceptHeading.hidden = false;
+              conceptGrid.hidden = false;
+
+              status.textContent =
+                "Tiga pilihan mengikuti isi ide konten ini.";
+
+              note.textContent = String(
+                payload.summary
+                || "Topik gambar dikunci mengikuti konten."
+              );
+
+            } catch (error) {
+              status.textContent =
+                error instanceof Error
+                  ? error.message
+                  : "Pilihan visual gagal dibuat.";
+
+            } finally {
+              planButton.disabled = false;
+              planButton.textContent =
+                "Buat ulang 3 pilihan";
+            }
+          }
+        );
+
+        generateButton.addEventListener(
+          "click",
+          async () => {
+            generateButton.disabled = true;
+
+            generateButton.textContent =
+              generated
+                ? "Membuat ulang..."
+                : "Sedang membuat...";
+
+            status.textContent =
+              "Ilustrasi kartun sedang dibuat sesuai isi konten.";
+
+            try {
+              const visualInput =
+                visualValues();
+
+              if (selectedPrompt) {
+                visualInput.unshift(
+                  selectedPrompt
+                );
+              }
+
+              const response = await fetch(
+                "/api/automation/public-trial/creator-visual",
+                {
+                  method: "POST",
+                  cache: "no-store",
+                  credentials: "same-origin",
+                  headers: {
+                    "Content-Type": "application/json",
+                    "X-BotConnector-Request":
+                      "creator-visual"
+                  },
+                  body: JSON.stringify({
+                    title: String(
+                      idea.title
+                      || `Ide konten ${index + 1}`
+                    ),
+                    hook: String(
+                      idea.hook || ""
+                    ),
+                    visuals: visualInput.slice(
+                      0,
+                      8
+                    ),
+                    platform: String(
+                      idea.platform
+                      || (
+                          Array.isArray(plan.platforms)
+                            ? plan.platforms[0]
+                            : "Instagram"
+                        )
+                      || "Instagram"
+                    ),
+                    audience: String(
+                      plan.audience || ""
+                    ),
+                    tone: String(
+                      plan.tone || ""
+                    ),
+                    regenerate: generated
+                  })
+                }
+              );
+
+              const payload =
+                await readPayload(response);
+
+              if (!response.ok) {
+                throw new Error(
+                  responseError(
+                    payload,
+                    response,
+                    "Pembuatan gambar gagal."
+                  )
+                );
+              }
+
+              const imageUrl = String(
+                payload.image_url || ""
+              );
+
+              if (!imageUrl) {
+                throw new Error(
+                  "Alamat gambar tidak diterima."
+                );
+              }
+
+              showImage(
+                imageUrl
+                  + (
+                      imageUrl.includes("?")
+                        ? "&"
+                        : "?"
+                    )
+                  + "v="
+                  + Date.now(),
+                "Visual sesuai ide konten "
+                  + String(
+                      idea.title
+                      || `nomor ${index + 1}`
+                    )
+              );
+
+              generated = true;
+
+              generateButton.textContent =
+                selectedPrompt
+                  ? "Buat ulang dari visual terpilih"
+                  : "Buat ulang gambar";
+
+              note.textContent =
+                payload.cached
+                  ? "Visual diambil dari cache."
+                  : (
+                      "Visual berhasil dibuat"
+                      + (
+                          payload.elapsed_ms
+                            ? ` dalam ${(payload.elapsed_ms / 1000).toFixed(1)} detik.`
+                            : "."
+                        )
+                    );
+
+            } catch (error) {
+              status.textContent =
+                error instanceof Error
+                  ? error.message
+                  : "Pembuatan gambar gagal.";
+
+              generateButton.textContent =
+                generated
+                  ? "Coba buat ulang"
+                  : "Coba lagi";
+
+            } finally {
+              generateButton.disabled = false;
+            }
+          }
+        );
+
+        fileInput.addEventListener(
+          "change",
+          () => {
+            selectedFile =
+              fileInput.files
+              && fileInput.files[0]
+                ? fileInput.files[0]
+                : null;
+
+            downloadButton.hidden = true;
+
+            if (!selectedFile) {
+              removeButton.hidden = true;
+              return;
+            }
+
+            if (
+              selectedFile.size
+              > 10 * 1024 * 1024
+            ) {
+              status.textContent =
+                "Ukuran gambar maksimal 10 MB.";
+
+              selectedFile = null;
+              fileInput.value = "";
+              removeButton.hidden = true;
+              return;
+            }
+
+            if (localPreviewUrl) {
+              URL.revokeObjectURL(
+                localPreviewUrl
+              );
+            }
+
+            localPreviewUrl =
+              URL.createObjectURL(
+                selectedFile
+              );
+
+            showImage(
+              localPreviewUrl,
+              "Foto yang dipilih"
+            );
+
+            status.textContent =
+              "Foto siap. Tekan Hapus background.";
+
+            removeButton.hidden = false;
+
+            fileLabel.textContent =
+              "Ganti foto";
+
+            fileLabel.appendChild(
+              fileInput
+            );
+          }
+        );
+
+        removeButton.addEventListener(
+          "click",
+          async () => {
+            if (!selectedFile) {
+              status.textContent =
+                "Pilih foto terlebih dahulu.";
+              return;
+            }
+
+            removeButton.disabled = true;
+            removeButton.textContent =
+              "Memproses...";
+
+            status.textContent =
+              "Background sedang dihapus secara lokal.";
+
+            const formData = new FormData();
+
+            formData.append(
+              "file",
+              selectedFile,
+              selectedFile.name
+            );
+
+            try {
+              const response = await fetch(
+                "/api/automation/public-trial/visual-wizard/rembg",
+                {
+                  method: "POST",
+                  cache: "no-store",
+                  credentials: "same-origin",
+                  headers: {
+                    "X-BotConnector-Request":
+                      "visual-wizard"
+                  },
+                  body: formData
+                }
+              );
+
+              const payload =
+                await readPayload(response);
+
+              if (!response.ok) {
+                throw new Error(
+                  responseError(
+                    payload,
+                    response,
+                    "Hapus background gagal."
+                  )
+                );
+              }
+
+              const outputUrl = String(
+                payload.download_url || ""
+              );
+
+              if (!outputUrl) {
+                throw new Error(
+                  "Alamat hasil tidak diterima."
+                );
+              }
+
+              showImage(
+                outputUrl
+                  + "?v="
+                  + Date.now(),
+                "Gambar tanpa background"
+              );
+
+              downloadButton.href =
+                outputUrl;
+
+              downloadButton.hidden =
+                false;
+
+              status.textContent =
+                "Background berhasil dihapus.";
+
+              note.textContent =
+                "Hasil PNG transparan siap diunduh.";
+
+            } catch (error) {
+              status.textContent =
+                error instanceof Error
+                  ? error.message
+                  : "Hapus background gagal.";
+
+            } finally {
+              removeButton.disabled = false;
+              removeButton.textContent =
+                "Hapus background";
+            }
+          }
+        );
+
+        toolbar.appendChild(planButton);
+        toolbar.appendChild(generateButton);
+        toolbar.appendChild(fileLabel);
+        toolbar.appendChild(removeButton);
+
+        actions.appendChild(toolbar);
+        actions.appendChild(conceptHeading);
+        actions.appendChild(conceptGrid);
+        actions.appendChild(downloadButton);
+        actions.appendChild(note);
+
+        box.appendChild(preview);
+        box.appendChild(actions);
+
+        card.appendChild(box);
+      };
+
+      const renderCreator = (plan) => {
+        const heading = document.createElement("h2");
+        heading.className = "result-heading";
+        heading.textContent = "Ide Konten Anda";
+        result.appendChild(heading);
+
+        const intro = document.createElement("div");
+        intro.className = "result-intro";
+
+        if (plan.summary) {
+          addParagraph(intro, plan.summary);
+        }
+
+        const overview = [];
+
+        if (plan.objective) {
+          overview.push(
+            `Tujuan: ${plan.objective}`
+          );
+        }
+
+        if (plan.audience) {
+          overview.push(
+            `Target: ${plan.audience}`
+          );
+        }
+
+        if (plan.tone) {
+          overview.push(
+            `Gaya: ${plan.tone}`
+          );
+        }
+
+        if (overview.length) {
+          addList(intro, overview);
+        }
+
+        result.appendChild(intro);
+
+        const grid = document.createElement("div");
+        grid.className = "idea-grid";
+
+        const ideas = Array.isArray(plan.ideas)
+          ? plan.ideas
+          : [];
+
+        // BOTCONNECTOR_CREATOR_VISUAL_INDEX_FIX_V0162
+        for (const [index, idea] of ideas.entries()) {
+          const card = document.createElement("article");
+          card.className = "idea-card";
+
+          const title = document.createElement("h3");
+          title.textContent =
+            idea.title || "Ide konten";
+          card.appendChild(title);
+
+          const meta = document.createElement("div");
+          meta.className = "idea-meta";
+
+          for (const value of [
+            idea.day ? `Hari ${idea.day}` : "",
+            idea.platform || ""
+          ]) {
+            if (!value) {
+              continue;
+            }
+
+            const chip = document.createElement("span");
+            chip.className = "idea-chip";
+            chip.textContent = value;
+            meta.appendChild(chip);
+          }
+
+          card.appendChild(meta);
+
+          const addField = (
+            label,
+            value,
+            list = false
+          ) => {
+            if (
+              value === null ||
+              value === undefined ||
+              value === "" ||
+              (
+                Array.isArray(value) &&
+                !value.length
+              )
+            ) {
+              return;
+            }
+
+            const field = document.createElement("div");
+            field.className = "result-field";
+
+            const fieldLabel =
+              document.createElement("strong");
+
+            fieldLabel.textContent = label;
+            field.appendChild(fieldLabel);
+
+            if (list && Array.isArray(value)) {
+              addList(field, value);
+            } else {
+              addParagraph(field, value);
+            }
+
+            card.appendChild(field);
+          };
+
+          addField("Hook", idea.hook);
+          addField("Sudut konten", idea.angle);
+          addField("Outline", idea.script, true);
+          addField("Ide visual", idea.visuals, true);
+          addCreatorVisualControls(card, idea, index, plan);
+          addField("Caption", idea.caption);
+          addField("CTA", idea.cta);
+
+          if (
+            Array.isArray(idea.hashtags) &&
+            idea.hashtags.length
+          ) {
+            const hashtagField =
+              document.createElement("div");
+
+            hashtagField.className =
+              "result-field";
+
+            const hashtagLabel =
+              document.createElement("strong");
+
+            hashtagLabel.textContent = "Hashtag";
+            hashtagField.appendChild(hashtagLabel);
+
+            const hashtags =
+              document.createElement("div");
+
+            hashtags.className = "hashtag-list";
+
+            for (const hashtag of idea.hashtags) {
+              const item =
+                document.createElement("span");
+
+              item.className = "hashtag";
+              item.textContent = hashtag;
+              hashtags.appendChild(item);
+            }
+
+            hashtagField.appendChild(hashtags);
+            card.appendChild(hashtagField);
+          }
+
+          grid.appendChild(card);
+        }
+
+        result.appendChild(grid);
+
+        const calendar = Array.isArray(plan.calendar)
+          ? plan.calendar
+          : [];
+
+        if (calendar.length) {
+          const calendarHeading =
+            document.createElement("h2");
+
+          calendarHeading.className =
+            "result-heading";
+
+          calendarHeading.textContent =
+            "Kalender Konten";
+
+          result.appendChild(calendarHeading);
+
+          const calendarList =
+            document.createElement("div");
+
+          calendarList.className =
+            "calendar-list";
+
+          for (const item of calendar) {
+            const row =
+              document.createElement("div");
+
+            row.className = "calendar-item";
+
+            const title =
+              document.createElement("strong");
+
+            title.textContent = [
+              item.day || "",
+              item.platform || ""
+            ].filter(Boolean).join(" · ");
+
+            row.appendChild(title);
+
+            if (item.content) {
+              addParagraph(
+                row,
+                item.content
+              );
+            }
+
+            calendarList.appendChild(row);
+          }
+
+          result.appendChild(calendarList);
+        }
+
+        if (
+          Array.isArray(plan.review_notes) &&
+          plan.review_notes.length
+        ) {
+          const notes =
+            document.createElement("div");
+
+          notes.className = "result-intro";
+
+          const title =
+            document.createElement("strong");
+
+          title.textContent =
+            "Periksa sebelum digunakan";
+
+          notes.appendChild(title);
+          addList(notes, plan.review_notes);
+          result.appendChild(notes);
+        }
+      };
+
+      const renderStructured = (
+        title,
+        payload
+      ) => {
+        const heading = document.createElement("h2");
+        heading.className = "result-heading";
+        heading.textContent = title;
+        result.appendChild(heading);
+
+        const card = document.createElement("div");
+        card.className = "generic-card";
+
+        for (const [key, value] of Object.entries(payload || {})) {
+          renderGenericValue(
+            card,
+            key,
+            value
+          );
+        }
+
+        result.appendChild(card);
+      };
+
+      const render = (data) => {
+        result.replaceChildren();
+        result.classList.add("visible");
+
+        const summary =
+          document.createElement("div");
+
+        summary.className = "summary";
+
+        addText(
+          summary,
+          "strong",
+          "Draft berhasil dibuat"
+        );
+
+        addText(
+          summary,
+          "p",
+          "Periksa dan sesuaikan hasil sebelum digunakan."
+        );
+
+        addText(
+          summary,
+          "small",
+          data.safety_notice ||
+            "Hasil hanya berupa draft dan tidak disimpan."
+        );
+
+        result.appendChild(summary);
+
+        const items = Array.isArray(
+          data.tool_results
+        )
+          ? data.tool_results
+          : [];
+
+        for (const item of items) {
+          const payload =
+            item && typeof item.result === "object"
+              ? item.result
+              : {};
+
+          if (
+            payload.plan &&
+            Array.isArray(payload.plan.ideas)
+          ) {
+            renderCreator(payload.plan);
+            continue;
+          }
+
+          if (payload.plan) {
+            renderStructured(
+              "Draft Proposal",
+              payload.plan
+            );
+            continue;
+          }
+
+          if (payload.analysis) {
+            renderStructured(
+              "Draft Balasan WhatsApp",
+              payload.analysis
+            );
+            continue;
+          }
+
+          if (payload.assist) {
+            renderStructured(
+              "Analisis dan Tindak Lanjut",
+              payload.assist
+            );
+            continue;
+          }
+
+          renderStructured(
+            "Hasil Draft",
+            payload
+          );
+        }
+
+        if (!items.length) {
+          renderStructured(
+            "Hasil Draft",
+            data
+          );
+        }
+      };
+
+      form.addEventListener("submit", async (event) => {
+        event.preventDefault();
+
+        const value = message.value.trim();
+
+        if (value.length < 8) {
+          showError("Instruksi minimal 8 karakter.");
+          return;
+        }
+
+        submit.disabled = true;
+        status.textContent =
+          "Automation Brain sedang membuat draft…";
+
+        result.replaceChildren();
+        result.classList.remove("visible");
+
+        try {
+          const response = await fetch(
+            "/api/automation/public-trial",
+            {
+              method: "POST",
+              cache: "no-store",
+              credentials: "same-origin",
+              headers: {
+                "Content-Type": "application/json",
+                "X-BotConnector-Request": "public-trial"
+              },
+              body: JSON.stringify({
+                mode: mode.value,
+                message: value
+              })
+            }
+          );
+
+          let data = {};
+
+          try {
+            data = await response.json();
+          } catch (_) {
+            data = {};
+          }
+
+          if (!response.ok) {
+            throw new Error(
+              formatDetail(
+                data.detail || `HTTP ${response.status}`
+              )
+            );
+          }
+
+          render(data);
+          status.textContent =
+            "Draft selesai. Hasil tidak disimpan.";
+        } catch (error) {
+          showError(
+            error instanceof Error
+              ? error.message
+              : "Uji coba belum berhasil."
+          );
+
+          status.textContent =
+            "Silakan periksa instruksi dan coba lagi.";
+        } finally {
+          submit.disabled = false;
+        }
+      });
+    })();
+  </script>
+</body>
+</html>

@@ -1,0 +1,112 @@
+{% extends "base.html" %}
+{% block title %}Status Layanan — BotConnector{% endblock %}
+{% block content %}
+<main style="background:#F6F7FB;min-height:calc(100vh - 120px);padding:48px 0 80px">
+  <div class="shell" style="max-width:1080px;margin:0 auto;padding:0 24px">
+
+    <!-- Signature Dark Navy Status Centerpiece -->
+    <div style="background:#0B1020;border-radius:24px;padding:36px 40px;color:#fff;margin-bottom:36px;box-shadow:0 20px 50px rgba(11,16,32,0.14);position:relative;overflow:hidden">
+      <div style="display:flex;justify-content:space-between;align-items:flex-start;flex-wrap:wrap;gap:20px">
+        <div>
+          <div style="font-size:11px;font-weight:800;letter-spacing:0.14em;color:#a5b4fc;text-transform:uppercase;margin-bottom:8px">STATUS SISTEM LIVE</div>
+          <h1 style="font-size:32px;font-weight:850;color:#fff;margin:0 0 8px;letter-spacing:-0.03em">
+            {% if overall_ok %}Semua Layanan Beroperasi Normal{% else %}Sebagian Layanan Dalam Pemeriksaan{% endif %}
+          </h1>
+          <p style="font-size:14.5px;color:#98a2b3;margin:0;max-width:620px;line-height:1.6">
+            Pemantauan langsung ketersediaan platform, backend API, pusat POS multi-cabang, dan koneksi perutean notifikasi BotConnector.
+          </p>
+        </div>
+        <div>
+          <span style="display:inline-flex;align-items:center;gap:8px;padding:8px 16px;border-radius:99px;font-size:13px;font-weight:800;{% if overall_ok %}background:rgba(34,197,94,0.16);color:#22C55E;border:1px solid rgba(34,197,94,0.3);{% else %}background:rgba(245,158,11,0.16);color:#F59E0B;border:1px solid rgba(245,158,11,0.3);{% endif %}">
+            <span style="width:8px;height:8px;border-radius:50%;{% if overall_ok %}background:#22C55E;box-shadow:0 0 0 4px rgba(34,197,94,0.25);{% else %}background:#F59E0B;box-shadow:0 0 0 4px rgba(245,158,11,0.25);{% endif %}"></span>
+            {% if overall_ok %}100% Operational{% else %}Degraded Performance{% endif %}
+          </span>
+        </div>
+      </div>
+
+      <div style="margin-top:28px;padding-top:20px;border-top:1px solid rgba(255,255,255,0.08);display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:12px;font-size:12px;color:#8b90b8">
+        <span>Diperiksa langsung dari probe internal production VPS</span>
+        <span>Pemeriksaan terakhir: <strong style="color:#fff">{{ checked_at.strftime('%Y-%m-%d %H:%M:%S UTC') }}</strong></span>
+      </div>
+    </div>
+
+    <!-- Service Groups Grid -->
+    <div style="display:flex;flex-direction:column;gap:32px">
+
+      <!-- Group 1: Platform Core -->
+      <div style="background:#FFFFFF;border:1px solid #E7E9F2;border-radius:20px;padding:28px;box-shadow:0 4px 20px rgba(11,16,32,0.03)">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:18px">
+          <div>
+            <div style="font-size:11px;font-weight:800;color:#5B5FEF;letter-spacing:0.1em;text-transform:uppercase">INFRASTRUKTUR PLATFORM</div>
+            <h3 style="font-size:18px;font-weight:850;color:#101828;margin:4px 0 0">Platform Utama &amp; Autentikasi</h3>
+          </div>
+          <span style="font-size:11px;font-weight:800;color:#22C55E;background:#e8f9ef;padding:3px 10px;border-radius:99px">● Normal</span>
+        </div>
+        <div style="display:flex;flex-direction:column;gap:10px">
+          {% for s in platform_services %}
+          <div style="background:#FAFBFD;border:1px solid #E7E9F2;border-radius:14px;padding:16px 18px;display:flex;align-items:center;justify-content:space-between;gap:16px">
+            <div>
+              <div style="font-size:14px;font-weight:750;color:#101828">{{ s.name }}</div>
+              <div style="font-size:12.5px;color:#667085;margin-top:2px">{{ s.description }}</div>
+            </div>
+            <span style="padding:4px 12px;border-radius:99px;font-size:11.5px;font-weight:800;white-space:nowrap;{% if s.ok %}background:#e8f9ef;color:#22C55E;{% else %}background:#fee2e2;color:#EF4444;{% endif %}">
+              {{ s.label }}
+            </span>
+          </div>
+          {% endfor %}
+        </div>
+      </div>
+
+      <!-- Group 2: Products & Applications -->
+      <div style="background:#FFFFFF;border:1px solid #E7E9F2;border-radius:20px;padding:28px;box-shadow:0 4px 20px rgba(11,16,32,0.03)">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:18px">
+          <div>
+            <div style="font-size:11px;font-weight:800;color:#5B5FEF;letter-spacing:0.1em;text-transform:uppercase">APLIKASI &amp; PRODUK</div>
+            <h3 style="font-size:18px;font-weight:850;color:#101828;margin:4px 0 0">Produk Operasional</h3>
+          </div>
+          <span style="font-size:11px;font-weight:800;color:#22C55E;background:#e8f9ef;padding:3px 10px;border-radius:99px">● Normal</span>
+        </div>
+        <div style="display:flex;flex-direction:column;gap:10px">
+          {% for s in product_services %}
+          <div style="background:#FAFBFD;border:1px solid #E7E9F2;border-radius:14px;padding:16px 18px;display:flex;align-items:center;justify-content:space-between;gap:16px">
+            <div>
+              <div style="font-size:14px;font-weight:750;color:#101828">{{ s.name }}</div>
+              <div style="font-size:12.5px;color:#667085;margin-top:2px">{{ s.description }}</div>
+            </div>
+            <span style="padding:4px 12px;border-radius:99px;font-size:11.5px;font-weight:800;white-space:nowrap;{% if s.ok %}background:#e8f9ef;color:#22C55E;{% else %}background:#fee2e2;color:#EF4444;{% endif %}">
+              {{ s.label }}
+            </span>
+          </div>
+          {% endfor %}
+        </div>
+      </div>
+
+      <!-- Group 3: Channel Integrations -->
+      <div style="background:#FFFFFF;border:1px solid #E7E9F2;border-radius:20px;padding:28px;box-shadow:0 4px 20px rgba(11,16,32,0.03)">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:18px">
+          <div>
+            <div style="font-size:11px;font-weight:800;color:#5B5FEF;letter-spacing:0.1em;text-transform:uppercase">JARINGAN INTEGRASI</div>
+            <h3 style="font-size:18px;font-weight:850;color:#101828;margin:4px 0 0">Koneksi Kanal &amp; Notifikasi</h3>
+          </div>
+          <span style="font-size:11px;font-weight:800;color:#22C55E;background:#e8f9ef;padding:3px 10px;border-radius:99px">● Normal</span>
+        </div>
+        <div style="display:flex;flex-direction:column;gap:10px">
+          {% for s in integration_services %}
+          <div style="background:#FAFBFD;border:1px solid #E7E9F2;border-radius:14px;padding:16px 18px;display:flex;align-items:center;justify-content:space-between;gap:16px">
+            <div>
+              <div style="font-size:14px;font-weight:750;color:#101828">{{ s.name }}</div>
+              <div style="font-size:12.5px;color:#667085;margin-top:2px">{{ s.description }}</div>
+            </div>
+            <span style="padding:4px 12px;border-radius:99px;font-size:11.5px;font-weight:800;white-space:nowrap;{% if s.ok %}background:#e8f9ef;color:#22C55E;{% else %}background:#fee2e2;color:#EF4444;{% endif %}">
+              {{ s.label }}
+            </span>
+          </div>
+          {% endfor %}
+        </div>
+      </div>
+
+    </div>
+
+  </div>
+</main>
+{% endblock %}

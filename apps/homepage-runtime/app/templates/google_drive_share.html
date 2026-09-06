@@ -1,0 +1,319 @@
+<!doctype html>
+<html lang="id">
+
+<head>
+
+<meta charset="utf-8">
+
+<meta
+  name="viewport"
+  content="width=device-width,initial-scale=1"
+>
+
+<title>
+  Bagikan Google Drive | BotConnector
+</title>
+
+<link
+  rel="stylesheet"
+  href="/static/style.css"
+>
+
+<link
+  rel="stylesheet"
+  href="/static/drive.css?v=0.4.0"
+>
+
+</head>
+
+
+<body class="bc-drive-body">
+
+
+<header class="bc-drive-top">
+
+  <a
+    class="bc-drive-brand"
+    href="/drive"
+  >
+    <span class="bc-drive-logo">
+      B
+    </span>
+
+    <span>
+      <strong>
+        BotConnector
+      </strong>
+
+      <small>
+        Google Drive
+      </small>
+    </span>
+  </a>
+
+
+  <div class="bc-drive-top-actions">
+
+    <a href="/drive">
+      My Drive
+    </a>
+
+    <a href="/settings/integrations">
+      Integrasi
+    </a>
+
+  </div>
+
+</header>
+
+
+<main class="bc-google-share-page">
+
+  <span class="bc-drive-eyebrow">
+    GOOGLE DRIVE
+  </span>
+
+  <h1>
+    Kelola berbagi
+  </h1>
+
+
+  {% if notice %}
+
+  <div class="bc-drive-alert success">
+    <strong>Berhasil</strong>
+    <span>{{ notice }}</span>
+  </div>
+
+  {% endif %}
+
+
+  {% if error %}
+
+  <div class="bc-drive-alert error">
+    <strong>Google Drive</strong>
+    <span>{{ error }}</span>
+  </div>
+
+  {% endif %}
+
+
+  {% if google %}
+
+  <section class="bc-google-share-card">
+
+    <div class="bc-google-share-title">
+
+      <div class="bc-google-icon">
+        G
+      </div>
+
+      <div>
+
+        <h2>
+          {{ google.name }}
+        </h2>
+
+        <p>
+          Salinan Google Drive
+        </p>
+
+      </div>
+
+    </div>
+
+
+    <div class="bc-google-share-status">
+
+      <span>
+        Link publik
+      </span>
+
+      {% if google.public_link_enabled %}
+
+      <strong class="on">
+        Aktif
+      </strong>
+
+      {% else %}
+
+      <strong>
+        Nonaktif
+      </strong>
+
+      {% endif %}
+
+    </div>
+
+
+    {% if google.web_view_link %}
+
+    <div class="bc-google-copy-row">
+
+      <input
+        id="google-share-link"
+        type="text"
+        readonly
+        value="{{ google.web_view_link }}"
+      >
+
+      <button
+        type="button"
+        onclick="copyGoogleLink()"
+      >
+        Salin link
+      </button>
+
+    </div>
+
+
+    <a
+      class="bc-google-open-button"
+      href="{{ google.web_view_link }}"
+      target="_blank"
+      rel="noopener noreferrer"
+    >
+      Buka di Google Drive
+    </a>
+
+    {% endif %}
+
+
+    <div class="bc-google-share-actions">
+
+
+      {% if google.public_link_enabled %}
+
+      <form
+        method="post"
+        action="/drive/actions/google-share-private"
+        onsubmit="return confirm('Nonaktifkan link publik Google Drive?');"
+      >
+
+        <input
+          type="hidden"
+          name="item_path"
+          value="{{ item_path }}"
+        >
+
+        <input
+          type="hidden"
+          name="csrf_token"
+          value="{{ csrf_token }}"
+        >
+
+        <button
+          type="submit"
+          class="bc-google-button danger"
+        >
+          Nonaktifkan link publik
+        </button>
+
+      </form>
+
+
+      {% else %}
+
+
+      <form
+        method="post"
+        action="/drive/actions/google-share-public"
+      >
+
+        <input
+          type="hidden"
+          name="item_path"
+          value="{{ item_path }}"
+        >
+
+        <input
+          type="hidden"
+          name="csrf_token"
+          value="{{ csrf_token }}"
+        >
+
+        <button
+          type="submit"
+          class="bc-google-button"
+        >
+          Aktifkan siapa saja dengan link
+        </button>
+
+      </form>
+
+      {% endif %}
+
+
+    </div>
+
+
+    <p class="bc-google-share-note">
+
+      BotConnector hanya mengubah permission
+      tipe <strong>Anyone with the link</strong>.
+      Permission email atau permission lain
+      yang dibuat langsung di Google Drive
+      tidak dihapus.
+
+    </p>
+
+  </section>
+
+  {% endif %}
+
+
+  <div class="bc-google-back">
+
+    <a href="/drive">
+      ← Kembali ke My Drive
+    </a>
+
+  </div>
+
+</main>
+
+
+<script>
+
+async function copyGoogleLink() {
+
+  const input =
+    document.getElementById(
+      "google-share-link"
+    );
+
+  if (!input) {
+    return;
+  }
+
+  try {
+
+    await navigator.clipboard.writeText(
+      input.value
+    );
+
+    alert(
+      "Link Google Drive sudah disalin."
+    );
+
+  } catch (error) {
+
+    input.select();
+
+    document.execCommand(
+      "copy"
+    );
+
+    alert(
+      "Link Google Drive sudah disalin."
+    );
+
+  }
+
+}
+
+</script>
+
+
+</body>
+</html>

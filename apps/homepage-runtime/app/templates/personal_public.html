@@ -1,0 +1,154 @@
+{% extends "base.html" %}
+{% block title %}Personal Automation — Creator dan Freelancer Assistant | BotConnector{% endblock %}
+{% block content %}
+<section class="personal-public-hero">
+  <div class="personal-glow personal-glow-a" aria-hidden="true"></div>
+  <div class="personal-glow personal-glow-b" aria-hidden="true"></div>
+
+  <div class="shell personal-public-hero-inner reveal">
+    <a class="personal-back-link" href="/products">← Semua produk</a>
+    <span class="personal-public-badge">PERSONAL AUTOMATION · PILOT</span>
+    <h1>Kelola konten dan pekerjaan freelance lebih teratur.</h1>
+    <p class="personal-public-lead">
+      Dua asisten dalam satu ruang personal: Creator Assistant membantu
+      produksi konten, sedangkan Freelancer Assistant membantu mengelola
+      klien, proyek, revisi, invoice, dan pembayaran.
+    </p>
+
+    <div class="personal-public-actions">
+      <a class="button primary personal-start-button" href="{{ start_url }}">{{ start_label }}</a>
+      {% if not user %}
+      <a class="button ghost" href="{{ login_url }}">Masuk</a>
+      {% endif %}
+    </div>
+
+    <p class="personal-public-note">
+      Halaman penjelasan dapat dibuka tanpa akun. Login diperlukan saat
+      menyimpan konten, klien, proyek, invoice, dan progres pribadi.
+    </p>
+  </div>
+</section>
+
+<section class="shell personal-assistants-section">
+  <div class="personal-section-heading reveal">
+    <span>Dua ruang kerja</span>
+    <h2>Pilih bantuan sesuai aktivitas Anda.</h2>
+    <p>Creator dan Freelancer tidak dicampur dengan menu bisnis, trading, atau pencarian kerja.</p>
+  </div>
+
+  <div class="personal-assistant-grid">
+    <article class="personal-assistant-card creator reveal">
+      <div class="personal-assistant-icon" aria-hidden="true">✦</div>
+      <span class="personal-card-label">UNTUK KONTEN</span>
+      <h3>Creator Assistant</h3>
+      <p>
+        Ubah produk, ide, foto, video, atau materi menjadi rancangan konten
+        yang siap diperiksa dan dijadwalkan.
+      </p>
+      <ul>
+        <li>Ide dan sudut konten</li>
+        <li>Hook dan script video</li>
+        <li>Caption, CTA, dan hashtag</li>
+        <li>Kalender serta status konten</li>
+        <li>Pengelolaan link affiliate</li>
+      </ul>
+      <a class="personal-inline-link" href="/personal/creator">Lihat Creator Assistant →</a>
+    </article>
+
+    <article class="personal-assistant-card freelancer reveal">
+      <div class="personal-assistant-icon" aria-hidden="true">▣</div>
+      <span class="personal-card-label">UNTUK JASA</span>
+      <h3>Freelancer Assistant</h3>
+      <p>
+        Atur calon klien hingga proyek selesai dan pembayaran diterima
+        dalam satu alur yang mudah dipantau.
+      </p>
+      <ul>
+        <li>Pipeline calon klien</li>
+        <li>Proposal dan quotation</li>
+        <li>Proyek, milestone, dan revisi</li>
+        <li>Invoice serta pengingat pembayaran</li>
+        <li>Laporan pendapatan dan portfolio</li>
+      </ul>
+      <a class="personal-inline-link" href="/personal/freelancer">Lihat Freelancer Assistant →</a>
+    </article>
+  </div>
+</section>
+
+<section class="personal-example-wrap">
+  <div class="shell">
+    <div class="personal-section-heading reveal">
+      <span>Contoh penggunaan</span>
+      <h2>Dari kebutuhan menjadi langkah yang jelas.</h2>
+    </div>
+
+    <div class="personal-example-grid">
+      <article class="personal-example-card reveal" id="creator-example">
+        <div class="personal-example-number">01</div>
+        <div>
+          <span class="personal-card-label">CREATOR ASSISTANT</span>
+          <h3>Produk skincare menjadi kalender konten mingguan</h3>
+          <ol>
+            <li>Masukkan nama produk, target audiens, platform, dan gaya bahasa.</li>
+            <li>Dapatkan ide, hook, script, caption, CTA, dan hashtag.</li>
+            <li>Pilih hasil, revisi, lalu simpan sebagai draft.</li>
+            <li>Masukkan ke kalender dan terima pengingat publikasi.</li>
+          </ol>
+        </div>
+      </article>
+
+      <article class="personal-example-card reveal" id="freelancer-example">
+        <div class="personal-example-number">02</div>
+        <div>
+          <span class="personal-card-label">FREELANCER ASSISTANT</span>
+          <h3>Calon klien desain menjadi proyek dan invoice</h3>
+          <ol>
+            <li>Catat kebutuhan, anggaran, deadline, dan status prospek.</li>
+            <li>Siapkan quotation, ruang lingkup, milestone, dan ketentuan revisi.</li>
+            <li>Pantau tugas, file, progres, dan perubahan dari klien.</li>
+            <li>Buat invoice, pantau jatuh tempo, lalu kirim pengingat.</li>
+          </ol>
+        </div>
+      </article>
+    </div>
+  </div>
+</section>
+
+<section class="shell personal-how-section">
+  <div class="personal-section-heading reveal">
+    <span>Cara kerja</span>
+    <h2>Mulai tanpa memenuhi dashboard Anda.</h2>
+    <p>Produk lain tidak muncul sampai Anda memilih dan mengaktifkannya.</p>
+  </div>
+
+  <ol class="personal-how-grid">
+    <li class="reveal"><span>1</span><strong>Pahami produk</strong><p>Baca fitur dan contoh penggunaan tanpa harus login.</p></li>
+    <li class="reveal"><span>2</span><strong>Buat akun atau masuk</strong><p>Gunakan satu akun BotConnector untuk produk pilihan.</p></li>
+    <li class="reveal"><span>3</span><strong>Pilih kebutuhan</strong><p>Aktifkan Creator Assistant, Freelancer Assistant, atau keduanya.</p></li>
+    <li class="reveal"><span>4</span><strong>Buka ruang pribadi</strong><p>Simpan draft, proyek, invoice, pengingat, dan progres.</p></li>
+  </ol>
+</section>
+
+<section class="shell personal-public-cta reveal">
+  <div>
+    <span class="personal-card-label">PERSONAL AUTOMATION</span>
+    <h2>Mulai dari kebutuhan yang paling penting.</h2>
+    <p>Gunakan Creator Assistant, Freelancer Assistant, atau aktifkan keduanya dalam satu akun.</p>
+  </div>
+  <div class="personal-public-actions">
+    <a class="button primary personal-start-button" href="{{ start_url }}">{{ start_label }}</a>
+    {% if not user %}
+    <a class="button ghost" href="{{ login_url }}">Sudah punya akun? Masuk</a>
+    {% endif %}
+  </div>
+</section>
+
+<section class="shell personal-public-safety reveal">
+  <strong>Kontrol tetap di tangan pengguna.</strong>
+  <p>
+    Candidate ini belum memublikasikan konten, mengirim proposal, mengirim
+    invoice, atau menagih pembayaran secara otomatis. Setiap hasil harus
+    diperiksa dan disetujui pengguna.
+  </p>
+</section>
+{% endblock %}

@@ -1,0 +1,40 @@
+{% extends "base.html" %}
+{% block title %}Kontrol Staging — BotConnector{% endblock %}
+{% block content %}
+<section class="shell" style="padding:56px 0 90px;max-width:920px">
+  <div class="eyebrow">ADMIN</div>
+  <!-- BOTCONNECTOR_ADMIN_STORAGE_LINK_V010 -->
+  <p>
+    <a
+      href="/panel/#storage"
+      style="font-weight:700"
+    >
+      Storage &amp; Kuota Drive →
+    </a>
+  </p>
+  <h1>Kontrol akses staging</h1>
+  <p>Admin selalu dapat membuka staging. Gunakan tombol di bawah untuk membuka atau menutup akses pengujian bagi pengguna lain.</p>
+  <article style="margin-top:28px;padding:26px;border:1px solid #e1e5ec;border-radius:20px;background:#fff;display:flex;justify-content:space-between;align-items:center;gap:24px;flex-wrap:wrap">
+    <div>
+      <h2 style="margin:0 0 8px">Document Assistant</h2>
+      {% if staging_state.document %}
+      <strong style="color:#16845b">TERBUKA</strong>
+      <p>Staging dapat digunakan untuk pengujian.</p>
+      {% else %}
+      <strong style="color:#b14b45">TERTUTUP · ADMIN SAJA</strong>
+      <p>Pengguna lain tidak dapat membuka halaman maupun API pemrosesan.</p>
+      {% endif %}
+    </div>
+    <form method="post" action="/admin/staging/document">
+      <input type="hidden" name="csrf_token" value="{{ staging_csrf }}">
+      {% if staging_state.document %}
+      <input type="hidden" name="action" value="closed">
+      <button class="button" type="submit">Tutup staging</button>
+      {% else %}
+      <input type="hidden" name="action" value="open">
+      <button class="button primary" type="submit">Buka staging</button>
+      {% endif %}
+    </form>
+  </article>
+</section>
+{% endblock %}

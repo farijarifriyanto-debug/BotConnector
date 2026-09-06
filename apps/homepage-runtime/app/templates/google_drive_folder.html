@@ -1,0 +1,654 @@
+<!doctype html>
+<html lang="id">
+
+<head>
+
+<meta charset="utf-8">
+
+<meta
+  name="viewport"
+  content="width=device-width,initial-scale=1"
+>
+
+<title>
+  Folder Google Drive | BotConnector
+</title>
+
+<link
+  rel="stylesheet"
+  href="/static/style.css"
+>
+
+<link
+  rel="stylesheet"
+  href="/static/drive.css?v=0.6.0"
+>
+
+</head>
+
+
+<body class="bc-drive-body">
+
+
+<header class="bc-drive-top">
+
+  <a
+    class="bc-drive-brand"
+    href="/drive"
+  >
+
+    <span class="bc-drive-logo">
+      B
+    </span>
+
+    <span>
+
+      <strong>
+        BotConnector
+      </strong>
+
+      <small>
+        Google Drive
+      </small>
+
+    </span>
+
+  </a>
+
+
+  <div class="bc-drive-top-actions">
+
+    <a href="/drive">
+      My Drive
+    </a>
+
+    <a href="/settings/integrations">
+      Integrasi
+    </a>
+
+  </div>
+
+</header>
+
+
+<main class="bc-google-folder-page">
+
+  <span class="bc-drive-eyebrow">
+    GOOGLE DRIVE
+  </span>
+
+  <h1>
+    Folder tujuan
+  </h1>
+
+  <p class="bc-google-folder-intro">
+    Pilih folder Google Drive untuk
+    menyimpan salinan file berikutnya.
+  </p>
+
+
+  {% if notice %}
+
+  <div class="bc-drive-alert success">
+
+    <strong>
+      Berhasil
+    </strong>
+
+    <span>
+      {{ notice }}
+    </span>
+
+  </div>
+
+  {% endif %}
+
+
+  {% if error %}
+
+  <div class="bc-drive-alert error">
+
+    <strong>
+      Google Drive
+    </strong>
+
+    <span>
+      {{ error }}
+    </span>
+
+  </div>
+
+  {% endif %}
+
+
+  <section class="bc-google-folder-card">
+
+    <div class="bc-google-folder-current">
+
+      <div class="bc-google-icon">
+        G
+      </div>
+
+      <div>
+
+        <small>
+          Folder aktif
+        </small>
+
+        <h2>
+          {{ destination.folder_name or 'My Drive' }}
+        </h2>
+
+
+        {% if destination.mode == 'root' %}
+
+        <p>
+          Upload Google berikutnya
+          masuk langsung ke My Drive.
+        </p>
+
+        {% else %}
+
+        <p>
+          Upload Google berikutnya
+          masuk ke folder ini.
+        </p>
+
+        {% endif %}
+
+      </div>
+
+    </div>
+
+
+    <input
+      type="hidden"
+      id="bc-google-folder-csrf"
+      value="{{ csrf_token }}"
+    >
+
+
+    <div class="bc-google-folder-actions">
+
+      {% if picker_ready %}
+
+      <button
+        id="bc-google-picker-button"
+        type="button"
+        class="bc-google-button"
+        onclick="openGoogleFolderPicker()"
+      >
+
+        {% if destination.mode == 'root' %}
+
+        Pilih folder Google Drive
+
+        {% else %}
+
+        Ganti folder tujuan
+
+        {% endif %}
+
+      </button>
+
+      {% endif %}
+
+
+      {% if destination.mode != 'root' %}
+
+      <form
+        method="post"
+        action="/drive/google/folder/reset"
+        onsubmit="return confirm('Kembali menyimpan ke My Drive?');"
+      >
+
+        <input
+          type="hidden"
+          name="csrf_token"
+          value="{{ csrf_token }}"
+        >
+
+        <button
+          type="submit"
+          class="bc-google-folder-root"
+        >
+          Gunakan My Drive
+        </button>
+
+      </form>
+
+      {% endif %}
+
+    </div>
+
+
+    <div
+      id="bc-google-picker-status"
+      class="bc-google-picker-status"
+      aria-live="polite"
+    ></div>
+
+
+    <div class="bc-google-folder-info">
+
+      <strong>
+        Privasi
+      </strong>
+
+      <p>
+        BotConnector tetap menggunakan
+        scope drive.file. Folder dipilih
+        melalui Google Picker resmi.
+        File asli tetap berada di NAS.
+      </p>
+
+    </div>
+
+  </section>
+
+
+  <div class="bc-google-back">
+
+    <a href="/settings/integrations">
+      ← Kembali ke Integrasi
+    </a>
+
+  </div>
+
+</main>
+
+
+<script
+  src="https://apis.google.com/js/api.js"
+></script>
+
+
+<script>
+
+const folderCsrfElement =
+  document.getElementById(
+    "bc-google-folder-csrf"
+  );
+
+
+const folderCsrf =
+  folderCsrfElement
+    ? folderCsrfElement.value
+    : "";
+
+
+function setPickerStatus(
+  message,
+  isError = false
+) {
+
+  const node =
+    document.getElementById(
+      "bc-google-picker-status"
+    );
+
+  if (!node) {
+    return;
+  }
+
+  node.textContent =
+    message || "";
+
+  node.classList.toggle(
+    "error",
+    Boolean(isError)
+  );
+}
+
+
+async function getPickerSession() {
+
+  const form =
+    new FormData();
+
+  form.append(
+    "csrf_token",
+    folderCsrf
+  );
+
+
+  const response =
+    await fetch(
+      "/drive/google/picker-session",
+      {
+        method:
+          "POST",
+
+        body:
+          form,
+
+        credentials:
+          "same-origin",
+
+        cache:
+          "no-store"
+      }
+    );
+
+
+  const payload =
+    await response.json();
+
+
+  if (!response.ok) {
+
+    throw new Error(
+      payload.detail
+      || "Google Picker tidak tersedia."
+    );
+  }
+
+
+  return payload;
+}
+
+
+function loadGooglePickerLibrary() {
+
+  return new Promise(
+    (resolve, reject) => {
+
+      if (
+        !window.gapi
+        || !window.gapi.load
+      ) {
+
+        reject(
+          new Error(
+            "Library Google Picker "
+            + "tidak berhasil dimuat."
+          )
+        );
+
+        return;
+      }
+
+
+      window.gapi.load(
+        "picker",
+        {
+          callback:
+            resolve,
+
+          onerror:
+            () => reject(
+              new Error(
+                "Google Picker gagal dimuat."
+              )
+            ),
+
+          timeout:
+            15000,
+
+          ontimeout:
+            () => reject(
+              new Error(
+                "Google Picker timeout."
+              )
+            )
+        }
+      );
+
+    }
+  );
+}
+
+
+async function saveFolderSelection(
+  folder
+) {
+
+  const folderId =
+    String(
+      folder.id
+      || ""
+    );
+
+
+  if (!folderId) {
+
+    throw new Error(
+      "Google tidak memberikan folder ID."
+    );
+  }
+
+
+  const form =
+    new FormData();
+
+  form.append(
+    "folder_id",
+    folderId
+  );
+
+  form.append(
+    "csrf_token",
+    folderCsrf
+  );
+
+
+  const response =
+    await fetch(
+      "/drive/google/folder/select",
+      {
+        method:
+          "POST",
+
+        body:
+          form,
+
+        credentials:
+          "same-origin",
+
+        cache:
+          "no-store"
+      }
+    );
+
+
+  const payload =
+    await response.json();
+
+
+  if (!response.ok) {
+
+    throw new Error(
+      payload.detail
+      || "Folder tidak dapat disimpan."
+    );
+  }
+
+
+  setPickerStatus(
+    "Folder tujuan berhasil disimpan."
+  );
+
+
+  window.setTimeout(
+    () => {
+      window.location.reload();
+    },
+    500
+  );
+}
+
+
+async function openGoogleFolderPicker() {
+
+  const button =
+    document.getElementById(
+      "bc-google-picker-button"
+    );
+
+
+  if (button) {
+    button.disabled = true;
+  }
+
+
+  setPickerStatus(
+    "Menyiapkan Google Picker..."
+  );
+
+
+  try {
+
+    const results =
+      await Promise.all([
+        getPickerSession(),
+        loadGooglePickerLibrary()
+      ]);
+
+
+    const session =
+      results[0];
+
+
+    const view =
+      new google.picker.DocsView(
+        google.picker.ViewId.FOLDERS
+      );
+
+
+    view.setIncludeFolders(
+      true
+    );
+
+
+    view.setSelectFolderEnabled(
+      true
+    );
+
+
+    let builder =
+      new google.picker.PickerBuilder()
+        .addView(
+          view
+        )
+        .setOAuthToken(
+          session.oauth_token
+        )
+        .setDeveloperKey(
+          session.developer_key
+        )
+        .setAppId(
+          session.app_id
+        )
+        .setOrigin(
+          window.location.origin
+        )
+        .setMaxItems(
+          1
+        )
+        .setTitle(
+          "Pilih folder tujuan Google Drive"
+        );
+
+
+    if (
+      google.picker.Feature
+      && google.picker.Feature.SUPPORT_DRIVES
+    ) {
+
+      builder =
+        builder.enableFeature(
+          google.picker.Feature.SUPPORT_DRIVES
+        );
+    }
+
+
+    const picker =
+      builder
+        .setCallback(
+          async data => {
+
+            if (
+              data.action
+              === google.picker.Action.PICKED
+            ) {
+
+              try {
+
+                const docs =
+                  data.docs || [];
+
+                if (!docs.length) {
+
+                  throw new Error(
+                    "Tidak ada folder "
+                    + "yang dipilih."
+                  );
+                }
+
+
+                setPickerStatus(
+                  "Memverifikasi folder..."
+                );
+
+
+                await saveFolderSelection(
+                  docs[0]
+                );
+
+
+              } catch (error) {
+
+                setPickerStatus(
+                  error.message
+                  || "Folder gagal dipilih.",
+                  true
+                );
+              }
+            }
+
+
+            if (
+              data.action
+              === google.picker.Action.CANCEL
+            ) {
+
+              setPickerStatus(
+                ""
+              );
+            }
+          }
+        )
+        .build();
+
+
+    picker.setVisible(
+      true
+    );
+
+
+    setPickerStatus(
+      ""
+    );
+
+
+  } catch (error) {
+
+    setPickerStatus(
+      error.message
+      || "Google Picker gagal dibuka.",
+      true
+    );
+
+  } finally {
+
+    if (button) {
+      button.disabled = false;
+    }
+  }
+}
+
+</script>
+
+
+</body>
+</html>

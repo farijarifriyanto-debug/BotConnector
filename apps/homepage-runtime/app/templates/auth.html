@@ -1,0 +1,97 @@
+{% extends "base.html" %}
+{% block title %}{% if mode == 'register' %}Buat Akun{% else %}Masuk ke Akun{% endif %} — BotConnector{% endblock %}
+{% block content %}
+<main style="background:#F6F7FB;min-height:calc(100vh - 120px);display:flex;align-items:center;justify-content:center;padding:48px 20px">
+  <div style="width:100%;max-width:440px">
+    
+    <div style="background:#FFFFFF;border:1px solid #E7E9F2;border-radius:24px;padding:36px;box-shadow:0 12px 36px rgba(11,16,32,0.04)">
+      
+      <!-- Brand & Header -->
+      <div style="text-align:center;margin-bottom:28px">
+        <div style="width:40px;height:40px;border-radius:11px;background:#0B1020;color:#fff;display:inline-grid;place-items:center;font-size:15px;font-weight:850;margin-bottom:12px">
+          BC
+        </div>
+        <div style="font-size:11px;font-weight:800;letter-spacing:0.12em;color:#5B5FEF;text-transform:uppercase;margin-bottom:6px">
+          AKUN TERPUSAT
+        </div>
+        <h1 style="font-size:24px;font-weight:850;color:#101828;margin:0 0 6px;letter-spacing:-0.025em">
+          {% if mode == 'register' %}Buat Akun Baru{% else %}Masuk ke BotConnector{% endif %}
+        </h1>
+        <p style="font-size:13.5px;color:#667085;margin:0;line-height:1.5">
+          Satu akun untuk Business Suite, Connect, dan seluruh operasional bisnis Anda.
+        </p>
+      </div>
+
+      {% if error %}
+      <div style="padding:12px 16px;background:#fee2e2;border:1px solid #fecaca;border-radius:12px;color:#EF4444;font-size:13px;font-weight:700;margin-bottom:20px;line-height:1.4">
+        {{ error }}
+      </div>
+      {% endif %}
+
+      <form method="post" action="/{% if mode == 'register' %}register{% else %}login{% endif %}" style="display:flex;flex-direction:column;gap:16px">
+        <!-- CSRF Token -->
+        <input type="hidden" name="csrf_token" value="{{ csrf_token }}">
+
+        {% if mode == 'register' %}
+        <div style="display:flex;flex-direction:column;gap:6px">
+          <label style="font-size:12px;font-weight:750;color:#344054">Nama Lengkap</label>
+          <input type="text" name="name" autocomplete="name" placeholder="Nama Anda atau Usaha" value="{{ form_values.name or '' }}" required style="width:100%;background:#FFFFFF;border:1px solid #E7E9F2;border-radius:11px;padding:11px 14px;font-size:14px;outline:none;font-family:inherit;box-sizing:border-box">
+        </div>
+        {% endif %}
+
+        <div style="display:flex;flex-direction:column;gap:6px">
+          <label style="font-size:12px;font-weight:750;color:#344054">Alamat Email</label>
+          <input type="email" name="email" autocomplete="email" placeholder="nama@email.com" value="{{ form_values.email or '' }}" required style="width:100%;background:#FFFFFF;border:1px solid #E7E9F2;border-radius:11px;padding:11px 14px;font-size:14px;outline:none;font-family:inherit;box-sizing:border-box">
+        </div>
+
+        {% if core_integration_enabled %}
+        <div style="display:flex;flex-direction:column;gap:6px">
+          <div style="display:flex;justify-content:space-between;align-items:center">
+            <label style="font-size:12px;font-weight:750;color:#344054">Password</label>
+            {% if mode != 'register' %}
+            <a href="/forgot-password" style="font-size:12px;color:#5B5FEF;text-decoration:none;font-weight:700">Lupa password?</a>
+            {% endif %}
+          </div>
+          <input type="password" name="password" autocomplete="{% if mode == 'register' %}new-password{% else %}current-password{% endif %}" placeholder="Minimal 10 karakter" required style="width:100%;background:#FFFFFF;border:1px solid #E7E9F2;border-radius:11px;padding:11px 14px;font-size:14px;outline:none;font-family:inherit;box-sizing:border-box">
+        </div>
+
+        {% if mode == 'register' %}
+        <div style="display:flex;flex-direction:column;gap:6px">
+          <label style="font-size:12px;font-weight:750;color:#344054">Konfirmasi Password</label>
+          <input type="password" name="confirm_password" autocomplete="new-password" placeholder="Ketik ulang password" required style="width:100%;background:#FFFFFF;border:1px solid #E7E9F2;border-radius:11px;padding:11px 14px;font-size:14px;outline:none;font-family:inherit;box-sizing:border-box">
+        </div>
+        <div style="font-size:11.5px;color:#667085;line-height:1.4">
+          Gunakan sedikitnya 10 karakter dengan kombinasi huruf dan angka.
+        </div>
+
+        <div style="display:flex;flex-direction:column;gap:8px;font-size:12px;color:#475467;margin-top:4px">
+          <label style="display:flex;align-items:flex-start;gap:8px;cursor:pointer">
+            <input type="checkbox" name="privacy_consent" value="yes" required style="margin-top:2px">
+            <span>Saya menyetujui <a href="/privacy" target="_blank" style="color:#5B5FEF;text-decoration:none;font-weight:700">Kebijakan Privasi</a>.</span>
+          </label>
+          <label style="display:flex;align-items:flex-start;gap:8px;cursor:pointer">
+            <input type="checkbox" name="terms_consent" value="yes" required style="margin-top:2px">
+            <span>Saya menyetujui <a href="/terms" target="_blank" style="color:#5B5FEF;text-decoration:none;font-weight:700">Ketentuan Layanan</a>.</span>
+          </label>
+        </div>
+        {% endif %}
+        {% endif %}
+
+        <button class="bc-btn primary" type="submit" style="width:100%;margin-top:6px;min-height:46px;font-size:14px">
+          {% if mode == 'register' %}Buat Akun dan Lanjutkan &rarr;{% else %}Masuk ke Dashboard &rarr;{% endif %}
+        </button>
+      </form>
+
+      <div style="margin-top:24px;padding-top:20px;border-top:1px solid #E7E9F2;text-align:center;font-size:13px;color:#667085">
+        {% if mode == 'register' %}
+        Sudah punya akun? <a href="{{ switch_url }}" style="color:#5B5FEF;text-decoration:none;font-weight:750">Masuk sekarang</a>
+        {% else %}
+        Belum punya akun? <a href="{{ switch_url }}" style="color:#5B5FEF;text-decoration:none;font-weight:750">Daftar gratis</a>
+        {% endif %}
+      </div>
+
+    </div>
+
+  </div>
+</main>
+{% endblock %}

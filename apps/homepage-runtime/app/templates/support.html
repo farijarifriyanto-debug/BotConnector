@@ -1,0 +1,172 @@
+{% extends "base.html" %}
+
+{% block title %}
+Pusat Bantuan &amp; Dukungan — BotConnector
+{% endblock %}
+
+{% block content %}
+<main class="bc-support-v1" style="background:#F6F7FB;min-height:calc(100vh - 120px);padding:48px 0 80px;color:#101828">
+  <div class="shell" style="max-width:1080px;margin:0 auto;padding:0 24px">
+
+    <!-- Signature Dark Navy Hero Banner -->
+    <div style="background:#0B1020;border-radius:24px;padding:40px 48px;margin-bottom:36px;color:#fff;position:relative;overflow:hidden;box-shadow:0 16px 40px rgba(11,16,32,0.12)">
+      <div style="position:absolute;top:-120px;right:-80px;width:320px;height:320px;border-radius:50%;background:radial-gradient(circle, rgba(91,95,239,0.35) 0%, rgba(91,95,239,0) 70%);pointer-events:none"></div>
+      
+      <div style="font-size:11px;font-weight:850;letter-spacing:0.12em;text-transform:uppercase;color:#8E92FC;margin-bottom:10px">
+        PUSAT BANTUAN &amp; DUKUNGAN RESMI
+      </div>
+      <h1 style="font-size:32px;font-weight:850;letter-spacing:-0.03em;margin:0 0 12px;color:#ffffff">
+        Pusat Bantuan BotConnector
+      </h1>
+      <p style="font-size:15px;color:#94A3B8;max-width:640px;margin:0;line-height:1.6">
+        Kirim pertanyaan teknis, kendala akun, permintaan privasi data, atau laporan keamanan ke tim BotConnector. Setiap permintaan akan menerima nomor referensi resmi.
+      </p>
+    </div>
+
+    <!-- Success Notification -->
+    {% if public_reference %}
+    <div style="background:#ECFDF5;border:1px solid #A7F3D0;border-radius:16px;padding:24px 28px;margin-bottom:28px;color:#065F46">
+      <div style="font-size:18px;font-weight:850;margin-bottom:8px">✓ Permintaan Berhasil Diterima!</div>
+      <p style="margin:0 0 10px;font-size:14.5px;line-height:1.6">Permintaan Anda telah tercatat secara aman pada sistem kami. Simpan nomor referensi berikut untuk korespondensi:</p>
+      <div>
+        <span style="display:inline-block;background:#047857;color:#ffffff;font-family:monospace;font-weight:800;font-size:17px;padding:8px 18px;border-radius:10px;letter-spacing:0.06em;margin:6px 0">
+          {{ public_reference }}
+        </span>
+      </div>
+      <p style="margin:10px 0 0;font-size:13px;opacity:0.9">Tim kami akan menindaklanjuti permintaan Anda sesuai dengan prioritas dan kategori layanan.</p>
+    </div>
+    {% endif %}
+
+    <!-- Error Notification -->
+    {% if error_message %}
+    <div style="background:#FEF2F2;border:1px solid #FECACA;border-radius:16px;padding:18px 24px;margin-bottom:28px;color:#991B1B;font-size:14.5px;font-weight:600">
+      {{ error_message }}
+    </div>
+    {% endif %}
+
+    <!-- Authenticated Ticket History Section -->
+    {% if user and tickets %}
+    <div style="background:#FFFFFF;border:1px solid #E7E9F2;border-radius:24px;padding:32px;margin-bottom:32px;box-shadow:0 4px 20px rgba(11,16,32,0.03)">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:20px;flex-wrap:wrap;gap:12px">
+        <div>
+          <div style="font-size:11px;font-weight:850;letter-spacing:0.12em;text-transform:uppercase;color:#5B5FEF;margin-bottom:6px">AKUN TERDAFTAR</div>
+          <h2 style="font-size:22px;font-weight:850;color:#101828;margin:0">Riwayat Tiket Bantuan Anda</h2>
+        </div>
+        <span style="font-size:12px;font-weight:800;background:#EEF0FF;color:#5B5FEF;padding:4px 14px;border-radius:99px">{{ tickets|length }} Tiket</span>
+      </div>
+
+      <div style="overflow-x:auto">
+        <table style="width:100%;border-collapse:collapse;font-size:13.5px">
+          <thead>
+            <tr style="border-bottom:1px solid #E7E9F2">
+              <th style="text-align:left;padding:12px 14px;background:#F8FAFC;color:#475467;font-size:11px;font-weight:800;text-transform:uppercase;letter-spacing:0.06em">Referensi</th>
+              <th style="text-align:left;padding:12px 14px;background:#F8FAFC;color:#475467;font-size:11px;font-weight:800;text-transform:uppercase;letter-spacing:0.06em">Kategori</th>
+              <th style="text-align:left;padding:12px 14px;background:#F8FAFC;color:#475467;font-size:11px;font-weight:800;text-transform:uppercase;letter-spacing:0.06em">Subjek</th>
+              <th style="text-align:left;padding:12px 14px;background:#F8FAFC;color:#475467;font-size:11px;font-weight:800;text-transform:uppercase;letter-spacing:0.06em">Status</th>
+              <th style="text-align:left;padding:12px 14px;background:#F8FAFC;color:#475467;font-size:11px;font-weight:800;text-transform:uppercase;letter-spacing:0.06em">Waktu</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for t in tickets %}
+            <tr style="border-bottom:1px solid #E7E9F2">
+              <td style="padding:14px;font-family:monospace;font-weight:800;color:#5B5FEF">{{ t.public_reference }}</td>
+              <td style="padding:14px;font-weight:700">{{ t.category }}</td>
+              <td style="padding:14px">{{ t.subject }}</td>
+              <td style="padding:14px">
+                <span style="font-size:11px;font-weight:800;padding:4px 10px;border-radius:99px;display:inline-block;{% if t.status == 'OPEN' %}background:#EEF2FF;color:#4F46E5{% elif t.status == 'IN_PROGRESS' %}background:#FEF3C7;color:#D97706{% elif t.status == 'RESOLVED' %}background:#ECFDF5;color:#059669{% else %}background:#F1F5F9;color:#64748B{% endif %}">
+                  {{ t.status }}
+                </span>
+              </td>
+              <td style="padding:14px;color:#667085;font-size:12px">{{ t.created_at[:10] }}</td>
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    </div>
+    {% endif %}
+
+    <!-- Support Form Card -->
+    <div style="background:#FFFFFF;border:1px solid #E7E9F2;border-radius:24px;padding:36px 40px;box-shadow:0 4px 20px rgba(11,16,32,0.03)">
+      <div style="margin-bottom:28px">
+        <div style="font-size:11px;font-weight:850;letter-spacing:0.12em;text-transform:uppercase;color:#5B5FEF;margin-bottom:6px">FORMULIR PERMINTAAN</div>
+        <h2 style="font-size:24px;font-weight:850;color:#101828;margin:0 0 8px;letter-spacing:-0.02em">Kirim Permintaan Baru</h2>
+        <p style="font-size:14.5px;color:#667085;margin:0">Lengkapi formulir di bawah ini dengan jelas agar tim kami dapat membantu Anda dengan cepat.</p>
+      </div>
+
+      <form action="/support" method="POST">
+        
+        <!-- Honeypot Field (Abuse Protection) -->
+        <div style="position:absolute;left:-9999px;top:-9999px;opacity:0" aria-hidden="true">
+          <input type="text" name="website" tabindex="-1" autocomplete="off">
+          <input type="text" name="url" tabindex="-1" autocomplete="off">
+        </div>
+
+        <div style="display:grid;grid-template-columns:repeat(auto-fit, minmax(280px, 1fr));gap:20px;margin-bottom:20px">
+          <div>
+            <label for="requester_name" style="display:block;font-size:13.5px;font-weight:750;color:#101828;margin-bottom:8px">
+              Nama Lengkap <span style="color:#E11D48">*</span>
+            </label>
+            <input type="text" id="requester_name" name="requester_name" required maxlength="120" placeholder="Nama Anda" value="{{ user.name if user else (form_data.requester_name if form_data else '') }}" style="width:100%;padding:12px 14px;font-family:inherit;font-size:14px;border:1px solid #E7E9F2;border-radius:10px;outline:none">
+          </div>
+          <div>
+            <label for="requester_email" style="display:block;font-size:13.5px;font-weight:750;color:#101828;margin-bottom:8px">
+              Alamat Email <span style="color:#E11D48">*</span>
+            </label>
+            <input type="email" id="requester_email" name="requester_email" required maxlength="254" placeholder="nama@domain.com" value="{{ user.email if user else (form_data.requester_email if form_data else '') }}" style="width:100%;padding:12px 14px;font-family:inherit;font-size:14px;border:1px solid #E7E9F2;border-radius:10px;outline:none">
+          </div>
+        </div>
+
+        <div style="display:grid;grid-template-columns:repeat(auto-fit, minmax(280px, 1fr));gap:20px;margin-bottom:20px">
+          <div>
+            <label for="category" style="display:block;font-size:13.5px;font-weight:750;color:#101828;margin-bottom:8px">
+              Kategori Permintaan <span style="color:#E11D48">*</span>
+            </label>
+            <select id="category" name="category" required style="width:100%;padding:12px 14px;font-family:inherit;font-size:14px;border:1px solid #E7E9F2;border-radius:10px;outline:none;background:#fff">
+              <option value="GENERAL" {% if selected_category == 'GENERAL' %}selected{% endif %}>GENERAL — Pertanyaan Umum</option>
+              <option value="ACCOUNT_LOGIN" {% if selected_category == 'ACCOUNT_LOGIN' %}selected{% endif %}>ACCOUNT_LOGIN — Masalah Akun &amp; Autentikasi</option>
+              <option value="BUSINESS_SUITE" {% if selected_category == 'BUSINESS_SUITE' %}selected{% endif %}>BUSINESS_SUITE — POS, Restoran &amp; Inventori</option>
+              <option value="CONNECT" {% if selected_category == 'CONNECT' %}selected{% endif %}>CONNECT — BotConnector Connect &amp; Webhook</option>
+              <option value="MY_DRIVE" {% if selected_category == 'MY_DRIVE' %}selected{% endif %}>MY_DRIVE — Penyimpanan Cloud My Drive</option>
+              <option value="TELEGRAM" {% if selected_category == 'TELEGRAM' %}selected{% endif %}>TELEGRAM — Integrasi Bot &amp; Notifikasi Telegram</option>
+              <option value="PRIVACY_REQUEST" {% if selected_category == 'PRIVACY_REQUEST' %}selected{% endif %}>PRIVACY_REQUEST — Permintaan Privasi &amp; Data Pengguna</option>
+              <option value="SECURITY_REPORT" {% if selected_category == 'SECURITY_REPORT' %}selected{% endif %}>SECURITY_REPORT — Laporan Kerentanan &amp; Keamanan</option>
+              <option value="OTHER" {% if selected_category == 'OTHER' %}selected{% endif %}>OTHER — Topik Lainnya</option>
+            </select>
+          </div>
+          <div>
+            <label for="product_context" style="display:block;font-size:13.5px;font-weight:750;color:#101828;margin-bottom:8px">
+              Konteks Produk / Cabang (Opsional)
+            </label>
+            <input type="text" id="product_context" name="product_context" maxlength="120" placeholder="Contoh: Cabang Jakarta, Modul POS, MT5" value="{{ form_data.product_context if form_data else '' }}" style="width:100%;padding:12px 14px;font-family:inherit;font-size:14px;border:1px solid #E7E9F2;border-radius:10px;outline:none">
+          </div>
+        </div>
+
+        <div style="margin-bottom:20px">
+          <label for="subject" style="display:block;font-size:13.5px;font-weight:750;color:#101828;margin-bottom:8px">
+            Subjek Permintaan <span style="color:#E11D48">*</span>
+          </label>
+          <input type="text" id="subject" name="subject" required maxlength="200" placeholder="Ringkasan singkat kendala atau pertanyaan Anda" value="{{ form_data.subject if form_data else '' }}" style="width:100%;padding:12px 14px;font-family:inherit;font-size:14px;border:1px solid #E7E9F2;border-radius:10px;outline:none">
+        </div>
+
+        <div style="margin-bottom:24px">
+          <label for="message" style="display:block;font-size:13.5px;font-weight:750;color:#101828;margin-bottom:8px">
+            Deskripsi Pesan <span style="color:#E11D48">*</span>
+          </label>
+          <textarea id="message" name="message" required rows="6" maxlength="10000" placeholder="Jelaskan kendala, pertanyaan, atau langkah reproduksi secara detail..." style="width:100%;padding:12px 14px;font-family:inherit;font-size:14px;border:1px solid #E7E9F2;border-radius:10px;outline:none">{{ form_data.message if form_data else '' }}</textarea>
+          <div style="font-size:12px;color:#667085;margin-top:4px">Maksimal 10.000 karakter.</div>
+        </div>
+
+        <div style="background:#FFFBEB;border:1px solid #FDE68A;border-radius:12px;padding:14px 18px;margin-bottom:28px;font-size:13px;color:#92400E;line-height:1.5">
+          <strong>Keamanan Kredensial:</strong> Demi keamanan akun Anda, jangan pernah mencantumkan kata sandi, bot token Telegram, atau kunci API pribadi di dalam formulir ini.
+        </div>
+
+        <button type="submit" class="bc-btn primary" style="font-size:15px;padding:0 32px;min-height:46px">
+          Kirim Permintaan Bantuan &rarr;
+        </button>
+      </form>
+    </div>
+
+  </div>
+</main>
+{% endblock %}

@@ -1,0 +1,255 @@
+<!doctype html>
+<html lang="id">
+<head>
+  <meta charset="utf-8">
+
+  <meta
+    name="viewport"
+    content="width=device-width,initial-scale=1"
+  >
+
+  <meta
+    name="robots"
+    content="noindex,nofollow,noarchive"
+  >
+
+  <title>
+    Shared via BotConnector
+  </title>
+
+  <link
+    rel="stylesheet"
+    href="/static/drive_public_share.css"
+  >
+</head>
+
+<body class="bc-public-view">
+
+  <header class="bc-public-header">
+
+    <a
+      class="bc-brand"
+      href="https://botconnector.id"
+    >
+      <span class="bc-brand-mark">B</span>
+      <span>BotConnector</span>
+    </a>
+
+    <span class="bc-shared-caption">
+      Shared Drive
+    </span>
+
+  </header>
+
+
+  <main class="bc-public-shell">
+
+    {% if error %}
+
+      <section class="bc-public-card bc-public-error">
+
+        <div class="bc-file-icon">
+          !
+        </div>
+
+        <h1>
+          Link tidak tersedia
+        </h1>
+
+        <p>
+          {{ error }}
+        </p>
+
+      </section>
+
+
+    {% elif link %}
+
+      <section class="bc-public-card">
+
+        <div class="bc-public-title-row">
+
+          <div class="bc-file-icon">
+            {% if link.item_type == "folder" %}
+              ▣
+            {% else %}
+              ▤
+            {% endif %}
+          </div>
+
+
+          <div class="bc-title-text">
+
+            <div class="bc-label">
+              DIBAGIKAN MELALUI BOTCONNECTOR
+            </div>
+
+            <h1>
+              {{ link.item_name }}
+            </h1>
+
+            <p>
+              Dibagikan oleh
+              <strong>
+                {{ link.owner_name or "Pengguna BotConnector" }}
+              </strong>
+            </p>
+
+          </div>
+
+        </div>
+
+
+        {% if link.expires_at %}
+
+        <div class="bc-expiry">
+          Akses berlaku sampai:
+          {{ link.expires_at }}
+        </div>
+
+        {% endif %}
+
+
+        {% if link.item_type == "file" %}
+
+          <div class="bc-file-action">
+
+            <a
+              href="{{ root_download_url }}"
+              class="bc-primary bc-download"
+            >
+              Unduh file
+            </a>
+
+          </div>
+
+
+        {% else %}
+
+          <div class="bc-folder-toolbar">
+
+            <div class="bc-current-path">
+
+              {% if path %}
+                {{ path }}
+              {% else %}
+                Folder utama
+              {% endif %}
+
+            </div>
+
+
+            {% if parent_url %}
+
+            <a
+              href="{{ parent_url }}"
+              class="bc-parent"
+            >
+              ← Kembali
+            </a>
+
+            {% endif %}
+
+          </div>
+
+
+          {% if entries %}
+
+          <div class="bc-public-list">
+
+            {% for item in entries %}
+
+            <div class="bc-public-entry">
+
+              {% if item.type == "folder" %}
+
+                <a
+                  href="{{ item.open_url }}"
+                  class="bc-entry-main"
+                >
+
+                  <span class="bc-entry-icon">
+                    ▣
+                  </span>
+
+                  <span>
+                    <strong>
+                      {{ item.name }}
+                    </strong>
+
+                    <small>
+                      Folder
+                    </small>
+                  </span>
+
+                </a>
+
+
+              {% elif item.type == "file" %}
+
+                <div class="bc-entry-main">
+
+                  <span class="bc-entry-icon">
+                    ▤
+                  </span>
+
+                  <span>
+                    <strong>
+                      {{ item.name }}
+                    </strong>
+
+                    <small>
+                      {% if item.size_bytes %}
+                        {{ item.size_bytes }} bytes
+                      {% elif item.size %}
+                        {{ item.size }}
+                      {% else %}
+                        File
+                      {% endif %}
+                    </small>
+                  </span>
+
+                </div>
+
+
+                <a
+                  href="{{ item.download_url }}"
+                  class="bc-download-small"
+                >
+                  Unduh
+                </a>
+
+              {% endif %}
+
+            </div>
+
+            {% endfor %}
+
+          </div>
+
+
+          {% else %}
+
+          <div class="bc-empty">
+            Folder ini kosong.
+          </div>
+
+          {% endif %}
+
+        {% endif %}
+
+
+        <div class="bc-public-footer-note">
+          Akses ini hanya baca.
+          Tidak ada akses ke akun atau
+          folder BotConnector lainnya.
+        </div>
+
+      </section>
+
+    {% endif %}
+
+  </main>
+
+</body>
+</html>

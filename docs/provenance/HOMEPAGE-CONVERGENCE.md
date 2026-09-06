@@ -216,3 +216,17 @@ Two honest options going forward, neither executed here:
 ```
 READY_FOR_APEX_CUTOVER=NO
 ```
+
+## Duplication check (2026-09-06 follow-up — apps/public-site vs apps/homepage-runtime)
+
+Compared filenames and, where feasible, actual imports — not a refactor,
+not a merge, classification only.
+
+| Area | Classification | Evidence |
+|---|---|---|
+| Marketing copy/pages (index, per-vertical pages) | NO_OVERLAP | `apps/public-site` has zero backend; `apps/homepage-runtime`'s `index.html`/`business_public.html`/`personal_public.html` etc. are server-rendered with live data. Same subject matter, different implementation, different owner (see PUBLIC-SITE-RUNTIME-CONTRACT.md `/` collision note) — not literal file duplicates. |
+| `apps/drive` vs `apps/homepage-runtime`'s Drive template/UI suite (`drive_ui.py`, `drive_shared_ui.py`, `drive_preview_ui.py`, `drive_public_share_ui.py`, `drive_file_request_ui.py`, `google_drive_*_ui.py`, `admin_storage.py`, 10 templates, dedicated CSS/JS) | **UNKNOWN — genuinely unresolved, not rounded to a conclusion.** `apps/drive` is a pure JSON storage API with no templates and no UI at all. `apps/homepage-runtime`'s Drive suite is a full server-rendered UI (share links, previews, file requests) that imports `httpx` and something from `.core_bridge` — but does NOT reference `apps/drive`'s known internal token/port (`DRIVE_INTERNAL_TOKEN`, `18190`), and `core_bridge.py` itself has no "drive" entry in its `CANDIDATE_TO_CORE` routing map (which only lists webhook, business_suite, parking, langkah, business, personal, monitor). This means the Drive UI's actual storage backend was NOT identified in this pass — it may talk to `apps/drive` through some other mechanism not yet traced, or to a different, entirely separate storage backend. **Do not assume RUNTIME_REQUIRED or duplicate — this needs a dedicated follow-up read of `drive_ui.py` before any decision.** |
+| SmartBiz dashboard/operations/AI studio vs Business Suite | UNKNOWN — not compared this pass; flagged in PUBLIC-SITE-RUNTIME-CONTRACT.md |
+| Shared visual assets (fonts, base CSS variables, icon set) | SHARED_ASSET_CANDIDATE, tentatively — both sites use the Inter font family and a similar `#F6F7FB` theme color, suggesting a shared design origin (consistent with `packages/shared-design` existing as a concept), but no literal shared file was found; each maintains its own CSS. Not a candidate for merging now — noted for whoever eventually designs the real frontend/backend seam. |
+
+No code was merged or refactored to produce this table, per your instruction.

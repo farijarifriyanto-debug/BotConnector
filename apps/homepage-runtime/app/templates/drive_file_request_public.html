@@ -1,0 +1,227 @@
+<!doctype html>
+<html lang="id">
+
+<head>
+
+  <meta charset="utf-8">
+
+  <meta
+    name="viewport"
+    content="width=device-width,initial-scale=1"
+  >
+
+  <meta
+    name="robots"
+    content="noindex,nofollow,noarchive"
+  >
+
+  <title>
+    Kirim File — BotConnector
+  </title>
+
+  <link
+    rel="stylesheet"
+    href="/static/drive_file_request.css"
+  >
+
+</head>
+
+
+<body class="fr-public-body">
+
+
+<header class="fr-public-header">
+
+  <a
+    href="https://botconnector.id"
+    class="fr-brand"
+  >
+
+    <span class="fr-logo">
+      B
+    </span>
+
+    <strong>
+      BotConnector
+    </strong>
+
+  </a>
+
+
+  <span class="fr-public-caption">
+    File Request
+  </span>
+
+</header>
+
+
+<main class="fr-public-shell">
+
+
+{% if not request_data %}
+
+<section class="fr-public-card fr-invalid">
+
+  <div class="fr-upload-icon">
+    !
+  </div>
+
+  <h1>
+    File Request tidak tersedia
+  </h1>
+
+  <p>
+    {{ error }}
+  </p>
+
+</section>
+
+
+{% else %}
+
+<section class="fr-public-card">
+
+
+  <div class="fr-public-title">
+
+    <div class="fr-upload-icon">
+      ↑
+    </div>
+
+
+    <div>
+
+      <div class="fr-label">
+        FILE REQUEST
+      </div>
+
+      <h1>
+        {{ request_data.request_name }}
+      </h1>
+
+      <p>
+        Diminta oleh
+
+        <strong>
+          {{ request_data.owner_name or "Pengguna BotConnector" }}
+        </strong>
+      </p>
+
+    </div>
+
+  </div>
+
+
+  {% if request_data.expires_at %}
+
+  <div class="fr-expiry">
+    Link berlaku sampai:
+    {{ request_data.expires_at }}
+  </div>
+
+  {% endif %}
+
+
+  {% if success %}
+
+  <div class="fr-alert fr-success fr-public-alert">
+
+    {{ success }}
+
+    {% if uploaded_name %}
+
+      <strong>
+        {{ uploaded_name }}
+      </strong>
+
+    {% endif %}
+
+  </div>
+
+  {% endif %}
+
+
+  {% if error %}
+
+  <div class="fr-alert fr-error fr-public-alert">
+    {{ error }}
+  </div>
+
+  {% endif %}
+
+
+  <form
+    method="post"
+    enctype="multipart/form-data"
+    class="fr-upload-form"
+  >
+
+
+    <label
+      for="fr-file"
+      class="fr-dropzone"
+    >
+
+      <span class="fr-drop-icon">
+        ↑
+      </span>
+
+      <strong>
+        Pilih file
+      </strong>
+
+      <span id="fr-file-name">
+        Ketuk untuk memilih file
+        dari perangkat Anda
+      </span>
+
+      <input
+        id="fr-file"
+        type="file"
+        name="upload"
+        required
+      >
+
+    </label>
+
+
+    <button
+      id="fr-upload-button"
+      type="submit"
+      class="fr-primary fr-upload-button"
+    >
+      Kirim file
+    </button>
+
+  </form>
+
+
+  <div class="fr-public-security">
+
+    <strong>
+      Aman:
+    </strong>
+
+    Anda hanya mengirim file.
+    Isi Drive penerima, nama folder tujuan,
+    dan file lain tidak dapat dilihat
+    melalui link ini.
+
+  </div>
+
+
+</section>
+
+{% endif %}
+
+
+</main>
+
+
+<script
+  src="/static/drive_file_request.js"
+  defer
+></script>
+
+</body>
+</html>

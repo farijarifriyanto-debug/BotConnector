@@ -1,0 +1,48 @@
+{% extends "base.html" %}
+{% block title %}Mulai {{ product.name }} — BotConnector{% endblock %}
+{% block content %}
+<section class="onboarding-page shell">
+  <div class="onboarding-heading reveal">
+    <span class="eyebrow">{{ product.name }}</span>
+    <h1>{{ product.onboarding_title }}</h1>
+    <p>{{ product.onboarding_text }}</p>
+  </div>
+
+  {% if error %}<div class="form-error shell">{{ error }}</div>{% endif %}
+  <form method="post" action="/onboarding/{{ product.slug }}" class="onboarding-card reveal {{ product.accent }}">
+    <div class="onboarding-product-head">
+      <div class="product-initial">{{ product.name[0] }}</div>
+      <div>
+        <strong>{{ product.name }}</strong>
+        <span>{{ product.short_summary }}</span>
+      </div>
+    </div>
+
+    <fieldset class="starter-options">
+      <legend>Pilih tujuan awal</legend>
+      {% for choice in product.starter_choices %}
+      <label>
+        <input
+          type="radio"
+          name="goal"
+          value="{{ choice }}"
+          {% if preferred_goal %}
+            {% if choice == preferred_goal %}checked{% endif %}
+          {% elif loop.first %}
+            checked
+          {% endif %}
+        >
+        <span>{{ choice }}</span>
+      </label>
+      {% endfor %}
+    </fieldset>
+
+    <label class="starter-notes">Ceritakan sedikit kebutuhan Anda
+      <textarea name="notes" rows="4" placeholder="Tidak harus lengkap. Anda dapat mengubahnya nanti.">{{ saved_notes or '' }}</textarea>
+    </label>
+
+    <button class="button primary" type="submit">Mulai dengan bantuan BotConnector</button>
+    <a class="text-link centered" href="/products">Kembali memilih produk</a>
+  </form>
+</section>
+{% endblock %}

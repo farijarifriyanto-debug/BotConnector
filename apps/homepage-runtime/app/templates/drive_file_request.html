@@ -1,0 +1,393 @@
+<!doctype html>
+<html lang="id">
+<head>
+
+  <meta charset="utf-8">
+
+  <meta
+    name="viewport"
+    content="width=device-width,initial-scale=1"
+  >
+
+  <title>
+    File Request — BotConnector Drive
+  </title>
+
+  <link
+    rel="stylesheet"
+    href="/static/drive_file_request.css"
+  >
+
+</head>
+
+
+<body>
+
+<header class="fr-header">
+
+  <a
+    href="/drive"
+    class="fr-brand"
+  >
+    <span class="fr-logo">
+      B
+    </span>
+
+    <strong>
+      BotConnector Drive
+    </strong>
+  </a>
+
+
+  <a
+    href="/drive"
+    class="fr-back"
+  >
+    ← My Drive
+  </a>
+
+</header>
+
+
+<main class="fr-shell">
+
+
+<section class="fr-hero">
+
+  <div>
+
+    <div class="fr-eyebrow">
+      FILE REQUEST
+    </div>
+
+    <h1>
+      Minta file ke folder
+    </h1>
+
+    <p>
+      Buat link upload untuk pelanggan,
+      rekan kerja, atau siapa pun tanpa
+      memberikan akses ke isi Drive Anda.
+    </p>
+
+  </div>
+
+
+  <span class="fr-badge">
+    Upload only
+  </span>
+
+</section>
+
+
+{% if notice %}
+
+<div class="fr-alert fr-success">
+  {{ notice }}
+</div>
+
+{% endif %}
+
+
+{% if error %}
+
+<div class="fr-alert fr-error">
+  {{ error }}
+</div>
+
+{% endif %}
+
+
+<section class="fr-card">
+
+  <div class="fr-label">
+    FOLDER TUJUAN
+  </div>
+
+  <h2>
+    {{ folder_name }}
+  </h2>
+
+  <div class="fr-path">
+    {{ folder_path }}
+  </div>
+
+
+  <form
+    method="post"
+    action="/drive/file-request"
+    class="fr-create"
+  >
+
+    <input
+      type="hidden"
+      name="folder_path"
+      value="{{ folder_path }}"
+    >
+
+    <input
+      type="hidden"
+      name="csrf_token"
+      value="{{ csrf_token }}"
+    >
+
+
+    <label>
+
+      <span>
+        Nama permintaan
+      </span>
+
+      <input
+        type="text"
+        name="request_name"
+        maxlength="160"
+        placeholder="Contoh: Kirim dokumen proyek"
+      >
+
+    </label>
+
+
+    <label>
+
+      <span>
+        Masa berlaku
+      </span>
+
+      <select
+        name="expires_in_days"
+      >
+
+        <option value="">
+          Tidak pernah kedaluwarsa
+        </option>
+
+        <option value="1">
+          1 hari
+        </option>
+
+        <option value="7">
+          7 hari
+        </option>
+
+        <option value="30">
+          30 hari
+        </option>
+
+        <option value="90">
+          90 hari
+        </option>
+
+      </select>
+
+    </label>
+
+
+    <button
+      type="submit"
+      class="fr-primary"
+    >
+      Buat File Request
+    </button>
+
+  </form>
+
+</section>
+
+
+{% if created_link %}
+
+<section class="fr-card fr-created">
+
+  <div class="fr-label">
+    LINK BARU
+  </div>
+
+  <h2>
+    File Request siap
+  </h2>
+
+  <p class="fr-muted">
+    Salin link sekarang. Token asli
+    tidak disimpan di database dan
+    tidak dapat ditampilkan kembali
+    setelah halaman ini ditinggalkan.
+  </p>
+
+
+  <div class="fr-copy-row">
+
+    <input
+      id="fr-created-link"
+      type="text"
+      value="{{ created_link }}"
+      readonly
+      spellcheck="false"
+    >
+
+    <button
+      type="button"
+      data-copy="fr-created-link"
+      class="fr-copy"
+    >
+      Salin link
+    </button>
+
+  </div>
+
+
+  <a
+    href="{{ created_link }}"
+    target="_blank"
+    rel="noopener noreferrer"
+    class="fr-open"
+  >
+    Buka halaman upload ↗
+  </a>
+
+</section>
+
+{% endif %}
+
+
+<section class="fr-card">
+
+  <div class="fr-section-head">
+
+    <div>
+
+      <div class="fr-label">
+        REQUEST AKTIF
+      </div>
+
+      <h2>
+        Link untuk folder ini
+      </h2>
+
+    </div>
+
+
+    <span class="fr-count">
+      {{ requests|length }}
+    </span>
+
+  </div>
+
+
+  {% if requests %}
+
+  <div class="fr-list">
+
+    {% for row in requests %}
+
+    <article class="fr-row">
+
+      <div>
+
+        <strong>
+          {{ row.request_name }}
+        </strong>
+
+
+        <div class="fr-meta">
+
+          {% if row.expired %}
+
+            <span class="fr-expired">
+              Kedaluwarsa
+            </span>
+
+          {% elif row.expires_at %}
+
+            <span>
+              Kedaluwarsa:
+              {{ row.expires_at }}
+            </span>
+
+          {% else %}
+
+            <span>
+              Tanpa kedaluwarsa
+            </span>
+
+          {% endif %}
+
+        </div>
+
+      </div>
+
+
+      <form
+        method="post"
+        action="/drive/file-request/revoke"
+      >
+
+        <input
+          type="hidden"
+          name="request_id"
+          value="{{ row.id }}"
+        >
+
+        <input
+          type="hidden"
+          name="folder_path"
+          value="{{ folder_path }}"
+        >
+
+        <input
+          type="hidden"
+          name="csrf_token"
+          value="{{ csrf_token }}"
+        >
+
+        <button
+          type="submit"
+          class="fr-danger"
+        >
+          Cabut
+        </button>
+
+      </form>
+
+    </article>
+
+    {% endfor %}
+
+  </div>
+
+
+  {% else %}
+
+  <div class="fr-empty">
+    Belum ada File Request
+    untuk folder ini.
+  </div>
+
+  {% endif %}
+
+
+  <div class="fr-security">
+
+    <strong>
+      Privasi:
+    </strong>
+
+    penerima link hanya dapat mengirim
+    file. Nama/path folder tujuan dan
+    isi folder tidak ditampilkan.
+
+  </div>
+
+</section>
+
+
+</main>
+
+
+<script
+  src="/static/drive_file_request.js"
+  defer
+></script>
+
+</body>
+</html>

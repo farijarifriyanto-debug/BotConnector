@@ -1,0 +1,1991 @@
+<!doctype html>
+<html lang="id">
+<head>
+  <meta charset="utf-8">
+  <meta
+    name="viewport"
+    content="width=device-width,initial-scale=1"
+  >
+  <title>SmartBiz AI Studio</title>
+
+  <style>
+    :root {
+      color-scheme: light;
+      --bg: #f4f5f7;
+      --panel: #ffffff;
+      --panel-2: #f8f8fb;
+      --line: #e1e3e8;
+      --line-2: #cfd3da;
+      --ink: #17181c;
+      --muted: #70757f;
+      --purple: #673de6;
+      --purple-dark: #4e29bd;
+      --purple-soft: #f0ebff;
+      --green: #147a55;
+      --green-soft: #e8f6ef;
+      --orange: #9b6317;
+      --orange-soft: #fff3dd;
+      --red: #b13c48;
+      --red-soft: #fdecef;
+      --shadow: 0 18px 52px rgba(22, 27, 38, .09);
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    html,
+    body {
+      width: 100%;
+      height: 100%;
+    }
+
+    body {
+      margin: 0;
+      overflow: hidden;
+      color: var(--ink);
+      background: var(--bg);
+      font-family:
+        Inter,
+        ui-sans-serif,
+        system-ui,
+        -apple-system,
+        BlinkMacSystemFont,
+        "Segoe UI",
+        sans-serif;
+    }
+
+    button,
+    input,
+    textarea,
+    select {
+      font: inherit;
+    }
+
+    button {
+      cursor: pointer;
+    }
+
+    .studio {
+      display: grid;
+      grid-template-columns: 64px 380px minmax(0, 1fr);
+      width: 100%;
+      height: 100%;
+    }
+
+    .rail {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 9px;
+      padding: 12px 9px;
+      background: #18151f;
+      border-right: 1px solid #292532;
+    }
+
+    .logo {
+      display: grid;
+      width: 42px;
+      height: 42px;
+      margin-bottom: 8px;
+      place-items: center;
+      border-radius: 13px;
+      color: #fff;
+      background: linear-gradient(145deg, #9475ff, var(--purple));
+      font-size: 19px;
+      font-weight: 900;
+    }
+
+    .rail-button {
+      display: grid;
+      width: 42px;
+      height: 42px;
+      place-items: center;
+      border: 0;
+      border-radius: 11px;
+      color: #b9b4c5;
+      background: transparent;
+      font-size: 18px;
+      text-decoration: none;
+    }
+
+    .rail-button:hover,
+    .rail-button.active {
+      color: #fff;
+      background: #302b3c;
+    }
+
+    .rail-spacer {
+      flex: 1;
+    }
+
+    .chat {
+      display: grid;
+      grid-template-rows: auto auto minmax(0, 1fr) auto;
+      min-width: 0;
+      border-right: 1px solid var(--line);
+      background: var(--panel);
+    }
+
+    .chat-header {
+      padding: 15px;
+      border-bottom: 1px solid var(--line);
+    }
+
+    .title-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+    }
+
+    .title-row h1 {
+      margin: 0;
+      font-size: 16px;
+      font-weight: 900;
+    }
+
+    .status {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 6px 9px;
+      border-radius: 999px;
+      color: var(--green);
+      background: var(--green-soft);
+      font-size: 10px;
+      font-weight: 900;
+      text-transform: uppercase;
+    }
+
+    .status::before {
+      width: 7px;
+      height: 7px;
+      border-radius: 50%;
+      background: var(--green);
+      content: "";
+    }
+
+    .business {
+      width: 100%;
+      margin-top: 12px;
+      padding: 10px 11px;
+      border: 1px solid var(--line);
+      border-radius: 10px;
+      color: var(--ink);
+      background: #fff;
+    }
+
+    .selected {
+      display: none;
+      align-items: center;
+      justify-content: space-between;
+      gap: 8px;
+      padding: 9px 13px;
+      border-bottom: 1px solid #d8cdf8;
+      color: var(--purple-dark);
+      background: var(--purple-soft);
+      font-size: 11px;
+    }
+
+    .selected.visible {
+      display: flex;
+    }
+
+    .link-button {
+      border: 0;
+      color: inherit;
+      background: transparent;
+      font-size: 11px;
+      font-weight: 850;
+    }
+
+    .messages {
+      overflow: auto;
+      padding: 17px 14px 24px;
+    }
+
+    .welcome {
+      padding: 16px;
+      border: 1px solid var(--line);
+      border-radius: 15px;
+      background: linear-gradient(145deg, #fff, #f6f2ff);
+    }
+
+    .welcome h2 {
+      margin: 0 0 7px;
+      font-size: 18px;
+    }
+
+    .welcome p {
+      margin: 0;
+      color: var(--muted);
+      font-size: 12px;
+      line-height: 1.6;
+    }
+
+    .quick {
+      display: grid;
+      gap: 7px;
+      margin-top: 12px;
+    }
+
+    .quick button {
+      padding: 9px 10px;
+      border: 1px solid var(--line);
+      border-radius: 9px;
+      color: #444953;
+      background: #fff;
+      text-align: left;
+      font-size: 11px;
+    }
+
+    .quick button:hover {
+      border-color: #c8b9f5;
+      background: #faf8ff;
+    }
+
+    .message {
+      max-width: 92%;
+      margin-top: 13px;
+      padding: 10px 12px;
+      border-radius: 13px;
+      font-size: 12px;
+      line-height: 1.55;
+      white-space: pre-wrap;
+      word-break: break-word;
+    }
+
+    .message.user {
+      margin-left: auto;
+      color: #fff;
+      background: var(--purple);
+      border-bottom-right-radius: 4px;
+    }
+
+    .message.ai {
+      margin-right: auto;
+      border: 1px solid var(--line);
+      background: var(--panel-2);
+      border-bottom-left-radius: 4px;
+    }
+
+    .message.error {
+      color: var(--red);
+      border: 1px solid #f1c4ca;
+      background: var(--red-soft);
+    }
+
+    .composer {
+      padding: 11px;
+      border-top: 1px solid var(--line);
+    }
+
+    .file-chip {
+      display: none;
+      align-items: center;
+      justify-content: space-between;
+      gap: 8px;
+      margin-bottom: 8px;
+      padding: 8px 10px;
+      border-radius: 9px;
+      color: #513e82;
+      background: var(--purple-soft);
+      font-size: 11px;
+    }
+
+    .file-chip.visible {
+      display: flex;
+    }
+
+    .compose-box {
+      padding: 9px;
+      border: 1px solid var(--line-2);
+      border-radius: 14px;
+      background: #fff;
+    }
+
+    .compose-box:focus-within {
+      border-color: #9a83e8;
+      box-shadow: 0 0 0 3px rgba(103, 61, 230, .1);
+    }
+
+    .prompt {
+      width: 100%;
+      min-height: 78px;
+      max-height: 180px;
+      padding: 2px;
+      resize: vertical;
+      border: 0;
+      outline: 0;
+      color: var(--ink);
+      background: transparent;
+      line-height: 1.5;
+    }
+
+    .tools {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      margin-top: 7px;
+    }
+
+    .tool {
+      display: inline-flex;
+      min-width: 34px;
+      height: 34px;
+      align-items: center;
+      justify-content: center;
+      padding: 0 9px;
+      border: 0;
+      border-radius: 9px;
+      color: #555c67;
+      background: #f0f2f5;
+      font-size: 11px;
+      font-weight: 800;
+    }
+
+    .tool:hover {
+      color: var(--purple);
+      background: var(--purple-soft);
+    }
+
+    .send {
+      width: 38px;
+      height: 38px;
+      margin-left: auto;
+      border: 0;
+      border-radius: 11px;
+      color: #fff;
+      background: var(--purple);
+      font-size: 17px;
+      font-weight: 900;
+    }
+
+    .send:disabled {
+      opacity: .55;
+      cursor: wait;
+    }
+
+    .workspace {
+      position: relative;
+      display: grid;
+      grid-template-rows: 58px minmax(0, 1fr);
+      min-width: 0;
+      background: var(--bg);
+    }
+
+    .workspace.fullscreen {
+      position: fixed;
+      inset: 0;
+      z-index: 100;
+    }
+
+    .topbar {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 0 13px;
+      border-bottom: 1px solid var(--line);
+      background: var(--panel);
+    }
+
+    .workspace-name {
+      min-width: 165px;
+      font-size: 13px;
+      font-weight: 900;
+    }
+
+    .tabs {
+      display: flex;
+      gap: 3px;
+    }
+
+    .tab {
+      height: 35px;
+      padding: 0 11px;
+      border: 0;
+      border-radius: 9px;
+      color: var(--muted);
+      background: transparent;
+      font-size: 11px;
+      font-weight: 850;
+    }
+
+    .tab.active {
+      color: var(--purple);
+      background: var(--purple-soft);
+    }
+
+    .spacer {
+      flex: 1;
+    }
+
+    .icon {
+      display: grid;
+      width: 35px;
+      height: 35px;
+      place-items: center;
+      border: 1px solid var(--line);
+      border-radius: 9px;
+      color: #555c67;
+      background: #fff;
+    }
+
+    .advanced {
+      display: inline-flex;
+      height: 35px;
+      align-items: center;
+      padding: 0 11px;
+      border: 1px solid var(--line);
+      border-radius: 9px;
+      color: #4a505a;
+      background: #fff;
+      text-decoration: none;
+      font-size: 11px;
+      font-weight: 850;
+    }
+
+    .stage {
+      overflow: auto;
+      padding: 20px;
+    }
+
+    .frame {
+      width: min(1180px, 100%);
+      min-height: calc(100vh - 98px);
+      margin: 0 auto;
+      border: 1px solid var(--line);
+      border-radius: 16px;
+      background: #fff;
+      box-shadow: var(--shadow);
+      transition: width .2s ease;
+    }
+
+    .frame.mobile {
+      width: 390px;
+      max-width: 100%;
+    }
+
+    .view {
+      display: none;
+      padding: 21px;
+    }
+
+    .view.active {
+      display: block;
+    }
+
+    .view-header {
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      gap: 12px;
+      margin-bottom: 18px;
+    }
+
+    .view-header h2 {
+      margin: 0;
+      font-size: 25px;
+      letter-spacing: -.03em;
+    }
+
+    .view-header p {
+      margin: 5px 0 0;
+      color: var(--muted);
+      font-size: 12px;
+    }
+
+    .updated {
+      color: var(--muted);
+      font-size: 11px;
+    }
+
+    .metrics {
+      display: grid;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      gap: 11px;
+    }
+
+    .metric {
+      padding: 15px;
+      border: 1px solid var(--line);
+      border-radius: 13px;
+      background: var(--panel-2);
+    }
+
+    .metric small {
+      color: var(--muted);
+      font-size: 10px;
+      font-weight: 800;
+    }
+
+    .metric strong {
+      display: block;
+      margin-top: 6px;
+      font-size: 23px;
+    }
+
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 13px;
+      margin-top: 14px;
+    }
+
+    .card {
+      min-width: 0;
+      padding: 15px;
+      border: 1px solid var(--line);
+      border-radius: 13px;
+      background: #fff;
+    }
+
+    .card h3 {
+      margin: 0 0 11px;
+      font-size: 14px;
+    }
+
+    .list {
+      display: grid;
+      gap: 7px;
+    }
+
+    .row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+      padding: 9px 10px;
+      border: 1px solid transparent;
+      border-radius: 9px;
+      background: var(--panel-2);
+      cursor: pointer;
+    }
+
+    .row:hover,
+    .row.chosen {
+      border-color: #baa8f1;
+      background: var(--purple-soft);
+    }
+
+    .row-name {
+      overflow: hidden;
+      font-size: 11px;
+      font-weight: 850;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+
+    .row-meta {
+      flex: 0 0 auto;
+      color: var(--muted);
+      font-size: 10px;
+    }
+
+    .empty {
+      padding: 22px 12px;
+      color: var(--muted);
+      text-align: center;
+      font-size: 12px;
+      line-height: 1.5;
+    }
+
+    .table-wrap {
+      overflow: auto;
+      border: 1px solid var(--line);
+      border-radius: 11px;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 11px;
+    }
+
+    th,
+    td {
+      padding: 9px 10px;
+      border-bottom: 1px solid var(--line);
+      text-align: left;
+      white-space: nowrap;
+    }
+
+    th {
+      color: #535a65;
+      background: var(--panel-2);
+    }
+
+    tbody tr {
+      cursor: pointer;
+    }
+
+    tbody tr:hover {
+      background: #faf8ff;
+    }
+
+    tbody tr:last-child td {
+      border-bottom: 0;
+    }
+
+    .activity {
+      display: grid;
+      gap: 9px;
+    }
+
+    .activity-card {
+      padding: 13px;
+      border: 1px solid var(--line);
+      border-radius: 12px;
+    }
+
+    .activity-head {
+      display: flex;
+      justify-content: space-between;
+      gap: 10px;
+    }
+
+    .activity-card h3 {
+      margin: 0;
+      font-size: 13px;
+    }
+
+    .activity-card p {
+      margin: 5px 0 0;
+      color: var(--muted);
+      font-size: 11px;
+      line-height: 1.5;
+    }
+
+    .pill {
+      display: inline-flex;
+      padding: 5px 8px;
+      border-radius: 999px;
+      font-size: 9px;
+      font-weight: 900;
+      text-transform: uppercase;
+    }
+
+    .pill.proposed {
+      color: var(--orange);
+      background: var(--orange-soft);
+    }
+
+    .pill.completed {
+      color: var(--green);
+      background: var(--green-soft);
+    }
+
+    .pill.approved,
+    .pill.executing {
+      color: var(--purple);
+      background: var(--purple-soft);
+    }
+
+    .pill.rejected,
+    .pill.failed {
+      color: var(--red);
+      background: var(--red-soft);
+    }
+
+    .fields {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 7px;
+      margin-top: 10px;
+    }
+
+    .field {
+      padding: 8px;
+      border-radius: 8px;
+      background: var(--panel-2);
+      font-size: 10px;
+    }
+
+    .field b {
+      display: block;
+      margin-bottom: 3px;
+      color: var(--muted);
+    }
+
+    .action-buttons {
+      display: flex;
+      gap: 7px;
+      margin-top: 11px;
+    }
+
+    .approve,
+    .reject {
+      min-height: 33px;
+      padding: 6px 10px;
+      border: 0;
+      border-radius: 8px;
+      font-size: 10px;
+      font-weight: 900;
+    }
+
+    .approve {
+      color: #fff;
+      background: var(--purple);
+    }
+
+    .reject {
+      color: var(--red);
+      background: var(--red-soft);
+    }
+
+    .overlay {
+      display: none;
+      position: absolute;
+      inset: 58px 0 0;
+      z-index: 20;
+      align-items: center;
+      justify-content: center;
+      background: rgba(244, 245, 247, .78);
+      backdrop-filter: blur(3px);
+    }
+
+    .overlay.visible {
+      display: flex;
+    }
+
+    .loading {
+      padding: 17px 20px;
+      border: 1px solid var(--line);
+      border-radius: 13px;
+      background: #fff;
+      box-shadow: var(--shadow);
+      font-size: 12px;
+      font-weight: 850;
+    }
+
+    .scanner {
+      display: none;
+      position: fixed;
+      inset: 0;
+      z-index: 200;
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+      background: rgba(10, 9, 14, .82);
+    }
+
+    .scanner.visible {
+      display: flex;
+    }
+
+    .scanner-card {
+      width: min(560px, 100%);
+      padding: 14px;
+      border-radius: 15px;
+      background: #fff;
+    }
+
+    .scanner-card video {
+      width: 100%;
+      max-height: 60vh;
+      border-radius: 11px;
+      background: #111;
+    }
+
+    .scanner-footer {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+      margin-top: 10px;
+      font-size: 11px;
+    }
+
+    @media (max-width: 1100px) {
+      .studio {
+        grid-template-columns: 58px 340px minmax(0, 1fr);
+      }
+
+      .metrics {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+      }
+    }
+
+    @media (max-width: 800px) {
+      body {
+        overflow: auto;
+      }
+
+      .studio {
+        display: block;
+        height: auto;
+      }
+
+      .rail {
+        display: none;
+      }
+
+      .chat {
+        min-height: 100vh;
+        border-right: 0;
+      }
+
+      .workspace {
+        min-height: 100vh;
+      }
+
+      .grid,
+      .fields {
+        grid-template-columns: 1fr;
+      }
+
+      .topbar {
+        overflow-x: auto;
+      }
+    }
+  
+    /*
+     * SMARTBIZ_CHAT_SCROLL_FIX_V076
+     *
+     * Grid child harus memiliki min-height: 0 agar
+     * baris percakapan dapat mengecil dan overflow
+     * berjalan di dalam panel, bukan mendorong composer
+     * ke luar viewport.
+     */
+    @media (min-width: 801px) {
+      html,
+      body {
+        width: 100%;
+        height: 100%;
+        min-height: 0;
+        overflow: hidden;
+      }
+
+      .studio {
+        width: 100%;
+        height: 100vh;
+        height: 100dvh;
+        min-height: 0;
+        max-height: 100vh;
+        max-height: 100dvh;
+        overflow: hidden;
+      }
+
+      .rail,
+      .chat,
+      .workspace {
+        min-height: 0;
+        max-height: 100%;
+      }
+
+      .chat {
+        height: 100%;
+        overflow: hidden;
+      }
+
+      .messages {
+        min-height: 0;
+        height: 100%;
+        overflow-x: hidden;
+        overflow-y: auto;
+        overscroll-behavior: contain;
+        scrollbar-gutter: stable;
+        scrollbar-width: thin;
+        touch-action: pan-y;
+      }
+
+      .messages::-webkit-scrollbar {
+        width: 9px;
+      }
+
+      .messages::-webkit-scrollbar-track {
+        background: transparent;
+      }
+
+      .messages::-webkit-scrollbar-thumb {
+        border: 2px solid transparent;
+        border-radius: 999px;
+        background: rgba(103, 61, 230, .35);
+        background-clip: padding-box;
+      }
+
+      .messages::-webkit-scrollbar-thumb:hover {
+        background: rgba(103, 61, 230, .55);
+        background-clip: padding-box;
+      }
+
+      .composer {
+        position: relative;
+        z-index: 3;
+        min-height: 0;
+        background: var(--panel);
+      }
+    }
+
+  </style>
+</head>
+
+<body>
+  <main class="studio">
+    <aside class="rail">
+      <div class="logo">S</div>
+      <button class="rail-button active" type="button">✦</button>
+      <button id="rail-preview" class="rail-button" type="button">◫</button>
+      <button id="rail-data" class="rail-button" type="button">▦</button>
+      <button id="rail-activity" class="rail-button" type="button">✓</button>
+      <div class="rail-spacer"></div>
+      <a class="rail-button" href="/my-products">↩</a>
+    </aside>
+
+    <section class="chat">
+      <header class="chat-header">
+        <div class="title-row">
+          <h1>SmartBiz AI Studio</h1>
+          <span class="status">Operasional</span>
+        </div>
+
+        <select id="business" class="business">
+          {% for business in smartbiz_businesses %}
+            <option
+              value="{{ business.id }}"
+              {% if business.id|string == selected_business_id|string %}
+                selected
+              {% endif %}
+            >
+              {{ business.name }}
+            </option>
+          {% endfor %}
+        </select>
+      </header>
+
+      <div id="selected" class="selected">
+        <span id="selected-label">Objek dipilih</span>
+        <button id="clear-selected" class="link-button" type="button">Hapus</button>
+      </div>
+
+      <div id="messages" class="messages">
+        <section class="welcome">
+          <h2>Apa yang ingin dikerjakan?</h2>
+          <p>
+            Ketik, bicara, scan barcode, atau unggah nota. AI membaca
+            data usaha, mengisi field otomatis, menampilkan preview,
+            lalu menjalankan pekerjaan sesuai policy.
+          </p>
+
+          <div class="quick">
+            <button type="button">Cek stok yang hampir habis</button>
+            <button type="button">Buat pelanggan baru dari informasi ini</button>
+            <button type="button">Buat draft pesanan pelanggan</button>
+            <button type="button">Baca nota ini lalu siapkan penambahan stok</button>
+          </div>
+        </section>
+      </div>
+
+      <footer class="composer">
+        <div id="file-chip" class="file-chip">
+          <span id="file-label"></span>
+          <button id="clear-file" class="link-button" type="button">Hapus</button>
+        </div>
+
+        <div class="compose-box">
+          <textarea
+            id="prompt"
+            class="prompt"
+            placeholder="Jelaskan pekerjaan yang ingin dilakukan..."
+          ></textarea>
+
+          <div class="tools">
+            <button id="attach" class="tool" type="button">＋ File</button>
+            <input
+              id="file"
+              type="file"
+              accept=".pdf,.png,.jpg,.jpeg,.webp,.tif,.tiff,.bmp,.xlsx,.xlsm,.csv,.json,.txt,.md,.docx"
+              hidden
+            >
+            <button id="barcode" class="tool" type="button">▦ Barcode</button>
+            <button id="voice" class="tool" type="button">🎙</button>
+            <button id="send" class="send" type="button">➤</button>
+          </div>
+        </div>
+      </footer>
+    </section>
+
+    <section id="workspace" class="workspace">
+      <header class="topbar">
+        <div class="workspace-name">Live Business Workspace</div>
+
+        <nav class="tabs">
+          <button class="tab active" data-view="preview" type="button">Preview</button>
+          <button class="tab" data-view="data" type="button">Data</button>
+          <button class="tab" data-view="activity" type="button">Aktivitas</button>
+        </nav>
+
+        <div class="spacer"></div>
+
+        <button id="refresh" class="icon" type="button" title="Refresh">↻</button>
+        <button id="device" class="icon" type="button" title="Mobile preview">▯</button>
+        <button id="fullscreen" class="icon" type="button" title="Fullscreen">⛶</button>
+        <a class="advanced" href="/smartbiz/advanced">Mode Lanjutan</a>
+      </header>
+
+      <div class="stage">
+        <div id="frame" class="frame">
+          <section id="view-preview" class="view active">
+            <div class="view-header">
+              <div>
+                <h2 id="business-title">SmartBiz</h2>
+                <p>Preview data usaha dan hasil kerja AI.</p>
+              </div>
+              <span id="updated" class="updated"></span>
+            </div>
+
+            <div id="metrics" class="metrics"></div>
+
+            <div class="grid">
+              <article class="card">
+                <h3>Produk & stok</h3>
+                <div id="preview-products" class="list"></div>
+              </article>
+
+              <article class="card">
+                <h3>Pesanan terbaru</h3>
+                <div id="preview-orders" class="list"></div>
+              </article>
+
+              <article class="card">
+                <h3>Invoice</h3>
+                <div id="preview-invoices" class="list"></div>
+              </article>
+
+              <article class="card">
+                <h3>Pelanggan</h3>
+                <div id="preview-customers" class="list"></div>
+              </article>
+            </div>
+          </section>
+
+          <section id="view-data" class="view">
+            <div class="view-header">
+              <div>
+                <h2>Data usaha</h2>
+                <p>Klik baris lalu perintahkan AI untuk mengubah atau memprosesnya.</p>
+              </div>
+            </div>
+
+            <article class="card">
+              <h3>Produk</h3>
+              <div class="table-wrap">
+                <table>
+                  <thead>
+                    <tr>
+                      <th>Produk</th>
+                      <th>SKU / Barcode</th>
+                      <th>Stok</th>
+                      <th>Harga jual</th>
+                    </tr>
+                  </thead>
+                  <tbody id="products-table"></tbody>
+                </table>
+              </div>
+            </article>
+
+            <div style="height:13px"></div>
+
+            <article class="card">
+              <h3>Pesanan</h3>
+              <div class="table-wrap">
+                <table>
+                  <thead>
+                    <tr>
+                      <th>Nomor</th>
+                      <th>Status</th>
+                      <th>Total</th>
+                      <th>Dibuat</th>
+                    </tr>
+                  </thead>
+                  <tbody id="orders-table"></tbody>
+                </table>
+              </div>
+            </article>
+
+            <div style="height:13px"></div>
+
+            <article class="card">
+              <h3>Invoice</h3>
+              <div class="table-wrap">
+                <table>
+                  <thead>
+                    <tr>
+                      <th>Invoice</th>
+                      <th>Status</th>
+                      <th>Total</th>
+                      <th>Terbayar</th>
+                    </tr>
+                  </thead>
+                  <tbody id="invoices-table"></tbody>
+                </table>
+              </div>
+            </article>
+          </section>
+
+          <section id="view-activity" class="view">
+            <div class="view-header">
+              <div>
+                <h2>Aktivitas & persetujuan</h2>
+                <p>Semua field sudah diisi AI. Periksa lalu setujui tindakan penting.</p>
+              </div>
+            </div>
+            <div id="activity" class="activity"></div>
+          </section>
+        </div>
+      </div>
+
+      <div id="overlay" class="overlay">
+        <div id="loading-text" class="loading">SmartBiz AI sedang memproses…</div>
+      </div>
+    </section>
+  </main>
+
+  <div id="scanner" class="scanner">
+    <div class="scanner-card">
+      <video id="video" autoplay playsinline></video>
+      <div class="scanner-footer">
+        <span id="scanner-status">Arahkan kamera ke barcode.</span>
+        <button id="close-scanner" class="reject" type="button">Tutup</button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    const csrfToken = {{ csrf_token|tojson }};
+
+    const business = document.querySelector("#business");
+    const messages = document.querySelector("#messages");
+    const promptInput = document.querySelector("#prompt");
+    const sendButton = document.querySelector("#send");
+    const attachButton = document.querySelector("#attach");
+    const fileInput = document.querySelector("#file");
+    const fileChip = document.querySelector("#file-chip");
+    const fileLabel = document.querySelector("#file-label");
+    const clearFileButton = document.querySelector("#clear-file");
+    const barcodeButton = document.querySelector("#barcode");
+    const voiceButton = document.querySelector("#voice");
+    const selectedBar = document.querySelector("#selected");
+    const selectedLabel = document.querySelector("#selected-label");
+    const clearSelectedButton = document.querySelector("#clear-selected");
+    const overlay = document.querySelector("#overlay");
+    const loadingText = document.querySelector("#loading-text");
+    const frame = document.querySelector("#frame");
+    const workspace = document.querySelector("#workspace");
+    const scanner = document.querySelector("#scanner");
+    const video = document.querySelector("#video");
+    const scannerStatus = document.querySelector("#scanner-status");
+
+    let state = null;
+    let selectedContext = {};
+    let attachmentName = "";
+    let attachmentType = "";
+    let attachmentText = "";
+    let commandSource = "web";
+    let scannerStream = null;
+    let scannerTimer = null;
+
+    const escapeHtml = (value) => {
+      const node = document.createElement("div");
+      node.textContent = String(value ?? "");
+      return node.innerHTML;
+    };
+
+    const number = (value) => new Intl.NumberFormat(
+      "id-ID",
+      { maximumFractionDigits: 2 }
+    ).format(Number(value || 0));
+
+    const money = (value) => new Intl.NumberFormat(
+      "id-ID",
+      {
+        style: "currency",
+        currency: "IDR",
+        maximumFractionDigits: 0
+      }
+    ).format(Number(value || 0));
+
+    const headers = () => ({
+      "Content-Type": "application/json",
+      "X-CSRF-Token": csrfToken || ""
+    });
+
+    const addMessage = (role, text) => {
+      const node = document.createElement("div");
+      node.className = `message ${role}`;
+      node.textContent = text;
+      messages.appendChild(node);
+      messages.scrollTop = messages.scrollHeight;
+    };
+
+    const setLoading = (active, text = "SmartBiz AI sedang memproses…") => {
+      loadingText.textContent = text;
+      overlay.classList.toggle("visible", active);
+      sendButton.disabled = active;
+    };
+
+    const setView = (name) => {
+      document.querySelectorAll(".tab").forEach((tab) => {
+        tab.classList.toggle("active", tab.dataset.view === name);
+      });
+
+      document.querySelectorAll(".view").forEach((view) => {
+        view.classList.toggle("active", view.id === `view-${name}`);
+      });
+    };
+
+    const itemName = (item, fallback) => (
+      item.name ||
+      item.product_name ||
+      item.customer_name ||
+      item.order_number ||
+      item.invoice_number ||
+      fallback
+    );
+
+    const selectObject = (type, item) => {
+      selectedContext = {
+        object_type: type,
+        object: item
+      };
+
+      selectedLabel.textContent = `${type}: ${itemName(item, item.id || "objek")}`;
+      selectedBar.classList.add("visible");
+      promptInput.placeholder = "Jelaskan tindakan untuk objek yang dipilih...";
+
+      document.querySelectorAll(".row.chosen").forEach((node) => {
+        node.classList.remove("chosen");
+      });
+
+      document
+        .querySelectorAll(`[data-object-id="${String(item.id || "")}"]`)
+        .forEach((node) => node.classList.add("chosen"));
+    };
+
+    const clearSelected = () => {
+      selectedContext = {};
+      selectedBar.classList.remove("visible");
+      promptInput.placeholder = "Jelaskan pekerjaan yang ingin dilakukan...";
+      document.querySelectorAll(".row.chosen").forEach((node) => {
+        node.classList.remove("chosen");
+      });
+    };
+
+    const stockMap = () => {
+      const map = new Map();
+
+      for (const item of state?.stock || []) {
+        map.set(String(item.product_id || item.id || ""), item);
+      }
+
+      return map;
+    };
+
+    const metric = (label, value) => `
+      <article class="metric">
+        <small>${escapeHtml(label)}</small>
+        <strong>${escapeHtml(value)}</strong>
+      </article>
+    `;
+
+    const renderRows = (target, items, type, meta, limit = 7) => {
+      target.replaceChildren();
+
+      if (!items.length) {
+        target.innerHTML = '<div class="empty">Belum ada data.</div>';
+        return;
+      }
+
+      for (const item of items.slice(0, limit)) {
+        const node = document.createElement("div");
+        node.className = "row";
+        node.dataset.objectId = String(item.id || "");
+        node.innerHTML = `
+          <span class="row-name">${escapeHtml(itemName(item, item.id || type))}</span>
+          <span class="row-meta">${escapeHtml(meta(item))}</span>
+        `;
+        node.addEventListener("click", () => selectObject(type, item));
+        target.appendChild(node);
+      }
+    };
+
+    const renderPreview = () => {
+      const products = state?.products || [];
+      const customers = state?.customers || [];
+      const orders = state?.orders || [];
+      const invoices = state?.invoices || [];
+      const stocks = stockMap();
+
+      document.querySelector("#business-title").textContent =
+        state?.business?.name || "SmartBiz";
+
+      document.querySelector("#metrics").innerHTML = [
+        metric("Produk", number(products.length)),
+        metric("Pelanggan", number(customers.length)),
+        metric("Pesanan", number(orders.length)),
+        metric(
+          "Invoice terbuka",
+          number(
+            invoices.filter(
+              (item) => !["paid", "cancelled", "void"].includes(
+                String(item.status || "").toLowerCase()
+              )
+            ).length
+          )
+        )
+      ].join("");
+
+      renderRows(
+        document.querySelector("#preview-products"),
+        products.map((product) => ({
+          ...product,
+          current_stock:
+            stocks.get(String(product.id || ""))?.quantity ??
+            stocks.get(String(product.id || ""))?.available_quantity ??
+            0
+        })),
+        "product",
+        (item) => `Stok ${number(item.current_stock)}`,
+        8
+      );
+
+      renderRows(
+        document.querySelector("#preview-orders"),
+        orders,
+        "order",
+        (item) => `${item.status || "-"} · ${money(item.total)}`,
+        7
+      );
+
+      renderRows(
+        document.querySelector("#preview-invoices"),
+        invoices,
+        "invoice",
+        (item) => `${item.status || "-"} · ${money(item.total)}`,
+        7
+      );
+
+      renderRows(
+        document.querySelector("#preview-customers"),
+        customers,
+        "customer",
+        (item) => item.phone || item.email || "Pelanggan",
+        7
+      );
+
+      document.querySelector("#updated").textContent =
+        `Diperbarui ${new Date().toLocaleTimeString("id-ID")}`;
+    };
+
+    const tableRow = (target, cells, type, item) => {
+      const row = document.createElement("tr");
+      row.dataset.objectId = String(item.id || "");
+      row.innerHTML = cells
+        .map((cell) => `<td>${escapeHtml(cell)}</td>`)
+        .join("");
+      row.addEventListener("click", () => selectObject(type, item));
+      target.appendChild(row);
+    };
+
+    const renderData = () => {
+      const productsTable = document.querySelector("#products-table");
+      const ordersTable = document.querySelector("#orders-table");
+      const invoicesTable = document.querySelector("#invoices-table");
+      const stocks = stockMap();
+
+      productsTable.replaceChildren();
+      ordersTable.replaceChildren();
+      invoicesTable.replaceChildren();
+
+      for (const product of state?.products || []) {
+        const stock = stocks.get(String(product.id || "")) || {};
+        tableRow(
+          productsTable,
+          [
+            product.name || "-",
+            product.sku || "-",
+            number(stock.quantity ?? stock.available_quantity ?? 0),
+            money(product.sell_price)
+          ],
+          "product",
+          product
+        );
+      }
+
+      for (const order of state?.orders || []) {
+        tableRow(
+          ordersTable,
+          [
+            order.order_number || String(order.id || ""),
+            order.status || "-",
+            money(order.total),
+            order.created_at || "-"
+          ],
+          "order",
+          order
+        );
+      }
+
+      for (const invoice of state?.invoices || []) {
+        tableRow(
+          invoicesTable,
+          [
+            invoice.invoice_number || String(invoice.id || ""),
+            invoice.status || "-",
+            money(invoice.total),
+            money(invoice.amount_paid)
+          ],
+          "invoice",
+          invoice
+        );
+      }
+
+      if (!productsTable.children.length) {
+        productsTable.innerHTML = '<tr><td colspan="4">Belum ada produk.</td></tr>';
+      }
+
+      if (!ordersTable.children.length) {
+        ordersTable.innerHTML = '<tr><td colspan="4">Belum ada pesanan.</td></tr>';
+      }
+
+      if (!invoicesTable.children.length) {
+        invoicesTable.innerHTML = '<tr><td colspan="4">Belum ada invoice.</td></tr>';
+      }
+    };
+
+    const actionMeta = (item) => item.payload?._smartbiz_ai || {};
+
+    const renderFields = (fields) => {
+      if (!fields || typeof fields !== "object") {
+        return "";
+      }
+
+      const entries = Object.entries(fields).slice(0, 16);
+
+      if (!entries.length) {
+        return "";
+      }
+
+      return `
+        <div class="fields">
+          ${entries.map(([key, value]) => `
+            <div class="field">
+              <b>${escapeHtml(key)}</b>
+              ${escapeHtml(
+                typeof value === "object"
+                  ? JSON.stringify(value)
+                  : value
+              )}
+            </div>
+          `).join("")}
+        </div>
+      `;
+    };
+
+    const reviewAction = async (item, decision) => {
+      setLoading(true, decision === "approve"
+        ? "Menjalankan tindakan yang disetujui…"
+        : "Menolak tindakan…"
+      );
+
+      try {
+        const response = await fetch(
+          `/smartbiz/studio/actions/${encodeURIComponent(item.id)}/review`,
+          {
+            method: "POST",
+            credentials: "same-origin",
+            headers: headers(),
+            body: JSON.stringify({
+              business_id: business.value,
+              decision,
+              notes: decision === "approve"
+                ? "Disetujui melalui SmartBiz AI Studio."
+                : "Ditolak melalui SmartBiz AI Studio."
+            })
+          }
+        );
+
+        const payload = await response.json();
+
+        if (!response.ok) {
+          throw new Error(payload.detail || "Tindakan gagal diproses.");
+        }
+
+        addMessage(
+          "ai",
+          decision === "approve"
+            ? "Tindakan disetujui dan berhasil dijalankan."
+            : "Tindakan berhasil ditolak."
+        );
+
+        await loadState();
+        setView("activity");
+      } catch (error) {
+        addMessage("error", error.message);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    const renderActivity = () => {
+      const target = document.querySelector("#activity");
+      const items = state?.action_requests || [];
+      target.replaceChildren();
+
+      if (!items.length) {
+        target.innerHTML = '<div class="empty">Belum ada aktivitas AI.</div>';
+        return;
+      }
+
+      for (const item of items) {
+        const meta = actionMeta(item);
+        const card = document.createElement("article");
+        card.className = "activity-card";
+        card.innerHTML = `
+          <div class="activity-head">
+            <div>
+              <h3>${escapeHtml(meta.title || item.action_type || "Tindakan")}</h3>
+              <p>${escapeHtml(
+                meta.explanation ||
+                item.error_message ||
+                "Permintaan tindakan SmartBiz."
+              )}</p>
+            </div>
+            <span class="pill ${escapeHtml(item.status || "")}">
+              ${escapeHtml(item.status || "-")}
+            </span>
+          </div>
+          ${renderFields(meta.extracted_fields)}
+        `;
+
+        if (item.status === "proposed") {
+          const actions = document.createElement("div");
+          actions.className = "action-buttons";
+
+          const approve = document.createElement("button");
+          approve.className = "approve";
+          approve.type = "button";
+          approve.textContent = "Setujui & jalankan";
+          approve.addEventListener("click", () => reviewAction(item, "approve"));
+
+          const reject = document.createElement("button");
+          reject.className = "reject";
+          reject.type = "button";
+          reject.textContent = "Tolak";
+          reject.addEventListener("click", () => reviewAction(item, "reject"));
+
+          actions.append(approve, reject);
+          card.appendChild(actions);
+        }
+
+        target.appendChild(card);
+      }
+    };
+
+    const renderState = () => {
+      renderPreview();
+      renderData();
+      renderActivity();
+    };
+
+    const loadState = async () => {
+      if (!business.value) {
+        state = {
+          products: [],
+          customers: [],
+          stock: [],
+          orders: [],
+          invoices: [],
+          payments: [],
+          action_requests: []
+        };
+        renderState();
+        return;
+      }
+
+      const response = await fetch(
+        `/smartbiz/studio/state?business_id=${encodeURIComponent(business.value)}`,
+        { credentials: "same-origin" }
+      );
+
+      const payload = await response.json();
+
+      if (!response.ok) {
+        throw new Error(payload.detail || "Data usaha gagal dimuat.");
+      }
+
+      state = payload;
+      renderState();
+    };
+
+    const uploadAttachment = async (file) => {
+      const form = new FormData();
+      form.append("file", file);
+
+      setLoading(true, "Membaca dan mengekstrak dokumen…");
+
+      try {
+        const response = await fetch(
+          "/smartbiz/studio/upload",
+          {
+            method: "POST",
+            credentials: "same-origin",
+            headers: {
+              "X-CSRF-Token": csrfToken || ""
+            },
+            body: form
+          }
+        );
+
+        const payload = await response.json();
+
+        if (!response.ok) {
+          throw new Error(payload.detail || "Lampiran gagal dibaca.");
+        }
+
+        attachmentName = payload.filename || file.name;
+        attachmentType = payload.content_type || file.type;
+        attachmentText = payload.text || "";
+        commandSource = "document";
+
+        fileLabel.textContent =
+          `${attachmentName} · ${payload.metadata?.engine || "terbaca"}`;
+
+        fileChip.classList.add("visible");
+
+        addMessage(
+          "ai",
+          `Lampiran ${attachmentName} berhasil dibaca. ` +
+          "Jelaskan pekerjaan yang harus dilakukan, atau langsung kirim perintah yang sudah ditulis."
+        );
+      } catch (error) {
+        addMessage("error", error.message);
+        fileInput.value = "";
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    const renderPlan = (payload) => {
+      const plan = payload.plan || {};
+      addMessage("ai", plan.reply || "Rencana berhasil dibuat.");
+
+      for (const action of plan.actions || []) {
+        const fields = action.extracted_fields || {};
+        const fieldText = Object.entries(fields)
+          .slice(0, 12)
+          .map(([key, value]) => {
+            const printable = typeof value === "object"
+              ? JSON.stringify(value)
+              : value;
+            return `${key}: ${printable}`;
+          })
+          .join("\n");
+
+        addMessage(
+          "ai",
+          [
+            action.title || action.action_type || "Tindakan",
+            action.explanation || "",
+            fieldText ? `Autofill:\n${fieldText}` : "",
+            `Status: ${action.status || "planned"}`
+          ].filter(Boolean).join("\n")
+        );
+      }
+
+      if (
+        plan.needs_clarification &&
+        Array.isArray(plan.clarification_questions)
+      ) {
+        addMessage(
+          "ai",
+          "Informasi yang masih diperlukan:\n" +
+          plan.clarification_questions.map((item) => `• ${item}`).join("\n")
+        );
+      }
+    };
+
+    const sendCommand = async () => {
+      const command = promptInput.value.trim();
+
+      if (!business.value) {
+        addMessage("error", "Pilih usaha terlebih dahulu.");
+        return;
+      }
+
+      if (command.length < 2) {
+        addMessage("error", "Tuliskan kebutuhan usaha.");
+        return;
+      }
+
+      addMessage("user", command);
+      promptInput.value = "";
+      setLoading(true);
+
+      try {
+        const response = await fetch(
+          "/smartbiz/studio/command",
+          {
+            method: "POST",
+            credentials: "same-origin",
+            headers: headers(),
+            body: JSON.stringify({
+              business_id: business.value,
+              command,
+              source: commandSource,
+              selected_context: selectedContext,
+              attachment_name: attachmentName,
+              attachment_type: attachmentType,
+              attachment_text: attachmentText
+            })
+          }
+        );
+
+        const payload = await response.json();
+
+        if (!response.ok) {
+          throw new Error(payload.detail || "SmartBiz AI gagal.");
+        }
+
+        renderPlan(payload);
+
+        attachmentName = "";
+        attachmentType = "";
+        attachmentText = "";
+        commandSource = "web";
+        fileInput.value = "";
+        fileChip.classList.remove("visible");
+
+        await loadState();
+      } catch (error) {
+        addMessage("error", error.message);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    const closeScanner = () => {
+      scanner.classList.remove("visible");
+
+      if (scannerTimer) {
+        clearInterval(scannerTimer);
+        scannerTimer = null;
+      }
+
+      if (scannerStream) {
+        scannerStream.getTracks().forEach((track) => track.stop());
+        scannerStream = null;
+      }
+
+      video.srcObject = null;
+    };
+
+    const useBarcode = (value) => {
+      promptInput.value = (
+        `${promptInput.value}\nBarcode: ${value}`
+      ).trim();
+
+      commandSource = "barcode";
+      promptInput.focus();
+      closeScanner();
+    };
+
+    const openBarcode = async () => {
+      if (
+        !("BarcodeDetector" in window) ||
+        !navigator.mediaDevices?.getUserMedia
+      ) {
+        const value = window.prompt("Masukkan atau scan barcode:");
+        if (value) {
+          useBarcode(value.trim());
+        }
+        return;
+      }
+
+      try {
+        const detector = new BarcodeDetector({
+          formats: [
+            "ean_13",
+            "ean_8",
+            "code_128",
+            "code_39",
+            "qr_code",
+            "upc_a",
+            "upc_e"
+          ]
+        });
+
+        scannerStream = await navigator.mediaDevices.getUserMedia({
+          video: {
+            facingMode: {
+              ideal: "environment"
+            }
+          },
+          audio: false
+        });
+
+        video.srcObject = scannerStream;
+        scanner.classList.add("visible");
+        scannerStatus.textContent = "Arahkan kamera ke barcode.";
+
+        scannerTimer = setInterval(async () => {
+          try {
+            const codes = await detector.detect(video);
+            if (codes.length && codes[0].rawValue) {
+              useBarcode(codes[0].rawValue);
+            }
+          } catch (_) {
+          }
+        }, 500);
+      } catch (error) {
+        closeScanner();
+        const value = window.prompt("Kamera tidak tersedia. Masukkan barcode:");
+        if (value) {
+          useBarcode(value.trim());
+        }
+      }
+    };
+
+    document.querySelectorAll(".quick button").forEach((button) => {
+      button.addEventListener("click", () => {
+        promptInput.value = button.textContent.trim();
+        promptInput.focus();
+      });
+    });
+
+    document.querySelectorAll(".tab").forEach((tab) => {
+      tab.addEventListener("click", () => setView(tab.dataset.view));
+    });
+
+    document.querySelector("#rail-preview").addEventListener(
+      "click",
+      () => setView("preview")
+    );
+
+    document.querySelector("#rail-data").addEventListener(
+      "click",
+      () => setView("data")
+    );
+
+    document.querySelector("#rail-activity").addEventListener(
+      "click",
+      () => setView("activity")
+    );
+
+    sendButton.addEventListener("click", sendCommand);
+
+    promptInput.addEventListener("keydown", (event) => {
+      if (event.key === "Enter" && !event.shiftKey) {
+        event.preventDefault();
+        sendCommand();
+      }
+    });
+
+    clearSelectedButton.addEventListener("click", clearSelected);
+
+    attachButton.addEventListener("click", () => fileInput.click());
+
+    fileInput.addEventListener("change", () => {
+      const selectedFile = fileInput.files?.[0];
+      if (selectedFile) {
+        uploadAttachment(selectedFile);
+      }
+    });
+
+    clearFileButton.addEventListener("click", () => {
+      attachmentName = "";
+      attachmentType = "";
+      attachmentText = "";
+      commandSource = "web";
+      fileInput.value = "";
+      fileChip.classList.remove("visible");
+    });
+
+    barcodeButton.addEventListener("click", openBarcode);
+
+    document.querySelector("#close-scanner").addEventListener(
+      "click",
+      closeScanner
+    );
+
+    const SpeechRecognition =
+      window.SpeechRecognition ||
+      window.webkitSpeechRecognition;
+
+    if (!SpeechRecognition) {
+      voiceButton.disabled = true;
+      voiceButton.title = "Pengenalan suara tidak tersedia.";
+    } else {
+      voiceButton.addEventListener("click", () => {
+        const recognition = new SpeechRecognition();
+        recognition.lang = "id-ID";
+        recognition.interimResults = false;
+        recognition.maxAlternatives = 1;
+
+        recognition.onstart = () => {
+          addMessage("ai", "Silakan bicara…");
+        };
+
+        recognition.onresult = (event) => {
+          promptInput.value = event.results[0][0].transcript;
+          commandSource = "voice";
+          promptInput.focus();
+        };
+
+        recognition.onerror = () => {
+          addMessage("error", "Suara tidak dapat dibaca.");
+        };
+
+        recognition.start();
+      });
+    }
+
+    business.addEventListener("change", async () => {
+      clearSelected();
+
+      const url = new URL(window.location.href);
+      url.searchParams.set("business_id", business.value);
+      history.replaceState({}, "", url);
+
+      setLoading(true, "Memuat data usaha…");
+
+      try {
+        await loadState();
+      } catch (error) {
+        addMessage("error", error.message);
+      } finally {
+        setLoading(false);
+      }
+    });
+
+    document.querySelector("#refresh").addEventListener("click", async () => {
+      setLoading(true, "Memperbarui workspace…");
+
+      try {
+        await loadState();
+      } catch (error) {
+        addMessage("error", error.message);
+      } finally {
+        setLoading(false);
+      }
+    });
+
+    document.querySelector("#device").addEventListener(
+      "click",
+      () => frame.classList.toggle("mobile")
+    );
+
+    document.querySelector("#fullscreen").addEventListener(
+      "click",
+      () => workspace.classList.toggle("fullscreen")
+    );
+
+    setLoading(true, "Memuat SmartBiz AI Studio…");
+
+    loadState()
+      .catch((error) => addMessage("error", error.message))
+      .finally(() => setLoading(false));
+  </script>
+</body>
+</html>

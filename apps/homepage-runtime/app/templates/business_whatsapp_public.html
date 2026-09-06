@@ -1,0 +1,69 @@
+{% extends "base.html" %}
+{% block title %}WhatsApp AI Admin | BotConnector{% endblock %}
+{% block content %}
+<section class="whatsapp-detail-hero">
+  <div class="shell assistant-detail-inner reveal">
+    <nav class="assistant-breadcrumb" aria-label="Breadcrumb">
+      <a href="/products">Semua produk</a>
+      <span>›</span>
+      <a href="/business">Business Automation</a>
+      <span>›</span>
+      <strong>WhatsApp AI Admin</strong>
+    </nav>
+    <div class="whatsapp-detail-icon">WA</div>
+    <span class="business-public-badge">INBOX SIMULATOR · PILOT</span>
+    <h1>Uji admin AI sebelum satu pesan pun dikirim.</h1>
+    <p>{{ business.lead }}</p>
+    <div class="personal-public-actions">
+      <a class="button primary business-start-button" href="{{ start_url }}">{{ start_label }}</a>
+      {% if not user %}<a class="button ghost" href="{{ login_url }}">Masuk</a>{% endif %}
+    </div>
+    <small>Login diperlukan untuk menyimpan profil dan riwayat simulasi.</small>
+  </div>
+</section>
+
+<section class="shell assistant-feature-section">
+  <div class="personal-section-heading reveal">
+    <span>FITUR SIMULASI</span>
+    <h2>Apa yang diperiksa WhatsApp AI Admin?</h2>
+  </div>
+  <div class="assistant-feature-grid">
+    {% for feature in business.features %}
+    <article class="assistant-feature-item reveal">
+      <span>✓</span><p>{{ feature }}</p>
+    </article>
+    {% endfor %}
+  </div>
+</section>
+
+<section class="shell assistant-example-section">
+  <div class="assistant-example-card business-example-card reveal">
+    <div>
+      <span class="personal-card-label">CONTOH PESAN</span>
+      <h2>Lead katering dengan permintaan tanggal tertentu</h2>
+      <p class="assistant-example-input">{{ business.example_input }}</p>
+    </div>
+    <div class="assistant-example-output">
+      <strong>Hasil yang disiapkan</strong>
+      <ul>{% for item in business.example_output %}<li>{{ item }}</li>{% endfor %}</ul>
+    </div>
+  </div>
+</section>
+
+<section class="shell business-control-card reveal">
+  <strong>Belum terhubung ke WhatsApp nyata.</strong>
+  <p>{{ business.safety }}</p>
+</section>
+
+<section class="shell personal-public-cta reveal">
+  <div>
+    <span class="personal-card-label">WHATSAPP AI ADMIN</span>
+    <h2>Bangun aturan dengan contoh pesan pelanggan.</h2>
+    <p>Semua hasil tersimpan sebagai simulasi dan tidak pernah dikirim otomatis.</p>
+  </div>
+  <div class="personal-public-actions">
+    <a class="button primary business-start-button" href="{{ start_url }}">{{ start_label }}</a>
+    {% if not user %}<a class="button ghost" href="{{ login_url }}">Sudah punya akun? Masuk</a>{% endif %}
+  </div>
+</section>
+{% endblock %}

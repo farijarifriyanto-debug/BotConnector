@@ -1,0 +1,68 @@
+<!doctype html>
+<html lang="id">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>{{ guide.title }} — {{ product.name }}</title>
+  <link rel="stylesheet" href="/static/style.css">
+</head>
+<body class="guided-page {{ product.accent }}">
+  <header class="guided-topbar shell">
+    <a class="brand compact-brand" href="/app/{{ product.slug }}/{{ section.slug }}">
+      <svg class="brand-mark" viewBox="0 0 40 40" aria-hidden="true"><path d="M11 11h8v8h-8zM21 21h8v8h-8z"/><path d="M18 15h5a5 5 0 0 1 5 5v2M22 25h-5a5 5 0 0 1-5-5v-2" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"/></svg>
+      <span>BOTCONNECTOR</span>
+    </a>
+    <a class="text-link" href="/app/{{ product.slug }}/{{ section.slug }}">Kembali</a>
+  </header>
+
+  <main class="guided-shell shell">
+    <section class="guided-copy">
+      <span class="eyebrow">{{ product.name }}</span>
+      <h1>{{ guide.title }}</h1>
+      <p>{{ guide.text }}</p>
+      <div class="guided-deliverables">
+        <span>Yang akan dibantu:</span>
+        {% for item in guide.deliverables %}<div><b>✓</b>{{ item }}</div>{% endfor %}
+      </div>
+    </section>
+
+    <form method="post" class="guided-form-card">
+      <div class="candidate-note">{% if core_integration_enabled %}Rancangan akan disimpan pada akun dan database BotConnector.{% else %}Candidate — rancangan masih disimpan pada session preview.{% endif %}</div>
+      {% if error %}<div class="form-error">{{ error }}</div>{% endif %}
+      <fieldset class="choice-grid">
+        <legend>Pilih yang paling mendekati</legend>
+        {% for choice in guide.choices %}
+        <label><input type="radio" name="choice" value="{{ choice }}" {% if loop.first %}checked{% endif %}><span>{{ choice }}</span></label>
+        {% endfor %}
+      </fieldset>
+      <label class="need-field">{{ guide.question }}
+        <textarea name="need" rows="7" placeholder="{{ guide.placeholder }}" required>{% if project %}{{ project.need }}{% endif %}</textarea>
+      </label>
+      <p class="privacy-note">Anda tetap memeriksa dan menyetujui hasil sebelum digunakan atau diaktifkan.</p>
+      <button class="button primary" type="submit">
+        {% if product.slug == "personal" and section.slug == "creator" and creator_ai_enabled %}
+          Buat dengan Creator AI
+        {% elif product.slug == "personal" and section.slug == "freelancer" and freelancer_ai_enabled %}
+          Buat dengan Freelancer AI
+        {% elif product.slug == "business" and section.slug == "chat" and business_ai_enabled %}
+          Simpan profil dan buka inbox simulasi
+        {% elif product.slug == "business" and section.slug == "operations" and business_operations_enabled %}
+          Simpan konteks dan buka pusat operasional
+        {% else %}
+          Buatkan rancangan
+        {% endif %}
+      </button>
+      {% if product.slug == "personal" and (
+        (section.slug == "creator" and creator_ai_enabled)
+        or (section.slug == "freelancer" and freelancer_ai_enabled)
+      ) %}
+      <p class="ai-provider-note">Diproses oleh service AI privat BotConnector. Hasil tetap perlu diperiksa sebelum digunakan atau dikirim.</p>
+      {% elif product.slug == "business" and section.slug == "chat" and business_ai_enabled %}
+      <p class="ai-provider-note">Profil disimpan ke akun Anda. WhatsApp belum dihubungkan; pengujian berikutnya hanya memakai pesan simulasi.</p>
+      {% elif product.slug == "business" and section.slug == "operations" and business_operations_enabled %}
+      <p class="ai-provider-note">Data operasional disimpan di PostgreSQL. Semua booking, approval, dan follow-up masih record-only dan tidak dieksekusi.</p>
+      {% endif %}
+    </form>
+  </main>
+</body>
+</html>

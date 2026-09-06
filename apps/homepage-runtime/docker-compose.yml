@@ -1,0 +1,36 @@
+services:
+  botconnector-home:
+    volumes:
+      - /var/lib/botconnector-platform:/var/lib/botconnector-platform
+      - /etc/botconnector/credentials/homepage-db-password:/run/secrets/postgres_password:ro
+      - /etc/botconnector/credentials/redis-password:/run/secrets/redis_password:ro
+    image: botconnector-platform-home:tenantization-v1-20260828
+    build: .
+    container_name: botconnector-platform-home
+    extra_hosts:
+      - "host.docker.internal=host-gateway"
+    restart: unless-stopped
+    env_file:
+      - .env
+      - /etc/botconnector/google-picker.env
+    ports:
+      - "127.0.0.1:8020:8000"
+    networks:
+      - default
+      - botconnector-core-net
+      - botconnector-ai-local
+    healthcheck:
+      test:
+        - CMD
+        - python
+        - -c
+        - "import urllib.request; urllib.request.urlopen('http://127.0.0.1:8000/health', timeout=3).read()"
+      interval: 15s
+      timeout: 5s
+      retries: 6
+      start_period: 15s
+networks:
+  botconnector-core-net:
+    external: true
+  botconnector-ai-local:
+    external: true

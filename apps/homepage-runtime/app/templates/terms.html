@@ -1,0 +1,278 @@
+{% extends "base.html" %}
+{% block title %}Ketentuan Layanan Platform — BotConnector{% endblock %}
+{% block content %}
+<style>
+  .platform-doc{background:#F6F7FB;min-height:calc(100vh - 120px);padding:48px 0 80px}
+  .platform-doc-shell{width:min(1080px,calc(100% - 48px));margin:0 auto}
+  .platform-doc-hero{margin-bottom:30px}
+  .platform-doc-kicker{font-size:11px;font-weight:800;letter-spacing:.12em;color:#5B5FEF;text-transform:uppercase;margin-bottom:8px}
+  .platform-doc h1{font-size:36px;line-height:1.12;font-weight:850;color:#101828;margin:0 0 10px;letter-spacing:-.04em}
+  .platform-doc-lead{font-size:16px;color:#667085;line-height:1.65;margin:0;max-width:760px}
+  .platform-doc-meta{margin-top:12px;font-size:12px;color:#98A2B3}
+  .platform-doc-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:20px}
+  .platform-doc-section{background:#FFF;border:1px solid #E7E9F2;border-radius:20px;padding:28px;box-shadow:0 8px 24px rgba(11,16,32,.035)}
+  .platform-doc-section.wide{grid-column:1/-1}
+  .platform-doc-section h2{font-size:18px;line-height:1.3;font-weight:850;color:#101828;margin:0 0 18px;letter-spacing:-.025em}
+  .platform-doc-section h3{font-size:14px;line-height:1.4;font-weight:800;color:#344054;margin:22px 0 8px}
+  .platform-doc-section h3:first-of-type{margin-top:0}
+  .platform-doc-section p,.platform-doc-section li{font-size:14px;color:#475467;line-height:1.72}
+  .platform-doc-section p{margin:0 0 12px}
+  .platform-doc-section p:last-child{margin-bottom:0}
+  .platform-doc-section ul{margin:0;padding-left:20px;display:flex;flex-direction:column;gap:7px}
+  .platform-doc-section li strong{color:#344054}
+  .platform-doc-section a{color:#5B5FEF;text-decoration:none;font-weight:750}
+  .platform-doc-section a:hover{text-decoration:underline}
+  .platform-doc-note{background:#EEF0FF;border-color:#DDE1FF}
+  @media(max-width:700px){.platform-doc{padding:32px 0 56px}.platform-doc-shell{width:min(100% - 28px,1080px)}.platform-doc h1{font-size:30px}.platform-doc-grid{grid-template-columns:1fr}.platform-doc-section.wide{grid-column:auto}.platform-doc-section{padding:22px}}
+</style>
+
+<main class="platform-doc">
+  <div class="platform-doc-shell">
+    <header class="platform-doc-hero">
+      <div class="platform-doc-kicker">Ketentuan Layanan Platform</div>
+      <h1>Ketentuan Layanan Platform</h1>
+      <p class="platform-doc-lead">Aturan penggunaan akun dan layanan BotConnector untuk menjalankan operasional bisnis dan layanan digital yang terhubung.</p>
+      <div class="platform-doc-meta">Terakhir diperbarui: 29 Agustus 2026</div>
+    </header>
+
+    <div class="platform-doc-grid">
+      <section class="platform-doc-section wide">
+        <h2>01 Platform &amp; Akun</h2>
+        <h3>Ketentuan Layanan Platform</h3>
+        <p>Ketentuan Layanan ini mengatur penggunaan platform BotConnector dan layanan utama yang tersedia melalui akun BotConnector.</p>
+        <p>Dengan membuat akun atau menggunakan layanan, pengguna menyatakan telah membaca dan menyetujui Ketentuan yang berlaku terhadap layanan yang digunakan.</p>
+        <p>Produk tertentu dapat memiliki ketentuan tambahan.</p>
+        <p>BotConnector Connect, misalnya, memiliki ketentuan serta pengungkapan risiko tersendiri karena melibatkan integrasi TradingView, MetaTrader, webhook, dan fungsi eksekusi terkait trading.</p>
+
+        <h3>Cakupan platform</h3>
+        <p>BotConnector menyediakan platform digital yang dapat mencakup antara lain:</p>
+        <ul>
+          <li>akun dan autentikasi BotConnector;</li>
+          <li>Business Suite;</li>
+          <li>POS retail;</li>
+          <li>pengelolaan produk;</li>
+          <li>inventori dan stok;</li>
+          <li>operasional multi-cabang;</li>
+          <li>pesanan;</li>
+          <li>fungsi restoran dan kitchen;</li>
+          <li>laporan operasional;</li>
+          <li>My Drive;</li>
+          <li>integrasi Telegram;</li>
+          <li>integrasi layanan pihak ketiga;</li>
+          <li>BotConnector Connect;</li>
+          <li>fitur lain yang tersedia dari waktu ke waktu.</li>
+        </ul>
+        <p>Tidak semua fitur tersedia untuk setiap akun.</p>
+        <p>Akses dapat ditentukan oleh:</p>
+        <ul>
+          <li>produk yang dimiliki;</li>
+          <li>status entitlement;</li>
+          <li>keanggotaan bisnis;</li>
+          <li>peran;</li>
+          <li>konfigurasi layanan.</li>
+        </ul>
+      </section>
+
+      <section class="platform-doc-section">
+        <h2>02 Akun &amp; Kewenangan</h2>
+        <h3>Akun BotConnector</h3>
+        <p>Pengguna bertanggung jawab untuk:</p>
+        <ul>
+          <li>memberikan informasi akun yang wajar dan akurat;</li>
+          <li>menjaga keamanan password dan credential;</li>
+          <li>tidak membagikan akses secara tidak sah;</li>
+          <li>mengeluarkan sesi atau mengganti credential apabila mencurigai penyalahgunaan;</li>
+          <li>menjaga keamanan perangkat yang digunakan untuk mengakses platform.</li>
+        </ul>
+        <p>Tindakan yang dilakukan menggunakan sesi akun yang sah dapat dianggap sebagai tindakan akun tersebut sepanjang tidak terdapat bukti penyalahgunaan atau keadaan lain yang relevan.</p>
+
+        <h3>Akun dan kewenangan bisnis</h3>
+        <p>Pengguna yang membuat atau mengelola bisnis dalam Business Suite harus memiliki kewenangan yang sah untuk melakukan tindakan tersebut.</p>
+        <p>BotConnector dapat menyediakan beberapa tingkat akses, termasuk Owner, Admin, Manager, Cashier, Staff, atau peran lain sesuai perkembangan layanan.</p>
+        <p>Owner atau pihak yang memiliki kewenangan administratif bertanggung jawab mengelola keanggotaan dan memberikan peran yang sesuai.</p>
+        <p>Pengguna tidak diperbolehkan mencoba mengakses bisnis, cabang, resource, atau data yang tidak diberikan kepadanya.</p>
+      </section>
+
+      <section class="platform-doc-section">
+        <h2>03 Business Suite</h2>
+        <p>Business Suite menyediakan alat untuk membantu mengelola operasi bisnis, yang dapat mencakup:</p>
+        <ul>
+          <li>produk dan harga;</li>
+          <li>POS;</li>
+          <li>transaksi;</li>
+          <li>inventori;</li>
+          <li>stok;</li>
+          <li>cabang;</li>
+          <li>transfer;</li>
+          <li>restoran;</li>
+          <li>kitchen/KOT;</li>
+          <li>integrasi;</li>
+          <li>laporan.</li>
+        </ul>
+        <p>Business Suite merupakan alat operasional.</p>
+        <p>Pengguna dan bisnis tetap bertanggung jawab atas:</p>
+        <ul>
+          <li>kebenaran data yang dimasukkan;</li>
+          <li>harga yang ditetapkan;</li>
+          <li>transaksi yang dijalankan;</li>
+          <li>pencatatan bisnis;</li>
+          <li>pengelolaan pegawai atau anggota;</li>
+          <li>keputusan bisnis;</li>
+          <li>kepatuhan terhadap kewajiban hukum, perpajakan, pembukuan, atau industri yang berlaku bagi bisnis masing-masing.</li>
+        </ul>
+        <p>BotConnector tidak menggantikan nasihat hukum, perpajakan, akuntansi, atau profesional lainnya.</p>
+      </section>
+
+      <section class="platform-doc-section">
+        <h2>04 Data &amp; My Drive</h2>
+        <h3>Data dan konten pengguna</h3>
+        <p>Pengguna tetap bertanggung jawab atas data dan konten yang dimasukkan atau diunggah ke layanan, termasuk:</p>
+        <ul>
+          <li>katalog;</li>
+          <li>harga;</li>
+          <li>stok;</li>
+          <li>transaksi;</li>
+          <li>informasi bisnis;</li>
+          <li>dokumen;</li>
+          <li>file;</li>
+          <li>gambar;</li>
+          <li>informasi pihak ketiga.</li>
+        </ul>
+        <p>Pengguna harus memiliki hak, izin, atau dasar yang sesuai untuk menyimpan dan memproses konten tersebut.</p>
+        <p>BotConnector tidak memperoleh kepemilikan atas data bisnis hanya karena data tersebut diproses melalui platform.</p>
+        <p>BotConnector dapat memproses data sejauh diperlukan untuk menyediakan, mengamankan, memelihara, dan mendukung layanan.</p>
+
+        <h3>My Drive</h3>
+        <p>My Drive menyediakan fungsi penyimpanan dan pengelolaan file sesuai fitur yang tersedia pada akun.</p>
+        <p>Pengguna bertanggung jawab atas:</p>
+        <ul>
+          <li>isi file yang diunggah;</li>
+          <li>legalitas file;</li>
+          <li>pengaturan akses;</li>
+          <li>penyimpanan salinan lain apabila file sangat penting bagi bisnis.</li>
+        </ul>
+        <p>Pengguna tidak diperbolehkan menggunakan My Drive untuk menyimpan atau menyebarkan materi yang melanggar hukum atau hak pihak lain.</p>
+      </section>
+
+      <section class="platform-doc-section">
+        <h2>05 Integrasi</h2>
+        <h3>Integrasi Telegram</h3>
+        <p>Business Suite dapat dihubungkan dengan Telegram untuk fungsi seperti notifikasi, pairing, bot bisnis, dan tujuan pesan.</p>
+        <p>Pengguna dapat menggunakan bot global BotConnector atau, apabila tersedia, bot Telegram milik bisnis sendiri.</p>
+        <p>Untuk bot milik bisnis sendiri, pengguna bertanggung jawab menjaga kerahasiaan credential BotFather dan memberikan hak bot secara wajar.</p>
+        <p>Pengguna tidak boleh menyerahkan token bot kepada pihak yang tidak berwenang.</p>
+        <p>BotConnector dapat bergantung pada layanan Telegram untuk menjalankan fungsi tersebut. Gangguan atau perubahan pada layanan Telegram dapat mempengaruhi integrasi.</p>
+
+        <h3>Integrasi pihak ketiga</h3>
+        <p>Sebagian fungsi BotConnector dapat bergantung pada penyedia layanan pihak ketiga.</p>
+        <p>Integrasi dapat:</p>
+        <ul>
+          <li>mengalami gangguan;</li>
+          <li>mengubah API;</li>
+          <li>mengubah kebijakan;</li>
+          <li>membutuhkan akun tambahan;</li>
+          <li>membutuhkan credential;</li>
+          <li>membatasi fungsi atau akses.</li>
+        </ul>
+        <p>BotConnector tidak mengendalikan ketersediaan atau kebijakan teknis seluruh layanan pihak ketiga. Penggunaan layanan pihak ketiga juga dapat tunduk pada ketentuan penyedia tersebut.</p>
+      </section>
+
+      <section class="platform-doc-section platform-doc-note">
+        <h2>06 Ketentuan Connect</h2>
+        <h3>BotConnector Connect</h3>
+        <p>BotConnector Connect merupakan produk khusus yang dapat menghubungkan layanan seperti TradingView, webhook, MetaTrader, atau sistem lain yang didukung.</p>
+        <p>Karena karakteristik produknya berbeda dari Business Suite, My Drive, dan layanan platform umum, penggunaan Connect juga tunduk pada dokumen khusus:</p>
+        <ul>
+          <li><a href="/connect-v2/terms">Ketentuan BotConnector Connect</a></li>
+          <li><a href="/connect-v2/risk-disclosure">Pengungkapan Risiko</a></li>
+        </ul>
+        <p>Ketentuan terkait eksekusi, broker, terminal, strategi, spread, slippage, atau risiko trading tetap berada dalam dokumen khusus Connect dan bukan merupakan pokok Ketentuan Platform ini.</p>
+      </section>
+
+      <section class="platform-doc-section">
+        <h2>07 Penggunaan yang Dilarang</h2>
+        <p>Pengguna dilarang menggunakan BotConnector untuk:</p>
+        <ul>
+          <li>melakukan kegiatan yang melanggar hukum;</li>
+          <li>mengakses akun atau bisnis lain tanpa izin;</li>
+          <li>mencoba melewati autentikasi, otorisasi, atau isolasi tenant;</li>
+          <li>mengganggu operasi layanan;</li>
+          <li>mengirim malware atau kode berbahaya;</li>
+          <li>menggunakan credential yang diperoleh secara tidak sah;</li>
+          <li>melakukan scraping, probing, atau serangan yang mengganggu layanan tanpa otorisasi;</li>
+          <li>menggunakan integrasi untuk melakukan penyalahgunaan;</li>
+          <li>melanggar hak pihak lain.</li>
+        </ul>
+        <p>Pengujian keamanan yang sah terhadap sistem milik sendiri harus tetap memperhatikan batas kewenangan dan tidak merusak layanan atau data pihak lain.</p>
+      </section>
+
+      <section class="platform-doc-section">
+        <h2>08 Ketersediaan &amp; Perubahan</h2>
+        <h3>Ketersediaan layanan</h3>
+        <p>BotConnector berupaya menjaga layanan tetap tersedia dan dapat digunakan.</p>
+        <p>Namun layanan dapat terpengaruh oleh:</p>
+        <ul>
+          <li>pemeliharaan;</li>
+          <li>pembaruan;</li>
+          <li>kegagalan perangkat atau jaringan;</li>
+          <li>gangguan penyedia infrastruktur;</li>
+          <li>layanan pihak ketiga;</li>
+          <li>kejadian keamanan;</li>
+          <li>keadaan lain di luar kendali wajar.</li>
+        </ul>
+        <p>Status layanan utama dapat ditampilkan melalui <a href="/status">halaman Status BotConnector</a>.</p>
+        <p>Kecuali secara khusus disepakati dalam dokumen layanan terpisah, Ketentuan ini tidak menjanjikan tingkat uptime atau kompensasi finansial tertentu.</p>
+
+        <h3>Perubahan fitur</h3>
+        <p>BotConnector dapat menambah fitur, memperbarui fitur, mengganti alur kerja, menghentikan fitur yang tidak lagi didukung, menyesuaikan integrasi pihak ketiga, atau memperbarui kebutuhan teknis.</p>
+        <p>Perubahan dilakukan dengan mempertimbangkan keamanan, operasional, keberlanjutan, dan perkembangan platform. Perubahan yang berdampak material dapat diberitahukan melalui sarana yang wajar.</p>
+      </section>
+
+      <section class="platform-doc-section">
+        <h2>09 Akses &amp; Tanggung Jawab</h2>
+        <h3>Pembatasan atau penangguhan akses</h3>
+        <p>Akses dapat dibatasi sementara apabila diperlukan untuk:</p>
+        <ul>
+          <li>melindungi akun;</li>
+          <li>menangani aktivitas yang mencurigakan;</li>
+          <li>mengatasi risiko keamanan;</li>
+          <li>mencegah dampak terhadap pengguna lain;</li>
+          <li>menangani penyalahgunaan;</li>
+          <li>memenuhi kewajiban hukum.</li>
+        </ul>
+        <p>Tindakan tersebut sebaiknya proporsional terhadap keadaan dan dapat ditinjau kembali apabila masalah telah diselesaikan.</p>
+
+        <h3>Tanggung jawab pengguna</h3>
+        <p>BotConnector membantu menjalankan dan mengelola sistem operasional.</p>
+        <p>Pengguna tetap bertanggung jawab atas keputusan bisnis yang dibuat berdasarkan data, laporan, konfigurasi, atau hasil penggunaan platform.</p>
+        <p>Pengguna disarankan memeriksa informasi penting sebelum melakukan tindakan yang mempunyai dampak finansial, hukum, atau operasional signifikan.</p>
+      </section>
+
+      <section class="platform-doc-section wide">
+        <h2>10 Ketentuan Umum, Perubahan &amp; Kontak</h2>
+        <h3>Batasan umum</h3>
+        <p>BotConnector tidak menjamin bahwa setiap fitur atau integrasi pihak ketiga akan selalu tersedia tanpa gangguan.</p>
+        <p>Sepanjang diperbolehkan oleh ketentuan yang berlaku, tanggung jawab masing-masing pihak harus dipertimbangkan berdasarkan:</p>
+        <ul>
+          <li>sifat layanan;</li>
+          <li>kewajiban masing-masing pihak;</li>
+          <li>tindakan pengguna;</li>
+          <li>kejadian keamanan;</li>
+          <li>kontribusi pihak ketiga;</li>
+          <li>ketentuan hukum yang berlaku.</li>
+        </ul>
+
+        <h3>Perubahan ketentuan</h3>
+        <p>Ketentuan ini dapat diperbarui untuk mencerminkan perubahan layanan, perubahan teknologi, fitur baru, atau perkembangan aturan hukum.</p>
+        <p>Versi terbaru akan tersedia pada halaman Ketentuan Layanan Platform. Perubahan penting dapat diberitahukan dengan cara yang wajar.</p>
+
+        <h3>Hubungan hukum dan penyelesaian</h3>
+        <p>Penggunaan BotConnector tunduk pada ketentuan hukum yang berlaku.</p>
+
+        <h3>Kontak</h3>
+        <p>Pertanyaan mengenai layanan atau Ketentuan dapat disampaikan melalui <a href="/support">Pusat Bantuan BotConnector</a>.</p>
+      </section>
+    </div>
+  </div>
+</main>
+{% endblock %}

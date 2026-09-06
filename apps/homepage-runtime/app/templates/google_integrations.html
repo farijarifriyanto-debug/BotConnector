@@ -1,0 +1,386 @@
+<!doctype html>
+<html lang="id">
+
+<head>
+
+<meta charset="utf-8">
+
+<meta
+  name="viewport"
+  content="width=device-width,initial-scale=1"
+>
+
+<title>
+  Integrasi | BotConnector
+</title>
+
+<link
+  rel="stylesheet"
+  href="/static/style.css"
+>
+
+<link
+  rel="stylesheet"
+  href="/static/drive.css?v=0.3.0"
+>
+
+</head>
+
+
+<body class="bc-drive-body">
+
+
+<header class="bc-drive-top">
+
+  <a
+    class="bc-drive-brand"
+    href="/drive"
+  >
+
+    <span class="bc-drive-logo">
+      B
+    </span>
+
+    <span>
+      <strong>
+        BotConnector
+      </strong>
+
+      <small>
+        Integrations
+      </small>
+    </span>
+
+  </a>
+
+
+  <div class="bc-drive-top-actions">
+
+    <a href="/drive">
+      My Drive
+    </a>
+
+    <a href="/">
+      Beranda
+    </a>
+
+    <div class="bc-drive-user">
+
+      <span class="bc-drive-avatar">
+        {{ (user.name or user.email or 'U')[:1]|upper }}
+      </span>
+
+      <span>
+
+        <strong>
+          {{ user.name }}
+        </strong>
+
+        <small>
+          {{ user.email }}
+        </small>
+
+      </span>
+
+    </div>
+
+  </div>
+
+</header>
+
+
+<main class="bc-google-page">
+
+  <div class="bc-google-heading">
+
+    <span class="bc-drive-eyebrow">
+      BotConnector Integrations
+    </span>
+
+    <h1>
+      Integrasi
+    </h1>
+
+    <p>
+      Hubungkan layanan eksternal
+      ke akun BotConnector Anda.
+    </p>
+
+  </div>
+
+
+  {% if notice %}
+
+  <div class="bc-drive-alert success">
+
+    <strong>
+      Berhasil
+    </strong>
+
+    <span>
+      {{ notice }}
+    </span>
+
+  </div>
+
+  {% endif %}
+
+
+  {% if error %}
+
+  <div class="bc-drive-alert error">
+
+    <strong>
+      Google Drive
+    </strong>
+
+    <span>
+      {{ error }}
+    </span>
+
+  </div>
+
+  {% endif %}
+
+
+  <section class="bc-google-card">
+
+    <div class="bc-google-icon">
+      G
+    </div>
+
+
+    <div class="bc-google-content">
+
+      <div class="bc-google-card-head">
+
+        <div>
+
+          <h2>
+            Google Drive
+          </h2>
+
+          <p>
+            Simpan salinan file
+            BotConnector ke Google Drive
+            milik Anda.
+          </p>
+
+        </div>
+
+
+        {% if google.connected %}
+
+        <span class="bc-google-status connected">
+          Terhubung
+        </span>
+
+        {% else %}
+
+        <span class="bc-google-status">
+          Belum terhubung
+        </span>
+
+        {% endif %}
+
+      </div>
+
+
+      <div class="bc-google-permissions">
+
+        <strong>
+          Akses yang diminta
+        </strong>
+
+        <span>
+          drive.file
+        </span>
+
+        <small>
+          BotConnector hanya meminta
+          akses file Google Drive yang
+          digunakan melalui aplikasi ini.
+        </small>
+
+      </div>
+
+
+      {% if google.connected %}
+
+      <div class="bc-google-connected-info">
+
+        <div>
+          <span>
+            Status
+          </span>
+
+          <strong>
+            Aktif
+          </strong>
+        </div>
+
+
+        {% if google.connected_at %}
+
+        <div>
+          <span>
+            Terhubung sejak
+          </span>
+
+          <strong
+            class="bc-google-time"
+            data-time="{{ google.connected_at }}"
+          >
+            {{ google.connected_at }}
+          </strong>
+        </div>
+
+        {% endif %}
+
+      </div>
+
+
+      <form
+        method="post"
+        action="/integrations/google/disconnect"
+        onsubmit="return confirm('Putuskan Google Drive dari BotConnector?');"
+      >
+
+        <input
+          type="hidden"
+          name="csrf_token"
+          value="{{ csrf_token }}"
+        >
+
+        <button
+          type="submit"
+          class="bc-google-button danger"
+        >
+          Putuskan Google Drive
+        </button>
+
+      </form>
+
+
+      {% else %}
+
+
+      <form
+        method="post"
+        action="/integrations/google/start"
+      >
+
+        <input
+          type="hidden"
+          name="csrf_token"
+          value="{{ csrf_token }}"
+        >
+
+        <button
+          type="submit"
+          class="bc-google-button"
+        >
+          Hubungkan Google Drive
+        </button>
+
+      </form>
+
+      {% endif %}
+
+
+      <small class="bc-google-note">
+        File asli tetap berada
+        di BotConnector Drive/NAS.
+        Integrasi Google Drive akan
+        membuat salinan saat Anda
+        memilih fitur tersebut.
+      </small>
+
+    </div>
+
+  </section>
+
+
+
+  <!-- BOTCONNECTOR_GOOGLE_FOLDER_LINK_V030 -->
+
+  <section class="bc-google-folder-shortcut">
+
+    <div>
+
+      <strong>
+        Folder tujuan Google Drive
+      </strong>
+
+      <small>
+        Pilih tempat penyimpanan
+        untuk salinan Google berikutnya.
+      </small>
+
+    </div>
+
+    <a href="/drive/google/folder">
+      Atur folder
+    </a>
+
+  </section>
+
+
+  <div class="bc-google-back">
+
+    <a href="/drive">
+      ← Kembali ke My Drive
+    </a>
+
+  </div>
+
+</main>
+
+
+<script>
+
+document
+  .querySelectorAll(
+    ".bc-google-time"
+  )
+  .forEach(
+    (node) => {
+
+      const raw =
+        node.dataset.time;
+
+      if (!raw) {
+        return;
+      }
+
+      const date =
+        new Date(raw);
+
+      if (
+        Number.isNaN(
+          date.getTime()
+        )
+      ) {
+        return;
+      }
+
+      node.textContent =
+        new Intl.DateTimeFormat(
+          "id-ID",
+          {
+            dateStyle:
+              "medium",
+
+            timeStyle:
+              "short"
+          }
+        ).format(date);
+
+    }
+  );
+
+</script>
+
+
+</body>
+</html>

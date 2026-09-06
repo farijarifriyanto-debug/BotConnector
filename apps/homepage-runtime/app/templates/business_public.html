@@ -1,0 +1,96 @@
+{% extends "base.html" %}
+{% block title %}Business Automation | BotConnector{% endblock %}
+{% block content %}
+<section class="business-public-hero">
+  <div class="shell business-public-inner reveal">
+    <nav class="assistant-breadcrumb" aria-label="Breadcrumb">
+      <a href="/products">Semua produk</a>
+      <span>›</span>
+      <strong>Business Automation</strong>
+    </nav>
+    <span class="business-public-badge">UNTUK BISNIS · PILOT</span>
+    <h1>{{ business.headline }}</h1>
+    <p>{{ business.lead }}</p>
+    <div class="personal-public-actions">
+      <a class="button primary business-start-button" href="{{ start_url }}">{{ start_label }}</a>
+      {% if not user %}<a class="button ghost" href="{{ login_url }}">Masuk</a>{% endif %}
+    </div>
+    <small>
+      Candidate berjalan dalam mode simulasi. Belum ada nomor WhatsApp
+      yang dihubungkan dan tidak ada pesan yang dikirim.
+    </small>
+  </div>
+</section>
+
+<section class="shell business-module-section">
+  <div class="personal-section-heading reveal">
+    <span>MODUL PERTAMA</span>
+    <h2>WhatsApp AI Admin</h2>
+    <p>
+      Uji bagaimana AI membaca pesan pelanggan, membuat draft balasan,
+      dan menentukan kapan admin manusia harus mengambil alih.
+    </p>
+  </div>
+  <div class="business-module-grid">
+    <!-- SMARTBIZ_PUBLIC_CARD_V0_3 -->
+    <a class="business-module-card reveal" href="/smartbiz">
+      <span>Operasional usaha</span>
+      <h3>SmartBiz</h3>
+      <p>Kelola produk, stok, pelanggan, dan ringkasan usaha dari akun BotConnector yang sama.</p>
+    </a>
+    <a class="business-module-card reveal" href="/business/operations">
+      <div class="business-module-icon">OP</div>
+      <div>
+        <span>PUSAT OPERASIONAL</span>
+        <h3>Business Operations</h3>
+        <p>Profil, layanan, pelanggan, pipeline, approval, booking, follow-up, dan audit.</p>
+      </div>
+      <b>Pelajari →</b>
+    </a>
+    <a class="business-module-card reveal" href="/business/whatsapp-ai-admin">
+      <div class="business-module-icon">WA</div>
+      <div>
+        <span>SIMULASI INBOX</span>
+        <h3>WhatsApp AI Admin</h3>
+        <p>Klasifikasi pesan, lead score, draft balasan, dan eskalasi admin.</p>
+      </div>
+      <b>Pelajari →</b>
+    </a>
+  </div>
+</section>
+
+<section class="business-workflow-wrap">
+  <div class="shell">
+    <div class="personal-section-heading reveal">
+      <span>ALUR AMAN</span>
+      <h2>Uji dulu sebelum menghubungkan WhatsApp.</h2>
+    </div>
+    <ol class="assistant-workflow-grid">
+      {% for item in business.workflow %}
+      <li class="reveal">
+        <span>{{ loop.index }}</span>
+        <h3>{{ item.title }}</h3>
+        <p>{{ item.text }}</p>
+      </li>
+      {% endfor %}
+    </ol>
+  </div>
+</section>
+
+<section class="shell business-control-card reveal">
+  <strong>Admin manusia tetap memegang keputusan.</strong>
+  <p>{{ business.safety }}</p>
+</section>
+
+<section class="shell personal-public-cta reveal">
+  <div>
+    <span class="personal-card-label">BUSINESS AUTOMATION</span>
+    <h2>Mulai dari satu alur pelanggan yang nyata.</h2>
+    <p>Isi profil bisnis, masukkan pesan contoh, lalu periksa hasil AI.</p>
+  </div>
+  <div class="personal-public-actions">
+    <a class="button primary business-start-button" href="{{ start_url }}">{{ start_label }}</a>
+    {% if not user %}<a class="button ghost" href="{{ login_url }}">Sudah punya akun? Masuk</a>{% endif %}
+  </div>
+</section>
+{% endblock %}

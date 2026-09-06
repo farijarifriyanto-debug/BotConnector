@@ -1,0 +1,213 @@
+{% extends "base.html" %}
+{% block title %}Ubah Draft Pesanan | BotConnector{% endblock %}
+{% block content %}
+<style>
+  .sbe-shell{
+    width:min(900px,calc(100% - 32px));
+    margin:0 auto;
+    padding:48px 0 90px
+  }
+  .sbe-card{
+    padding:24px;
+    border:1px solid #dfe7e1;
+    border-radius:18px;
+    background:#fff;
+    box-shadow:0 12px 34px rgba(24,48,34,.06)
+  }
+  .sbe-head{
+    display:flex;
+    justify-content:space-between;
+    gap:18px;
+    align-items:flex-start;
+    margin-bottom:20px
+  }
+  .sbe-head h1{
+    margin:5px 0 7px;
+    font-size:clamp(30px,5vw,46px)
+  }
+  .sbe-kicker{
+    color:#247c56;
+    font-size:13px;
+    font-weight:800;
+    text-transform:uppercase;
+    letter-spacing:.08em
+  }
+  .sbe-muted{color:#758077}
+  .sbe-form{display:grid;gap:14px}
+  .sbe-field{display:grid;gap:6px}
+  .sbe-field label{font-size:13px;font-weight:750}
+  .sbe-field input,
+  .sbe-field select,
+  .sbe-field textarea{
+    width:100%;
+    box-sizing:border-box;
+    padding:11px 12px;
+    border:1px solid #ccd7d0;
+    border-radius:10px;
+    background:#fff;
+    font:inherit
+  }
+  .sbe-row{
+    display:grid;
+    grid-template-columns:1.7fr .7fr;
+    gap:10px;
+    padding:14px;
+    border:1px solid #edf0ee;
+    border-radius:13px
+  }
+  .sbe-actions{
+    display:flex;
+    gap:10px;
+    flex-wrap:wrap
+  }
+  .sbe-btn{
+    display:inline-flex;
+    justify-content:center;
+    align-items:center;
+    padding:11px 15px;
+    border:0;
+    border-radius:11px;
+    background:#247c56;
+    color:#fff;
+    text-decoration:none;
+    font-weight:750;
+    cursor:pointer
+  }
+  .sbe-btn.secondary{
+    background:#eef6f1;
+    color:#1f6247
+  }
+  .sbe-alert{
+    padding:13px 16px;
+    margin-bottom:16px;
+    border-radius:12px
+  }
+  .sbe-alert.error{
+    background:#fff0f0;
+    color:#983232
+  }
+  @media(max-width:620px){
+    .sbe-head{display:block}
+    .sbe-row{grid-template-columns:1fr}
+  }
+</style>
+
+<section class="sbe-shell">
+  {% if error %}
+    <div class="sbe-alert error">{{ error }}</div>
+  {% endif %}
+
+  <div class="sbe-card">
+    <header class="sbe-head">
+      <div>
+        <div class="sbe-kicker">SmartBiz · Ubah draft</div>
+        <h1>{{ smartbiz_order.order_number }}</h1>
+        <div class="sbe-muted">
+          Status: {{ smartbiz_order.status }}
+        </div>
+      </div>
+
+      <a
+        class="sbe-btn secondary"
+        href="/smartbiz/{{ selected_business.id }}/operations"
+      >Kembali</a>
+    </header>
+
+    <form
+      class="sbe-form"
+      method="post"
+      action="/smartbiz/{{ selected_business.id }}/orders/{{ smartbiz_order.id }}/edit"
+    >
+      <div class="sbe-field">
+        <label>Pelanggan</label>
+        <select name="customer_id">
+          <option value="">Tanpa pelanggan</option>
+
+          {% for customer in smartbiz_customers %}
+            <option
+              value="{{ customer.id }}"
+              {% if smartbiz_order.customer_id and customer.id|string == smartbiz_order.customer_id|string %}
+                selected
+              {% endif %}
+            >{{ customer.name }}</option>
+          {% endfor %}
+        </select>
+      </div>
+
+      {% set current_count = smartbiz_order_items|length %}
+      {% set row_count = current_count if current_count > 3 else 3 %}
+
+      {% for row in range(row_count) %}
+        {% set item = smartbiz_order_items[row] if row < current_count else none %}
+
+        <div class="sbe-row">
+          <div class="sbe-field">
+            <label>
+              Produk
+              {% if row > 0 %}(opsional){% endif %}
+            </label>
+
+            <select
+              name="product_id"
+              {% if row == 0 %}required{% endif %}
+            >
+              <option value="">Pilih produk</option>
+
+              {% for product in smartbiz_products %}
+                <option
+                  value="{{ product.id }}"
+                  {% if item and product.id|string == item.product_id|string %}
+                    selected
+                  {% endif %}
+                >
+                  {{ product.name }} ·
+                  {{ product.sell_price|smart_number }}
+                </option>
+              {% endfor %}
+            </select>
+          </div>
+
+          <div class="sbe-field">
+            <label>Jumlah</label>
+
+            <input
+              name="quantity"
+              inputmode="decimal"
+              {% if item %}
+                value="{{ item.quantity|smart_number }}"
+              {% endif %}
+              {% if row == 0 %}required{% endif %}
+            >
+          </div>
+        </div>
+      {% endfor %}
+
+      <div class="sbe-field">
+        <label>Catatan</label>
+
+        <textarea
+          name="notes"
+          rows="3"
+          maxlength="2000"
+        >{{ smartbiz_order.notes or '' }}</textarea>
+      </div>
+
+      <p class="sbe-muted">
+        Produk yang sama tidak boleh dipilih dua kali.
+        Perubahan hanya berlaku sebelum pesanan dikonfirmasi.
+      </p>
+
+      <div class="sbe-actions">
+        <button class="sbe-btn" type="submit">
+          Simpan perubahan
+        </button>
+
+        <a
+          class="sbe-btn secondary"
+          href="/smartbiz/{{ selected_business.id }}/operations"
+        >Batal kembali</a>
+      </div>
+    </form>
+  </div>
+</section>
+{% endblock %}

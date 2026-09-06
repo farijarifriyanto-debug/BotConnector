@@ -1,0 +1,11 @@
+installed_at_utc=2026-08-04T14:32:06Z
+platform_image=botconnector-platform-home:0.17.0-smartbiz-dashboard-v0.3
+smartbiz_schema_version=0.2.0
+ui_route=/smartbiz
+backend_api_public=false
+session_auth=core_cookie
+write_protection=csrf
+whatsapp_send_enabled=false
+external_actions_enabled=false
+backup=/srv/botconnector-smartbiz-backups/20260804T143153Z-v0.3-dashboard
+report=/root/install-smartbiz-dashboard-v0.3-20260804T143153Z.txt

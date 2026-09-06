@@ -1,0 +1,1881 @@
+<!doctype html>
+<html lang="id">
+
+<head>
+
+<meta charset="utf-8">
+
+<meta
+  name="viewport"
+  content="width=device-width,initial-scale=1"
+>
+
+<title>{{ view_title }} | BotConnector Drive</title>
+
+<link
+  rel="stylesheet"
+  href="/static/style.css"
+>
+
+<link
+  rel="stylesheet"
+  href="/static/drive.css?v=0.2.0"
+>
+
+</head>
+
+
+<body class="bc-drive-body">
+
+
+<header class="bc-drive-top">
+
+  <a
+    class="bc-drive-brand"
+    href="/"
+  >
+    <span class="bc-drive-logo">
+      B
+    </span>
+
+    <span>
+      <strong>BotConnector</strong>
+      <small>Drive</small>
+    </span>
+  </a>
+
+
+  <div class="bc-drive-top-actions">
+
+    <a href="/">
+      Beranda
+    </a>
+
+    <a href="/my-products">
+      Produk Saya
+    </a>
+
+
+    <div class="bc-drive-user">
+
+      <span class="bc-drive-avatar">
+        {{ (user.name or user.email or 'U')[:1]|upper }}
+      </span>
+
+      <span>
+
+        <strong>
+          {{ user.name }}
+        </strong>
+
+        <small>
+          {{ user.email }}
+        </small>
+
+      </span>
+
+    </div>
+
+
+    <a
+      href="/logout"
+      class="bc-drive-logout"
+    >
+      Keluar
+    </a>
+
+  </div>
+
+</header>
+
+
+<div class="bc-drive-layout">
+
+
+<aside class="bc-drive-sidebar">
+
+
+  {% if view == 'my' %}
+
+  <details class="bc-drive-new">
+
+    <summary>
+      <span>＋</span>
+      Baru
+    </summary>
+
+
+    <div class="bc-drive-new-menu">
+
+
+      <form
+        method="post"
+        action="/drive/folders"
+        class="bc-drive-form"
+      >
+
+        <input
+          type="hidden"
+          name="path"
+          value="{{ path }}"
+        >
+
+        <input
+          type="hidden"
+          name="csrf_token"
+          value="{{ csrf_token }}"
+        >
+
+        <label>
+          Folder baru
+
+          <input
+            type="text"
+            name="name"
+            maxlength="180"
+            placeholder="Nama folder"
+            required
+          >
+        </label>
+
+        <button type="submit">
+          Buat folder
+        </button>
+
+      </form>
+
+
+      <div class="bc-drive-divider">
+      </div>
+
+
+      <form
+        method="post"
+        action="/drive/upload"
+        enctype="multipart/form-data"
+        class="bc-drive-form"
+      >
+
+        <input
+          type="hidden"
+          name="path"
+          value="{{ path }}"
+        >
+
+        <input
+          type="hidden"
+          name="csrf_token"
+          value="{{ csrf_token }}"
+        >
+
+        <label
+          for="bc-drive-file"
+          class="bc-drive-file-picker"
+        >
+          ↑ Pilih file
+        </label>
+
+        <input
+          id="bc-drive-file"
+          type="file"
+          name="upload"
+          required
+        >
+
+        <div
+          id="bc-drive-file-name"
+          class="bc-drive-file-name"
+        >
+          Belum ada file dipilih
+        </div>
+
+        <button type="submit">
+          Upload
+        </button>
+
+      </form>
+
+    </div>
+
+  </details>
+
+  {% else %}
+
+  <a
+    class="bc-drive-new-link"
+    href="/drive?view=my"
+  >
+    <span>＋</span>
+    My Drive
+  </a>
+
+  {% endif %}
+
+
+  <nav class="bc-drive-nav">
+
+    <a
+      href="/drive?view=my"
+      class="{% if view == 'my' %}active{% endif %}"
+    >
+      <span>▣</span>
+      My Drive
+    </a>
+
+
+    <a
+      href="/drive?view=recent"
+      class="{% if view == 'recent' %}active{% endif %}"
+    >
+      <span>◷</span>
+      Recent
+    </a>
+
+
+    <a
+      href="/drive?view=starred"
+      class="{% if view == 'starred' %}active{% endif %}"
+    >
+      <span>☆</span>
+      Starred
+    </a>
+
+
+    <span class="disabled">
+      <span>♧</span>
+      <!-- BOTCONNECTOR_SHARED_SIDEBAR_V010 -->
+<a
+  href="/drive/shared"
+  class="bc-internal-shared-link"
+>
+  Shared
+</a>
+      <small>Read only</small>
+    </span>
+
+
+    <a
+      href="/drive?view=trash"
+      class="{% if view == 'trash' %}active{% endif %}"
+    >
+      <span>♲</span>
+      Trash
+    </a>
+
+  </nav>
+
+
+  <!-- BOTCONNECTOR_GOOGLE_DRIVE_LINK_V010 -->
+
+  <a
+    class="bc-drive-google-link"
+    href="/settings/integrations"
+  >
+
+    <span class="bc-drive-google-mini-icon">
+      G
+    </span>
+
+    <span>
+      <strong>
+        Google Drive
+      </strong>
+
+      <small>
+        Hubungkan akun
+      </small>
+    </span>
+
+    <span class="bc-drive-google-arrow">
+      ›
+    </span>
+
+  </a>
+
+
+
+  <div class="bc-drive-storage">
+
+    <div class="bc-drive-storage-title">
+
+      <span>
+        ◉
+      </span>
+
+      <div>
+        <strong>Storage</strong>
+        <small>Synology NAS</small>
+      </div>
+
+    </div>
+
+
+    {% if quota_enabled %}
+
+    <div class="bc-drive-storage-bar">
+
+      <span
+        style="width:{{ usage_percent }}%"
+      >
+      </span>
+
+    </div>
+
+    <strong class="bc-drive-storage-usage">
+      {{ used_label }} dari {{ limit_label }}
+    </strong>
+
+    <small>
+      {{ usage_percent }}% digunakan
+    </small>
+
+    {% else %}
+
+    <strong class="bc-drive-storage-usage">
+      {{ used_label }} digunakan
+    </strong>
+
+    <small>
+      Kuota belum dibatasi
+    </small>
+
+    {% endif %}
+
+
+    {% if drive_info.trash_bytes %}
+
+    <small>
+      Trash:
+      {{ drive_info.trash_bytes }}
+      bytes
+    </small>
+
+    {% endif %}
+
+  </div>
+
+</aside>
+
+
+<main class="bc-drive-main">
+
+
+  <div class="bc-drive-heading">
+
+    <div>
+
+      <span class="bc-drive-eyebrow">
+        BotConnector Private Cloud
+      </span>
+
+      <h1>
+        {{ view_title }}
+      </h1>
+
+      <p>
+        {{ view_subtitle }}
+      </p>
+
+    </div>
+
+
+    <div class="bc-drive-toolbar">
+
+      <label class="bc-drive-search">
+
+        <span>⌕</span>
+
+        <input
+          id="bc-drive-search"
+          type="search"
+          placeholder="Cari file atau folder"
+          autocomplete="off"
+        >
+
+      </label>
+
+
+      <select
+        id="bc-drive-sort"
+        class="bc-drive-sort"
+        aria-label="Urutkan"
+      >
+
+        <option value="default">
+          Urutan awal
+        </option>
+
+        <option value="name">
+          Nama A–Z
+        </option>
+
+        <option value="modified_desc">
+          Terbaru
+        </option>
+
+        <option value="modified_asc">
+          Terlama
+        </option>
+
+        <option value="size_desc">
+          Terbesar
+        </option>
+
+      </select>
+
+    </div>
+
+  </div>
+
+
+  {% if notice %}
+
+  <div class="bc-drive-alert success">
+
+    <strong>Berhasil</strong>
+
+    <span>
+      {{ notice }}
+    </span>
+
+  </div>
+
+  {% endif %}
+
+
+  {% if error %}
+
+  <div class="bc-drive-alert error">
+
+    <strong>Drive</strong>
+
+    <span>
+      {{ error }}
+    </span>
+
+  </div>
+
+  {% endif %}
+
+
+  {% if view == 'my' %}
+
+  <div class="bc-drive-breadcrumb">
+
+    {% for crumb in breadcrumbs %}
+
+      {% if not loop.first %}
+        <span>›</span>
+      {% endif %}
+
+      {% if loop.last %}
+
+        <strong>
+          {{ crumb.name }}
+        </strong>
+
+      {% else %}
+
+        <a href="{{ crumb.url }}">
+          {{ crumb.name }}
+        </a>
+
+      {% endif %}
+
+    {% endfor %}
+
+  </div>
+
+  {% endif %}
+
+
+  <section class="bc-drive-card">
+
+
+    <div class="bc-drive-table-head">
+
+      <span>Nama</span>
+
+      <span>
+        {% if view in ['recent','starred'] %}
+          Lokasi
+        {% else %}
+          Ukuran
+        {% endif %}
+      </span>
+
+      <span>
+        {% if view == 'trash' %}
+          Dihapus
+        {% else %}
+          Diubah
+        {% endif %}
+      </span>
+
+      <span></span>
+
+    </div>
+
+
+    <div
+      id="bc-drive-items"
+      class="bc-drive-items"
+    >
+
+
+      {% if view == 'my' and path %}
+
+      <a
+        class="bc-drive-row bc-drive-parent"
+        href="{% if parent_path %}/drive?view=my&amp;path={{ parent_path }}{% else %}/drive?view=my{% endif %}"
+      >
+
+        <div class="bc-drive-name">
+
+          <span class="bc-drive-icon folder">
+            ↰
+          </span>
+
+          <span>
+            <strong>Kembali</strong>
+            <small>Folder sebelumnya</small>
+          </span>
+
+        </div>
+
+        <span>—</span>
+        <span>—</span>
+        <span></span>
+
+      </a>
+
+      {% endif %}
+
+
+      {% if view != 'trash' %}
+
+
+        {% for item in items %}
+
+        <div
+          class="bc-drive-row bc-drive-item"
+          data-name="{{ item.name|lower }}"
+          data-size="{{ item.sort_size }}"
+          data-time="{{ item.modified_at or '' }}"
+          data-type="{{ item.type }}"
+        >
+
+
+          <div class="bc-drive-name">
+
+            <span
+              class="bc-drive-icon {{ item.icon }}"
+            >
+
+              {% if item.type == 'folder' %}
+                ▰
+              {% elif item.icon == 'pdf' %}
+                PDF
+              {% elif item.icon == 'document' %}
+                W
+              {% elif item.icon == 'sheet' %}
+                X
+              {% elif item.icon == 'slide' %}
+                P
+              {% elif item.icon == 'image' %}
+                ◫
+              {% else %}
+                ◻
+              {% endif %}
+
+            </span>
+
+
+            <span class="bc-drive-name-text">
+
+              <a
+                href="{{ item.preview_url or item.open_url }}"
+              >
+                {{ item.name }}
+              </a>
+
+              <small>
+
+                {% if item.starred %}
+                  <span class="bc-drive-star-mark">
+                    ★
+                  </span>
+                {% endif %}
+
+                {{ item.location_label }}
+
+              </small>
+
+            </span>
+
+          </div>
+
+
+          <span>
+
+            {% if view in ['recent','starred'] %}
+
+              {{ item.location_label }}
+
+            {% else %}
+
+              {{ item.size_label }}
+
+            {% endif %}
+
+          </span>
+
+
+          <span
+            class="bc-drive-time"
+            data-time="{{ item.modified_at or '' }}"
+          >
+            {{ item.modified_at or '—' }}
+          </span>
+
+
+          <div class="bc-drive-more">
+
+            <details>
+
+              <summary
+                title="Tindakan"
+                aria-label="Tindakan"
+              >
+                ⋮
+              </summary>
+
+
+              <div class="bc-drive-menu">
+
+
+                {% if item.type != 'folder' %}
+
+                <a
+                  href="{{ item.preview_url }}"
+                  >
+                    <span>◉</span>
+                    Preview
+                  </a>
+
+                  <!-- BOTCONNECTOR_DRIVE_PREVIEW_MENU_V010 -->
+
+                  <a
+                    href="{{ item.download_url }}"
+                    download
+                  >
+                    <span>↓</span>
+                    Unduh
+                  </a>
+
+                {% endif %}
+
+
+                {% if item.type != 'folder' %}
+
+                <!-- BOTCONNECTOR_GOOGLE_SAVE_MENU_V010 -->
+
+                <form
+                  method="post"
+                  action="/drive/actions/google-save"
+                  target="_blank"
+                >
+
+                  <input
+                    type="hidden"
+                    name="item_path"
+                    value="{{ item.path }}"
+                  >
+
+                  <input
+                    type="hidden"
+                    name="return_view"
+                    value="{{ view }}"
+                  >
+
+                  <input
+                    type="hidden"
+                    name="return_path"
+                    value="{{ path }}"
+                  >
+
+                  <input
+                    type="hidden"
+                    name="csrf_token"
+                    value="{{ csrf_token }}"
+                  >
+
+                  <button
+                    type="submit"
+                    title="Simpan salinan ke Google Drive"
+                  >
+                    <span>G</span>
+                    Simpan ke Google Drive
+                  </button>
+
+                </form>
+
+
+                
+                <!-- BOTCONNECTOR_INTERNAL_SHARE_MENU_V010 -->
+
+                <form
+                  method="get"
+                  action="/drive/share"
+                >
+
+                  <input
+                    type="hidden"
+                    name="path"
+                    value="{{ item.path }}"
+                  >
+
+                  <button
+                    type="submit"
+                    title="Bagikan ke pengguna BotConnector"
+                  >
+                    <span>♧</span>
+                    Bagikan ke BotConnector
+                  </button>
+
+                </form>
+
+
+<!-- BOTCONNECTOR_FILE_REQUEST_MENU_V010 -->
+
+                  {% if item.type == "folder" %}
+
+                  <form
+                    method="get"
+                    action="/drive/file-request"
+                  >
+
+                    <input
+                      type="hidden"
+                      name="path"
+                      value="{{ item.path }}"
+                    >
+
+                    <button
+                      type="submit"
+                      title="Minta orang lain mengirim file ke folder ini"
+                    >
+                      <span>⇧</span>
+                      Minta file ke folder ini
+                    </button>
+
+                  </form>
+
+                  {% endif %}
+
+
+<!-- BOTCONNECTOR_PUBLIC_SHARE_MENU_V010 -->
+
+                  <form
+                    method="get"
+                    action="/drive/public-share"
+                  >
+
+                    <input
+                      type="hidden"
+                      name="path"
+                      value="{{ item.path }}"
+                    >
+
+                    <button
+                      type="submit"
+                      title="Buat link publik read-only"
+                    >
+                      <span>🔗</span>
+                      Buat link publik
+                    </button>
+
+                  </form>
+
+
+<!-- BOTCONNECTOR_GOOGLE_SHARE_MENU_V020 -->
+
+                <form
+                  method="get"
+                  action="/drive/google/share"
+                  target="_blank"
+                >
+
+                  <input
+                    type="hidden"
+                    name="path"
+                    value="{{ item.path }}"
+                  >
+
+                  <button
+                    type="submit"
+                    title="Kelola berbagi salinan Google Drive"
+                  >
+                    <span>↗</span>
+                    Kelola berbagi Google
+                  </button>
+
+                </form>
+
+                {% endif %}
+
+
+                <form
+                  method="post"
+                  action="/drive/actions/star"
+                >
+
+                  <input
+                    type="hidden"
+                    name="item_path"
+                    value="{{ item.path }}"
+                  >
+
+                  <input
+                    type="hidden"
+                    name="starred"
+                    value="{% if item.starred %}false{% else %}true{% endif %}"
+                  >
+
+                  <input
+                    type="hidden"
+                    name="return_view"
+                    value="{{ view }}"
+                  >
+
+                  <input
+                    type="hidden"
+                    name="return_path"
+                    value="{{ path }}"
+                  >
+
+                  <input
+                    type="hidden"
+                    name="csrf_token"
+                    value="{{ csrf_token }}"
+                  >
+
+                  <button type="submit">
+
+                    <span>
+                      {% if item.starred %}
+                        ☆
+                      {% else %}
+                        ★
+                      {% endif %}
+                    </span>
+
+                    {% if item.starred %}
+                      Hapus dari Starred
+                    {% else %}
+                      Tambah ke Starred
+                    {% endif %}
+
+                  </button>
+
+                </form>
+
+
+                <details class="bc-drive-submenu">
+
+                  <summary>
+                    <span>✎</span>
+                    Rename
+                  </summary>
+
+                  <form
+                    method="post"
+                    action="/drive/actions/rename"
+                  >
+
+                    <input
+                      type="hidden"
+                      name="item_path"
+                      value="{{ item.path }}"
+                    >
+
+                    <input
+                      type="hidden"
+                      name="return_view"
+                      value="{{ view }}"
+                    >
+
+                    <input
+                      type="hidden"
+                      name="return_path"
+                      value="{{ path }}"
+                    >
+
+                    <input
+                      type="hidden"
+                      name="csrf_token"
+                      value="{{ csrf_token }}"
+                    >
+
+                    <input
+                      type="text"
+                      name="new_name"
+                      value="{{ item.name }}"
+                      maxlength="180"
+                      required
+                    >
+
+                    <button type="submit">
+                      Simpan nama
+                    </button>
+
+                  </form>
+
+                </details>
+
+
+                <details
+                  class="bc-drive-submenu bc-drive-move-submenu"
+                >
+
+                  <summary>
+                    <span>↗</span>
+                    Pindahkan
+                  </summary>
+
+                  <form
+                    method="post"
+                    action="/drive/actions/move"
+                  >
+
+                    <input
+                      type="hidden"
+                      name="item_path"
+                      value="{{ item.path }}"
+                    >
+
+                    <input
+                      type="hidden"
+                      name="return_view"
+                      value="{{ view }}"
+                    >
+
+                    <input
+                      type="hidden"
+                      name="return_path"
+                      value="{{ path }}"
+                    >
+
+                    <input
+                      type="hidden"
+                      name="csrf_token"
+                      value="{{ csrf_token }}"
+                    >
+
+
+                    <label class="bc-drive-move-label">
+                      Folder tujuan
+
+                      <select
+                        name="destination"
+                        class="bc-drive-destination"
+                        data-item-path="{{ item.path }}"
+                        data-item-type="{{ item.type }}"
+                        required
+                      >
+                        <option
+                          value=""
+                          disabled
+                          selected
+                        >
+                          Buka untuk membaca folder...
+                        </option>
+                      </select>
+                    </label>
+
+
+                    <small class="bc-drive-menu-help">
+                      Folder dibaca otomatis
+                      dari My Drive Anda.
+                    </small>
+
+
+                    <div
+                      class="bc-drive-folder-load-status"
+                      aria-live="polite"
+                    >
+                    </div>
+
+
+                    <button type="submit">
+                      Pindahkan
+                    </button>
+
+                  </form>
+
+                </details>
+
+
+                <form
+                  method="post"
+                  action="/drive/actions/trash"
+                  onsubmit="return confirm('Pindahkan item ini ke Trash?');"
+                >
+
+                  <input
+                    type="hidden"
+                    name="item_path"
+                    value="{{ item.path }}"
+                  >
+
+                  <input
+                    type="hidden"
+                    name="return_view"
+                    value="{{ view }}"
+                  >
+
+                  <input
+                    type="hidden"
+                    name="return_path"
+                    value="{{ path }}"
+                  >
+
+                  <input
+                    type="hidden"
+                    name="csrf_token"
+                    value="{{ csrf_token }}"
+                  >
+
+                  <button
+                    type="submit"
+                    class="danger"
+                  >
+                    <span>♲</span>
+                    Move to Trash
+                  </button>
+
+                </form>
+
+              </div>
+
+            </details>
+
+          </div>
+
+        </div>
+
+        {% else %}
+
+
+        <div class="bc-drive-empty">
+
+          <div class="bc-drive-cloud">
+            {% if view == 'recent' %}
+              ◷
+            {% elif view == 'starred' %}
+              ☆
+            {% else %}
+              ☁
+            {% endif %}
+          </div>
+
+
+          <h2>
+
+            {% if view == 'recent' %}
+              Belum ada aktivitas
+            {% elif view == 'starred' %}
+              Belum ada item Starred
+            {% else %}
+              Drive masih kosong
+            {% endif %}
+
+          </h2>
+
+
+          <p>
+
+            {% if view == 'recent' %}
+
+              File yang terakhir diubah
+              akan muncul di sini.
+
+            {% elif view == 'starred' %}
+
+              Tandai file atau folder
+              dengan bintang agar mudah ditemukan.
+
+            {% else %}
+
+              Gunakan tombol
+              <strong>Baru</strong>
+              untuk membuat folder atau
+              mengupload file.
+
+            {% endif %}
+
+          </p>
+
+        </div>
+
+        {% endfor %}
+
+
+      {% else %}
+
+
+        {% for item in items %}
+
+        <div
+          class="bc-drive-row bc-drive-item"
+          data-name="{{ item.name|lower }}"
+          data-size="{{ item.sort_size }}"
+          data-time="{{ item.deleted_at or '' }}"
+          data-type="{{ item.type }}"
+        >
+
+
+          <div class="bc-drive-name">
+
+            <span
+              class="bc-drive-icon {{ item.icon }}"
+            >
+              {% if item.type == 'folder' %}
+                ▰
+              {% else %}
+                ◻
+              {% endif %}
+            </span>
+
+
+            <span class="bc-drive-name-text">
+
+              <strong>
+                {{ item.name }}
+              </strong>
+
+              <small>
+                Sebelumnya:
+                {{ item.original_path }}
+              </small>
+
+            </span>
+
+          </div>
+
+
+          <span>
+            {{ item.size_label }}
+          </span>
+
+
+          <span
+            class="bc-drive-time"
+            data-time="{{ item.deleted_at or '' }}"
+          >
+            {{ item.deleted_at or '—' }}
+          </span>
+
+
+          <div class="bc-drive-more">
+
+            <details>
+
+              <summary
+                title="Tindakan"
+                aria-label="Tindakan"
+              >
+                ⋮
+              </summary>
+
+
+              <div class="bc-drive-menu">
+
+
+                <form
+                  method="post"
+                  action="/drive/actions/restore"
+                >
+
+                  <input
+                    type="hidden"
+                    name="trash_id"
+                    value="{{ item.id }}"
+                  >
+
+                  <input
+                    type="hidden"
+                    name="csrf_token"
+                    value="{{ csrf_token }}"
+                  >
+
+                  <button type="submit">
+                    <span>↶</span>
+                    Restore
+                  </button>
+
+                </form>
+
+
+                <form
+                  method="post"
+                  action="/drive/actions/purge"
+                  onsubmit="return confirm('Hapus permanen? Tindakan ini tidak dapat dibatalkan.');"
+                >
+
+                  <input
+                    type="hidden"
+                    name="trash_id"
+                    value="{{ item.id }}"
+                  >
+
+                  <input
+                    type="hidden"
+                    name="csrf_token"
+                    value="{{ csrf_token }}"
+                  >
+
+                  <button
+                    type="submit"
+                    class="danger"
+                  >
+                    <span>×</span>
+                    Hapus permanen
+                  </button>
+
+                </form>
+
+              </div>
+
+            </details>
+
+          </div>
+
+        </div>
+
+
+        {% else %}
+
+        <div class="bc-drive-empty">
+
+          <div class="bc-drive-cloud">
+            ♲
+          </div>
+
+          <h2>
+            Trash kosong
+          </h2>
+
+          <p>
+            File dan folder yang dipindahkan
+            ke Trash akan muncul di sini.
+          </p>
+
+        </div>
+
+        {% endfor %}
+
+
+      {% endif %}
+
+
+    </div>
+
+  </section>
+
+
+  <div
+    id="bc-drive-no-result"
+    class="bc-drive-no-result"
+    hidden
+  >
+    Tidak ada file atau folder yang cocok.
+  </div>
+
+</main>
+
+</div>
+
+
+<script>
+
+(() => {
+
+  const search =
+    document.getElementById(
+      "bc-drive-search"
+    );
+
+  const sort =
+    document.getElementById(
+      "bc-drive-sort"
+    );
+
+  const container =
+    document.getElementById(
+      "bc-drive-items"
+    );
+
+  const noResult =
+    document.getElementById(
+      "bc-drive-no-result"
+    );
+
+
+  const rows = () =>
+    Array.from(
+      document.querySelectorAll(
+        ".bc-drive-item"
+      )
+    );
+
+
+  function filterRows() {
+
+    if (!search) {
+      return;
+    }
+
+    const query =
+      search.value
+        .trim()
+        .toLowerCase();
+
+    let visible = 0;
+
+
+    rows().forEach(
+      (row) => {
+
+        const name =
+          row.dataset.name || "";
+
+        const match =
+          !query
+          || name.includes(
+            query
+          );
+
+        row.hidden = !match;
+
+        if (match) {
+          visible += 1;
+        }
+
+      }
+    );
+
+
+    const parent =
+      document.querySelector(
+        ".bc-drive-parent"
+      );
+
+    if (parent) {
+      parent.hidden =
+        Boolean(query);
+    }
+
+
+    if (noResult) {
+      noResult.hidden =
+        !query
+        || visible > 0;
+    }
+
+  }
+
+
+  function sortRows() {
+
+    if (
+      !sort
+      || !container
+    ) {
+      return;
+    }
+
+    const mode =
+      sort.value;
+
+    if (mode === "default") {
+      return;
+    }
+
+    const items =
+      rows();
+
+
+    items.sort(
+      (a, b) => {
+
+        const an =
+          a.dataset.name || "";
+
+        const bn =
+          b.dataset.name || "";
+
+        const asize =
+          Number(
+            a.dataset.size || 0
+          );
+
+        const bsize =
+          Number(
+            b.dataset.size || 0
+          );
+
+        const atime =
+          Date.parse(
+            a.dataset.time || ""
+          ) || 0;
+
+        const btime =
+          Date.parse(
+            b.dataset.time || ""
+          ) || 0;
+
+
+        if (mode === "name") {
+          return an.localeCompare(
+            bn,
+            "id"
+          );
+        }
+
+        if (
+          mode ===
+          "modified_desc"
+        ) {
+          return btime - atime;
+        }
+
+        if (
+          mode ===
+          "modified_asc"
+        ) {
+          return atime - btime;
+        }
+
+        if (
+          mode ===
+          "size_desc"
+        ) {
+          return bsize - asize;
+        }
+
+        return 0;
+      }
+    );
+
+
+    items.forEach(
+      (row) => {
+        container.appendChild(
+          row
+        );
+      }
+    );
+
+  }
+
+
+  if (search) {
+    search.addEventListener(
+      "input",
+      filterRows
+    );
+  }
+
+
+  if (sort) {
+    sort.addEventListener(
+      "change",
+      sortRows
+    );
+  }
+
+
+  document
+    .querySelectorAll(
+      ".bc-drive-time"
+    )
+    .forEach(
+      (node) => {
+
+        const raw =
+          node.dataset.time;
+
+        if (!raw) {
+          return;
+        }
+
+        const date =
+          new Date(raw);
+
+        if (
+          Number.isNaN(
+            date.getTime()
+          )
+        ) {
+          return;
+        }
+
+        node.textContent =
+          new Intl.DateTimeFormat(
+            "id-ID",
+            {
+              day:
+                "2-digit",
+
+              month:
+                "short",
+
+              year:
+                "numeric",
+
+              hour:
+                "2-digit",
+
+              minute:
+                "2-digit"
+            }
+          ).format(date);
+
+      }
+    );
+
+
+  // BOTCONNECTOR_DRIVE_FOLDER_PICKER_JS_V022
+
+  document
+    .querySelectorAll(
+      ".bc-drive-move-submenu"
+    )
+    .forEach(
+      (details) => {
+
+        details.addEventListener(
+          "toggle",
+          async () => {
+
+            if (!details.open) {
+              return;
+            }
+
+            const select =
+              details.querySelector(
+                ".bc-drive-destination"
+              );
+
+            const status =
+              details.querySelector(
+                ".bc-drive-folder-load-status"
+              );
+
+            if (!select) {
+              return;
+            }
+
+            const itemPath =
+              select.dataset.itemPath
+              || "";
+
+            const itemType =
+              select.dataset.itemType
+              || "file";
+
+
+            select.disabled = true;
+
+            select.replaceChildren();
+
+
+            const loading =
+              document.createElement(
+                "option"
+              );
+
+            loading.value = "";
+            loading.textContent =
+              "Membaca folder...";
+
+            loading.disabled = true;
+            loading.selected = true;
+
+            select.appendChild(
+              loading
+            );
+
+
+            if (status) {
+              status.textContent =
+                "Membaca folder My Drive...";
+            }
+
+
+            try {
+
+              const url =
+                new URL(
+                  "/drive/folder-options",
+                  window.location.origin
+                );
+
+              url.searchParams.set(
+                "item_path",
+                itemPath
+              );
+
+              url.searchParams.set(
+                "item_type",
+                itemType
+              );
+
+
+              const response =
+                await fetch(
+                  url.toString(),
+                  {
+                    method:
+                      "GET",
+
+                    credentials:
+                      "same-origin",
+
+                    headers: {
+                      "Accept":
+                        "application/json"
+                    }
+                  }
+                );
+
+
+              if (!response.ok) {
+
+                let detail =
+                  "Gagal membaca folder.";
+
+                try {
+
+                  const payload =
+                    await response.json();
+
+                  if (
+                    payload
+                    && payload.detail
+                  ) {
+                    detail =
+                      payload.detail;
+                  }
+
+                } catch (_) {
+                }
+
+                throw new Error(
+                  detail
+                );
+              }
+
+
+              const payload =
+                await response.json();
+
+              const folders =
+                Array.isArray(
+                  payload.items
+                )
+                  ? payload.items
+                  : [];
+
+
+              select.replaceChildren();
+
+
+              const placeholder =
+                document.createElement(
+                  "option"
+                );
+
+              placeholder.value = "";
+              placeholder.disabled = true;
+              placeholder.selected = true;
+              placeholder.textContent =
+                "Pilih folder tujuan";
+
+              select.appendChild(
+                placeholder
+              );
+
+
+              folders.forEach(
+                (folder) => {
+
+                  const option =
+                    document.createElement(
+                      "option"
+                    );
+
+                  option.value =
+                    folder.path === ""
+                      ? "__ROOT__"
+                      : folder.path;
+
+                  const depth =
+                    Number(
+                      folder.depth || 0
+                    );
+
+                  const indent =
+                    depth > 0
+                      ? (
+                          "› ".repeat(
+                            Math.min(
+                              depth,
+                              8
+                            )
+                          )
+                        )
+                      : "";
+
+                  option.textContent =
+                    (
+                      folder.path === ""
+                        ? "My Drive"
+                        : (
+                            indent
+                            + "📁 "
+                            + folder.name
+                          )
+                    );
+
+                  select.appendChild(
+                    option
+                  );
+
+                }
+              );
+
+
+              if (folders.length === 0) {
+
+                const empty =
+                  document.createElement(
+                    "option"
+                  );
+
+                empty.value = "";
+                empty.disabled = true;
+
+                empty.textContent =
+                  "Tidak ada folder tujuan lain";
+
+                select.appendChild(
+                  empty
+                );
+              }
+
+
+              select.disabled = false;
+
+
+              if (status) {
+
+                status.textContent =
+                  folders.length
+                    ? (
+                        folders.length
+                        + " folder tujuan tersedia"
+                      )
+                    : (
+                        "Tidak ada folder "
+                        + "tujuan lain"
+                      );
+              }
+
+
+            } catch (error) {
+
+              select.replaceChildren();
+
+
+              const failed =
+                document.createElement(
+                  "option"
+                );
+
+              failed.value = "";
+              failed.disabled = true;
+              failed.selected = true;
+
+              failed.textContent =
+                "Folder gagal dimuat";
+
+              select.appendChild(
+                failed
+              );
+
+              select.disabled = true;
+
+
+              if (status) {
+
+                status.textContent =
+                  (
+                    error
+                    && error.message
+                  )
+                    ? error.message
+                    : (
+                        "Gagal membaca "
+                        + "folder Drive."
+                      );
+              }
+
+            }
+
+          }
+        );
+
+      }
+    );
+
+
+  const input =
+    document.getElementById(
+      "bc-drive-file"
+    );
+
+  const fileName =
+    document.getElementById(
+      "bc-drive-file-name"
+    );
+
+
+  if (
+    input
+    && fileName
+  ) {
+
+    input.addEventListener(
+      "change",
+      () => {
+
+        fileName.textContent =
+          input.files
+          && input.files[0]
+            ? input.files[0].name
+            : "Belum ada file dipilih";
+
+      }
+    );
+
+  }
+
+})();
+
+</script>
+
+
+</body>
+</html>

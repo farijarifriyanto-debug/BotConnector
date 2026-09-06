@@ -1,0 +1,105 @@
+<!doctype html>
+<html lang="id">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>{{ section.title }} — {{ product.name }}</title>
+  <link rel="stylesheet" href="/static/style.css">
+  <script defer src="/static/app.js"></script>
+</head>
+<body class="product-app {{ product.accent }}">
+  <aside class="product-sidebar" data-product-sidebar>
+    <div class="product-sidebar-brand">
+      <a href="/" class="brand compact-brand">
+        <svg class="brand-mark" viewBox="0 0 40 40" aria-hidden="true"><path d="M11 11h8v8h-8zM21 21h8v8h-8z"/><path d="M18 15h5a5 5 0 0 1 5 5v2M22 25h-5a5 5 0 0 1-5-5v-2" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"/></svg>
+        <span>BOTCONNECTOR</span>
+      </a>
+      <button class="sidebar-close" type="button" aria-label="Tutup menu" data-sidebar-close>×</button>
+    </div>
+
+    <div class="current-product-block">
+      <span>PRODUK AKTIF</span>
+      <strong>{{ product.name }}</strong>
+      <small>{{ product.short_summary }}</small>
+    </div>
+
+    <nav class="product-menu">
+      {% for item in product.menu %}
+      <a href="/app/{{ product.slug }}/{{ item.slug }}" class="{% if item.slug == section.slug %}active{% endif %}">
+        <span class="menu-dot"></span>{{ item.label }}
+      </a>
+      {% endfor %}
+      {% if product.slug == "business" %}
+      <!-- SMARTBIZ_SIDEBAR_LINK_V0_3 -->
+      <a href="/smartbiz"><span class="menu-dot"></span>SmartBiz</a>
+      {% endif %}
+    </nav>
+
+    <div class="sidebar-bottom">
+      {% if show_product_switcher %}<a href="/my-products">Ganti produk</a>{% endif %}
+      <a href="/my-products">Produk Saya</a>
+      <a href="/drive">My Drive</a><a href="/logout">Keluar</a>
+    </div>
+  </aside>
+
+  <div class="product-app-main">
+    <header class="product-app-topbar">
+      <button class="sidebar-open" type="button" aria-label="Buka menu" data-sidebar-open>☰</button>
+      <div>
+        <span>{{ product.name }}</span>
+        <strong>{{ section.title }}</strong>
+      </div>
+      <details class="app-account-menu">
+        <summary><span class="user-avatar">{{ user.name[0] }}</span><span class="user-name">{{ user.name }}</span></summary>
+        <div><small>{{ user.email }}</small><a href="/my-products">Produk Saya</a><a href="/drive">My Drive</a><a href="/logout">Keluar</a></div>
+      </details>
+    </header>
+
+    <main class="product-workspace">
+      <section class="workspace-heading">
+        <div>
+          <span class="eyebrow">{{ product.eyebrow }}</span>
+          <h1>{{ section.title }}</h1>
+          <p>{{ section.text }}</p>
+        </div>
+      </section>
+
+      {% if section.slug == 'overview' %}
+      <section class="dashboard-stat-grid">
+        {% for card in product.cards %}
+        <article class="dashboard-stat-card"><span>{{ card.label }}</span><strong>{{ card.value }}</strong></article>
+        {% endfor %}
+      </section>
+      {% endif %}
+
+      <section class="help-builder-card">
+        <div class="help-builder-copy">
+          <span class="builder-kicker">DIBANTU DARI AWAL</span>
+          <h2>{{ guide.title }}</h2>
+          <p>{{ guide.text }}</p>
+          <ul>
+            {% for item in guide.deliverables[:3] %}<li>{{ item }}</li>{% endfor %}
+          </ul>
+        </div>
+        <div class="help-builder-action">
+          {% if project %}
+          <span class="project-status {{ project.stage }}">{{ project.stage_label }}</span>
+          <a class="button primary" href="/app/{{ product.slug }}/{{ section.slug }}/project">Lanjutkan rancangan</a>
+          <a class="text-link" href="/app/{{ product.slug }}/{{ section.slug }}/create">Buat ulang</a>
+          {% else %}
+          <span class="builder-note">Ceritakan kebutuhan Anda dengan bahasa biasa.</span>
+          <a class="button primary" href="/app/{{ product.slug }}/{{ section.slug }}/create">Bantu buatkan</a>
+          {% endif %}
+        </div>
+      </section>
+
+      <section class="builder-process">
+        <div><b>1</b><span>Ceritakan kebutuhan</span></div>
+        <div><b>2</b><span>Kami buatkan rancangan</span></div>
+        <div><b>3</b><span>Revisi sesuai keinginan</span></div>
+        <div><b>4</b><span>Uji lalu aktifkan</span></div>
+      </section>
+    </main>
+  </div>
+</body>
+</html>

@@ -1,0 +1,298 @@
+<!doctype html>
+<html lang="id">
+<head>
+  <meta charset="utf-8">
+  <meta
+    name="viewport"
+    content="width=device-width,initial-scale=1"
+  >
+  <title>Admin Storage | BotConnector</title>
+  <link
+    rel="stylesheet"
+    href="/static/admin_storage.css?v=0.1.0"
+  >
+</head>
+
+<body>
+
+<header class="top">
+  <div>
+    <small>BOTCONNECTOR ADMIN</small>
+    <strong>Storage & Quota</strong>
+  </div>
+
+  <nav>
+    <a href="/admin/staging">Admin</a>
+    <a href="/drive">My Drive</a>
+  </nav>
+</header>
+
+<main>
+
+  <section class="hero">
+    <div>
+      <span>DRIVE STORAGE</span>
+      <h1>Pengaturan Kuota</h1>
+      <p>
+        Atur kapasitas BotConnector Drive
+        untuk setiap pengguna.
+      </p>
+    </div>
+
+    <article>
+      <small>Default quota</small>
+      <strong>{{ default_quota_label }}</strong>
+      <span>per pengguna</span>
+    </article>
+  </section>
+
+
+  {% if ok %}
+  <div class="alert success">
+    {{ ok }}
+  </div>
+  {% endif %}
+
+  {% if error %}
+  <div class="alert error">
+    {{ error }}
+  </div>
+  {% endif %}
+
+
+  <section class="card">
+
+    <div class="table-title">
+      <div>
+        <h2>Pengguna</h2>
+        <p>
+          Override langsung berlaku tanpa
+          restart service.
+        </p>
+      </div>
+
+      <input
+        id="search"
+        type="search"
+        placeholder="Cari email atau nama..."
+      >
+    </div>
+
+
+    <div class="table-wrap">
+
+      <table>
+
+        <thead>
+          <tr>
+            <th>Pengguna</th>
+            <th>Terpakai</th>
+            <th>Kuota</th>
+            <th>Sisa</th>
+            <th>Pemakaian</th>
+            <th>Pengaturan</th>
+          </tr>
+        </thead>
+
+        <tbody id="rows">
+
+        {% for row in rows %}
+
+          <tr
+            data-search="
+              {{ row.email }}
+              {{ row.display_name or '' }}
+            "
+          >
+
+            <td>
+              <strong>
+                {{ row.email }}
+              </strong>
+
+              <small>
+                {{ row.display_name or '-' }}
+              </small>
+            </td>
+
+            <td>
+              {{ row.used_label }}
+            </td>
+
+            <td>
+              <strong>
+                {{ row.limit_label }}
+              </strong>
+
+              <small>
+                {{ row.override_label }}
+              </small>
+            </td>
+
+            <td>
+              {{ row.remaining_label }}
+            </td>
+
+            <td>
+              <div class="bar">
+                <span
+                  style="width:{{ row.percent }}%"
+                ></span>
+              </div>
+
+              <small>
+                {{ row.percent }}%
+              </small>
+            </td>
+
+            <td>
+
+              <form
+                method="post"
+                action="/admin/storage/quota"
+                class="quota-form"
+              >
+
+                <input
+                  type="hidden"
+                  name="csrf_token"
+                  value="{{ csrf_token }}"
+                >
+
+                <input
+                  type="hidden"
+                  name="user_id"
+                  value="{{ row.user_id }}"
+                >
+
+                <select
+                  name="quota_gib"
+                  onchange="
+                    this.parentElement
+                    .querySelector('.custom')
+                    .hidden =
+                    this.value !== 'custom'
+                  "
+                >
+                  <option value="10">
+                    10 GiB
+                  </option>
+
+                  <option value="25">
+                    25 GiB
+                  </option>
+
+                  <option value="50">
+                    50 GiB
+                  </option>
+
+                  <option value="100" selected>
+                    100 GiB
+                  </option>
+
+                  <option value="250">
+                    250 GiB
+                  </option>
+
+                  <option value="500">
+                    500 GiB
+                  </option>
+
+                  <option value="1024">
+                    1 TiB
+                  </option>
+
+                  <option value="0">
+                    Unlimited
+                  </option>
+
+                  <option value="custom">
+                    Custom
+                  </option>
+                </select>
+
+                <input
+                  class="custom"
+                  name="custom_gib"
+                  type="number"
+                  min="1"
+                  max="16384"
+                  placeholder="GiB"
+                  hidden
+                >
+
+                <button
+                  type="submit"
+                  name="action"
+                  value="set"
+                >
+                  Simpan
+                </button>
+
+                {% if row.quota_source == 'override' %}
+                <button
+                  type="submit"
+                  name="action"
+                  value="reset"
+                  class="reset"
+                >
+                  Reset
+                </button>
+                {% endif %}
+
+              </form>
+
+            </td>
+
+          </tr>
+
+        {% endfor %}
+
+        </tbody>
+
+      </table>
+
+    </div>
+
+  </section>
+
+</main>
+
+
+<script>
+const search =
+  document.getElementById("search");
+
+const rows =
+  Array.from(
+    document.querySelectorAll(
+      "#rows tr"
+    )
+  );
+
+search.addEventListener(
+  "input",
+  () => {
+
+    const q =
+      search.value
+        .trim()
+        .toLowerCase();
+
+    rows.forEach(
+      row => {
+
+        row.hidden =
+          !row.dataset.search
+            .toLowerCase()
+            .includes(q);
+
+      }
+    );
+
+  }
+);
+</script>
+
+</body>
+</html>
