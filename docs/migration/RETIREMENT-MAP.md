@@ -38,6 +38,12 @@ raw-delete the directory.
 | `/home/botadmin/backup/BotConnector-Store-Production-V6R1-FINAL-2026-08-12.zip` | ARCHIVE_ONLY | |
 | `/home/botadmin/backup/BotConnector-Store-Production-V6-FINAL-2026-08-12.zip` | ARCHIVE_ONLY | |
 
+## Live homepage runtime — newly identified 2026-09-06, NOT a delete candidate
+
+| PATH | CLASSIFICATION |
+|---|---|
+| `/opt/botconnector-platform-starter-v0.3/homepage` | **ACTIVE_LIVE_SOURCE_PENDING_CONVERGENCE** — this is the real source for the live botconnector.id apex (Docker container `botconnector-platform-home`), hash-verified against the running image. It is not yet imported into the canonical repo and not yet superseded by anything. Do not classify as DELETE_AFTER_CUTOVER, ARCHIVE_ONLY, or any other retirement category until `docs/provenance/HOMEPAGE-CONVERGENCE.md`'s convergence decision (a canonical `apps/homepage-runtime` import) is actually carried out and proven. |
+
 ## Old `/opt` source trees (live production — the actual deployables)
 
 These stay live until their own component's cutover succeeds AND passes
@@ -95,7 +101,7 @@ public-site/marketing cutover, out of scope here.
 
 | PATH | CLASSIFICATION |
 |---|---|
-| `/var/www/botconnector` (main botconnector.id root) | KEEP_RUNTIME_DATA (it's the current live output; not "data" in the DB sense, but functionally equivalent — losing it breaks the live site) |
+| `/var/www/botconnector` (static files at the old apex path) | **CORRECTED 2026-09-06 — ARCHIVE_ONLY, not KEEP_RUNTIME_DATA as previously stated here.** This is NOT what's actually live. The real botconnector.id apex is served by the Docker application `botconnector-platform-home` (port 8020) via nginx `proxy_pass`, not by static files from this path. This directory appears to be an unused/legacy static artifact from before the dynamic homepage existed. Not verified as safe to delete — reclassified from an incorrect "currently live" status to "needs its own investigation," not to DELETE_AFTER_CUTOVER, since its actual purpose (if any) is still unconfirmed. |
 | `/var/www/botconnector-store/current` | KEEP_RUNTIME_DATA |
 | `/var/www/botconnector-shipping-public/current` | KEEP_RUNTIME_DATA |
 | `/var/www/botconnector-ai-console/current`, `-ai-r73-preview`, `-ai-chat-web-r17-*` | KEEP_RUNTIME_DATA (also: these back the EXCLUDED AI cluster, see KEEP_AI_BUILDER note below) |
@@ -129,16 +135,25 @@ public-site/marketing cutover, out of scope here.
 
 A handful of Docker containers seen incidentally during this session's
 `docker ps` output are NOT part of this consolidation's known component
-list and were never investigated: `botconnector-v2-app`,
-`botconnector-support-ai`, `botconnector-searxng`, `botconnector-ai-*`
+list. **`botconnector-platform-home` (tenantization-v1) is now RESOLVED**
+as of 2026-09-06 — see the "Live homepage runtime" section above; it was
+in this unresolved list only because it hadn't yet been connected to the
+live apex. The rest remain genuinely unresolved and were never
+investigated: `botconnector-v2-app`, `botconnector-support-ai`,
+`botconnector-searxng`, `botconnector-ai-*`
 (console/local-intelligence/pgvector/llama-chat/llama-embed),
 `botconnector-backend-core`/`botconnector-backend-worker`/`-api`
-(labeled "smartbiz-ai-studio"/"smartbiz-internal-actions"),
-`botconnector-platform-home` (tenantization-v1), `anythingllm-*`,
-`olahdokumen-*`, `maxkb-poc`, `onlyoffice-poc`. Some of these may overlap
-with the excluded AI cluster or Connect ecosystem; none were traced. Do
-not assume any of these are safe to touch based on this document — they
-are UNRESOLVED, not KEEP or DELETE.
+(labeled "smartbiz-ai-studio"/"smartbiz-internal-actions"), `anythingllm-*`,
+`olahdokumen-*`, `maxkb-poc`, `onlyoffice-poc`. **Flag, not conclusion:**
+the "smartbiz-ai-studio"/"smartbiz-internal-actions" labels on
+`botconnector-backend-core`/`-worker`/`-api` match module names found in
+the homepage source this pass (`smartbiz_ai_studio.py`,
+`smartbiz_operations_ui.py`) — these may be the actual backend(s) those
+homepage modules proxy to. Not traced further; do not assume this
+correlation is confirmed. Some of these may overlap with the excluded AI
+cluster or Connect ecosystem; none were traced. Do not assume any of
+these are safe to touch based on this document — they remain UNRESOLVED,
+not KEEP or DELETE.
 
 ```
 UNKNOWN_SOURCE_OWNERSHIP=the containers listed immediately above (count not

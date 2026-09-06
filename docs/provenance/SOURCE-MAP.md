@@ -29,9 +29,20 @@ ORIGINAL_SOURCE=/home/botadmin/ai-workspaces/botconnector-full-site-poc
 RESOLVED_SOURCE=(same, not a symlink)
 CANONICAL_TARGET=apps/public-site
 LIVE_RUNTIME=NONE — this POC is not deployed anywhere
-LIVE_ROUTE=NONE (see homepage note below — the live botconnector.id root is a separate deployment artifact, not this source)
-PROVENANCE_CONFIDENCE=MEDIUM
-NOTES=Classified FUTURE_CANONICAL_SOURCE per explicit user decision. No generator/source repo was found behind any live /var/www/botconnector* root (checked business-suite, restaurant, retail, store, shared-design, and the bare botconnector/ doc root — no .git, package.json, or sourcemaps in any of them). Live roots are DEPLOYMENT_ARTIFACT / CURRENT_LIVE_OUTPUT only; not imported as source per instruction.
+LIVE_ROUTE=NONE — **CORRECTED 2026-09-06**: the live botconnector.id apex is NOT a static deployment artifact as previously stated here. It is served by a real, dynamic application — see the new `COMPONENT=homepage-runtime` entry immediately below and the full audit in `docs/provenance/HOMEPAGE-CONVERGENCE.md`. The earlier "no generator/source repo found behind any live /var/www/botconnector* root" finding was correct as far as it checked (those `/var/www` paths genuinely are static output), but it never checked where nginx's `location /` actually proxies to — which is a live Docker container, not those static paths.
+PROVENANCE_CONFIDENCE=MEDIUM (unchanged for this component's own POC status — apps/public-site itself is still confirmed static-only with zero forms/JS calls)
+NOTES=Classified FUTURE_CANONICAL_SOURCE per explicit user decision — that classification still stands for the STATIC/PRESENTATION content this candidate provides, but it is not a drop-in replacement for the live apex, which carries real auth/session/gateway/support functionality this candidate does not implement. See HOMEPAGE-CONVERGENCE.md's convergence decision (OPTION_B_FRONTEND_BACKEND_SPLIT) before any apex cutover is planned.
+
+---
+
+COMPONENT=homepage-runtime (NEW — identified 2026-09-06, not yet imported into the canonical repo)
+ORIGINAL_SOURCE=/opt/botconnector-platform-starter-v0.3/homepage
+RESOLVED_SOURCE=/opt/botconnector-platform-starter-v0.3/homepage/app (the package actually running in the live container)
+CANONICAL_TARGET=NOT YET ASSIGNED — proposed `apps/homepage-runtime/` per HOMEPAGE-CONVERGENCE.md Section 7; import not performed this pass
+LIVE_RUNTIME=Docker container `botconnector-platform-home`, image `botconnector-platform-home:tenantization-v1-20260828`, uvicorn `app.main:app`, port 127.0.0.1:8020
+LIVE_ROUTE=botconnector.id apex (`location /` in nginx), plus `/products`, `/login`, `/register`, `/support`, `/docs`, `/status`, `/app/{slug}/...` (application gateway to business-suite/parking/webhook-connector/langkah/business-automation/personal-automation/monitor-resolve, per `core_bridge.py`'s routing table), and more — see HOMEPAGE-CONVERGENCE.md for the full route inventory
+PROVENANCE_CONFIDENCE=HIGH — hash-verified: all 94 files under the source's `app/` directory match the live image's `/app/app` contents byte-for-byte (SHA256), captured via a throwaway `docker run --rm` inspection, the live container itself untouched
+NOTES=This is real, load-bearing platform infrastructure: session/auth issuance (`bc_session` cookie — the same cookie name used elsewhere in the platform), Postgres and Redis backed, and the actual gateway customers go through to reach Business Suite/Parking/etc. It is explicitly classified `ACTIVE_LIVE_SOURCE_PENDING_CONVERGENCE`, not a delete candidate, not yet imported. Two open questions before import: whether its Drive-sharing suite overlaps with `apps/drive`, and whether its SmartBiz/AI-widget modules overlap with Business Suite or the excluded internal AI cluster.
 
 ---
 

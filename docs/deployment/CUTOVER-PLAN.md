@@ -206,17 +206,39 @@ ROLLBACK_TRIGGER=N/A
 ROLLBACK_ACTION=delete the staged venv, nothing was live
 POSTCHECK=confirm zero production units were touched
 
-### Wave 1 — static, zero dependents
-COMPONENTS=public-site
-WHY_GROUPED=No backend, no shared runtime, no dependents. Also currently NOT live (no existing equivalent to replace) — this would be a first-deploy, not a cutover, so it carries essentially zero regression risk to anything already running.
-EXPECTED_DOWNTIME=0 (additive — doesn't replace a live route)
-PRECHECK=Playwright acceptance already PASS (this session); re-run if source changed since
-DEPLOY_ACTION=point an nginx location at `apps/public-site` (or a build output of it) — NOT executed in this plan
-HEALTH_GATE=HTTP 200 on all canonical pages
-REAL_FUNCTION_GATE=no unsupported capability claims (PUBLIC-SURFACE.md gate)
-ROLLBACK_TRIGGER=any 5xx or broken asset
-ROLLBACK_ACTION=revert the nginx location change (config-only, no process restart of anything else)
-POSTCHECK=confirm no other route regressed
+### Wave 1 — RETIRED 2026-09-06, see replacement below
+
+**The premise of the original Wave 1 was factually wrong and must not be
+executed as written.** It assumed the botconnector.id apex had "no
+existing equivalent to replace." It does: a real, live Docker application
+(`botconnector-platform-home`) handling authentication, session issuance,
+a product-routing gateway, and support ticketing — see
+`docs/provenance/HOMEPAGE-CONVERGENCE.md` for the full audit. Deploying
+`apps/public-site` to the apex under the old plan would have silently
+broken login, registration, and every customer's path into Business
+Suite/Parking/etc. This was caught during precheck, before any nginx
+change — nothing was touched.
+
+### Wave 1 (replacement, conceptual only — not ready to execute)
+
+COMPONENTS=apps/public-site (marketing/presentation layer only) — the
+apex itself is NOT part of any wave until a canonical `apps/homepage-runtime`
+(or equivalent) exists and is proven; see HOMEPAGE-CONVERGENCE.md Section
+7 for the proposed target and Section 8 for the corrected replan.
+WHY_GROUPED=N/A — this wave cannot be scoped precisely until the
+homepage-runtime import decision (Section 7) is made.
+EXPECTED_DOWNTIME=0 IF the eventual placement is additive (a new path/subdomain, not the apex) — this must be re-verified against whatever placement is actually chosen, not assumed.
+PRECHECK=Playwright acceptance already PASS for the candidate in isolation (this session, twice); homepage-runtime's own build/import proof has NOT been run — REQUIRED before any real placement decision
+DEPLOY_ACTION=undetermined — depends entirely on the Section 7/8 decision; NOT executed in this plan
+HEALTH_GATE=HTTP 200 on all canonical pages (unchanged from before)
+REAL_FUNCTION_GATE=no unsupported capability claims (PUBLIC-SURFACE.md gate, unchanged) PLUS no regression to live auth/session/gateway/support functionality — this is the gate the old plan was missing
+ROLLBACK_TRIGGER=any 5xx, broken asset, OR any auth/login/register/support-ticket failure
+ROLLBACK_ACTION=undetermined until placement is chosen
+POSTCHECK=undetermined until placement is chosen
+
+```
+READY_FOR_APEX_CUTOVER=NO
+```
 
 ### Wave 2 — self-contained internal services, own release pattern already proven
 COMPONENTS=finance-core, ai-chat-preview
@@ -297,7 +319,7 @@ POSTCHECK=for each: confirm no other, unrelated wave's components regressed (the
 
 ```
 CUTOVER_WAVES=8 (0 through 7, per above)
-CUTOVER_ORDER=0 → 1 (public-site) → 2 (finance-core, ai-chat-preview) → 3 (connector-core + 6 shipping) → 4 (ai-workspace) → 5 (admin-gate) → 6 (multichannel + business-suite + integrasi) → 7 (store, parking, drive, restaurant — sequential sub-waves)
+CUTOVER_ORDER=0 → 1 (public-site — RETIRED/BLOCKED, see correction above; not orderable until homepage-runtime convergence is resolved) → 2 (finance-core, ai-chat-preview) → 3 (connector-core + 6 shipping) → 4 (ai-workspace) → 5 (admin-gate) → 6 (multichannel + business-suite + integrasi) → 7 (store, parking, drive, restaurant — sequential sub-waves)
 ```
 
 ## 6. Public capability gate (unchanged, restated)

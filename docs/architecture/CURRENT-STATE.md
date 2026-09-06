@@ -103,10 +103,22 @@ assume `apps/restaurant` is the POS feature; it is not.
 
 ## Known gaps (not invented, not resolved)
 
-- **Public Site vs. live homepage**: the live botconnector.id root
-  (`/var/www/botconnector`) has no discoverable source or generator. The
-  imported `apps/public-site` (from the `full-site-poc`) is a candidate for
-  becoming that source, not a proven replica of what's live today.
+- **Public Site vs. live homepage — CORRECTED 2026-09-06**: the live
+  botconnector.id apex is NOT static and NOT source-less. It's served by a
+  real Docker application (`botconnector-platform-home`, source
+  `/opt/botconnector-platform-starter-v0.3/homepage`, hash-verified
+  against the running image) that handles authentication, session
+  issuance, a product-routing gateway to Business Suite/Parking/etc.,
+  support ticketing, and more — see
+  `docs/provenance/HOMEPAGE-CONVERGENCE.md` for the full audit. The
+  imported `apps/public-site` (from `full-site-poc`) is a pure static
+  marketing candidate with zero dynamic functionality; it does not and
+  cannot replace this runtime. `packages/shared-design` this document
+  attributes to no live app was correct; the earlier claim that the
+  *homepage itself* had "no discoverable source or generator" was wrong —
+  the source exists, it just isn't `/var/www/botconnector` (that path is
+  real but appears to be an unused/legacy static artifact, not what's
+  actually served).
 - **Telegram outbox reliability**: `botconnector-bisnis-telegram-outbox.service`
   logs showed a burst of `low_stock_outbox_poll_error (OperationalError)`
   roughly every 2 seconds for about a minute, ending in a service restart
