@@ -1,0 +1,25 @@
+{
+  "name": "botconnector-ai-local-cloud",
+  "version": "0.4.0",
+  "private": true,
+  "description": "BotConnector AI technical beta: Hugging Face discovery/download, managed llama.cpp runtime, local chat, API and cloud-ready routing",
+  "main": "desktop/main.cjs",
+  "bin": {
+    "botconnector": "bin/botconnector.mjs"
+  },
+  "scripts": {
+    "web": "node scripts/dev-server.mjs",
+    "desktop": "electron .",
+    "doctor": "node scripts/doctor.mjs",
+    "cli": "node bin/botconnector.mjs",
+    "test": "node --test tests/resolver.test.cjs tests/hf.test.cjs tests/store-i18n.test.cjs tests/downloads-security.test.cjs",
+    "acceptance": "node scripts/live-acceptance.mjs",
+    "check": "node --check desktop/main.cjs && node --check desktop/preload.cjs && node --check desktop/desktop.js && node --check runtime/hf.cjs && node --check runtime/downloads.cjs && node --check runtime/runtime-manager.cjs && node --check runtime/llama.cjs && node --check bin/botconnector.mjs"
+  },
+  "dependencies": {
+    "adm-zip": "^0.5.16"
+  },
+  "devDependencies": {
+    "electron": "^39.0.0"
+  }
+}
