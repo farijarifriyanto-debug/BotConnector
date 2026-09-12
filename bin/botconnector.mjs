@@ -206,6 +206,17 @@ if(cmd==='chat'){
   while(true){const{done,value}=await reader.read();if(done)break;buf+=dec.decode(value,{stream:true});const lines=buf.split('\n');buf=lines.pop()||'';for(const ln of lines){if(!ln.startsWith('data:'))continue;const t=ln.slice(5).trim();if(!t||t==='[DONE]')continue;try{process.stdout.write(JSON.parse(t)?.choices?.[0]?.delta?.content||'');}catch{}}}
   console.log();process.exit(0);
 }
+if(cmd==='embed'){
+  const parts=rawArgs.slice(1).filter(a=>!a.startsWith('--'));
+  const text=parts.join(' ');
+  if(!text)fail('embed "text" [--json]');
+  const r=await fetch(`http://127.0.0.1:${port}/v1/embeddings`,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({model:'local-embed',input:text})});
+  if(!r.ok)fail(`runtime returned ${r.status} (is an --embeddings model loaded on port ${port}?)`);
+  const j=await r.json();
+  const v=j?.data?.[0]?.embedding||[];
+  out(json?{dim:v.length,embedding:v}:`dim=${v.length} first5=[${v.slice(0,5).map(x=>Number(x).toFixed(4)).join(', ')}]`);
+  process.exit(0);
+}
 if(cmd==='launch'){
   const target=sub||'';
   const base=`http://127.0.0.1:${port}`;

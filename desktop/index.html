@@ -144,6 +144,29 @@ Content-Type: application/json
   "stream": true
 }</pre></article>
         <article class="panel"><h3>Runtime behavior</h3><dl class="technical-dl"><div><dt>Bind address</dt><dd>127.0.0.1</dd></div><div><dt>Default port</dt><dd>11435</dd></div><div><dt>Tool calls</dt><dd>Requires compatible template; app starts server with --jinja</dd></div><div><dt>Multimodal</dt><dd>Requires model + mmproj when applicable</dd></div><div><dt>Embeddings</dt><dd>Runtime started with --embeddings</dd></div></dl></article>
+        <article class="panel"><h3>Anthropic Messages (native)</h3><pre class="code-box">POST http://127.0.0.1:11435/v1/messages
+Content-Type: application/json
+
+{
+  "model": "local-model",
+  "max_tokens": 256,
+  "messages": [{"role":"user","content":"Hello"}]
+}</pre></article>
+        <article class="panel"><h3>Responses API (native)</h3><pre class="code-box">POST http://127.0.0.1:11435/v1/responses
+Content-Type: application/json
+
+{
+  "model": "local-model",
+  "input": "Hello",
+  "max_output_tokens": 256
+}</pre></article>
+        <article class="panel"><h3>Embeddings (embedding model only)</h3><pre class="code-box">POST http://127.0.0.1:11435/v1/embeddings
+Content-Type: application/json
+
+{
+  "model": "local-embed",
+  "input": ["first sentence", "second sentence"]
+}</pre></article>
       </div>
     </section>
 

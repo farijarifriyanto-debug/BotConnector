@@ -14,6 +14,9 @@
     "cli": "node bin/botconnector.mjs",
     "test": "node --test tests/resolver.test.cjs tests/hf.test.cjs tests/store-i18n.test.cjs tests/downloads-security.test.cjs",
     "acceptance": "node scripts/live-acceptance.mjs",
+    "acceptance:native": "node scripts/native-routes-acceptance.mjs",
+    "acceptance:embeddings": "node scripts/embeddings-acceptance.mjs",
+    "acceptance:tools": "node scripts/tooluse-acceptance.mjs",
     "check": "node --check desktop/main.cjs && node --check desktop/preload.cjs && node --check desktop/desktop.js && node --check runtime/hf.cjs && node --check runtime/downloads.cjs && node --check runtime/runtime-manager.cjs && node --check runtime/llama.cjs && node --check bin/botconnector.mjs"
   },
   "dependencies": {
