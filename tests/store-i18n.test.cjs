@@ -20,6 +20,8 @@ describe('settings store',()=>{
     assert.equal(s2.get('language'),'id');
     const pub=s2.public();
     assert.ok(!('hfTokenEncrypted' in pub),'encrypted token never exposed via public()');
+    assert.ok(!('apiTokenEncrypted' in pub),'api token never exposed via public()');
+    assert.equal(s.get('apiAuthEnabled'),false,'auth OFF by default');
   });
 });
 

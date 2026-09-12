@@ -53,8 +53,9 @@ const HELP=`botconnector — BotConnector AI CLI (shares Core/config with the de
   botconnector runtime use <auto|cpu|vulkan|cuda12|cuda13|rocm>
   botconnector load <model-ref> | unload | ps [--json]
   botconnector run <model-ref>            (foreground; Ctrl-C stops)
-  botconnector chat <model-ref?> "prompt" [--stream]
-  botconnector server start <model-ref> [--ctx N] | stop | status [--json]
+  botconnector chat <model-ref?> "prompt" [--stream] [--api-key KEY]
+  botconnector embed "text" [--json] [--api-key KEY]
+  botconnector server start <model-ref> [--ctx N] [--api-key KEY] | stop | status [--json]
   botconnector cloud status [--json]
   botconnector launch <opencode|claude-code|codex|cline> [--apply]
 `;
@@ -147,11 +148,13 @@ async function startServer(modelRef,ctx){
   if(!binary)fail('No managed runtime installed. Run: botconnector runtime install');
   const args=['-m',modelPath,'--host','127.0.0.1','--port',String(port),'--ctx-size',String(ctx||4096),'--n-gpu-layers',eff==='cpu'?'0':'999','--jinja'];
   if(projector)args.push('--mmproj',projector);
+  const cliKey=opt('api-key',null);
+  if(cliKey)args.push('--api-key',cliKey);
   const h0=await serverHealth();
   if(h0.up)fail(`port ${port} already serves a runtime (stop it first)`);
   const child=spawn(binary,args,{shell:false,windowsHide:true,detached:true,stdio:'ignore'});
   child.unref();
-  await fsp.writeFile(STATE_FILE,JSON.stringify({pid:child.pid,port,modelPath,backend:eff,startedAt:new Date().toISOString()}));
+  await fsp.writeFile(STATE_FILE,JSON.stringify({pid:child.pid,port,modelPath,backend:eff,auth:Boolean(cliKey),startedAt:new Date().toISOString()}));
   const ok=await waitReady();
   if(!ok)fail('server did not become ready (see runtime logs in desktop app)');
   return{pid:child.pid,modelPath,backend:eff,port};
@@ -195,11 +198,13 @@ if(cmd==='run'){
 }
 if(cmd==='chat'){
   const stream=rawArgs.includes('--stream');
-  const parts=rawArgs.slice(1).filter(a=>!a.startsWith('--'));
+  const key=opt('api-key',null);
+  const parts=rawArgs.slice(1).filter(a=>!a.startsWith('--')&&a!==key);
   let prompt=parts.join(' ');
-  if(!prompt)fail('chat "prompt"');
+  if(!prompt)fail('chat "prompt" [--api-key KEY]');
   const body={model:'local-model',messages:[{role:'user',content:prompt}],temperature:0.7,stream};
-  const r=await fetch(`http://127.0.0.1:${port}/v1/chat/completions`,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(body)});
+  const hdrs={'Content-Type':'application/json'};if(key)hdrs.Authorization='Bearer '+key;
+  const r=await fetch(`http://127.0.0.1:${port}/v1/chat/completions`,{method:'POST',headers:hdrs,body:JSON.stringify(body)});
   if(!r.ok)fail(`runtime returned ${r.status} (is a model loaded on port ${port}?)`);
   if(!stream){const j=await r.json();const m=j?.choices?.[0]?.message||{};out(json?{content:m.content,reasoning:m.reasoning_content||null,usage:j.usage||null}:(m.reasoning_content?`[reasoning]\n${m.reasoning_content}\n\n`:'')+(m.content||''));process.exit(0);}
   const reader=r.body.getReader(),dec=new TextDecoder();let buf='';
@@ -207,10 +212,12 @@ if(cmd==='chat'){
   console.log();process.exit(0);
 }
 if(cmd==='embed'){
-  const parts=rawArgs.slice(1).filter(a=>!a.startsWith('--'));
+  const key=opt('api-key',null);
+  const parts=rawArgs.slice(1).filter(a=>!a.startsWith('--')&&a!==key);
   const text=parts.join(' ');
-  if(!text)fail('embed "text" [--json]');
-  const r=await fetch(`http://127.0.0.1:${port}/v1/embeddings`,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({model:'local-embed',input:text})});
+  if(!text)fail('embed "text" [--json] [--api-key KEY]');
+  const hdrs={'Content-Type':'application/json'};if(key)hdrs.Authorization='Bearer '+key;
+  const r=await fetch(`http://127.0.0.1:${port}/v1/embeddings`,{method:'POST',headers:hdrs,body:JSON.stringify({model:'local-embed',input:text})});
   if(!r.ok)fail(`runtime returned ${r.status} (is an --embeddings model loaded on port ${port}?)`);
   const j=await r.json();
   const v=j?.data?.[0]?.embedding||[];

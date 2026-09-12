@@ -17,7 +17,13 @@ function getToken(){
   if(!enc||!safeStorage.isEncryptionAvailable())return '';
   try{return safeStorage.decryptString(Buffer.from(enc,'base64'));}catch{return '';}
 }
-function publicSettings(){const d=store.public();delete d.hfToken;delete d.hfTokenEncrypted;return {...d,hfTokenConfigured:Boolean(store.get('hfTokenEncrypted'))};}
+function getApiToken(){
+  const enc=store?.get('apiTokenEncrypted');
+  if(!enc||!safeStorage.isEncryptionAvailable())return '';
+  try{return safeStorage.decryptString(Buffer.from(enc,'base64'));}catch{return '';}
+}
+function bearerForRt(){return store?.get('apiAuthEnabled')&&getApiToken()?`Bearer ${getApiToken()}`:'Bearer local';}
+function publicSettings(){const d=store.public();delete d.hfToken;delete d.hfTokenEncrypted;delete d.apiTokenEncrypted;return {...d,hfTokenConfigured:Boolean(store.get('hfTokenEncrypted')),apiAuthEnabled:Boolean(store.get('apiAuthEnabled')),apiTokenConfigured:Boolean(store.get('apiTokenEncrypted'))};}
 function createWindow(){
   win=new BrowserWindow({width:1460,height:920,minWidth:1100,minHeight:720,backgroundColor:'#080b10',title:'BotConnector AI',autoHideMenuBar:true,webPreferences:{preload:path.join(__dirname,'preload.cjs'),contextIsolation:true,nodeIntegration:false,sandbox:false}});
   win.loadFile(path.join(__dirname,'index.html'));
@@ -40,7 +46,9 @@ ipcMain.handle('system:overview',async()=>{
 ipcMain.handle('system:open-external',async(_e,url)=>{if(!isSafeExternal(url))throw new Error('External URL is not allowed');await shell.openExternal(String(url));return true;});
 
 ipcMain.handle('settings:get',async()=>publicSettings());
-ipcMain.handle('settings:set',async(_e,input)=>{const allowed=['runtimeBackend','language'];for(const k of allowed)if(k in(input||{}))await store.set(k,input[k]);return publicSettings();});
+ipcMain.handle('settings:set',async(_e,input)=>{const allowed=['runtimeBackend','language','apiAuthEnabled'];for(const k of allowed)if(k in(input||{}))await store.set(k,k==='apiAuthEnabled'?Boolean(input[k]):input[k]);return publicSettings();});
+ipcMain.handle('settings:ensure-api-token',async()=>{const crypto=require('node:crypto');if(!safeStorage.isEncryptionAvailable())throw new Error('Windows credential encryption is unavailable');const token='bc-local-'+crypto.randomBytes(24).toString('hex');await store.set('apiTokenEncrypted',safeStorage.encryptString(token).toString('base64'));return {token,warning:'Shown once. Copy it now; the app never displays it again.'};});
+ipcMain.handle('settings:clear-api-token',async()=>{await store.set('apiTokenEncrypted','');await store.set('apiAuthEnabled',false);return publicSettings();});
 ipcMain.handle('settings:set-hf-token',async(_e,token)=>{token=String(token||'').trim();if(!token){await store.set('hfTokenEncrypted','');return {configured:false};}if(!safeStorage.isEncryptionAvailable())throw new Error('Windows credential encryption is unavailable');const enc=safeStorage.encryptString(token).toString('base64');await store.set('hfTokenEncrypted',enc);return {configured:true};});
 ipcMain.handle('settings:pick-models-dir',async()=>{const r=await dialog.showOpenDialog({properties:['openDirectory','createDirectory'],title:'Choose model storage directory'});if(r.canceled)return null;await store.set('modelsDir',r.filePaths[0]);return {modelsDir:r.filePaths[0],installed:await scanInstalled(r.filePaths[0])};});
 
@@ -66,21 +74,23 @@ ipcMain.handle('runtime:start',async(_e,cfg)=>llama.startLlama(cfg));
 ipcMain.handle('runtime:start-installed',async(_e,cfg)=>{
   const managed=await runtimes.installed();const binary=cfg.binary||managed.binary;if(!binary)throw new Error('No llama.cpp runtime installed. Install a managed runtime first.');
   const backend=cfg.backend||store.get('runtimeBackend')||'auto';const gpuLayers=backend==='cpu'?0:999;
-  return llama.startLlama({binary,modelPath:cfg.modelPath,projector:cfg.projector||null,port:Number(cfg.port||11435),gpuLayers,context:Number(cfg.context||8192),embedding:Boolean(cfg.embedding),jinja:true});
+  const apiKey=store.get('apiAuthEnabled')?getApiToken()||null:null;
+  if(store.get('apiAuthEnabled')&&!apiKey)throw new Error('API authentication is enabled but no token exists. Generate one in Settings first.');
+  return llama.startLlama({binary,modelPath:cfg.modelPath,projector:cfg.projector||null,port:Number(cfg.port||11435),gpuLayers,context:Number(cfg.context||8192),embedding:Boolean(cfg.embedding),jinja:true,apiKey});
 });
 ipcMain.handle('runtime:stop',async()=>({stopped:llama.stopLlama()}));
 ipcMain.handle('runtime:status',async()=>llama.status());
 ipcMain.handle('runtime:logs',async()=>llama.logs());
 
 ipcMain.handle('chat:complete',async(_e,messages)=>{
-  const rt=llama.status();if(!rt.running)throw new Error('Local runtime is not running');const res=await fetch(`http://127.0.0.1:${rt.port||11435}/v1/chat/completions`,{method:'POST',headers:{'Content-Type':'application/json','Authorization':'Bearer local'},body:JSON.stringify({model:'local-model',messages,temperature:.7,stream:false})});const data=await res.json().catch(()=>({}));if(!res.ok)throw new Error(data?.error?.message||`Runtime returned ${res.status}`);const msg=data?.choices?.[0]?.message||{};return {content:msg.content||'',reasoning:msg.reasoning_content||null,usage:data?.usage||null};
+  const rt=llama.status();if(!rt.running)throw new Error('Local runtime is not running');const res=await fetch(`http://127.0.0.1:${rt.port||11435}/v1/chat/completions`,{method:'POST',headers:{'Content-Type':'application/json','Authorization':bearerForRt()},body:JSON.stringify({model:'local-model',messages,temperature:.7,stream:false})});const data=await res.json().catch(()=>({}));if(!res.ok)throw new Error(data?.error?.message||`Runtime returned ${res.status}`);const msg=data?.choices?.[0]?.message||{};return {content:msg.content||'',reasoning:msg.reasoning_content||null,usage:data?.usage||null};
 });
 ipcMain.handle('chat:pick-image',async()=>{const r=await dialog.showOpenDialog({properties:['openFile'],filters:[{name:'Images',extensions:['png','jpg','jpeg','webp','gif']} ]});if(r.canceled)return null;const p=r.filePaths[0],b=await fsp.readFile(p);const ext=path.extname(p).slice(1).toLowerCase().replace('jpg','jpeg');return {name:path.basename(p),dataUrl:`data:image/${ext};base64,${b.toString('base64')}`};});
 
 ipcMain.on('chat:stream',async(event,{requestId,messages,options={}})=>{
   const rt=llama.status();if(!rt.running){event.sender.send('chat:error',{requestId,error:'Local runtime is not running'});return;}
   try{
-    const res=await fetch(`http://127.0.0.1:${rt.port||11435}/v1/chat/completions`,{method:'POST',headers:{'Content-Type':'application/json','Authorization':'Bearer local'},body:JSON.stringify({model:'local-model',messages,temperature:Number(options.temperature??.7),stream:true})});
+    const res=await fetch(`http://127.0.0.1:${rt.port||11435}/v1/chat/completions`,{method:'POST',headers:{'Content-Type':'application/json','Authorization':bearerForRt()},body:JSON.stringify({model:'local-model',messages,temperature:Number(options.temperature??.7),stream:true})});
     if(!res.ok)throw new Error(`Runtime returned ${res.status}`);
     const reader=res.body.getReader();const dec=new TextDecoder();let buf='';
     while(true){const {done,value}=await reader.read();if(done)break;buf+=dec.decode(value,{stream:true});const lines=buf.split(/\r?\n/);buf=lines.pop()||'';for(const line of lines){if(!line.startsWith('data:'))continue;const raw=line.slice(5).trim();if(!raw||raw==='[DONE]')continue;try{const j=JSON.parse(raw);const delta=j?.choices?.[0]?.delta||{};if(delta.content)event.sender.send('chat:delta',{requestId,delta:delta.content});if(delta.reasoning_content)event.sender.send('chat:reasoning',{requestId,delta:String(delta.reasoning_content)});if(Array.isArray(delta.tool_calls))for(const tc of delta.tool_calls)event.sender.send('chat:toolcall',{requestId,toolCall:tc});}catch{}}}

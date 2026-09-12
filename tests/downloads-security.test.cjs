@@ -94,6 +94,11 @@ describe('security boundaries',()=>{
     assert.match(src,/shell\s*:\s*false/);
     assert.doesNotMatch(src,/exec\s*\(/);
   });
+  it('api key never appears in process status/logs',()=>{
+    const src=fs.readFileSync(path.join(__dirname,'..','runtime','llama.cjs'),'utf8');
+    assert.match(src,/--api-key/);
+    assert.match(src,/\*\*\*/,'key redacted in recorded args');
+  });
 });
 
 function cryptoRandom(n){const b=Buffer.alloc(n);for(let i=0;i<n;i++)b[i]=i%251;return b;}
