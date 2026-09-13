@@ -138,7 +138,9 @@ test('pricing: verified baseline rates + unknown fails safe', async () => {
   assert.equal(r.costStatus, 'KNOWN'); assert.ok(Math.abs(r.cost - 0.42) < 1e-9);
   const cached = await pr.estimate({provider: 'together', modelId: 'deepseek-ai/DeepSeek-V4-Flash-0731', inputTokens: 1_000_000, cachedInputTokens: 1_000_000, outputTokens: 0});
   assert.ok(Math.abs(cached.cost - 0.03) < 1e-9);
-  const unknown = await pr.estimate({provider: 'nebius', modelId: 'deepseek-ai/DeepSeek-V4-Flash-0731', inputTokens: 10, outputTokens: 10});
+  const nebius = await pr.estimate({provider: 'nebius', modelId: 'deepseek-ai/DeepSeek-V4-Flash-0731', inputTokens: 1_000_000, outputTokens: 1_000_000});
+  assert.equal(nebius.costStatus, 'KNOWN'); assert.ok(Math.abs(nebius.cost - 0.42) < 1e-9);
+  const unknown = await pr.estimate({provider: 'nebius', modelId: 'unknown/model', inputTokens: 10, outputTokens: 10});
   assert.equal(unknown.costStatus, 'UNKNOWN'); assert.equal(unknown.cost, null);
   fs.rmSync(dir, {recursive: true, force: true});
 });
@@ -235,6 +237,7 @@ test('router: SAME-MODEL failover nebius->together, model id preserved, metadata
   assert.equal(out._meta.providerUsed, 'together');
   assert.equal(out._meta.failover, true);
   assert.equal(out._meta.modelId, 'MiniMaxAI/MiniMax-M3');
+  assert.equal(out.choices?.[0]?.message?.content, 'ok', 'provider response is surfaced');
   const rows = await (router.ledger).list();
   const row = rows[rows.length - 1];
   assert.equal(row.provider_used, 'together');
@@ -337,6 +340,11 @@ test('catalog: normalizes provider models + retains stale on failure', async () 
   assert.ok(r.results.nebius.ok); assert.ok(!r.results.together.ok);
   const stale = cat.list().models.find(m => m.provider === 'together');
   assert.equal(stale, undefined, 'first run with no prior cache -> provider absent (honest)');
+  const bothDir = tmpdir('cat-both');
+  const bothCat = new ModelCatalog({adapters: {nebius: nebiusGood, together: togetherGood}, cachedir: bothDir});
+  await bothCat.refresh();
+  assert.ok(bothCat.list().models.some(m => m.provider === 'nebius') && bothCat.list().models.some(m => m.provider === 'together'), 'multi-provider refresh retains both providers');
+  fs.rmSync(bothDir, {recursive: true, force: true});
   // seed cache for together then fail again -> stale retained
   const cat2 = new ModelCatalog({adapters: {nebius: nebiusGood, together: togetherGood}, cachedir: dir});
   await cat2.refresh('together');

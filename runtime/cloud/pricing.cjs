@@ -12,6 +12,7 @@ const SEED={
   entries:[
     {provider:'together',modelId:'deepseek-ai/DeepSeek-V4-Flash-0731',inputPerMillion:0.14,cachedInputPerMillion:0.03,outputPerMillion:0.28,effectiveFrom:'2026-09-13',source:'together /v1/models pricing (live metadata, verified)',verifiedAt:'2026-09-13'},
     {provider:'together',modelId:'MiniMaxAI/MiniMax-M3',inputPerMillion:0.30,cachedInputPerMillion:0.06,outputPerMillion:1.20,effectiveFrom:'2026-09-13',source:'together /v1/models pricing (live metadata, verified)',verifiedAt:'2026-09-13'},
+    {provider:'nebius',modelId:'deepseek-ai/DeepSeek-V4-Flash-0731',inputPerMillion:0.14,cachedInputPerMillion:null,outputPerMillion:0.28,effectiveFrom:'2026-09-13',source:'Nebius account UI (verified)',verifiedAt:'2026-09-13'},
     {provider:'nebius',modelId:'MiniMaxAI/MiniMax-M3',inputPerMillion:0.30,cachedInputPerMillion:null,outputPerMillion:1.20,effectiveFrom:'2026-09-13',source:'Nebius account UI (verified)',verifiedAt:'2026-09-13'}
   ]
 };

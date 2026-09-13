@@ -45,9 +45,9 @@ class NebiusProvider{
     }
     const j=JSON.parse(text);return {...j,_meta:{provider:'nebius',requestId,latencyMs:Date.now()-t0}};
   }
-  async *chatStream(body,{getKey=null,key=null,signal}={}){
+  async *chatStream(body,{getKey=null,key=undefined,signal}={}){
     const k=key!==undefined?key:(this.getKey());if(!k)throw new ProviderError('Nebius API key is not configured',{code:'NO_KEY',provider:'nebius'});
-    const res=await fetch(`${this.baseUrl}/chat/completions`,{method:'POST',headers:{...this.#headers(k),Accept:'text/event-stream'},body:JSON.stringify({...body,stream:true}),signal});
+    const res=await fetch(`${this.baseUrl}/chat/completions`,{method:'POST',headers:{...this.#headers(k),Accept:'text/event-stream'},body:JSON.stringify({...body,stream:true,stream_options:{include_usage:true,...(body.stream_options||{})}}),signal});
     if(!res.ok){const c=classifyStatus(res.status);const text=await res.text();throw new ProviderError(`Nebius stream returned ${res.status}`,{status:res.status,code:c.code,retryable:c.retryable,failoverable:c.failoverable,provider:'nebius'});}
     yield* sseEvents(res,body,{provider:'nebius'});
   }
@@ -82,4 +82,4 @@ async function* sseEvents(res,body,{provider}){
   yield {type:'done'};
 }
 const TOOL_DEFS=[{type:'function',function:{name:'calculator',description:'Evaluate a basic arithmetic expression. Use for exact calculations.',parameters:{type:'object',properties:{expression:{type:'string',description:'Arithmetic expression, for example 27 + 15'}},required:['expression'],additionalProperties:false}}}];
-module.exports={NebiusProvider,DEFAULT_BASE_NEBIUS:DEFAULT_BASE};
+module.exports={NebiusProvider,DEFAULT_BASE_NEBIUS:DEFAULT_BASE,sseEvents};

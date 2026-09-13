@@ -2,6 +2,7 @@
 import {createRequire} from 'node:module';
 const require=createRequire(import.meta.url);
 const {BotConnectorClient,BotConnectorError}=require('../sdk/typescript');
+const {execFile}=require('node:child_process');
 const results={};
 const check=(name,ok,extra='')=>{results[name]=ok?'PASS':'FAIL';console.log(`${ok?'PASS':'FAIL'}  ${name}${extra?` — ${extra}`:''}`)};
 
@@ -16,10 +17,11 @@ try{
   const st=await client.cloud.status();
   check('TS_CLOUD_SDK_STATUS',st&&typeof st==='object'&&'credentials' in st,`nebius=${st.credentials?.nebius?.configured} together=${st.credentials?.together?.configured}`);
   check('TS_CLOUD_NO_COMMERCIAL_LAUNCH',st.commercialLaunchApproved===false,'COMMERCIAL_LAUNCH_APPROVED=FALSE');
+  const liveCredentials=Boolean(process.env.NEBIUS_API_KEY&&process.env.TOGETHER_API_KEY);
   const prov=await client.cloud.providers();
-  check('TS_CLOUD_PROVIDERS',prov&&prov.nebius&&prov.together&&prov.nebius.keyConfigured===false,`honest NO_KEY state on both providers`);
-  const models=await client.cloud.models();
-  check('TS_CLOUD_MODELS',models&&Array.isArray(models.models)&&models.models.length===0,`0 models before first live discovery (honest)`);
+  check('TS_CLOUD_PROVIDERS',prov&&prov.nebius&&prov.together&&prov.nebius.keyConfigured===liveCredentials&&prov.together.keyConfigured===liveCredentials,liveCredentials?'authenticated state on both providers':'honest NO_KEY state on both providers');
+  const models=await client.cloud.models({refresh:liveCredentials});
+  check('TS_CLOUD_MODELS',models&&Array.isArray(models.models)&&(liveCredentials?models.models.length>0:models.models.length===0),liveCredentials?`${models.models.length} live models`:'0 models before first live discovery (honest)');
   const usage=await client.cloud.usage({limit:5});
   check('TS_CLOUD_USAGE',usage&&usage.summary&&typeof usage.summary.requests==='number',`${usage.summary.requests} requests recorded`);
   const routing=await client.cloud.routing();
@@ -57,7 +59,9 @@ except Exception as e:
 print(json.dumps(out))
 `;
 await new Promise((resolve)=>{
-  spawn(process.env.PYTHON||'python',['-c',pyScript],{cwd:process.cwd(),shell:false,windowsHide:true,encoding:'utf8',timeout:30000},(err,stdout)=>{
+  const python=process.env.PYTHON||(process.platform==='win32'?'py':'python3');
+  const args=process.platform==='win32'&&!process.env.PYTHON?['-3','-c',pyScript]:['-c',pyScript];
+  execFile(python,args,{cwd:process.cwd(),windowsHide:true,encoding:'utf8',timeout:30000},(err,stdout)=>{
     if(err&&!stdout){pyCheck('PY_CLOUD_SDK',false,String(err.message||err).slice(0,80));resolve();return;}
     let parsed;try{parsed=JSON.parse(stdout.trim().split('\n').pop());}catch{parsed=null;}
     if(!parsed){pyCheck('PY_CLOUD_SDK',false,'no json output');resolve();return;}

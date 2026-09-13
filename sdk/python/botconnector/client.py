@@ -56,7 +56,7 @@ class _Cloud(_Resource):
     def routing(self) -> Dict[str, Any]: return self.client._request_origin("/api/cloud/routing")
     def chat(self, request: Dict[str, Any]) -> Dict[str, Any]:
         payload = dict(request); payload["stream"] = False
-        return self.client._request("/chat/completions", "POST", payload)
+        return self.client._request_origin("/api/cloud/chat", "POST", payload)
 
 
 class BotConnector:
@@ -75,7 +75,8 @@ class BotConnector:
         raw = exc.read().decode("utf-8", "replace")
         try: body = json.loads(raw)
         except ValueError: body = raw
-        return BotConnectorError((body.get("error", {}).get("message") if isinstance(body, dict) else None) or f"BotConnector API returned {exc.code}", exc.code, "HTTP_ERROR", body)
+        error = body.get("error", {}) if isinstance(body, dict) else {}
+        return BotConnectorError(error.get("message") or f"BotConnector API returned {exc.code}", exc.code, error.get("code", "HTTP_ERROR"), body)
     def _request(self, path: str, method: str = "GET", body: Optional[Dict[str, Any]] = None) -> Dict[str, Any]:
         data = json.dumps(body).encode("utf-8") if body is not None else None
         headers = self._headers();
@@ -86,9 +87,9 @@ class BotConnector:
                 return json.loads(raw) if raw else {}
         except urllib.error.HTTPError as exc: raise self._parse_error(exc) from exc
         except (urllib.error.URLError, TimeoutError) as exc: raise BotConnectorError(str(exc), code="NETWORK_ERROR") from exc
-    def _request_origin(self, path: str) -> Dict[str, Any]:
+    def _request_origin(self, path: str, method: str = "GET", body: Optional[Dict[str, Any]] = None) -> Dict[str, Any]:
         from urllib.parse import urlsplit
-        u = urlsplit(self.base_url); return BotConnector(u.scheme + "://" + u.netloc, self.api_key, self.timeout)._request(path)
+        u = urlsplit(self.base_url); return BotConnector(u.scheme + "://" + u.netloc, self.api_key, self.timeout)._request(path, method, body)
     def _stream(self, path: str, body: Dict[str, Any]) -> Iterable[Dict[str, Any]]:
         data = json.dumps(body).encode("utf-8"); headers = self._headers(True); headers["Content-Type"] = "application/json"
         try:

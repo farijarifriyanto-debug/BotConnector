@@ -75,8 +75,8 @@ class CloudRouter{
           });
           this.health.persist().catch(()=>{});
           return {
-            ...out,
-            _meta:{...(out._meta||{}),providerRequested:chain[0],providerUsed:providerId,failover:ci>0,retryCount:retries,failoverChain:chain.slice(0,ci+1),usage,cost,cloudUnits:row.cloud_units,modelId,requestId:row.request_id,startedAt:new Date(startedAt).toISOString()}
+            ...out.res,
+            _meta:{...(out.res._meta||{}),providerRequested:chain[0],providerUsed:providerId,failover:ci>0,retryCount:retries,failoverChain:chain.slice(0,ci+1),usage,cost,cloudUnits:row.cloud_units,modelId,requestId:row.request_id,startedAt:new Date(startedAt).toISOString()}
           };
         }catch(e){
           lastError=e;

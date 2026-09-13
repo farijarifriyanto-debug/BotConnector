@@ -17,7 +17,7 @@ class ModelCatalog{
   async refresh(providerId=null){
     const ids=providerId?[providerId]:Object.keys(this.adapters);
     const results={};
-    const cache=this.#cache();
+    let cache=this.#cache();
     for(const id of ids){
       const adapter=this.adapters[id];
       try{
@@ -28,11 +28,13 @@ class ModelCatalog{
         const others=cache.models.filter(m=>m.provider!==id);
         const merged=[...others,...fresh];
         await this.#writeCacheSafe(merged);
+        cache=this.#cache();
       }catch(e){
         results[id]={ok:false,error:String(e.code||e.message||e)};
         // retain stale: mark provider entries stale
         const kept=cache.models.map(m=>m.provider===id?{...m,stale:true,availability:'stale'}:m);
         await this.#writeCacheSafe(kept);
+        cache=this.#cache();
       }
     }
     const current=this.#cache();
