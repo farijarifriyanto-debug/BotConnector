@@ -18,7 +18,7 @@ class BotConnectorClient{
   models={list:()=>this.#request('/models'),get:(id)=>this.#request(`/models/${encodeURIComponent(id)}`)};
   chat={create:(request,options={})=>this.#request('/chat/completions',{method:'POST',body:{...request,stream:false},...options}),stream:(request,options={})=>this.#stream('/chat/completions',{...request,stream:true},options)};
   embeddings={create:(request,options={})=>this.#request('/embeddings',{method:'POST',body:request,...options})};
-  // Cloud router surface â€” routed by BotConnector Core; cloud requests leave the device (local ones never do).
+  // Cloud router surface — routed by BotConnector Core; cloud requests leave the device (local ones never do).
   cloud={
     status:()=>this.#requestFromOrigin('/api/cloud/status'),
     providers:()=>this.#requestFromOrigin('/api/cloud/providers'),

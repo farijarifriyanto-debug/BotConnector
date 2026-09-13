@@ -70,6 +70,7 @@ class CloudRouter{
             inputTokens:usage.input_tokens,cachedInputTokens:usage.cached_input_tokens,outputTokens:usage.output_tokens,
             reasoningTokens:usage.reasoning_tokens,totalTokens:usage.total_tokens,
             latencyMs:out.latencyMs,ttftMs:null,estimatedCost:cost.cost,costStatus:cost.costStatus,
+            rawUpstreamCost:cost.rawUpstreamCost,topupAdjustedCost:cost.topupAdjustedCost,gatewayFee:cost.gatewayFee,fxCost:cost.fxCost,retryCost:cost.retryCost,failoverCost:cost.failoverCost,totalEffectiveCost:cost.totalEffectiveCost,costBasis:cost.costBasis,
             providerRequestId:(out._meta&&out._meta.requestId)||null,pricingVersion:cost.pricingVersion,
             cloudUnits:cost.cloudUnits!=null?cost.cloudUnits:null,status:'ok'
           });
@@ -138,6 +139,7 @@ class CloudRouter{
           inputTokens:u.input_tokens,cachedInputTokens:u.cached_input_tokens,outputTokens:u.output_tokens,
           reasoningTokens:u.reasoning_tokens,totalTokens:u.total_tokens,
           latencyMs:latency,ttftMs:ttft,estimatedCost:cost.cost,costStatus:cost.costStatus,
+          rawUpstreamCost:cost.rawUpstreamCost,topupAdjustedCost:cost.topupAdjustedCost,gatewayFee:cost.gatewayFee,fxCost:cost.fxCost,retryCost:cost.retryCost,failoverCost:cost.failoverCost,totalEffectiveCost:cost.totalEffectiveCost,costBasis:cost.costBasis,
           providerRequestId:requestId,pricingVersion:cost.pricingVersion,
           cloudUnits:cost.cloudUnits!=null?cost.cloudUnits:null,status:'ok'
         });

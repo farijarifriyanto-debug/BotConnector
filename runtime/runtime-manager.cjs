@@ -2,8 +2,9 @@ const fs=require('node:fs');
 const fsp=require('node:fs/promises');
 const path=require('node:path');
 const crypto=require('node:crypto');
+const {pipeline}=require('node:stream/promises');
 const {execFile}=require('node:child_process');
-const AdmZip=require('adm-zip');
+const yauzl=require('yauzl');
 
 const UA='BotConnectorAI/0.4';
 const RELEASES_URL='https://api.github.com/repos/ggml-org/llama.cpp/releases';
@@ -32,10 +33,112 @@ function verifyBinary(binary,timeout=30000){
   });
 }
 
+const ARCHIVE_LIMITS=Object.freeze({
+  maxArchiveBytes:512*1024*1024,
+  maxEntryCount:5000,
+  maxSingleEntryUncompressedBytes:512*1024*1024,
+  maxTotalUncompressedBytes:2*1024*1024*1024,
+  maxCompressionRatio:100,
+  maxPathLength:1024
+});
+
 function safeEntryName(name){
-  const n=String(name||'').replace(/\\/g,'/');
-  if(!n||n.startsWith('/')||/^[a-zA-Z]:/.test(n)||n.split('/').includes('..'))return null;
-  return n;
+  const raw=String(name??'');
+  if(!raw||raw.includes('\u0000'))return null;
+  const n=raw.replace(/\\/g,'/');
+  if(n.startsWith('/')||n.startsWith('//')||/^[a-zA-Z]:/.test(n))return null;
+  const directory=n.endsWith('/'),body=directory?n.slice(0,-1):n;
+  if(!body)return null;
+  const parts=body.split('/');
+  if(parts.some(part=>!part||part==='.'||part==='..'))return null;
+  return parts.join('/')+(directory?'/':'');
+}
+
+function archiveIsDirectory(entry){return entry.fileName.endsWith('/')||Boolean(Number(entry.externalFileAttributes||0)&0x10);}
+function archiveIsSymlink(entry){return ((Number(entry.externalFileAttributes||0)>>>16)&0xf000)===0xa000;}
+function archiveIsUnsupportedSpecial(entry){
+  const platform=Number(entry.versionMadeBy||0)>>>8;
+  if(platform!==3)return false;
+  const type=((Number(entry.externalFileAttributes||0)>>>16)&0xf000);
+  return type!==0&&type!==0x4000&&type!==0x8000;
+}
+function archiveLimit(value,fallback){const n=Number(value);return Number.isFinite(n)&&n>0?n:fallback;}
+function archiveOptions(options={}){return {
+  maxArchiveBytes:archiveLimit(options.maxArchiveBytes,process.env.BOTCONNECTOR_MAX_ARCHIVE_BYTES||ARCHIVE_LIMITS.maxArchiveBytes),
+  maxEntryCount:archiveLimit(options.maxEntryCount,process.env.BOTCONNECTOR_MAX_ENTRY_COUNT||ARCHIVE_LIMITS.maxEntryCount),
+  maxSingleEntryUncompressedBytes:archiveLimit(options.maxSingleEntryUncompressedBytes,process.env.BOTCONNECTOR_MAX_SINGLE_ENTRY_UNCOMPRESSED_BYTES||ARCHIVE_LIMITS.maxSingleEntryUncompressedBytes),
+  maxTotalUncompressedBytes:archiveLimit(options.maxTotalUncompressedBytes,process.env.BOTCONNECTOR_MAX_TOTAL_UNCOMPRESSED_BYTES||ARCHIVE_LIMITS.maxTotalUncompressedBytes),
+  maxCompressionRatio:archiveLimit(options.maxCompressionRatio,process.env.BOTCONNECTOR_MAX_COMPRESSION_RATIO||ARCHIVE_LIMITS.maxCompressionRatio),
+  maxPathLength:archiveLimit(options.maxPathLength,process.env.BOTCONNECTOR_MAX_PATH_LENGTH||ARCHIVE_LIMITS.maxPathLength)
+};}
+function inside(root,target){const rel=path.relative(root,target);return rel!==''&&!rel.startsWith(`..${path.sep}`)&&rel!=='..'&&!path.isAbsolute(rel);}
+async function assertSafeComponents(root,target){
+  const rootStat=await fsp.lstat(root);
+  if(!rootStat.isDirectory()||rootStat.isSymbolicLink())throw new Error('Extraction root is not a private directory');
+  const relative=path.relative(root,path.dirname(target));
+  let current=root;
+  for(const part of relative?relative.split(path.sep):[]){
+    current=path.join(current,part);
+    try{
+      const stat=await fsp.lstat(current);
+      if(stat.isSymbolicLink()||!stat.isDirectory())throw new Error(`Unsafe extraction component: ${part}`);
+    }catch(error){
+      if(error.code!=='ENOENT')throw error;
+      await fsp.mkdir(current);
+      const stat=await fsp.lstat(current);
+      if(stat.isSymbolicLink()||!stat.isDirectory())throw new Error(`Unsafe extraction component: ${part}`);
+    }
+  }
+}
+function openArchive(zipPath){return yauzl.openPromise(zipPath,{lazyEntries:true,validateEntrySizes:true,decodeStrings:true});}
+async function extractZipSecure(zipPath,extractionRoot,options={}){
+  const limits=archiveOptions(options),archiveStat=await fsp.lstat(zipPath);
+  if(!archiveStat.isFile()||archiveStat.isSymbolicLink())throw new Error('Archive must be a regular file');
+  if(archiveStat.size>limits.maxArchiveBytes)throw new Error('Archive size limit exceeded');
+  const root=path.resolve(extractionRoot);try{await fsp.mkdir(root);}catch(error){if(error.code!=='EEXIST')throw error;}
+  const rootStat=await fsp.lstat(root);if(rootStat.isSymbolicLink()||!rootStat.isDirectory())throw new Error('Extraction root is unsafe');
+  const zip=await openArchive(zipPath),seen=new Set();let count=0,total=0;
+  try{
+    return await new Promise((resolve,reject)=>{
+      let settled=false;
+      const fail=error=>{if(settled)return;settled=true;try{zip.close();}catch{}reject(error);};
+      zip.on('error',fail);
+      zip.on('end',()=>{if(!settled){settled=true;resolve({entries:count,totalUncompressedBytes:total});}});
+      zip.on('entry',entry=>{
+        (async()=>{
+          const name=safeEntryName(entry.fileName);
+          if(!name||name.length>limits.maxPathLength)throw new Error(`Unsafe archive entry blocked: ${entry.fileName}`);
+          count++;if(count>limits.maxEntryCount)throw new Error('Archive entry count limit exceeded');
+          if(archiveIsSymlink(entry)||archiveIsUnsupportedSpecial(entry))throw new Error(`Unsupported archive entry blocked: ${entry.fileName}`);
+          const uncompressed=Number(entry.uncompressedSize),compressed=Number(entry.compressedSize);
+          if(!Number.isSafeInteger(uncompressed)||uncompressed>limits.maxSingleEntryUncompressedBytes)throw new Error(`Archive entry size limit exceeded: ${entry.fileName}`);
+          total+=uncompressed;if(total>limits.maxTotalUncompressedBytes)throw new Error('Archive total expansion limit exceeded');
+          if(uncompressed>0&&(!compressed||uncompressed/compressed>limits.maxCompressionRatio))throw new Error(`Archive compression ratio limit exceeded: ${entry.fileName}`);
+          const key=process.platform==='win32'?name.toLowerCase():name;
+          if(seen.has(key))throw new Error(`Duplicate archive entry blocked: ${entry.fileName}`);seen.add(key);
+          const target=path.resolve(root,name.replace(/\//g,path.sep));
+          if(!inside(root,target))throw new Error(`Archive entry escapes extraction root: ${entry.fileName}`);
+          if(archiveIsDirectory(entry)){
+            if(await fsp.lstat(target).then(s=>s.isDirectory()&&!s.isSymbolicLink()).catch(e=>e.code==='ENOENT'?false:Promise.reject(e))){}else{
+              await assertSafeComponents(root,target);
+              await fsp.mkdir(target);
+            }
+            zip.readEntry();return;
+          }
+          await assertSafeComponents(root,target);
+          try{await fsp.lstat(target);throw new Error(`Archive destination collision: ${entry.fileName}`);}catch(error){if(error.code!=='ENOENT')throw error;}
+          const flags=fs.constants.O_CREAT|fs.constants.O_EXCL|fs.constants.O_WRONLY|(fs.constants.O_NOFOLLOW||0);
+          const handle=await fsp.open(target,flags,0o600);
+          try{
+            const stream=await new Promise((res,rej)=>zip.openReadStream(entry,(error,readable)=>error?rej(error):res(readable)));
+            await pipeline(stream,handle.createWriteStream());
+          }finally{await handle.close();}
+          zip.readEntry();
+        })().catch(fail);
+      });
+      zip.readEntry();
+    });
+  }finally{try{zip.close();}catch{}}
 }
 
 class RuntimeManager{
@@ -153,9 +256,9 @@ class RuntimeManager{
     const {releaseTag,primaryAsset,dependencies}=resolved;
     const assets=[primaryAsset,...dependencies];
     const finalDir=path.join(this.baseDir,releaseTag,backend);
-    const stagingDir=path.join(this.baseDir,`.staging-${releaseTag}-${backend}-${process.pid}`);
-    await fsp.rm(stagingDir,{recursive:true,force:true});
-    await fsp.mkdir(stagingDir,{recursive:true});
+    await fsp.mkdir(this.baseDir,{recursive:true});
+    const stagingDir=await fsp.mkdtemp(path.join(this.baseDir,`.staging-${releaseTag}-${backend}-${process.pid}-`));
+    let prevBackup=null;
     try{
       let assetIndex=0;
       for(const asset of assets){
@@ -164,11 +267,7 @@ class RuntimeManager{
         const zipPath=path.join(stagingDir,asset.name);
         await this.downloadAsset(asset,zipPath,meta);
         this.emit('runtime:install-progress',{...meta,status:'extracting',downloadedBytes:asset.size||0,totalBytes:asset.size||0});
-        const zip=new AdmZip(zipPath);
-        for(const entry of zip.getEntries()){
-          if(safeEntryName(entry.entryName)===null)throw new Error(`Unsafe archive entry blocked: ${entry.entryName}`);
-        }
-        zip.extractAllTo(stagingDir,true);
+        await extractZipSecure(zipPath,stagingDir);
         await fsp.rm(zipPath,{force:true});
       }
       const exe=await this.findServer(stagingDir);
@@ -177,13 +276,14 @@ class RuntimeManager{
       this.emit('runtime:install-progress',{backend,release:releaseTag,status:'verifying-binary'});
       const versionOutput=await verifyBinary(exe);
       // Atomic promotion: keep previous working runtime until replacement is verified.
-      let prevBackup=null;
+      await assertSafeComponents(this.baseDir,finalDir);
       try{
-        const st=await fsp.stat(finalDir);
-        if(st.isDirectory()){prevBackup=path.join(this.baseDir,`.prev-${releaseTag}-${backend}-${Date.now()}`);await fsp.rename(finalDir,prevBackup);}
-      }catch{}
+        const st=await fsp.lstat(finalDir);
+        if(st.isSymbolicLink()||!st.isDirectory())throw new Error('Existing runtime target is unsafe');
+        prevBackup=path.join(this.baseDir,`.prev-${releaseTag}-${backend}-${Date.now()}`);await fsp.rename(finalDir,prevBackup);
+      }catch(error){if(error.code!=='ENOENT')throw error;}
       await fsp.mkdir(path.dirname(finalDir),{recursive:true});
-      await fsp.rename(stagingDir,finalDir);
+      try{await fsp.rename(stagingDir,finalDir);}catch(error){if(prevBackup){try{await fsp.rename(prevBackup,finalDir);prevBackup=null;}catch{}}throw error;}
       const promotedExe=await this.findServer(finalDir);
       if(prevBackup){try{await fsp.rm(prevBackup,{recursive:true,force:true});}catch{}}
       const out={backend,release:releaseTag,binary:promotedExe||exe,dir:finalDir,version:versionOutput,resolution:{releaseTag,backend,primaryAsset:primaryAsset.name,dependencies:dependencies.map(d=>d.name)}};
@@ -199,4 +299,4 @@ class RuntimeManager{
   async installed(){const exe=await this.findServer();return exe?{installed:true,binary:exe}:{installed:false,binary:null};}
   async verifyInstalled(){const s=await this.installed();if(!s.installed)return{installed:false,verified:false};try{const out=await verifyBinary(s.binary);return{installed:true,binary:s.binary,verified:true,version:out};}catch(e){return{installed:true,binary:s.binary,verified:false,error:String(e.message||e)};}}
 }
-module.exports={RuntimeManager,verifyBinary,safeEntryName};
+module.exports={ARCHIVE_LIMITS,RuntimeManager,verifyBinary,safeEntryName,extractZipSecure};

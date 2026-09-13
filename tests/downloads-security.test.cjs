@@ -5,8 +5,9 @@ const fsp=require('node:fs/promises');
 const os=require('node:os');
 const path=require('node:path');
 const http=require('node:http');
+const zlib=require('node:zlib');
 const {DownloadManager}=require('../runtime/downloads.cjs');
-const {safeEntryName}=require('../runtime/runtime-manager.cjs');
+const {safeEntryName,extractZipSecure}=require('../runtime/runtime-manager.cjs');
 
 function rangeServer(data,chunkDelay=15){
   return new Promise(resolve=>{
@@ -99,6 +100,61 @@ describe('security boundaries',()=>{
     assert.match(src,/--api-key/);
     assert.match(src,/\*\*\*/,'key redacted in recorded args');
   });
+
+  it('secure ZIP extraction accepts normal runtime layout',async()=>{
+    const tmp=await fsp.mkdtemp(path.join(os.tmpdir(),'bc-zip-normal-')),zip=path.join(tmp,'runtime.zip'),root=path.join(tmp,'stage');
+    await fsp.writeFile(zip,zipBuffer([{name:'bin/',data:Buffer.alloc(0)},{name:'bin/llama-server.exe',data:Buffer.from('binary')},{name:'README.txt',data:Buffer.from('ok')} ]));
+    try{const result=await extractZipSecure(zip,root);assert.equal(result.entries,3);assert.equal(await fsp.readFile(path.join(root,'bin','llama-server.exe'),'utf8'),'binary');}
+    finally{await fsp.rm(tmp,{recursive:true,force:true});}
+  });
+
+  it('secure ZIP extraction blocks traversal, absolute, and Windows paths',async()=>{
+    for(const name of ['../evil','nested/../../evil','..\\..\\evil','C:\\evil','\\\\server\\share\\evil','/absolute']){
+      const tmp=await fsp.mkdtemp(path.join(os.tmpdir(),'bc-zip-path-')),zip=path.join(tmp,'bad.zip'),root=path.join(tmp,'stage');
+      await fsp.writeFile(zip,zipBuffer([{name,data:Buffer.from('x')} ]));
+      try{await assert.rejects(extractZipSecure(zip,root),/Unsafe archive entry|escapes extraction root|invalid relative path|absolute path/);assert.equal(fs.existsSync(path.join(tmp,'evil')),false);}
+      finally{await fsp.rm(tmp,{recursive:true,force:true});}
+    }
+  });
+
+  it('secure ZIP extraction blocks archive and destination links',async()=>{
+    const tmp=await fsp.mkdtemp(path.join(os.tmpdir(),'bc-zip-link-')),zip=path.join(tmp,'link.zip'),root=path.join(tmp,'stage'),outside=path.join(tmp,'outside');
+    await fsp.mkdir(outside);await fsp.writeFile(zip,zipBuffer([{name:'link',data:Buffer.from('target'),externalFileAttributes:(0xa000|0o777)<<16,versionMadeBy:(3<<8)|20}]));
+    try{await assert.rejects(extractZipSecure(zip,root),/Unsupported archive entry/);await fsp.mkdir(root,{recursive:true});await fsp.symlink(outside,path.join(root,'redirect'));const nested=path.join(tmp,'nested.zip');await fsp.writeFile(nested,zipBuffer([{name:'redirect/evil.txt',data:Buffer.from('x')} ]));await assert.rejects(extractZipSecure(nested,root),/Unsafe extraction component/);assert.equal(fs.existsSync(path.join(outside,'evil.txt')),false);}
+    finally{await fsp.rm(tmp,{recursive:true,force:true});}
+  });
+
+  it('secure ZIP extraction enforces bomb, entry, and collision limits',async()=>{
+    const tmp=await fsp.mkdtemp(path.join(os.tmpdir(),'bc-zip-limit-')),root=path.join(tmp,'stage');
+    try{
+      const bomb=path.join(tmp,'bomb.zip');await fsp.writeFile(bomb,zipBuffer([{name:'bomb.txt',data:Buffer.alloc(4096,65),method:8}]));await assert.rejects(extractZipSecure(bomb,root,{maxCompressionRatio:2}),/compression ratio/);
+      const many=path.join(tmp,'many.zip');await fsp.writeFile(many,zipBuffer([{name:'a',data:Buffer.from('1')},{name:'b',data:Buffer.from('2')} ]));await assert.rejects(extractZipSecure(many,path.join(tmp,'many-stage'),{maxEntryCount:1}),/entry count/);
+      const duplicate=path.join(tmp,'duplicate.zip');await fsp.writeFile(duplicate,zipBuffer([{name:'same',data:Buffer.from('1')},{name:'same',data:Buffer.from('2')} ]));await assert.rejects(extractZipSecure(duplicate,path.join(tmp,'duplicate-stage')),/Duplicate archive entry/);
+      const collision=path.join(tmp,'collision.zip');await fsp.writeFile(collision,zipBuffer([{name:'dir/',data:Buffer.alloc(0)},{name:'dir',data:Buffer.from('x')} ]));await assert.rejects(extractZipSecure(collision,path.join(tmp,'collision-stage')),/collision/);
+    }finally{await fsp.rm(tmp,{recursive:true,force:true});}
+  });
+
+  it('failed extraction does not touch the current runtime and staging is disposable',async()=>{
+    const tmp=await fsp.mkdtemp(path.join(os.tmpdir(),'bc-zip-atomic-')),current=path.join(tmp,'current'),stage=path.join(tmp,'stage'),zip=path.join(tmp,'bad.zip');
+    await fsp.mkdir(current);await fsp.writeFile(path.join(current,'llama-server.exe'),'old');await fsp.writeFile(zip,zipBuffer([{name:'../bad',data:Buffer.from('x')} ]));
+    try{await assert.rejects(extractZipSecure(zip,stage));assert.equal(await fsp.readFile(path.join(current,'llama-server.exe'),'utf8'),'old');await fsp.rm(stage,{recursive:true,force:true});assert.equal(fs.existsSync(stage),false);}
+    finally{await fsp.rm(tmp,{recursive:true,force:true});}
+  });
 });
 
 function cryptoRandom(n){const b=Buffer.alloc(n);for(let i=0;i<n;i++)b[i]=i%251;return b;}
+
+function crc32(data){let crc=0xffffffff;for(const byte of data){crc^=byte;for(let i=0;i<8;i++)crc=(crc>>>1)^((crc&1)?0xedb88320:0);}return (crc^0xffffffff)>>>0;}
+function u16(n){const b=Buffer.alloc(2);b.writeUInt16LE(n);return b;}
+function u32(n){const b=Buffer.alloc(4);b.writeUInt32LE(n>>>0);return b;}
+function zipBuffer(entries){
+  const locals=[],centrals=[];let offset=0;
+  for(const input of entries){
+    const name=Buffer.from(input.name),raw=Buffer.isBuffer(input.data)?input.data:Buffer.from(input.data||''),method=input.method===8?8:0,body=method===8?zlib.deflateRawSync(raw):raw,crc=crc32(raw),attrs=Number(input.externalFileAttributes||0),madeBy=Number(input.versionMadeBy||20);
+    const local=Buffer.concat([Buffer.from([0x50,0x4b,0x03,0x04]),u16(20),u16(0),u16(method),u16(0),u16(0),u32(crc),u32(body.length),u32(raw.length),u16(name.length),u16(0),name,body]);
+    const central=Buffer.concat([Buffer.from([0x50,0x4b,0x01,0x02]),u16(madeBy),u16(20),u16(0),u16(method),u16(0),u16(0),u32(crc),u32(body.length),u32(raw.length),u16(name.length),u16(0),u16(0),u16(0),u16(0),u32(attrs),u32(offset),name]);
+    locals.push(local);centrals.push(central);offset+=local.length;
+  }
+  const central=Buffer.concat(centrals),local=Buffer.concat(locals),end=Buffer.concat([Buffer.from([0x50,0x4b,0x05,0x06]),u16(0),u16(0),u16(entries.length),u16(entries.length),u32(central.length),u32(local.length),u16(0)]);
+  return Buffer.concat([local,central,end]);
+}

@@ -1,6 +1,6 @@
 ﻿// Phase 3 non-live acceptance: credential abstraction, routing, failover,
 // retries, circuit breaker, ledger, pricing, cost, units, budget guards.
-// Uses mock adapters â€” NO network, NO real keys.
+// Uses mock adapters — NO network, NO real keys.
 const {test} = require('node:test');
 const assert = require('node:assert');
 const fs = require('node:fs');
@@ -17,6 +17,8 @@ const {BudgetGuard} = require('../runtime/cloud/budget.cjs');
 const {CloudRouter} = require('../runtime/cloud/router.cjs');
 const {ModelCatalog} = require('../runtime/cloud/catalog.cjs');
 const {estimateCost} = require('../runtime/cloud/cost.cjs');
+const {effectiveProviderCost,estimateCommercialMargin,freeBetaCostEnvelope,simulateProfit}=require('../runtime/cloud/economics.cjs');
+const {ACCEPTANCE_CONTRACT,evaluateResellerAcceptance}=require('../runtime/cloud/reseller.cjs');
 const {NebiusProvider} = require('../runtime/cloud/nebius.cjs');
 const {TogetherProvider} = require('../runtime/cloud/together.cjs');
 
@@ -144,6 +146,27 @@ test('pricing: verified baseline rates + unknown fails safe', async () => {
   assert.equal(unknown.costStatus, 'UNKNOWN'); assert.equal(unknown.cost, null);
   fs.rmSync(dir, {recursive: true, force: true});
 });
+test('pricing contract freezes reseller fields and unknown cached input stays unknown', async()=>{
+  const dir=tmpdir('pricing-contract'),pr=new PricingRegistry({dir}),rate=await pr.rate('nebius','deepseek-ai/DeepSeek-V4-Flash-0731');
+  for(const key of ['provider_id','canonical_model_id','upstream_model_id','upstream_version','currency','input_per_1m','cached_input_per_1m','output_per_1m','long_context_tiers','time_based_pricing','peak_window','offpeak_window','gateway_fee','topup_bonus','effective_from','effective_until','source','verified_at','registry_version'])assert.ok(Object.prototype.hasOwnProperty.call(rate,key),key);
+  assert.equal(rate.cached_input_per_1m,null);const unknownCached=await pr.estimate({provider:'nebius',modelId:'deepseek-ai/DeepSeek-V4-Flash-0731',inputTokens:100,cachedInputTokens:50,outputTokens:10});assert.equal(unknownCached.costStatus,'UNKNOWN');
+  await pr.upsert({provider:'together',modelId:'deepseek-ai/DeepSeek-V4-Flash-0731',inputPerMillion:.20,outputPerMillion:.40,effectiveFrom:'2027-01-01',source:'future test',verifiedAt:'2026-09-13'});
+  const historical=await pr.rate('together','deepseek-ai/DeepSeek-V4-Flash-0731',new Date('2026-12-01'));assert.equal(historical.input_per_1m,.14);
+  fs.rmSync(dir,{recursive:true,force:true});
+});
+test('economics: effective cost, margin policy, simulator, and free envelope',async()=>{
+  const dir=tmpdir('economics'),pr=new PricingRegistry({dir});
+  const cost=await effectiveProviderCost({pricing:pr,provider:'together',modelId:'deepseek-ai/DeepSeek-V4-Flash-0731',usage:{input_tokens:10000,output_tokens:2000},modifiers:{gatewayFeeUsd:.01,retryCostUsd:.002,failoverCostUsd:.003,topupBonusRate:.1}});
+  assert.equal(cost.status,'KNOWN');assert.ok(cost.rawUpstreamCost>0);assert.ok(cost.totalEffectiveCost>cost.rawUpstreamCost);
+  const policy=estimateCommercialMargin({totalEffectiveCost:cost.totalEffectiveCost,targetGrossMargin:.75});assert.equal(policy.estimatedGrossMargin,.75);assert.ok(Math.abs(policy.estimatedSellPrice-cost.totalEffectiveCost/.25)<1e-8);
+  const rows=await simulateProfit({pricing:pr,providers:['together'],models:['deepseek-ai/DeepSeek-V4-Flash-0731'],workloads:{small:{inputTokens:10000,outputTokens:2000}}});assert.equal(rows[0].status,'KNOWN');assert.ok(rows[0].sellPriceAt70Margin<rows[0].sellPriceAt75Margin&&rows[0].sellPriceAt75Margin<rows[0].sellPriceAt80Margin);
+  const free=await freeBetaCostEnvelope({pricing:pr,provider:'together',modelId:'deepseek-ai/DeepSeek-V4-Flash-0731',subsidyBudgetUsd:100});assert.equal(free.priceToUser,'Rp0');assert.equal(free.oneConcurrentRequest,true);assert.ok(free.maxCostPerFreeUserDay>0);assert.ok(free.maxFreeUsersForBudget>0);
+  const unknown=await effectiveProviderCost({pricing:pr,provider:'together',modelId:'unknown/model',usage:{input_tokens:1,output_tokens:1}});assert.equal(unknown.status,'UNKNOWN');assert.equal(unknown.totalEffectiveCost,null);
+  fs.rmSync(dir,{recursive:true,force:true});
+});
+test('reseller acceptance contract is explicit and cheap pricing is insufficient',()=>{
+  assert.ok(ACCEPTANCE_CONTRACT.includes('LEGAL_PERMISSION'));const incomplete=evaluateResellerAcceptance({MODEL_IDENTITY:true,COST:true});assert.equal(incomplete.productionEligible,false);assert.ok(incomplete.missing.length>0);const complete=evaluateResellerAcceptance(Object.fromEntries(ACCEPTANCE_CONTRACT.map(k=>[k,true])));assert.equal(complete.productionEligible,true);
+});
 test('units: derived from actual cost vs reference (no arbitrary multiplier)', async () => {
   const ue = new UnitEngine({});
   const refCostPerTok = ue.blendedCostPerToken({inputPerMillion: 0.14, outputPerMillion: 0.28, ratio: 0.75});
@@ -178,13 +201,14 @@ test('budget: rejects oversized input/output/cost/session/daily', async () => {
 test('ledger: normalized records persist and survive reload', async () => {
   const dir = tmpdir('ledger');
   const l1 = new UsageLedger({dir});
-  await l1.append({requestId: 'r1', providerRequested: 'nebius', providerUsed: 'together', modelId: 'MiniMaxAI/MiniMax-M3', failover: true, retryCount: 1, inputTokens: 12, outputTokens: 34, totalTokens: 46, latencyMs: 800, estimatedCost: 0.002, costStatus: 'KNOWN', pricingVersion: 'v1:2026-09-13', cloudUnits: 20});
+  await l1.append({requestId: 'r1', providerRequested: 'nebius', providerUsed: 'together', modelId: 'MiniMaxAI/MiniMax-M3', failover: true, retryCount: 1, inputTokens: 12, outputTokens: 34, totalTokens: 46, latencyMs: 800, estimatedCost: 0.002, rawUpstreamCost: 0.001, totalEffectiveCost: 0.002, costBasis: {currency: 'USD', pricingVersion: 'v1:2026-09-13'}, costStatus: 'KNOWN', pricingVersion: 'v1:2026-09-13', cloudUnits: 20});
   const l2 = new UsageLedger({dir}); // new instance = simulated restart
   const rows = await l2.list();
   assert.equal(rows.length, 1);
   const r = rows[0];
   assert.equal(r.request_id, 'r1'); assert.equal(r.failover, true); assert.equal(r.provider_used, 'together');
   assert.equal(r.pricing_version, 'v1:2026-09-13');
+  assert.equal(r.raw_upstream_cost, 0.001); assert.equal(r.total_effective_cost, 0.002); assert.deepEqual(r.cost_basis, {currency: 'USD', pricingVersion: 'v1:2026-09-13'});
   assert.ok(!('prompt' in r) && !('messages' in r), 'no prompt bodies in ledger');
   const sum = await l2.summary();
   assert.equal(sum.requests, 1); assert.ok(sum.estimatedCost > 0);
