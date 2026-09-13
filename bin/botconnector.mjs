@@ -1,4 +1,4 @@
-﻿// botconnector CLI â€” shares BotConnector Core (same Store, HF adapter, DownloadManager,
+// botconnector CLI - shares BotConnector Core (same Store, HF adapter, DownloadManager,
 // RuntimeManager, model paths and config as the Electron desktop). Works with GUI closed.
 // Usage: node bin/botconnector.mjs <command> [args] [--json] [--port N]
 import os from 'node:os';
@@ -42,7 +42,7 @@ function resolveModelRef(ref,installed){
 }
 async function waitReady(tries=45){for(let i=0;i<tries;i++){const h=await serverHealth();if(h.up)return true;await sleep(2000);}return false;}
 
-const HELP=`botconnector â€” BotConnector AI CLI (shares Core/config with the desktop app)
+const HELP=`botconnector - BotConnector AI CLI (shares Core/config with the desktop app)
 
   botconnector --help | version | doctor [--json]
   botconnector models search <query> [--json]
@@ -70,7 +70,7 @@ if(cmd==='version'){out({name:APP,version:'0.4.0'});process.exit(0);}
 if(cmd==='doctor'){
   const {runDoctor}=await import('../scripts/doctor.mjs');
   const r=await runDoctor();
-  out(json?r:r.checks.map(c=>`${c.status}  ${c.name} â€” ${c.detail}`).join('\n'));
+  out(json?r:r.checks.map(c=>`${c.status}  ${c.name} - ${c.detail}`).join('\n'));
   process.exit(r.checks.some(c=>c.status==='FAIL')?1:0);
 }
 if(cmd==='models'&&sub==='search'){
@@ -80,7 +80,7 @@ if(cmd==='models'&&sub==='search'){
   const items=await hf.searchModels({query:q,limit:60,hardware});
   const rows=recommended?items.filter(m=>['great','ok'].includes(m.compatibility?.level)).slice(0,20):items.slice(0,30);
   if(json)out(rows);
-  else rows.forEach(m=>console.log(`${m.compatibility?.level||'?'}  ${m.id}  â™¥${m.likes} â¬‡${m.downloads}  [${Object.entries(m.capabilities||{}).filter(([,v])=>v).map(([k])=>k).join(',')}]`));
+  else rows.forEach(m=>console.log(`${m.compatibility?.level||'?'}  ${m.id}  *${m.likes} v${m.downloads}  [${Object.entries(m.capabilities||{}).filter(([,v])=>v).map(([k])=>k).join(',')}]`));
   process.exit(0);
 }
 if(cmd==='models'&&sub==='info'){
@@ -126,7 +126,7 @@ if(cmd==='runtime'&&sub==='resolve'){
 }
 if(cmd==='runtime'&&sub==='install'){
   const backend=opt('backend',store.get('runtimeBackend')||'auto');
-  console.error(`resolving ${backend}â€¦`);
+  console.error(`resolving ${backend}...`);
   const r=await runtimes.install({backend});
   out({ok:true,release:r.release,backend:r.backend,binary:r.binary,version:r.version});
   process.exit(0);
@@ -201,7 +201,7 @@ if(cmd==='cloud'&&sub==='models'){
   const q=(rawArgs.includes('--refresh')?'?refresh=1':'')+(arg?'&(provider='+encodeURIComponent(arg)+')':'');
   const r=await cloudApi('/api/cloud/models'+q);
   if(json)out(r);
-  else if(rawArgs.includes('--refresh')){const res=r.refresh||{};console.log(['nebius','together'].map(p=>`${p}: ${res[p]&&res[p].ok?res[p].count+' live':'failed ('+(res[p]&&res[p].error||'?')+')'}`).join(' Â· '));r.models.slice(0,40).forEach(m=>console.log(`${m.modelId}  [${m.provider}]${m.stale?' (stale)':''}`));}
+  else if(rawArgs.includes('--refresh')){const res=r.refresh||{};console.log(['nebius','together'].map(p=>`${p}: ${res[p]&&res[p].ok?res[p].count+' live':'failed ('+(res[p]&&res[p].error||'?')+')'}`).join(' | '));r.models.slice(0,40).forEach(m=>console.log(`${m.modelId}  [${m.provider}]${m.stale?' (stale)':''}`));}
   else r.models.slice(0,40).forEach(m=>console.log(`${m.modelId}  [${m.provider}]${m.stale?' (stale)':''}`));
   process.exit(0);
 }
@@ -423,4 +423,3 @@ if(cmd==='cloud'&&sub==='remove-key'){
   process.exit(0);
 }
 console.error(`unknown command: ${cmd}\n`+HELP);process.exit(2);
-
