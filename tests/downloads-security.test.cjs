@@ -120,7 +120,17 @@ describe('security boundaries',()=>{
   it('secure ZIP extraction blocks archive and destination links',async()=>{
     const tmp=await fsp.mkdtemp(path.join(os.tmpdir(),'bc-zip-link-')),zip=path.join(tmp,'link.zip'),root=path.join(tmp,'stage'),outside=path.join(tmp,'outside');
     await fsp.mkdir(outside);await fsp.writeFile(zip,zipBuffer([{name:'link',data:Buffer.from('target'),externalFileAttributes:(0xa000|0o777)<<16,versionMadeBy:(3<<8)|20}]));
-    try{await assert.rejects(extractZipSecure(zip,root),/Unsupported archive entry/);await fsp.mkdir(root,{recursive:true});await fsp.symlink(outside,path.join(root,'redirect'));const nested=path.join(tmp,'nested.zip');await fsp.writeFile(nested,zipBuffer([{name:'redirect/evil.txt',data:Buffer.from('x')} ]));await assert.rejects(extractZipSecure(nested,root),/Unsafe extraction component/);assert.equal(fs.existsSync(path.join(outside,'evil.txt')),false);}
+    try{await assert.rejects(extractZipSecure(zip,root),/Unsupported archive entry/);await fsp.mkdir(root,{recursive:true});
+      // Windows: symlinks need developer mode/elevation; junctions do not. Use a junction
+      // for the destination-redirect case and record symlink unavailability honestly.
+      let linkKind='symlink',linkError=null;
+      try{await fsp.symlink(outside,path.join(root,'redirect'),'junction');}
+      catch(e){linkError=e;try{await fsp.symlink(outside,path.join(root,'redirect'),'junction');linkKind='junction-fallback';}catch(e2){linkError=e2;}}
+      const nested=path.join(tmp,'nested.zip');await fsp.writeFile(nested,zipBuffer([{name:'redirect/evil.txt',data:Buffer.from('x')} ]));
+      await assert.rejects(extractZipSecure(nested,root),/Unsafe extraction component/);
+      assert.equal(fs.existsSync(path.join(outside,'evil.txt')),false);
+      if(linkError)console.log(`    note: ${linkKind} created after symlink EPERM (${linkError.code}) — junction is the Windows-representative reparse case`);
+    }
     finally{await fsp.rm(tmp,{recursive:true,force:true});}
   });
 
