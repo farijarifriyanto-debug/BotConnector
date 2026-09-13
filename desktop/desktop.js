@@ -65,8 +65,62 @@ async function saveMcp(config){try{const saved=await window.botconnector.mcpSave
 async function testMcp(id){$('#mcpFormStatus').textContent='Connecting to MCP server…';try{const tested=await window.botconnector.mcpTest(id);state.mcp=await window.botconnector.mcpList();renderMcp();$('#mcpFormStatus').textContent=`${tested.name}: ${tested.status}. Tools: ${(tested.tools||[]).join(', ')||'none'}`}catch(e){$('#mcpFormStatus').textContent=`Connection failed: ${e.message||e}`}}
 function refreshMcp(){window.botconnector.mcpList().then(rows=>{state.mcp=rows;renderMcp()}).catch(e=>{$('#mcpFormStatus').textContent=`MCP load failed: ${e.message||e}`})}
 function renderChatHeader(){$('#chatRuntimeLabel').textContent=state.runtime?.running?`Active: ${state.runtime.modelPath?.split(/[\\/]/).pop()||'local model'} · http://127.0.0.1:${state.runtime.port||11435}`:'Start a local model before sending messages.'}
+// ---------- Cloud view ----------
+let cloudState=null,cloudModels=[];
+const HEALTH_LABEL={HEALTHY:'Healthy',DEGRADED:'Degraded',RATE_LIMITED:'Rate limited',AUTH_ERROR:'Auth error',UNAVAILABLE:'Unavailable'};
+function renderCloud(){
+  if(!cloudState)return;
+  const c=cloudState.credentials||{};
+  $('#cloudStatusPill').textContent=(c.nebius?.configured||c.together?.configured)?'POC READY':'AWAITING KEYS';
+  $('#cloudStatusPill').className='count-pill'+((c.nebius?.configured||c.together?.configured)?'':' warn');
+  const rows=['nebius','together'].map(p=>{
+    const info=c[p]||{configured:false,source:'missing'};
+    const health=(cloudState.health||{})[p]||{state:'HEALTHY'};
+    return `<article class="model-row"><div class="model-icon">☁</div><div class="model-main"><div class="model-title-line"><h3>${p==='nebius'?'Nebius Token Factory':'Together AI'}</h3><span class="fit ${info.configured?'':'warn'}">${info.configured?'Configured':'Not configured'}</span></div><div class="model-meta"><span>source: ${esc(info.source||'missing')}${info.envName?` (${esc(info.envName)})`:''}</span><span>health: ${esc(HEALTH_LABEL[health.state]||health.state)}</span></div></div><div class="model-action"><label class="sr-only" for="key-${p}">${p} API key</label><input type="password" id="key-${p}" placeholder="${info.configured?'Replace key (hidden)':'Enter API key'}" autocomplete="off"><button class="primary" data-cloud-set="${p}">${info.configured?'Replace':'Set'}</button>${info.configured?'<button class="danger" data-cloud-remove="'+p+'">Remove</button>':''}</div></article>`;
+  }).join('');
+  $('#cloudProviders').innerHTML=rows;
+  $('#cloudProviders').querySelectorAll('[data-cloud-set]').forEach(b=>b.onclick=async()=>{
+    const p=b.dataset.cloudSet,input=$('#key-'+p),value=input.value.trim();
+    if(!value){return;}
+    b.disabled=true;
+    try{const r=await window.botconnector.cloudSetKey({provider:p,key:value});input.value='';await refreshCloud();$('#cloudCatalogInfo').textContent=`${p}: key stored (encrypted). Provider ${r.health}.`;}
+    catch(e){$('#cloudCatalogInfo').textContent=`Failed to store ${p} key: ${e.message||e}`;}
+    finally{b.disabled=false;}
+  });
+  $('#cloudProviders').querySelectorAll('[data-cloud-remove]').forEach(b=>b.onclick=async()=>{if(!confirm('Remove the stored '+b.dataset.cloudRemove+' API key?'))return;await window.botconnector.cloudRemoveKey(b.dataset.cloudRemove);refreshCloud();});
+  const h=cloudState.health||{};
+  $('#cloudHealth').innerHTML=['nebius','together'].map(p=>`<div><span>${p==='nebius'?'Nebius':'Together'}</span><b>${esc(HEALTH_LABEL[(h[p]||{}).state]||'—')}</b></div>`).join('');
+  $('#cloudModels').innerHTML=cloudModels.length?cloudModels.map(m=>`<div class="model-row"><div class="model-main"><div class="model-title-line"><h3>${esc(m.modelId)}</h3>${m.stale?'<span class="fit warn">stale</span>':''}</div><div class="model-meta"><span>${esc(m.provider)}</span><span>${esc(m.modality||'text')}</span>${m.context?`<span>ctx ${esc(String(m.context))}</span>`:''}${m.pricing&&m.pricing.inputPerMillion!=null?`<span>$${esc(m.pricing.inputPerMillion)}/M in · $${esc(m.pricing.outputPerMillion)}/M out</span>`:'<span>pricing: not exposed</span>'}</div></div></div>`).join(''):'<div class="empty">Catalog empty. Configure a key, then refresh.</div>';
+  const cnt=cloudState.catalog||{};
+  $('#cloudModelCount').textContent=`${cnt.total||0} models · ${cnt.overlap||0} overlap`;
+  const b=cloudState.budget||{};
+  $('#cloudBudget').innerHTML=`<div><span>Max input tokens</span><b>${b.maxInputTokens??'—'}</b></div><div><span>Max output tokens</span><b>${b.maxOutputTokens??'—'}</b></div><div><span>Per-request cost cap</span><b>$${b.maxRequestCostUsd??'—'}</b></div><div><span>Session budget</span><b>$${b.sessionBudgetUsd??'—'}</b></div><div><span>Daily POC budget</span><b>$${b.dailyBudgetUsd??'—'}</b></div>`;
+}
+async function refreshCloud(){
+  cloudState=await window.botconnector.cloudStatus();
+  renderCloud();
+  const u=await window.botconnector.cloudUsage();
+  if(u.summary&&u.summary.requests>0){const s=u.summary;$('#cloudUsage').innerHTML=`${s.requests} cloud requests · est. spend $${(s.estimatedCost||0).toFixed(4)} · tokens in ${s.totals.inputTokens} / out ${s.totals.outputTokens} · by provider: ${Object.entries(s.byProvider||{}).map(([p,n])=>`${p}:${n}`).join(', ')}`;}
+  else $('#cloudUsage').textContent='No cloud usage recorded yet.';
+}
+$('#cloudRefresh').onclick=refreshCloud;
+$('#cloudRefreshModels').onclick=async()=>{
+  $('#cloudCatalogInfo').textContent='Refreshing live catalogs…';
+  try{const r=await window.botconnector.cloudModels({refresh:true});
+    const rr=(r&&r.models)||[];cloudModels=rr;
+    const res=(r&&r.refresh)||{};
+    const parts=['nebius','together'].map(p=>`${p}: ${res[p]&&res[p].ok?res[p].count+' live':('failed ('+(res[p]&&res[p].error||'?')+')')}`);
+    $('#cloudCatalogInfo').textContent='Catalog: '+parts.join(' · ')+(rr.some(m=>m.stale)?' (stale entries retained)':'');
+    const info=await window.botconnector.cloudStatus();cloudState=info;renderCloud();
+    const c=info.catalog||{};$('#cloudModelCount').textContent=`${c.total||rr.length} models · ${c.overlap||0} overlap`;
+    renderCloudModels(rr);
+  }catch(e){$('#cloudCatalogInfo').textContent='Refresh failed: '+(e.message||e);}
+};
+function renderCloudModels(models){
+  $('#cloudModels').innerHTML=models.length?models.slice(0,60).map(m=>`<div class="model-row"><div class="model-icon">☁</div><div class="model-main"><div class="model-title-line"><h3>${esc(m.modelId)}</h3>${m.stale?'<span class="fit warn">stale</span>':''}</div><div class="model-meta"><span>${esc(m.provider)}</span>${m.pricing&&m.pricing.inputPerMillion?`<span>$${esc(m.pricing.inputPerMillion)}/M in</span>`:''}</div></div></div>`).join(''):'<div class="empty">No models discovered yet.</div>';
+}
 function renderChat(){const box=$('#chatMessages');box.innerHTML=chatMessages.length?chatMessages.map(m=>`<div class="message ${m.role}"><small>${m.role==='user'?'YOU':m.role==='tool'?'TOOL RESULT':'LOCAL MODEL'}</small>${m.reasoning?`<details class="reasoning"><summary>Reasoning trace (model-exposed)</summary><div>${esc(m.reasoning)}</div></details>`:''}${(m.toolCalls||[]).map(t=>`<div class="tool-call"><b>🔧 Tool call: ${esc(t.function?.name||t.name||'?')}</b><code>${esc(typeof t.function?.arguments==='string'?t.function.arguments:JSON.stringify(t.input||t.function?.arguments||{}))}</code><span class="technical-note">Allowlisted tool request; executed by BotConnector Core.</span></div>`).join('')}<div>${esc(m.content||'')}</div></div>`).join(''):'<div class="empty">No messages.</div>';box.scrollTop=box.scrollHeight}
-function navigate(v){currentView=v;$$('.view').forEach(x=>x.classList.remove('active-view'));$(`#view-${v}`).classList.add('active-view');$$('.sidebar [data-view]').forEach(b=>b.classList.toggle('active',b.dataset.view===v));setHeader(v);if(v==='discover'&&!discoverAll.length)loadDiscover('');if(v==='runtime')refreshLogs();if(v==='installed')refreshInstalled();if(v==='mcp')refreshMcp()}
+function navigate(v){currentView=v;$$('.view').forEach(x=>x.classList.remove('active-view'));$(`#view-${v}`).classList.add('active-view');$$('.sidebar [data-view]').forEach(b=>b.classList.toggle('active',b.dataset.view===v));setHeader(v);if(v==='discover'&&!discoverAll.length)loadDiscover('');if(v==='runtime')refreshLogs();if(v==='installed')refreshInstalled();if(v==='mcp')refreshMcp();if(v==='cloud')refreshCloud()}
 $$('.sidebar [data-view], [data-view].ghost').forEach(b=>b.addEventListener('click',()=>navigate(b.dataset.view)));
 $$('[data-cap]').forEach(b=>b.onclick=()=>{cap=b.dataset.cap;$$('[data-cap]').forEach(x=>x.classList.toggle('active',x===b));renderDiscover()});
 $$('[data-discover-tab]').forEach(b=>b.onclick=()=>{discoverTab=b.dataset.discoverTab;$$('[data-discover-tab]').forEach(x=>x.classList.toggle('active',x===b));renderDiscover()});

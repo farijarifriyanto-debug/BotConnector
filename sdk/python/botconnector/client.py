@@ -42,12 +42,29 @@ class _Runtime(_Resource):
         return {"healthy": health.get("status") in ("ok", "ready") if isinstance(health, dict) else bool(health), "status": health.get("status", "ok") if isinstance(health, dict) else "ok", "models": models}
 
 
+class _Cloud(_Resource):
+    """Cloud router surface. Routed by BotConnector Core: cloud prompts leave
+    the device; local prompts never do. No provider secrets are exposed here."""
+    def status(self) -> Dict[str, Any]: return self.client._request_origin("/api/cloud/status")
+    def providers(self) -> Dict[str, Any]: return self.client._request_origin("/api/cloud/providers")
+    def models(self, refresh: bool = False, provider: Optional[str] = None) -> Dict[str, Any]:
+        query = []
+        if refresh: query.append("refresh=1")
+        if provider: query.append("provider=" + urllib.parse.quote(provider, safe=""))
+        return self.client._request_origin("/api/cloud/models" + (("?" + "&".join(query)) if query else ""))
+    def usage(self, limit: int = 20) -> Dict[str, Any]: return self.client._request_origin("/api/cloud/usage?limit=" + str(int(limit)))
+    def routing(self) -> Dict[str, Any]: return self.client._request_origin("/api/cloud/routing")
+    def chat(self, request: Dict[str, Any]) -> Dict[str, Any]:
+        payload = dict(request); payload["stream"] = False
+        return self.client._request("/chat/completions", "POST", payload)
+
+
 class BotConnector:
     def __init__(self, base_url: str = "http://127.0.0.1:11435/v1", api_key: Optional[str] = None, timeout: float = 30.0):
         self.base_url = base_url.rstrip("/")
         self.api_key = api_key
         self.timeout = max(0.25, float(timeout))
-        self.models, self.chat, self.embeddings, self.runtime = _Models(self), _Chat(self), _Embeddings(self), _Runtime(self)
+        self.models, self.chat, self.embeddings, self.runtime, self.cloud = _Models(self), _Chat(self), _Embeddings(self), _Runtime(self), _Cloud(self)
 
     def _url(self, path: str) -> str: return self.base_url + "/" + path.lstrip("/")
     def _headers(self, stream: bool = False) -> Dict[str, str]:

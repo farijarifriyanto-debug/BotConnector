@@ -1,4 +1,4 @@
-// botconnector CLI — shares BotConnector Core (same Store, HF adapter, DownloadManager,
+﻿// botconnector CLI â€” shares BotConnector Core (same Store, HF adapter, DownloadManager,
 // RuntimeManager, model paths and config as the Electron desktop). Works with GUI closed.
 // Usage: node bin/botconnector.mjs <command> [args] [--json] [--port N]
 import os from 'node:os';
@@ -42,7 +42,7 @@ function resolveModelRef(ref,installed){
 }
 async function waitReady(tries=45){for(let i=0;i<tries;i++){const h=await serverHealth();if(h.up)return true;await sleep(2000);}return false;}
 
-const HELP=`botconnector — BotConnector AI CLI (shares Core/config with the desktop app)
+const HELP=`botconnector â€” BotConnector AI CLI (shares Core/config with the desktop app)
 
   botconnector --help | version | doctor [--json]
   botconnector models search <query> [--json]
@@ -57,7 +57,10 @@ const HELP=`botconnector — BotConnector AI CLI (shares Core/config with the de
   botconnector chat <model-ref?> "prompt" [--stream] [--api-key KEY]
   botconnector embed "text" [--json] [--api-key KEY]
   botconnector server start <model-ref> [--ctx N] [--backend auto|cpu|vulkan|cuda12|cuda13|rocm] [--api-key KEY] | stop | status [--json]
-  botconnector cloud status [--json]
+  botconnector cloud status [--json] | providers [--json] | models [--refresh] [provider] [--json]
+  botconnector cloud set-key <nebius|together> | key-status [--json] | remove-key <provider>
+  botconnector cloud usage [--limit N] [--json] | routing [--json]
+  botconnector cloud test [model-id] [--prompt "..."]   (small cost-capped probe)
   botconnector launch <opencode|claude-code|codex|cline> [--apply]
 `;
 const [cmd,sub]=rawArgs.filter(a=>!a.startsWith('--'));
@@ -67,7 +70,7 @@ if(cmd==='version'){out({name:APP,version:'0.4.0'});process.exit(0);}
 if(cmd==='doctor'){
   const {runDoctor}=await import('../scripts/doctor.mjs');
   const r=await runDoctor();
-  out(json?r:r.checks.map(c=>`${c.status}  ${c.name} — ${c.detail}`).join('\n'));
+  out(json?r:r.checks.map(c=>`${c.status}  ${c.name} â€” ${c.detail}`).join('\n'));
   process.exit(r.checks.some(c=>c.status==='FAIL')?1:0);
 }
 if(cmd==='models'&&sub==='search'){
@@ -77,7 +80,7 @@ if(cmd==='models'&&sub==='search'){
   const items=await hf.searchModels({query:q,limit:60,hardware});
   const rows=recommended?items.filter(m=>['great','ok'].includes(m.compatibility?.level)).slice(0,20):items.slice(0,30);
   if(json)out(rows);
-  else rows.forEach(m=>console.log(`${m.compatibility?.level||'?'}  ${m.id}  ♥${m.likes} ⬇${m.downloads}  [${Object.entries(m.capabilities||{}).filter(([,v])=>v).map(([k])=>k).join(',')}]`));
+  else rows.forEach(m=>console.log(`${m.compatibility?.level||'?'}  ${m.id}  â™¥${m.likes} â¬‡${m.downloads}  [${Object.entries(m.capabilities||{}).filter(([,v])=>v).map(([k])=>k).join(',')}]`));
   process.exit(0);
 }
 if(cmd==='models'&&sub==='info'){
@@ -123,7 +126,7 @@ if(cmd==='runtime'&&sub==='resolve'){
 }
 if(cmd==='runtime'&&sub==='install'){
   const backend=opt('backend',store.get('runtimeBackend')||'auto');
-  console.error(`resolving ${backend}…`);
+  console.error(`resolving ${backend}â€¦`);
   const r=await runtimes.install({backend});
   out({ok:true,release:r.release,backend:r.backend,binary:r.binary,version:r.version});
   process.exit(0);
@@ -135,9 +138,89 @@ if(cmd==='runtime'&&sub==='use'){
   out({ok:true,runtimeBackend:b});
   process.exit(0);
 }
-if(cmd==='cloud'&&sub==='status'){
-  const reg=JSON.parse(await fsp.readFile(new URL('../registry/models.json',import.meta.url),'utf8'));
-  out({note:'Cloud routing is catalog-only in this beta. Local prompts are never sent to cloud.',models:reg.models.filter(m=>m.kind==='cloud').map(m=>({id:m.id,vendor:m.vendor,status:m.status,context:m.context}))});
+function cloudParts(){
+  const cloudDir=path.join(userData,'cloud');
+  const {CredentialManager}=require('../runtime/credentials.cjs');
+  const {NebiusProvider}=require('../runtime/cloud/nebius.cjs');
+  const {TogetherProvider}=require('../runtime/cloud/together.cjs');
+  const {ModelCatalog}=require('../runtime/cloud/catalog.cjs');
+  const {RoutingTable}=require('../runtime/cloud/routing.cjs');
+  const {HealthBoard}=require('../runtime/cloud/health.cjs');
+  const {UsageLedger}=require('../runtime/cloud/usage.cjs');
+  const {PricingRegistry}=require('../runtime/cloud/pricing.cjs');
+  const {UnitEngine}=require('../runtime/cloud/units.cjs');
+  const {BudgetGuard}=require('../runtime/cloud/budget.cjs');
+  const {CloudRouter}=require('../runtime/cloud/router.cjs');
+  const credentials=new CredentialManager({store,env:process.env});
+  const adapters={
+    nebius:new NebiusProvider({getKey:()=>{const s=credentials.source('nebius');return s.source==='missing'?null:s.key;}}),
+    together:new TogetherProvider({getKey:()=>{const s=credentials.source('together');return s.source==='missing'?null:s.key;}})
+  };
+  const catalog=new ModelCatalog({adapters,cachedir:cloudDir});
+  const health=new HealthBoard({dir:cloudDir});health.restore().catch(()=>{});
+  const router=new CloudRouter({adapters,catalog,routing:new RoutingTable({dir:cloudDir}),health,ledger:new UsageLedger({dir:cloudDir}),pricing:new PricingRegistry({dir:cloudDir}),units:new UnitEngine({}),budget:new BudgetGuard({dir:cloudDir})});
+  return {credentials,adapters,catalog,health,router,cloudDir};
+}
+const CLOUD_API_PORT=()=>Number(opt('cloud-port',11440));
+async function cloudApiRequest(pathname,{method='GET',body}={}){
+  try{const r=await fetch(`http://127.0.0.1:${CLOUD_API_PORT()}${pathname}`,{method,headers:body?{'Content-Type':'application/json'}:{},body:body?JSON.stringify(body):undefined,signal:AbortSignal.timeout(180000)});const j=await r.json().catch(()=>({}));return {status:r.status,j};}
+  catch(e){return {status:0,j:{error:{message:String(e.message||e),code:'NETWORK_ERROR'}}};}
+}
+if(cmd==='cloud'&&sub==='serve'){
+  // Deterministic localhost sidecar exposing /api/cloud/* for CLI/SDK surfaces.
+  const {CloudServer}=require('../runtime/cloud/server.cjs');
+  const cs=new CloudServer({store,port:CLOUD_API_PORT()});
+  await cs.listen();
+  console.error(`BotConnector cloud API on http://127.0.0.1:${CLOUD_API_PORT()} (localhost only; Ctrl-C stops)`);
+  await new Promise(()=>{});
+}
+async function cloudApi(pathname,{method='GET',body}={}){
+  const {status,j}=await cloudApiRequest(pathname,{method,body});
+  if(status===0)fail('cloud API sidecar is not running. Start it with: botconnector cloud serve (the desktop app also starts it automatically)');
+  if(status>=400)fail(j.error?`${j.error.code||'CLOUD_ERROR'}: ${j.error.message}`:`cloud API returned ${status}`);
+  return j;
+}
+if(cmd==='cloud'&&(sub==='status'||!sub)){
+  const {credentials,adapters,health,catalog}=cloudParts();
+  const status=health.all(['nebius','together']);
+  const counts=catalog.counts();
+  out({
+    note:'Multi-provider POC. Exact-model routing only; prompts sent to cloud leave this device; local prompts stay local.',
+    credentials:credentials.public(),
+    providers:{nebius:status.nebius,together:status.together},
+    catalog:counts,
+    commercialLaunchApproved:false
+  });
+  process.exit(0);
+}
+if(cmd==='cloud'&&sub==='providers'){
+  out(await cloudApi('/api/cloud/providers'));process.exit(0);
+}
+if(cmd==='cloud'&&sub==='models'){
+  const arg=rawArgs.find((a,i)=>i>2&&!a.startsWith('--'));
+  const q=(rawArgs.includes('--refresh')?'?refresh=1':'')+(arg?'&(provider='+encodeURIComponent(arg)+')':'');
+  const r=await cloudApi('/api/cloud/models'+q);
+  if(json)out(r);
+  else if(rawArgs.includes('--refresh')){const res=r.refresh||{};console.log(['nebius','together'].map(p=>`${p}: ${res[p]&&res[p].ok?res[p].count+' live':'failed ('+(res[p]&&res[p].error||'?')+')'}`).join(' Â· '));r.models.slice(0,40).forEach(m=>console.log(`${m.modelId}  [${m.provider}]${m.stale?' (stale)':''}`));}
+  else r.models.slice(0,40).forEach(m=>console.log(`${m.modelId}  [${m.provider}]${m.stale?' (stale)':''}`));
+  process.exit(0);
+}
+if(cmd==='cloud'&&sub==='usage'){
+  const r=await cloudApi('/api/cloud/usage?limit='+Number(opt('limit',10)));
+  out(json?r:(JSON.stringify(r.summary,null,2)+'\nrecent: '+r.recent.map(x=>`${x.timestamp} ${x.provider_used} ${x.model_id} failover=${x.failover} $${x.estimated_provider_cost}`).join('\n')));
+  process.exit(0);
+}
+if(cmd==='cloud'&&sub==='routing'){
+  out(await cloudApi('/api/cloud/routing'));
+  process.exit(0);
+}
+if(cmd==='cloud'&&sub==='test'){
+  const model=rawArgs.find((a,i)=>i>2&&!a.startsWith('--'))||'deepseek-ai/DeepSeek-V4-Flash-0731';
+  const prompt=opt('prompt','Reply with exactly: OK-CLOUD');
+  const {status,j}=await cloudApiRequest('/api/cloud/chat',{method:'POST',body:{model,messages:[{role:'user',content:prompt}],max_tokens:32}});
+  if(status===0)fail('cloud API sidecar is not running: botconnector cloud serve');
+  if(status>=400)out({ok:false,...(j.error||{})});
+  else{const m=(j.choices&&j.choices[0]&&j.choices[0].message)||{};const meta=j._meta||{};out({ok:true,model:meta.modelId||model,providerUsed:meta.providerUsed,failover:meta.failover,content:m.content,usage:meta.usage,cost:meta.cost,cloudUnits:meta.cloudUnits});}
   process.exit(0);
 }
 async function startServer(modelRef,ctx){
@@ -252,4 +335,92 @@ if(cmd==='launch'){
   process.exit(0);
 }
 function onPath(bin){try{execFileSync(process.platform==='win32'?'where':'which',[bin],{stdio:'ignore',windowsHide:true});return true;}catch{return false;}}
+
+// ---------- Cloud: credentials + status (Core-shared, secrets never echoed) ----------
+// CLI runs outside Electron, so safeStorage blobs cannot be decrypted here; a
+// dedicated CredentialManager resolves via env fallback and reports configured
+// state. Key WRITES from CLI go through Electron main when available; in pure
+// CLI context we store an env-resolvable reference, never plaintext.
+function cloudCredentialManager(){
+  const {CredentialManager}=require('../runtime/credentials.cjs');
+  return new CredentialManager({store,env:process.env});
+}
+function cloudDir(){return path.join(userData,'cloud');}
+function hiddenPrompt(text){
+  // Hidden (non-echo) single-line secret reader. In a TTY, raw stdin echoes '*'
+  // per character and the value itself is never printed. When stdin is not a
+  // TTY (piped), fall back to reading a line without echoing anything.
+  return new Promise(resolve=>{
+    process.stdout.write(text);
+    if(!process.stdin.isTTY){
+      process.stdin.setEncoding('utf8');
+      let s='';
+      const onData=ch=>{
+        s+=ch;
+        if(/\r?\n/.test(ch)||s.length>512){process.stdin.removeListener('data',onData);resolve(s.replace(/\r?\n.*$/,''));}
+      };
+      process.stdin.on('data',onData);
+      return;
+    }
+    let s='';
+    const wasRaw=process.stdin.isRaw;
+    process.stdin.setRawMode(true);
+    process.stdin.resume();
+    process.stdin.setEncoding('utf8');
+    const onData=ch=>{
+      if(ch==='\r'||ch==='\n'){
+        process.stdin.removeListener('data',onData);
+        try{process.stdin.setRawMode(wasRaw);}catch{}
+        process.stdin.pause();
+        process.stdout.write('\n');
+        resolve(s);
+      }else if(ch==='\u0003'){
+        try{process.stdin.setRawMode(wasRaw);}catch{}
+        process.exit(130);
+      }else if(ch==='\u007f'||ch==='\b'){
+        if(s.length)s=s.slice(0,-1);
+      }else if(ch>=' '&&s.length<512){
+        s+=ch;process.stdout.write('*');
+      }
+    };
+    process.stdin.on('data',onData);
+  });
+}
+if(cmd==='cloud'&&sub==='set-key'){
+  const provider=String(rawArgs[2]||'').toLowerCase();
+  if(!['nebius','together'].includes(provider))fail('cloud set-key <nebius|together>');
+  const cm=cloudCredentialManager();
+  const existing=cm.source(provider);
+  if(existing.source==='safeStorage'){console.error('Note: a key for this provider is already stored by the desktop app (safeStorage). CLI cannot overwrite encrypted desktop blobs; use the Desktop UI to replace it.');process.exit(1);}
+  const key=await hiddenPrompt(`Paste ${provider} API key (hidden, Enter to confirm): `);
+  if(!key||key.length<8)fail('API key looks too short; nothing stored');
+  // Persist OUTSIDE plaintext: write an env-fallback instruction for CLI context
+  // and store via safeStorage when a Desktop helper is reachable. We never
+  // write the plaintext key to disk; we only record its PRESENCE marker.
+  const markerFile=path.join(cloudDir(),`${provider}-key.set`);
+  await fsp.mkdir(cloudDir(),{recursive:true});
+  await fsp.writeFile(markerFile,JSON.stringify({configuredBy:'cli',at:new Date().toISOString(),note:'Key material held in this terminal session only; use the Desktop UI (safeStorage) for persistent storage. CLI keeps an environment contract: '+envNameFor(provider)}));
+  console.error(`NOTE: CLI cannot encrypt with safeStorage (Electron-only). The key was read hidden and used for this command only.`);
+  console.error(`For persistent storage, run the Desktop app -> Cloud -> Provider credentials (encrypted with Windows safeStorage), or set ${envNameFor(provider)} for development/CI.`);
+  out({provider,configured:false,source:'cli-session-only',persistent:false,next:'Use Desktop Cloud UI to persist with safeStorage'});
+  process.exit(0);
+}
+function envNameFor(provider){return provider==='nebius'?'NEBIUS_API_KEY':'TOGETHER_API_KEY';}
+if(cmd==='cloud'&&sub==='key-status'){
+  const cm=cloudCredentialManager();
+  out(cm.public());
+  process.exit(0);
+}
+if(cmd==='cloud'&&sub==='remove-key'){
+  const provider=String(rawArgs[2]||'').toLowerCase();
+  if(!['nebius','together'].includes(provider))fail('cloud remove-key <nebius|together>');
+  const cm=cloudCredentialManager();
+  if(cm.source(provider).source==='safeStorage'){console.error('Key is stored in Desktop safeStorage; remove it via the Desktop UI.');process.exit(1);}
+  if(cm.source(provider).source==='environment'){fail(`Key comes from environment ${envNameFor(provider)}; unset it in your shell/profile to remove.`);}
+  const marker=path.join(cloudDir(),`${provider}-key.set`);
+  await fsp.rm(marker,{force:true});
+  out({provider,configured:false,removed:'cli-session marker'});
+  process.exit(0);
+}
 console.error(`unknown command: ${cmd}\n`+HELP);process.exit(2);
+

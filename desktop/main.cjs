@@ -12,6 +12,50 @@ const {scanInstalled}=require('../runtime/installed.cjs');
 const {TOOL_DEFINITIONS,executeAllowedTool}=require('../runtime/tools.cjs');
 const {claimOwnership,readOwnership,releaseOwnership,setChild,statePath}=require('../runtime/ownership.cjs');
 const {McpClient}=require('../runtime/mcp.cjs');
+const {CredentialManager,ENV_NAMES,STORE_FIELD}=require('../runtime/credentials.cjs');
+const {NebiusProvider,DEFAULT_BASE_NEBIUS}=require('../runtime/cloud/nebius.cjs');
+const {TogetherProvider,DEFAULT_BASE_TOGETHER}=require('../runtime/cloud/together.cjs');
+const {ModelCatalog}=require('../runtime/cloud/catalog.cjs');
+const {RoutingTable,DEFAULT_POLICY}=require('../runtime/cloud/routing.cjs');
+const {HealthBoard}=require('../runtime/cloud/health.cjs');
+const {UsageLedger}=require('../runtime/cloud/usage.cjs');
+const {PricingRegistry}=require('../runtime/cloud/pricing.cjs');
+const {UnitEngine}=require('../runtime/cloud/units.cjs');
+const {BudgetGuard}=require('../runtime/cloud/budget.cjs');
+const {CloudRouter}=require('../runtime/cloud/router.cjs');
+const {estimateCost}=require('../runtime/cloud/cost.cjs');
+
+let cloud=null; // initialized in whenReady: {credentials,catalog,routing,health,ledger,pricing,units,budget,router}
+function cloudConfigured(){return Boolean(cloud);}
+function initCloud(){
+  const cloudDir=path.join(app.getPath('userData'),'cloud');
+  const credentials=new CredentialManager({store,safeStorage});
+  const adapters={
+    nebius:new NebiusProvider({getKey:()=>credentials.source('nebius').source==='missing'?null:credentials.source('nebius').key}),
+    together:new TogetherProvider({getKey:()=>credentials.source('together').source==='missing'?null:credentials.source('together').key})
+  };
+  const catalog=new ModelCatalog({adapters,cachedir:cloudDir});
+  const routing=new RoutingTable({dir:cloudDir});
+  const health=new HealthBoard({dir:cloudDir});health.restore().catch(()=>{});
+  const ledger=new UsageLedger({dir:cloudDir});
+  const pricing=new PricingRegistry({dir:cloudDir});
+  const units=new UnitEngine({});
+  const budget=new BudgetGuard({dir:cloudDir});
+  const router=new CloudRouter({adapters,catalog,routing,health,ledger,pricing,units,budget});
+  cloud={credentials,adapters,catalog,routing,health,ledger,pricing,units,budget,router,dir:cloudDir};
+  return cloud;
+}
+function cloudPublic(){
+  if(!cloud)return {configured:false,credentials:{},providers:{},safeStorageAvailable:false};
+  return {
+    configured:true,
+    credentials:cloud.credentials.public(),
+    health:cloud.health.all(['nebius','together']),
+    catalog:cloud.catalog.counts(),
+    units:cloud.units.public(),
+    budget:cloud.budget.public()
+  };
+}
 
 let win=null, store=null, downloads=null, runtimes=null, ownershipFile=null, mcpClients=new Map(), mcpStatuses=new Map();
 function emit(channel,payload){if(win&&!win.isDestroyed())win.webContents.send(channel,payload);}
@@ -58,6 +102,7 @@ app.whenReady().then(async()=>{
   store=new Store(app.getPath('userData'));store.load();ownershipFile=statePath(app.getPath('userData'));
   downloads=new DownloadManager({getModelsDir:()=>store.get('modelsDir'),getToken,emit});
   runtimes=new RuntimeManager({baseDir:path.join(app.getPath('userData'),'runtimes','llama.cpp'),emit});
+  initCloud();
   createWindow();
   app.on('activate',()=>{if(BrowserWindow.getAllWindows().length===0)createWindow();});
 });
@@ -133,6 +178,50 @@ ipcMain.handle('chat:complete',async(_e,messages)=>{
   const rt=llama.status();if(!rt.running)throw new Error('Local runtime is not running');const res=await fetch(`http://127.0.0.1:${rt.port||11435}/v1/chat/completions`,{method:'POST',headers:{'Content-Type':'application/json','Authorization':bearerForRt()},body:JSON.stringify({model:'local-model',messages,temperature:.7,stream:false})});const data=await res.json().catch(()=>({}));if(!res.ok)throw new Error(data?.error?.message||`Runtime returned ${res.status}`);const msg=data?.choices?.[0]?.message||{};return {content:msg.content||'',reasoning:msg.reasoning_content||null,usage:data?.usage||null};
 });
 ipcMain.handle('chat:pick-image',async()=>{const r=await dialog.showOpenDialog({properties:['openFile'],filters:[{name:'Images',extensions:['png','jpg','jpeg','webp','gif']} ]});if(r.canceled)return null;const p=r.filePaths[0],b=await fsp.readFile(p);const ext=path.extname(p).slice(1).toLowerCase().replace('jpg','jpeg');return {name:path.basename(p),dataUrl:`data:image/${ext};base64,${b.toString('base64')}`};});
+
+// ---------- Cloud IPC (secrets never cross to renderer as plaintext) ----------
+ipcMain.handle('cloud:status',async()=>{
+  const creds=cloud.credentials.public();
+  const counts=cloud.catalog.counts();
+  return {
+    configured:true,
+    credentials:creds,
+    health:cloud.health.all(['nebius','together']),
+    catalog:counts,
+    routing:(await cloud.routing.load()).rules,
+    units:cloud.units.public(),
+    budget:cloud.budget.public(),
+    commercialLaunchApproved:false
+  };
+});
+ipcMain.handle('cloud:set-key',async(_e,{provider,key}={})=>{
+  const p=String(provider||'').toLowerCase();
+  const value=String(key||'');
+  const res=await cloud.credentials.setKey(p,value);
+  // best-effort live health right after key entry
+  const h=await cloud.adapters[p].health();
+  cloud.health.record(p,{ok:h.ok,status:h.status||0});
+  return {provider:p,configured:res.configured,source:res.source,health:h.ok?'reachable':(h.reason||'unknown')};
+});
+ipcMain.handle('cloud:remove-key',async(_e,provider)=>cloud.credentials.removeKey(String(provider||'').toLowerCase()));
+ipcMain.handle('cloud:models',async(_e,{refresh=false,provider=null}={})=>{
+  if(refresh){const r=await cloud.catalog.refresh(provider||null);return {models:r.models,refresh:r.results};}
+  return cloud.catalog.list({provider:provider||null});
+});
+ipcMain.handle('cloud:usage',async()=>({summary:await cloud.ledger.summary(),recent:await cloud.ledger.list({limit:20})}));
+ipcMain.handle('cloud:budget-set',async(_e,partial)=>{await cloud.budget.set(partial||{});return cloud.budget.public();});
+ipcMain.handle('cloud:chat',async(_e,{model,messages,options={}}={})=>{
+  if(!model)return {ok:false,error:'model required'};
+  if(String(model).startsWith('local/'))return {ok:false,error:'local models use the local runtime path'};
+  const spent=await cloud.ledger.summary();
+  try{
+    const out=await cloud.router.chat({modelId:model,messages,temperature:Number(options.temperature??.7),tools:options.tools===false?null:undefined,sessionSpentUsd:0,todaySpentUsd:0,request:{max_tokens:options.max_tokens||1024}});
+    const m=(out.choices&&out.choices[0]&&out.choices[0].message)||{};
+    return {ok:true,content:m.content||'',reasoning:m.reasoning_content||null,usage:out._meta.usage,meta:{providerUsed:out._meta.providerUsed,failover:out._meta.failover,retryCount:out._meta.retryCount,cost:out._meta.cost,cloudUnits:out._meta.cloudUnits,modelId:out._meta.modelId}};
+  }catch(e){
+    return {ok:false,error:String(e.message||e),code:e.code||'CLOUD_ERROR'};
+  }
+});
 
 ipcMain.on('chat:stream',async(event,{requestId,messages,options={}})=>{
   const rt=llama.status();if(!rt.running){event.sender.send('chat:error',{requestId,error:'Local runtime is not running'});return;}

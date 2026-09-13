@@ -108,9 +108,32 @@
     </section>
 
     <section id="view-cloud" class="view">
-      <div class="section-head"><div><span class="kicker">CLOUD ROUTER</span><h2>Hosted models</h2><p>The cloud control plane is intentionally not enabled in this local beta. The table below defines the intended routing contract, not active provider credentials.</p></div><span class="count-pill warn">NOT CONFIGURED</span></div>
-      <div class="panel table-panel"><table><thead><tr><th>Route</th><th>Purpose</th><th>Backend</th><th>Status</th></tr></thead><tbody><tr><td>kimi-latest</td><td>Flagship reasoning / coding</td><td>Direct commercial provider API</td><td>Planned</td></tr><tr><td>glm-latest</td><td>Coding / reasoning / long context</td><td>Direct commercial provider API</td><td>Planned</td></tr><tr><td>deepseek-latest</td><td>Reasoning / value flagship</td><td>Direct commercial provider API</td><td>Planned</td></tr><tr><td>local/*</td><td>Local GGUF models</td><td>llama.cpp</td><td>Available</td></tr></tbody></table></div>
-      <div class="technical-note boxed">Cloud resale terms and provider agreements must be verified before production. The local application works without cloud credentials.</div>
+      <div class="section-head"><div><span class="kicker">CLOUD ROUTER</span><h2>Hosted models (POC)</h2><p>Multi-provider routing with exact-model identity. Prompts sent to a cloud provider leave this device; local models never do.</p></div><span class="count-pill" id="cloudStatusPill">CHECKING…</span></div>
+      <div class="two-col">
+        <article class="panel">
+          <div class="panel-head"><div><span class="kicker">PROVIDER CREDENTIALS</span><h3>API keys</h3></div></div>
+          <div id="cloudProviders" class="model-list"><div class="empty">Loading…</div></div>
+          <p class="technical-note">Keys are encrypted with Windows safeStorage and never displayed again after entry. The renderer only receives configured/not-configured state.</p>
+        </article>
+        <article class="panel">
+          <div class="panel-head"><div><span class="kicker">PROVIDER HEALTH</span><h3>Live state</h3></div><button class="ghost" id="cloudRefresh">Refresh</button></div>
+          <div id="cloudHealth" class="status-list"><div><span>Loading…</span><b>—</b></div></div>
+          <div class="button-row top-gap-small"><button class="ghost" id="cloudRefreshModels">Refresh model catalog</button></div>
+          <div id="cloudCatalogInfo" class="inline-status">Catalog not refreshed yet.</div>
+        </article>
+      </div>
+      <div class="two-col top-gap">
+        <article class="panel">
+          <div class="panel-head"><div><span class="kicker">MODEL CATALOG</span><h3>Cloud models</h3></div><span class="count-pill" id="cloudModelCount">0</span></div>
+          <div id="cloudModels" class="model-list"><div class="empty">Open the catalog via “Refresh model catalog”.</div></div>
+        </article>
+        <article class="panel">
+          <div class="panel-head"><div><span class="kicker">POC BUDGET &amp; USAGE</span><h3>Usage ledger</h3></div></div>
+          <div id="cloudBudget" class="status-list"></div>
+          <div id="cloudUsage" class="inline-status">No cloud usage recorded yet.</div>
+        </article>
+      </div>
+      <div class="technical-note boxed"><b>Privacy:</b> cloud requests send prompts to the selected provider (Nebius/Together). Usage metadata is stored locally; prompt/completion bodies are not logged by default. Commercial launch is not approved — no billing exists.</div>
     </section>
 
     <section id="view-runtime" class="view">
