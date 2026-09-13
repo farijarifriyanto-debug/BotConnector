@@ -18,7 +18,7 @@ Baseline git: `37437e8` → `8c167b4` → `3074397` → `12945a4`.
 | J Chat | SELESAI | Streaming + reasoning trace + blok tool-call terpisah, tanpa auto-execute |
 | K Local API | SELESAI | OpenAI + Anthropic `/v1/messages` + `/v1/responses` (semua NATIVE b10930, tanpa proxy) |
 | L CLI | SELESAI | `botconnector` full command + `embed`, state sharing terbukti live |
-| M MCP/tools | BELUM | Tidak ada UI MCP. Syarat (tool calling PASS) sudah terpenuhi → siap dikerjakan |
+| M MCP/tools | SELESAI minimal | Safe stdio client, explicit config/allowlist, timeout, provenance, isolated errors; no management UI |
 | N Integrations | SEBAGIAN | Preview 4 target + --apply backup (opencode); deteksi claude/codex/cline |
 | O Headless core | SEBAGIAN | CLI server detached + state file; handoff proses desktop↔CLI via endpoint |
 | P Remote/network | BELUM | Bind tetap 127.0.0.1; tanpa opt-in LAN (disengaja, aman-by-default) |
@@ -40,12 +40,12 @@ Baseline git: `37437e8` → `8c167b4` → `3074397` → `12945a4`.
 | 2 Anthropic native | SELESAI 7/7 | thinking blocks, streaming SSE, count_tokens=18 |
 | 3 Responses API | SELESAI | teks + streaming + error 400 eksplisit; contoh di Developer |
 | 4 Embeddings | SELESAI 8/8 | MiniLM Q8_0 baru (23,8 MB), dim=384 stabil/deterministik |
-| 5 Tool use | SELESAI 5/5 | get_weather Bandung di 3 API; result loop berlabel; UI terpisah |
+| 5 Tool use | SELESAI 7/7 | structured calculator 27 + 15, Core result loop, malformed args safe, OpenAI/Anthropic/Responses |
 | 6 Vision | SELESAI 7/7 | SmolVLM-500M Q8_0 + mmproj baru (~521 MB); "left red/right blue" tepat |
 | 7 API auth | SELESAI 7/7 | 401 tanpa/salah token; Bearer + x-api-key diterima native; default OFF |
-| 8 Claude Code | BERJALAN | Server Spark ctx-8192 standby :11435; claude-code v2.1.247 terdeteksi; uji `claude -p` belum dieksekusi |
-| 9 MCP safe PoC | BELUM | Menunggu giliran (syarat tool-use sudah PASS) |
-| 10 Laporan final | BELUM | Menunggu Fase 8–9 |
+| 8 Claude Code | NOT_TESTED | `claude` tidak tersedia di PATH pada acceptance host; native `/v1/messages` sudah PASS |
+| 9 MCP safe PoC | SELESAI 5/5 | Fixture stdio calculator, list/invoke/allowlist/provenance/disabled |
+| 10 Laporan final | SELESAI | Continuation closeout tercatat di bagian C |
 
 ## Model/runtime yang diterima (jangan diunduh ulang)
 - Spark-X2.5-4B Q4_K_M (2,42 GB) — chat/reasoning/tool-use
@@ -54,4 +54,19 @@ Baseline git: `37437e8` → `8c167b4` → `3074397` → `12945a4`.
 - llama.cpp b10930 Vulkan (`--version` PASS)
 
 ## Yang disengaja TIDAK diklaim
-MCP, Anthropic-proxy (tak perlu — native ada), SDK penuh, LAN serving, routing cloud live, kompatibilitas penuh Claude Code sebelum uji tool-loop.
+
+## C. Continuation closeout — 2026-09-13
+
+| Area | Status | Evidence |
+|---|---|---|
+| Native API matrix | PASS | Live b10930: `/v1/models`, OpenAI chat, Anthropic messages/stream/count_tokens, Responses/stream/error, embeddings route |
+| Embeddings | PASS 8/8 | Real MiniLM Q8_0, `--embeddings`, numeric vectors, dimension 384, multiple input, deterministic, unload |
+| Tool use | PASS 7/7 | Spark structured `calculator` call, Core result 42, tool-result loop, Anthropic/Responses probes, malformed args rejected |
+| Vision | PASS 7/7 | SmolVLM Q8_0 + matching mmproj, real red/blue image answer, text control, clean unload |
+| API auth | PASS 7/7 | Missing/wrong token 401; Bearer and native x-api-key accepted; default OFF |
+| Shared Core / ownership | PASS | `runtime/tools.cjs` allowlist + safe parser; shared GUI/CLI runtime claim state and same-port rejection |
+| GUI tool loop | PASS | Electron CDP live run displayed structured call, `calculator: 42`, final response, then clean stop |
+| MCP | BLOCKED / deferred | No MCP implementation added; remains intentionally after tool closeout |
+
+Accepted Spark model and b10930 runtime were preserved; no production or standalone Website changes were made.
+Anthropic-proxy (tak perlu — native ada), SDK penuh, LAN serving, routing cloud live, dan kompatibilitas penuh Claude Code.

@@ -31,10 +31,20 @@
 
 ## Honestly not done / not tested
 
-- Anthropic `/v1/messages`, MCP management UI, API token auth — NOT_IMPLEMENTED
-- Vision projector flow, native tool-use model, embeddings endpoint — code paths exist, NOT_TESTED live
+- MCP management UI, full SDK, and full Claude Code compatibility — NOT_IMPLEMENTED/NOT_TESTED
 - Desktop/CLI process handoff is endpoint-based; HEADLESS_CORE=PARTIAL (documented)
 - Dev-only Electron CSP warning remains (packaging concern, not a beta blocker)
+
+## Continuation closeout (2026-09-13)
+
+- Native b10930 matrix — PASS: `/v1/models`, OpenAI chat, Anthropic `/v1/messages` + streaming + `count_tokens`, Responses API + streaming + explicit 400 error, and embeddings route were live-tested.
+- Embeddings — PASS 8/8 with `leliuga/all-MiniLM-L6-v2-GGUF@Q8_0`, numeric vectors, stable dimension 384, array input, and clean unload.
+- Tool use — PASS 7/7 with Spark-X2.5-4B: structured `calculator` call for `27 + 15`, allowlisted Core execution to 42, result loop, Anthropic/Responses probes, and malformed-argument safety.
+- Vision — PASS 7/7 with SmolVLM-500M Q8_0 plus matching mmproj; real red/blue image described correctly and text control passed.
+- API auth — PASS 7/7: no token/wrong token rejected, Bearer and native `x-api-key` accepted, default remains OFF, `/health` is public by design.
+- GUI tool loop — PASS live via Electron CDP: tool call, `calculator: 42`, final response, and runtime stop were observed in the UI.
+- Shared process ownership — GUI/CLI claim the same ephemeral runtime state with atomic lock/release semantics; a second CLI start on the same port is rejected.
+- Final retest: `npm run check` PASS, `npm test` 24/24 PASS, `npm run acceptance` 11/11 PASS, `npm run doctor` no FAIL (GPU WARN is expected on this AMD-only machine).
 
 ## Intentionally not implemented yet
 
@@ -42,6 +52,6 @@
 - production account system
 - Windows signed installer/update channel
 - model-card README parsing/summarization
-- automated tool execution / MCP tool permissions
+- additional tool integrations beyond the calculator allowlist / MCP management UI
 - benchmark-based runtime tuning per model
 - AMD iGPU VRAM/shared-memory telemetry beyond system RAM (current detector only has first-class NVIDIA VRAM via nvidia-smi)

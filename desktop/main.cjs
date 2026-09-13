@@ -9,8 +9,11 @@ const {DownloadManager}=require('../runtime/downloads.cjs');
 const {RuntimeManager}=require('../runtime/runtime-manager.cjs');
 const {Store}=require('../runtime/store.cjs');
 const {scanInstalled}=require('../runtime/installed.cjs');
+const {TOOL_DEFINITIONS,executeAllowedTool}=require('../runtime/tools.cjs');
+const {claimOwnership,readOwnership,releaseOwnership,setChild,statePath}=require('../runtime/ownership.cjs');
+const {McpClient}=require('../runtime/mcp.cjs');
 
-let win=null, store=null, downloads=null, runtimes=null;
+let win=null, store=null, downloads=null, runtimes=null, ownershipFile=null, mcpClients=new Map(), mcpStatuses=new Map();
 function emit(channel,payload){if(win&&!win.isDestroyed())win.webContents.send(channel,payload);}
 function getToken(){
   const enc=store?.get('hfTokenEncrypted');
@@ -24,6 +27,27 @@ function getApiToken(){
 }
 function bearerForRt(){return store?.get('apiAuthEnabled')&&getApiToken()?`Bearer ${getApiToken()}`:'Bearer local';}
 function publicSettings(){const d=store.public();delete d.hfToken;delete d.hfTokenEncrypted;delete d.apiTokenEncrypted;return {...d,hfTokenConfigured:Boolean(store.get('hfTokenEncrypted')),apiAuthEnabled:Boolean(store.get('apiAuthEnabled')),apiTokenConfigured:Boolean(store.get('apiTokenEncrypted'))};}
+function normalizeMcpConfig(input={}){
+  const id=String(input.id||'').trim();
+  const name=String(input.name||'').trim();
+  const transport=String(input.transport||'stdio').toLowerCase();
+  const command=String(input.command||'').trim();
+  if(id&&!/^[a-zA-Z0-9_-]{1,80}$/.test(id))throw new Error('MCP id is invalid');
+  if(!name||name.length>120)throw new Error('MCP server name is required');
+  if(transport!=='stdio')throw new Error('Only stdio MCP transport is enabled in this beta');
+  if(!command||command.includes('\u0000'))throw new Error('MCP executable/command is required');
+  const args=Array.isArray(input.args)?input.args.map(String).slice(0,64):[];
+  if(args.some(v=>v.includes('\u0000')||v.length>4096))throw new Error('MCP argument is invalid');
+  const envRefs=Array.isArray(input.envRefs)?input.envRefs.map(String).filter(v=>/^[A-Z_][A-Z0-9_]*$/i.test(v)).slice(0,32):[];
+  const allowedTools=[...new Set((Array.isArray(input.allowedTools)?input.allowedTools:[]).map(String).filter(Boolean).slice(0,128))];
+  const toolPermissions={};for(const [tool,mode] of Object.entries(input.toolPermissions&&typeof input.toolPermissions==='object'?input.toolPermissions:{})){if(tool&&['ask','allow','deny'].includes(String(mode).toLowerCase()))toolPermissions[String(tool)]=String(mode).toLowerCase();}
+  return {id:id||require('node:crypto').randomUUID(),name,transport,command,args,envRefs,enabled:input.enabled!==false,timeoutMs:Math.min(30000,Math.max(250,Number(input.timeoutMs||5000))),allowedTools,toolPermissions,permissionMode:['ask','allow','deny'].includes(String(input.permissionMode||'ask').toLowerCase())?String(input.permissionMode||'ask').toLowerCase():'ask',notes:String(input.notes||'').slice(0,500),provenance:String(input.provenance||'').slice(0,240)};
+}
+function mcpStatusFor(config){return mcpStatuses.get(config.id)||{state:config.enabled?'configured':'disabled',tools:[],error:null};}
+function mcpPublic(config){const status=mcpStatusFor(config);return {...config,status:status.state,tools:status.tools||[],error:status.error||null};}
+function storedMcp(){const rows=store.get('mcpServers');return Array.isArray(rows)?rows:[];}
+async function stopMcp(id){const client=mcpClients.get(id);if(client){await client.stop().catch(()=>{});mcpClients.delete(id);}}
+async function testMcp(config){if(!config.enabled){mcpStatuses.set(config.id,{state:'disabled',tools:[],error:null});return mcpPublic(config);}await stopMcp(config.id);const client=new McpClient(config);mcpClients.set(config.id,client);mcpStatuses.set(config.id,{state:'connecting',tools:[],error:null});try{const tools=await client.listTools();mcpStatuses.set(config.id,{state:'connected',tools:tools.map(t=>t.name),error:null});return mcpPublic(config);}catch(error){await stopMcp(config.id);mcpStatuses.set(config.id,{state:'error',tools:[],error:String(error.message||error)});return mcpPublic(config);}}
 function createWindow(){
   win=new BrowserWindow({width:1460,height:920,minWidth:1100,minHeight:720,backgroundColor:'#080b10',title:'BotConnector AI',autoHideMenuBar:true,webPreferences:{preload:path.join(__dirname,'preload.cjs'),contextIsolation:true,nodeIntegration:false,sandbox:false}});
   win.loadFile(path.join(__dirname,'index.html'));
@@ -31,7 +55,7 @@ function createWindow(){
 function isSafeExternal(raw){try{const u=new URL(String(raw));return u.protocol==='https:'&&['huggingface.co','github.com','lmstudio.ai'].includes(u.hostname);}catch{return false;}}
 
 app.whenReady().then(async()=>{
-  store=new Store(app.getPath('userData'));store.load();
+  store=new Store(app.getPath('userData'));store.load();ownershipFile=statePath(app.getPath('userData'));
   downloads=new DownloadManager({getModelsDir:()=>store.get('modelsDir'),getToken,emit});
   runtimes=new RuntimeManager({baseDir:path.join(app.getPath('userData'),'runtimes','llama.cpp'),emit});
   createWindow();
@@ -41,7 +65,7 @@ app.on('window-all-closed',()=>{if(process.platform!=='darwin')app.quit();});
 
 ipcMain.handle('system:overview',async()=>{
   const hardware=await detectHardware();
-  return {hardware,runtime:llama.status(),preferredLanguages:app.getPreferredSystemLanguages(),settings:publicSettings(),managedRuntime:await runtimes.installed(),installed:await scanInstalled(store.get('modelsDir')),downloads:downloads.list()};
+  return {hardware,runtime:llama.status(),runtimeOwnership:await readOwnership(ownershipFile),preferredLanguages:app.getPreferredSystemLanguages(),settings:publicSettings(),mcp:storedMcp().map(mcpPublic),managedRuntime:await runtimes.installed(),installed:await scanInstalled(store.get('modelsDir')),downloads:downloads.list()};
 });
 ipcMain.handle('system:open-external',async(_e,url)=>{if(!isSafeExternal(url))throw new Error('External URL is not allowed');await shell.openExternal(String(url));return true;});
 
@@ -51,6 +75,22 @@ ipcMain.handle('settings:ensure-api-token',async()=>{const crypto=require('node:
 ipcMain.handle('settings:clear-api-token',async()=>{await store.set('apiTokenEncrypted','');await store.set('apiAuthEnabled',false);return publicSettings();});
 ipcMain.handle('settings:set-hf-token',async(_e,token)=>{token=String(token||'').trim();if(!token){await store.set('hfTokenEncrypted','');return {configured:false};}if(!safeStorage.isEncryptionAvailable())throw new Error('Windows credential encryption is unavailable');const enc=safeStorage.encryptString(token).toString('base64');await store.set('hfTokenEncrypted',enc);return {configured:true};});
 ipcMain.handle('settings:pick-models-dir',async()=>{const r=await dialog.showOpenDialog({properties:['openDirectory','createDirectory'],title:'Choose model storage directory'});if(r.canceled)return null;await store.set('modelsDir',r.filePaths[0]);return {modelsDir:r.filePaths[0],installed:await scanInstalled(r.filePaths[0])};});
+
+ipcMain.handle('mcp:list',async()=>storedMcp().map(mcpPublic));
+ipcMain.handle('mcp:save',async(_e,input)=>{
+  const config=normalizeMcpConfig(input||{}),rows=storedMcp(),index=rows.findIndex(row=>row.id===config.id),previous=mcpStatusFor(config);
+  if(index>=0){await stopMcp(config.id);rows[index]=config;}else rows.push(config);
+  await store.set('mcpServers',rows);if(previous.state==='connected')mcpStatuses.set(config.id,previous);else mcpStatuses.delete(config.id);return mcpPublic(config);
+});
+ipcMain.handle('mcp:remove',async(_e,id)=>{id=String(id||'');const rows=storedMcp().filter(row=>row.id!==id);if(rows.length===storedMcp().length)return false;await stopMcp(id);mcpStatuses.delete(id);await store.set('mcpServers',rows);return true;});
+ipcMain.handle('mcp:test',async(_e,id)=>{const config=storedMcp().find(row=>row.id===String(id||''));if(!config)throw new Error('MCP server is not configured');return testMcp(config);});
+ipcMain.handle('mcp:invoke',async(_e,{id,tool,args}={})=>{
+  const config=storedMcp().find(row=>row.id===String(id||''));if(!config)throw new Error('MCP server is not configured');if(!config.enabled)throw new Error('MCP server is disabled');
+  const toolName=String(tool||''),permission=String(config.toolPermissions?.[toolName]||config.permissionMode||'ask').toLowerCase();
+  if(permission!=='allow')throw new Error(permission==='deny'?`MCP tool denied: ${toolName}`:`MCP tool approval required: ${toolName}`);
+  if(!config.allowedTools.includes(toolName))throw new Error(`MCP tool is not allowlisted: ${toolName}`);
+  let client=mcpClients.get(config.id);if(!client){client=new McpClient(config);mcpClients.set(config.id,client);}const result=await client.callTool(toolName,args||{});return {...result,provenance:config.provenance||config.name};
+});
 
 ipcMain.handle('models:search-online',async(_e,input)=>{const hardware=await detectHardware();return hf.searchModels({...input,hardware,token:getToken()});});
 ipcMain.handle('models:details',async(_e,id)=>{const hardware=await detectHardware();return hf.modelDetails({id,hardware,token:getToken()});});
@@ -70,15 +110,22 @@ ipcMain.handle('runtime:resolve',async(_e,cfg)=>runtimes.resolveBackend(cfg?.bac
 ipcMain.handle('runtime:verify',async()=>runtimes.verifyInstalled());
 ipcMain.handle('runtime:managed-status',async()=>runtimes.installed());
 ipcMain.handle('runtime:install',async(_e,cfg)=>runtimes.install(cfg||{}));
-ipcMain.handle('runtime:start',async(_e,cfg)=>llama.startLlama(cfg));
+async function startOwnedRuntime(cfg){
+  if(llama.status().running)throw new Error('Local runtime already running in the desktop process');
+  const port=Number(cfg.port||11435);
+  try{const h=await fetch(`http://127.0.0.1:${port}/health`,{signal:AbortSignal.timeout(800)});if(h.ok)throw new Error(`Port ${port} already serves a runtime`);}catch(e){if(e.message.includes('already serves'))throw e;}
+  await claimOwnership({file:ownershipFile,ownerType:'desktop',port,modelPath:cfg.modelPath,backend:cfg.backend||store.get('runtimeBackend')||'auto',auth:Boolean(cfg.apiKey)});
+  try{const started=llama.startLlama(cfg);await setChild(ownershipFile,started.pid);return started;}catch(error){await releaseOwnership(ownershipFile);throw error;}
+}
+ipcMain.handle('runtime:start',async(_e,cfg)=>startOwnedRuntime(cfg));
 ipcMain.handle('runtime:start-installed',async(_e,cfg)=>{
   const managed=await runtimes.installed();const binary=cfg.binary||managed.binary;if(!binary)throw new Error('No llama.cpp runtime installed. Install a managed runtime first.');
   const backend=cfg.backend||store.get('runtimeBackend')||'auto';const gpuLayers=backend==='cpu'?0:999;
   const apiKey=store.get('apiAuthEnabled')?getApiToken()||null:null;
   if(store.get('apiAuthEnabled')&&!apiKey)throw new Error('API authentication is enabled but no token exists. Generate one in Settings first.');
-  return llama.startLlama({binary,modelPath:cfg.modelPath,projector:cfg.projector||null,port:Number(cfg.port||11435),gpuLayers,context:Number(cfg.context||8192),embedding:Boolean(cfg.embedding),jinja:true,apiKey});
+  return startOwnedRuntime({binary,modelPath:cfg.modelPath,projector:cfg.projector||null,port:Number(cfg.port||11435),gpuLayers,context:Number(cfg.context||8192),embedding:Boolean(cfg.embedding),jinja:true,apiKey,backend});
 });
-ipcMain.handle('runtime:stop',async()=>({stopped:llama.stopLlama()}));
+ipcMain.handle('runtime:stop',async()=>{const stopped=llama.stopLlama();if(stopped)await releaseOwnership(ownershipFile);return {stopped};});
 ipcMain.handle('runtime:status',async()=>llama.status());
 ipcMain.handle('runtime:logs',async()=>llama.logs());
 
@@ -90,10 +137,24 @@ ipcMain.handle('chat:pick-image',async()=>{const r=await dialog.showOpenDialog({
 ipcMain.on('chat:stream',async(event,{requestId,messages,options={}})=>{
   const rt=llama.status();if(!rt.running){event.sender.send('chat:error',{requestId,error:'Local runtime is not running'});return;}
   try{
-    const res=await fetch(`http://127.0.0.1:${rt.port||11435}/v1/chat/completions`,{method:'POST',headers:{'Content-Type':'application/json','Authorization':bearerForRt()},body:JSON.stringify({model:'local-model',messages,temperature:Number(options.temperature??.7),stream:true})});
-    if(!res.ok)throw new Error(`Runtime returned ${res.status}`);
-    const reader=res.body.getReader();const dec=new TextDecoder();let buf='';
-    while(true){const {done,value}=await reader.read();if(done)break;buf+=dec.decode(value,{stream:true});const lines=buf.split(/\r?\n/);buf=lines.pop()||'';for(const line of lines){if(!line.startsWith('data:'))continue;const raw=line.slice(5).trim();if(!raw||raw==='[DONE]')continue;try{const j=JSON.parse(raw);const delta=j?.choices?.[0]?.delta||{};if(delta.content)event.sender.send('chat:delta',{requestId,delta:delta.content});if(delta.reasoning_content)event.sender.send('chat:reasoning',{requestId,delta:String(delta.reasoning_content)});if(Array.isArray(delta.tool_calls))for(const tc of delta.tool_calls)event.sender.send('chat:toolcall',{requestId,toolCall:tc});}catch{}}}
+    let working=Array.isArray(messages)?messages.slice():[];
+    for(let round=0;round<2;round++){
+      const body={model:'local-model',messages:working,temperature:Number(options.temperature??.7),stream:true};
+      if(round===0&&options.tools!==false){body.tools=TOOL_DEFINITIONS;body.tool_choice='auto';}
+      const res=await fetch(`http://127.0.0.1:${rt.port||11435}/v1/chat/completions`,{method:'POST',headers:{'Content-Type':'application/json','Authorization':bearerForRt()},body:JSON.stringify(body)});
+      if(!res.ok)throw new Error(`Runtime returned ${res.status}`);
+      const reader=res.body.getReader();const dec=new TextDecoder();let buf='',toolCalls=[];
+      while(true){const {done,value}=await reader.read();if(done)break;buf+=dec.decode(value,{stream:true});const lines=buf.split(/\r?\n/);buf=lines.pop()||'';for(const line of lines){if(!line.startsWith('data:'))continue;const raw=line.slice(5).trim();if(!raw||raw==='[DONE]')continue;try{const j=JSON.parse(raw);const delta=j?.choices?.[0]?.delta||{};if(delta.content)event.sender.send('chat:delta',{requestId,delta:delta.content});if(delta.reasoning_content)event.sender.send('chat:reasoning',{requestId,delta:String(delta.reasoning_content)});if(Array.isArray(delta.tool_calls))for(const tc of delta.tool_calls){const idx=Number(tc.index||0);const cur=toolCalls[idx]||(toolCalls[idx]={id:'',type:'function',function:{name:'',arguments:''}});if(tc.id)cur.id=tc.id;if(tc.type)cur.type=tc.type;if(tc.function?.name)cur.function.name+=tc.function.name;if(typeof tc.function?.arguments==='string')cur.function.arguments+=tc.function.arguments;event.sender.send('chat:toolcall',{requestId,toolCall:tc});}}catch{}}}
+      if(round===0&&toolCalls.length){
+        const results=toolCalls.map(call=>({call,result:executeAllowedTool(call)}));
+        for(const {call,result} of results)event.sender.send('chat:toolresult',{requestId,toolCallId:call.id||null,...result});
+        working=[...working,{role:'assistant',content:null,tool_calls:toolCalls},...results.map(({call,result})=>({role:'tool',tool_call_id:call.id,content:JSON.stringify(result.ok?result.result:{error:result.error})}))];
+        continue;
+      }
+      break;
+    }
     event.sender.send('chat:done',{requestId});
   }catch(e){event.sender.send('chat:error',{requestId,error:String(e.message||e)});}
 });
+
+app.on('before-quit',()=>{for(const client of mcpClients.values())client.stop().catch(()=>{});mcpClients.clear();if(llama.status().running){llama.stopLlama();releaseOwnership(ownershipFile).catch(()=>{});}});

@@ -14,13 +14,14 @@ const {DownloadManager}=require('../runtime/downloads.cjs');
 const {RuntimeManager}=require('../runtime/runtime-manager.cjs');
 const {scanInstalled}=require('../runtime/installed.cjs');
 const {detectHardware}=require('../runtime/hardware.cjs');
+const {claimOwnership,readOwnership,releaseOwnership,setChild,statePath}=require('../runtime/ownership.cjs');
 
 const APP='botconnector-ai-local-cloud';
 const userData=path.join(process.env.APPDATA||path.join(os.homedir(),'AppData','Roaming'),APP);
 const store=new Store(userData);store.load();
 const runtimes=new RuntimeManager({baseDir:path.join(userData,'runtimes','llama.cpp')});
 const downloads=new DownloadManager({getModelsDir:()=>store.get('modelsDir'),getToken:()=>process.env.HF_TOKEN||''});
-const STATE_FILE=path.join(userData,'cli-server.json');
+const STATE_FILE=statePath(userData);
 const rawArgs=process.argv.slice(2);
 const json=rawArgs.includes('--json');
 const opt=(name,def)=>{const i=rawArgs.indexOf('--'+name);return i>=0&&rawArgs[i+1]&&!rawArgs[i+1].startsWith('--')?rawArgs[i+1]:def;};
@@ -30,7 +31,7 @@ const fail=(m)=>{console.error(json?JSON.stringify({ok:false,error:m}):`Error: $
 const sleep=(ms)=>new Promise(r=>setTimeout(r,ms));
 async function endpoint(pathname){const r=await fetch(`http://127.0.0.1:${port}${pathname}`,{signal:AbortSignal.timeout(5000)});return r;}
 async function serverHealth(){try{const r=await endpoint('/health');return{up:r.ok,status:r.status};}catch(e){return{up:false,error:String(e.cause?.message||e.message)};}}
-function readState(){try{return JSON.parse(fs.readFileSync(STATE_FILE,'utf8'));}catch{return null;}}
+function readState(){try{const s=JSON.parse(fs.readFileSync(STATE_FILE,'utf8'));if(s&&!s.pid)s.pid=s.childPid;return s;}catch{return null;}}
 function pidAlive(pid){try{process.kill(pid,0);return true;}catch{return false;}}
 function resolveModelRef(ref,installed){
   if(!ref)fail('model reference required');
@@ -55,7 +56,7 @@ const HELP=`botconnector — BotConnector AI CLI (shares Core/config with the de
   botconnector run <model-ref>            (foreground; Ctrl-C stops)
   botconnector chat <model-ref?> "prompt" [--stream] [--api-key KEY]
   botconnector embed "text" [--json] [--api-key KEY]
-  botconnector server start <model-ref> [--ctx N] [--api-key KEY] | stop | status [--json]
+  botconnector server start <model-ref> [--ctx N] [--backend auto|cpu|vulkan|cuda12|cuda13|rocm] [--api-key KEY] | stop | status [--json]
   botconnector cloud status [--json]
   botconnector launch <opencode|claude-code|codex|cline> [--apply]
 `;
@@ -142,7 +143,7 @@ if(cmd==='cloud'&&sub==='status'){
 async function startServer(modelRef,ctx){
   const installed=await scanInstalled(store.get('modelsDir'));
   const {modelPath,projector}=resolveModelRef(modelRef,installed);
-  const backend=store.get('runtimeBackend')||'auto';
+  const backend=opt('backend',store.get('runtimeBackend')||'auto');
   const eff=backend==='auto'?((await detectHardware()).nvidia?.length?'cuda12':'vulkan'):backend;
   const {binary}=await runtimes.installed();
   if(!binary)fail('No managed runtime installed. Run: botconnector runtime install');
@@ -152,12 +153,16 @@ async function startServer(modelRef,ctx){
   if(cliKey)args.push('--api-key',cliKey);
   const h0=await serverHealth();
   if(h0.up)fail(`port ${port} already serves a runtime (stop it first)`);
-  const child=spawn(binary,args,{shell:false,windowsHide:true,detached:true,stdio:'ignore'});
-  child.unref();
-  await fsp.writeFile(STATE_FILE,JSON.stringify({pid:child.pid,port,modelPath,backend:eff,auth:Boolean(cliKey),startedAt:new Date().toISOString()}));
-  const ok=await waitReady();
-  if(!ok)fail('server did not become ready (see runtime logs in desktop app)');
-  return{pid:child.pid,modelPath,backend:eff,port};
+  await claimOwnership({file:STATE_FILE,ownerType:'cli',port,modelPath,backend:eff,auth:Boolean(cliKey)});
+  let child;
+  try{
+    child=spawn(binary,args,{shell:false,windowsHide:true,detached:true,stdio:'ignore'});
+    child.unref();
+    await setChild(STATE_FILE,child.pid);
+    const ok=await waitReady();
+    if(!ok)throw new Error('server did not become ready (see runtime logs in desktop app)');
+    return{pid:child.pid,modelPath,backend:eff,port};
+  }catch(error){await releaseOwnership(STATE_FILE);throw error;}
 }
 if((cmd==='server'&&sub==='start')||cmd==='load'){
   const ref=rawArgs.find((a,i)=>i>1&&!a.startsWith('--')&&a!==sub&&a!=='start'&&!/^\d+$/.test(a)&&a!==opt('ctx','__none__'))||rawArgs[2];
@@ -168,8 +173,9 @@ if((cmd==='server'&&sub==='start')||cmd==='load'){
 if((cmd==='server'&&sub==='stop')||cmd==='unload'){
   const st=readState();
   if(!st)fail('no CLI-managed server recorded');
+  if(st.ownerType&&st.ownerType!=='cli')fail(`runtime is owned by ${st.ownerType}; refusing to stop another interface`);
   if(pidAlive(st.pid)){try{process.kill(st.pid);}catch(e){fail('could not stop pid '+st.pid+': '+e.message);}}
-  await fsp.rm(STATE_FILE,{force:true});
+  await releaseOwnership(STATE_FILE,st.ownerPid||process.pid);
   out({ok:true,stopped:st.pid});
   process.exit(0);
 }
@@ -229,13 +235,13 @@ if(cmd==='launch'){
   const base=`http://127.0.0.1:${port}`;
   const catalog={
     opencode:{detected:onPath('opencode'),config:'opencode.json (model provider override)',preview:{'$schema':'https://opencode.ai/config.json','provider':{'botconnector-local':{npm:'@ai-sdk/openai-compatible','name':'BotConnector Local','options':{'baseURL':base+'/v1','apiKey':'local'},'models':{'local-model':{'name':'BotConnector Local (llama.cpp)'}}}}},applyNote:'writes provider block with backup'},
-    'claude-code':{config:'~/.claude.json / ANTHROPIC_BASE_URL (manual)',preview:{'ANTHROPIC_BASE_URL':base+'/v1','note':'Claude Code expects Anthropic API; /v1/messages is NOT implemented by llama.cpp — use OpenAI-compatible mode only'}},
+    'claude-code':{config:'~/.claude.json / ANTHROPIC_BASE_URL (manual)',preview:{'ANTHROPIC_BASE_URL':base,'note':'EXPERIMENTAL_COMPATIBILITY: native /v1/messages is available on the accepted b10930 runtime; Claude Code client interoperability was smoke-tested locally. This is not official Claude support for Spark/non-Claude model routing.'}},
     codex:{config:'~/.codex/config.toml (manual)',preview:{'model_provider':'botconnector-local','model_provider_config':{'base_url':base+'/v1'}}},
     cline:{config:'VS Code settings cline.providerSettings (manual or --apply)',preview:{'cline.apiProvider':'openai-compatible','cline.baseUrl':base+'/v1','cline.apiKey':'local','cline.model':'local-model'}},
   };
   if(!catalog[target])fail('launch <opencode|claude-code|codex|cline>');
   const entry=catalog[target];
-  if(!rawArgs.includes('--apply')){out({target,...entry,hint:'re-run with --apply to write config (existing config is backed up first). Anthropic-native /v1/messages is NOT implemented.'});process.exit(0);}
+  if(!rawArgs.includes('--apply')){out({target,...entry,hint:'re-run with --apply to write config (existing config is backed up first). Native Anthropic support is runtime/model dependent and must be smoke-tested by the installed client.'});process.exit(0);}
   if(target!=='opencode')fail(`${target} --apply is not implemented; apply the preview manually`);
   const cfgPath=path.join(process.cwd(),'opencode.json');
   let existing={};if(fs.existsSync(cfgPath))existing=JSON.parse(fs.readFileSync(cfgPath,'utf8'));

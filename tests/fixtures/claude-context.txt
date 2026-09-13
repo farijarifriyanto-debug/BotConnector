@@ -1,0 +1,2 @@
+BOTCONNECTOR_CLAUDE_FILE_CONTEXT_OK
+This fixture is intentionally harmless and contains no credentials.
