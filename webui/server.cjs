@@ -223,6 +223,8 @@ function startUiServer({ userDataDir, webRoot, getAsset, preferredPort = 32100, 
         const input = await readJson(req); if (!plainObject(input)) throw new Error('Settings payload must be an object');
         const allowed = ['runtimeBackend', 'language']; for (const k of allowed) if (k in input) await store.set(k, String(input[k]).slice(0, 64));
         if ('apiAuthEnabled' in input) sessionApiAuthEnabled = Boolean(input.apiAuthEnabled);
+        if ('firstRunCompleted' in input) await store.set('firstRunCompleted', Boolean(input.firstRunCompleted));
+        if ('firstRunMode' in input) await store.set('firstRunMode', String(input.firstRunMode || '').slice(0, 32));
         return sendJson(res, 200, publicSettings());
       }
       if (p === '/api/settings/hf-token' && req.method === 'POST') { const { token } = await readJson(req); sessionHfToken = String(token || '').trim().slice(0, 4096); return sendJson(res, 200, { configured: Boolean(sessionHfToken) }); }

@@ -32,5 +32,6 @@ fs.writeFileSync(
 );
 
 fs.copyFileSync(path.join(ROOT, 'scripts', 'web-bridge.js'), path.join(OUT, 'web-bridge.js'));
+fs.copyFileSync(path.join(ROOT, 'scripts', 'web-bridge.css'), path.join(OUT, 'web-bridge.css'));
 
 console.log(`Built dist/web/ from desktop/ (${fs.readdirSync(OUT).join(', ')})`);
