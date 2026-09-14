@@ -35,11 +35,6 @@ function statusBar(s) {
   return [modelSeg, projectSeg, `Context ${pct}%`].join('     ');
 }
 
-function hintLine(s) {
-  if (layout.isNarrow()) return '/ commands · Ctrl+P menu';
-  return '/model  /project  /new  /settings     Ctrl+P more     Tab Plan/Act';
-}
-
 function wrapText(text, w) {
   w = Math.max(20, w);
   const out = [];
@@ -56,30 +51,188 @@ function wrapText(text, w) {
   return out;
 }
 
-// ---- home ----
-function home(s, activity = [], answer = '', opts = {}) {
-  const L = [''];
-  L.push('  ' + theme.bold('BotConnector AI'));
-  L.push('');
-  const lines = activityMod.humanize(activity, { debug: opts.debug || (s.settings && s.settings.debugMode) });
-  if (!lines.length && !answer) {
-    L.push('  What do you want to build?');
-    L.push('');
+function visibleLength(text) {
+  return String(text == null ? '' : text).replace(/\x1b\[[0-9;]*m/g, '').length;
+}
+
+// ---- home: one persistent bottom composer, a top-filling scrollback of
+// the real conversation (sess.messages), compact (unboxed) message
+// presentation, and a single-line footer. No right sidebar by default —
+// this is a deliberate, spec-driven replacement of the earlier two-input,
+// permanent-sidebar layout (see PHASE: BOTCONNECTOR TUI UX POLISH). ----
+
+const COMPOSER_PLACEHOLDER = 'Ask anything…  @ files  / commands';
+
+// Compact chat line: a colored role label, then the wrapped content
+// indented under it — no border. Borders stay reserved for approvals/
+// diffs/commands/errors, which already have their own dedicated views.
+function renderMessage(role, content, w) {
+  const label = role === 'user' ? 'You' : 'BotConnector';
+  const color = role === 'user' ? theme.cyan : theme.green;
+  const out = [color(label)];
+  for (const l of wrapText(content, w)) out.push('  ' + l);
+  out.push('');
+  return out;
+}
+
+// One compact footer line: mode, model+accel, raw context usage, cost —
+// each field appears exactly once (no duplication with the header).
+function homeFooter(s) {
+  const m = s.model;
+  const modelSeg = m.locality === 'Local'
+    ? `${m.name} · Local${accelLabel(m) ? ' ' + accelLabel(m) : ''}`
+    : `${m.name} · Cloud`;
+  const costSeg = m.locality === 'Local' ? 'Local' : (m.cost || '—');
+  const parts = [s.mode, modelSeg, `Context ${s.usedTokens || 0}/${s.runtime.nCtx || 0}`, costSeg];
+  return layout.truncate(parts.join('  │  '), layout.width() - 2);
+}
+
+// Builds the full home frame once (lines + where the real terminal cursor
+// belongs) so `home()` (string, for every existing caller) and
+// `homeCursor()` (row/col, for the live TUI only) never compute the
+// layout two different ways and drift apart.
+function buildHomeFrame(s, sess, activity = [], answer = '', opts = {}) {
+  const w = layout.width();
+  const rows = (process.stdout && process.stdout.rows) || 24;
+  const narrow = layout.isNarrow();
+  const contentWidth = Math.max(20, w - 4);
+  const m = s.model;
+
+  // ---- header: 2 compact lines, no decorative chrome ----
+  const headerLeft = `${friendlyProject(s)} · ${s.mode}`;
+  const headerRight = `${m.name} · ${m.locality === 'Local' ? 'Local' : 'Cloud'}`;
+  const header2 = narrow ? layout.truncate(headerLeft, w - 2) : layout.spread(headerLeft, headerRight, w - 2);
+
+  // ---- composer: the one and only input surface, pinned to the bottom ----
+  const boxWidth = Math.max(10, w - 2);
+  const innerW = Math.max(4, boxWidth - 4);
+  const composerTop = '┌' + '─'.repeat(Math.max(0, boxWidth - 2)) + '┐';
+  const composerBottom = '└' + '─'.repeat(Math.max(0, boxWidth - 2)) + '┘';
+  let composerContent, cursorTextLen;
+  if (!s.input) {
+    composerContent = [theme.dim(layout.pad(COMPOSER_PLACEHOLDER, innerW))];
+    cursorTextLen = 0;
   } else {
-    for (const a of lines.slice(-8)) L.push('  ' + a);
-    if (answer) {
-      L.push('');
-      for (const line of wrapText(answer, layout.width() - 4)) L.push('  ' + line);
-    }
-    L.push('');
+    const wrapped = wrapText(s.input, innerW);
+    composerContent = wrapped.slice(-6).map((line) => layout.pad(line, innerW));
+    cursorTextLen = wrapped.length ? wrapped[wrapped.length - 1].length : 0;
   }
-  const idle = !lines.length && !answer;
-  const placeholder = idle ? theme.dim('Ask anything…') : '';
-  L.push('  > ' + (s.input || placeholder));
+
+  // ---- conversation body: real transcript from sess.messages, compact.
+  // `conversationViewport.offset` is the zero-based rendered-line index of
+  // the first visible conversation row. It is deliberately a rendered-line
+  // offset (not a message index), because wrapping and activity lines can
+  // make one message occupy several rows. `atBottom` is the live-follow
+  // mode; when true the offset is derived from the current body height.
+  const messages = (sess && sess.messages) || [];
+  const hasAny = messages.length || opts.pendingPrompt || answer || (activity && activity.length);
+  const body = [];
+  if (!hasAny) {
+    body.push('What do you want to build?');
+    body.push('');
+  } else {
+    for (const msg of messages) body.push(...renderMessage(msg.role, msg.content, contentWidth));
+    if (opts.pendingPrompt) {
+      body.push(...renderMessage('user', opts.pendingPrompt, contentWidth));
+      if (opts.generating) {
+        const lines = activityMod.humanize(activity || [], { debug: opts.debug || (s.settings && (s.settings.debugMode || s.settings.showDetails)) }).slice(-4);
+        for (const l of lines) body.push('  ' + theme.dim(l));
+        if (lines.length) body.push('');
+      }
+      if (answer) body.push(...renderMessage('assistant', answer, contentWidth));
+    }
+  }
+
+  const topBlock = ['', '  ' + theme.bold('BotConnector AI'), '  ' + theme.dim(header2), ''];
+  const popoverLines = opts.composerPopover ? composerPopover(opts.composerPopover) : [];
+  const bottomBlockLen = 1 + popoverLines.length + 1 + composerContent.length + 1 + 1 + 1; // blank+popover+top+content+bottom+blank+footer
+  const viewport = opts.conversationViewport || {};
+  const showUnseen = viewport.atBottom === false && Number(viewport.unseenOutputCount || 0) > 0;
+  const indicatorRows = showUnseen ? 1 : 0;
+  const availableBodyRows = Math.max(3, rows - topBlock.length - bottomBlockLen - indicatorRows);
+  const conversationMaxStart = Math.max(0, body.length - availableBodyRows);
+  const conversationStart = viewport.atBottom === false
+    ? Math.min(conversationMaxStart, Math.max(0, Number(viewport.offset) || 0))
+    : conversationMaxStart;
+  const bodyDisplay = body.slice(conversationStart, conversationStart + availableBodyRows);
+  while (bodyDisplay.length < availableBodyRows) bodyDisplay.push('');
+  const bodyLines = bodyDisplay.map((l) => (l ? '  ' + l : ''));
+  if (conversationMaxStart > 0) {
+    // A one-column scrollbar belongs to the conversation body only. It is
+    // omitted when all rendered rows fit, preserving the accepted composer
+    // width and the narrow-terminal layout.
+    const thumbRows = Math.max(1, Math.round(availableBodyRows * availableBodyRows / body.length));
+    const thumbStart = Math.round((availableBodyRows - thumbRows) * conversationStart / conversationMaxStart);
+    for (let i = 0; i < bodyLines.length; i++) {
+      const marker = i >= thumbStart && i < thumbStart + thumbRows ? '┃' : '│';
+      bodyLines[i] += ' '.repeat(Math.max(1, w - 1 - visibleLength(bodyLines[i]))) + theme.dim(marker);
+    }
+  }
+
+  const L = [...topBlock, ...bodyLines, ''];
+  if (showUnseen) L.splice(L.length - 1, 0, '  ' + theme.dim(`↓ ${viewport.unseenOutputCount} new line${viewport.unseenOutputCount === 1 ? '' : 's'}`));
+  if (popoverLines.length) L.push(...popoverLines);
+  L.push('  ' + composerTop);
+  const cursorRow = L.length + composerContent.length; // the last content row always holds the cursor
+  for (const c of composerContent) L.push('  │ ' + c + ' │');
+  L.push('  ' + composerBottom);
   L.push('');
-  L.push('  ' + statusBar(s));
-  L.push('  ' + hintLine(s));
-  return L.join('\n');
+  L.push('  ' + theme.dim(homeFooter(s)));
+
+  const cursorCol = 5 + cursorTextLen; // 2 margin + '│ ' (2) + chars typed so far, 1-indexed
+  return {
+    lines: L, cursorRow, cursorCol,
+    conversationBodyLength: body.length,
+    conversationStart,
+    conversationMaxStart,
+    availableBodyRows,
+  };
+}
+
+// Shared contextual suggestion layer for the persistent composer. It is
+// deliberately part of the home frame rather than a replacement screen, so
+// the transcript and the canonical composer cursor remain intact.
+function composerPopover(p = {}) {
+  const items = p.filtered || p.items || [];
+  const rows = (process.stdout && process.stdout.rows) || 24;
+  const maxRows = Math.max(1, Math.min(p.maxRows || 8, rows <= 24 ? 5 : rows <= 30 ? 6 : 8));
+  const outerWidth = Math.min(Math.max(24, layout.width() - 2), 72);
+  const innerWidth = Math.max(20, outerWidth - 4);
+  const contentWidth = innerWidth - 2;
+  const box = (text) => '  │ ' + layout.pad(layout.truncate(text, contentWidth), contentWidth) + ' │';
+  const L = ['  ┌' + '─'.repeat(innerWidth) + '┐', box(p.title || 'Commands')];
+
+  if (!items.length) {
+    L.push(box('No matches'));
+  } else {
+    const count = Math.min(maxRows, items.length);
+    const selectedIndex = Math.max(0, Math.min(p.index || 0, items.length - 1));
+    const start = Math.min(Math.max(0, selectedIndex - count + 1), Math.max(0, items.length - count));
+    for (let n = 0; n < count; n++) {
+      const i = start + n;
+      const it = items[i];
+      const selected = i === selectedIndex;
+      const name = it.name || it.label || '';
+      const detail = it.description || [it.provider, it.status, it.detail].filter(Boolean).join('   ');
+      const nameWidth = Math.min(12, Math.max(8, contentWidth - 18));
+      const row = (selected ? '> ' : '  ') + layout.pad(name, nameWidth) + (detail ? ' ' + detail : '');
+      L.push(box(row));
+    }
+  }
+  L.push('  └' + '─'.repeat(innerWidth) + '┘');
+  return L;
+}
+
+function home(s, sess, activity = [], answer = '', opts = {}) {
+  return buildHomeFrame(s, sess, activity, answer, opts).lines.join('\n');
+}
+
+// Real-terminal cursor position for the home screen's composer (1-indexed
+// row/col) — the live TUI moves the actual terminal cursor here after
+// every redraw so it never gets stranded on a bygone `>` prompt line.
+function homeCursor(s, sess, activity = [], answer = '', opts = {}) {
+  const { cursorRow, cursorCol } = buildHomeFrame(s, sess, activity, answer, opts);
+  return { row: cursorRow, col: cursorCol };
 }
 
 // ---- generic list picker (model / project / palette / sessions) ----
@@ -96,11 +249,107 @@ function picker(s, p) {
     const right = [it.provider, it.status].filter(Boolean).join('   ');
     L.push('  ' + layout.spread(left, right, layout.width() - 2));
     if (it.detail && i === p.index) L.push('      ' + theme.dim(it.detail));
+    if (it.disabled && i === p.index && it.disabledReason) L.push('      ' + theme.dim(it.disabledReason));
   });
   L.push('');
   L.push('  ' + (p.hint || 'Up/Down move · Enter select · Esc cancel'));
   L.push('');
   L.push('  ' + statusBar(s));
+  return L.join('\n');
+}
+
+function diffView(s, d = {}) {
+  const L = ['', '  ' + theme.bold('Changes'), ''];
+  if (!d.ok) {
+    L.push('  ' + theme.dim(d.error || 'Not a Git repository'));
+    L.push(''); L.push('  Esc close'); L.push(''); L.push('  ' + statusBar(s));
+    return L.join('\n');
+  }
+  L.push('  ' + theme.dim(`All [${d.files?.length || 0}]   Staged   Unstaged   Untracked`));
+  L.push('  ' + theme.dim('A/S/U/N filter · Up/Down move · Enter open · Esc close'));
+  L.push('');
+  if (!d.files?.length) L.push('  ' + theme.dim('Working tree clean.'));
+  else d.files.forEach((f, i) => {
+    const mark = i === (d.index || 0) ? '›' : ' ';
+    const stat = `+${f.added || 0} -${f.removed || 0}`;
+    L.push(`  ${mark} ${f.code} ${layout.truncate(f.path, Math.max(12, layout.width() - 22))}  ${theme.dim(stat)}`);
+  });
+  L.push(''); L.push('  ' + statusBar(s));
+  return L.join('\n');
+}
+
+function diffDetailView(s, d = {}) {
+  const file = d.files?.[d.index || 0];
+  const L = ['', '  ' + theme.bold('Diff')];
+  if (file) {
+    L.push('', '  ' + file.path, '');
+    const lines = String(file.patch || 'No patch available').split(/\r?\n/).slice(0, Math.max(8, ((process.stdout && process.stdout.rows) || 24) - 8));
+    for (const line of lines) L.push('  ' + (line.startsWith('+') ? theme.green(line) : line.startsWith('-') ? theme.red(line) : theme.dim(line)));
+  } else L.push('', '  ' + theme.dim('No file selected'));
+  L.push('', '  Esc back · Up/Down file', '', '  ' + statusBar(s));
+  return L.join('\n');
+}
+
+function mcpDetailView(s, server = {}) {
+  const L = ['', '  ' + theme.bold('MCP server'), ''];
+  if (server.name) {
+    const row = (k, v) => L.push('  ' + layout.spread(k, String(v == null || v === '' ? '—' : v), layout.width() - 2));
+    row('Name', server.name); row('Transport', server.transport || 'stdio'); row('Command', server.command);
+    row('Status', server.enabled === false ? 'Disabled' : 'Configured');
+    row('Tools', (server.allowedTools || []).join(', ') || 'none allowlisted');
+    row('Resources', 'not reported by current TUI client'); row('Prompts', 'not reported by current TUI client');
+    row('Scope', server.provenance || 'user settings');
+    if (server.notes) { L.push('', '  ' + theme.dim(server.notes)); }
+  } else L.push('  ' + theme.dim('No MCP server selected'));
+  L.push('', '  Esc back', '', '  ' + statusBar(s));
+  return L.join('\n');
+}
+
+function sessionTimelineView(s, sess, t = {}) {
+  const rows = t.messages || [];
+  const L = ['', '  ' + theme.bold(`Timeline · ${sess.title || 'Session'}`), ''];
+  if (sess.parentSessionId) L.push('  ' + theme.dim(`Fork of ${sess.parentSessionId} at ${sess.forkedFromMessageId || 'current'}`), '');
+  if (!rows.length) L.push('  ' + theme.dim('No messages in this session.'));
+  const max = Math.max(6, ((process.stdout && process.stdout.rows) || 24) - 9);
+  const selected = Math.max(0, Math.min(t.index || 0, rows.length - 1));
+  const start = Math.min(Math.max(0, selected - max + 1), Math.max(0, rows.length - max));
+  for (let n = start; n < Math.min(rows.length, start + max); n++) {
+    const m = rows[n]; const who = m.role === 'user' ? 'You' : 'BotConnector';
+    const text = String(m.content || '').replace(/\s+/g, ' ').trim();
+    L.push(`  ${n === selected ? '›' : ' '} #${n + 1}  ${layout.pad(who, 13)} ${layout.truncate(text, Math.max(18, layout.width() - 23))}`);
+  }
+  L.push('', '  Up/Down move · Enter jump · F fork · C copy · Esc composer', '', '  ' + statusBar(s));
+  return L.join('\n');
+}
+
+function commandsView(s, commands = [], query = '') {
+  const groups = new Map();
+  for (const c of commands) { if (!groups.has(c.source)) groups.set(c.source, []); groups.get(c.source).push(c); }
+  const L = ['', '  ' + theme.bold('Commands'), query ? `  ${theme.dim('Search: ' + query)}` : ''];
+  const maxRows = Math.max(5, ((process.stdout && process.stdout.rows) || 24) - 9); let used = 0; let truncated = false;
+  for (const [source, rows] of groups) {
+    if (used >= maxRows) { truncated = true; break; }
+    L.push('', '  ' + theme.cyan(source === 'PROJECT_COMMAND' ? 'Project' : source === 'SKILL' ? 'Skills' : source));
+    for (const c of rows) {
+      if (used >= maxRows) { truncated = true; break; }
+      const left = `${c.slash}  ${c.title}`; const right = layout.truncate(c.description || '', Math.max(12, layout.width() - left.length - 8));
+      L.push('    ' + layout.truncate(`${left}${right ? '  ' + right : ''}`, Math.max(20, layout.width() - 6))); used++;
+    }
+  }
+  if (truncated) L.push('', '  ' + theme.dim('More commands available — type to search.'));
+  L.push('', '  Type to search · Esc composer', '', '  ' + statusBar(s));
+  return L.join('\n');
+}
+
+function textInputView(s, title, label, value, hint) {
+  const prefix = `  ${label} `;
+  return { screen: ['', '  ' + theme.bold(title), '', prefix + value, '', '  ' + theme.dim(hint || 'Enter confirm · Esc cancel'), '', '  ' + statusBar(s)].join('\n'), cursor: { row: 4, col: prefix.length + value.length + 1 } };
+}
+
+function choiceView(s, title, items, index = 0, hint = 'Up/Down move · Enter select · Esc cancel') {
+  const L = ['', '  ' + theme.bold(title), ''];
+  for (let i = 0; i < items.length; i++) L.push(`  ${i === index ? '›' : ' '} ${items[i].label || items[i]}${items[i].detail ? '  ' + theme.dim(items[i].detail) : ''}${items[i].disabled ? '  ' + theme.dim(items[i].disabledReason || 'disabled') : ''}`);
+  L.push('', '  ' + hint, '', '  ' + statusBar(s));
   return L.join('\n');
 }
 
@@ -363,7 +612,9 @@ function firstRunFailed(s, reason) {
 }
 
 module.exports = {
-  home, statusBar, picker, approvalDetail,
+  home, homeCursor, homeFrame: buildHomeFrame, statusBar, picker, composerPopover, approvalDetail,
+  diffView, diffDetailView, mcpDetailView, sessionTimelineView, commandsView,
+  textInputView, choiceView,
   contextNeedsLarger, contextGettingFull,
   doctorSummary, settingsView, statusView, errorView,
   firstRunWelcome, firstRunRecommend, firstRunProgress, firstRunDone, firstRunFailed,

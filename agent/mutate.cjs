@@ -102,8 +102,9 @@ function applyEdit(ws, proposal) {
   const fmt = proposal.fmt;
   const trailingNL = proposal.proposedLines.length && proposal.proposedLines[proposal.proposedLines.length - 1] === '';
   const lines = trailingNL ? proposal.proposedLines.slice(0, -1) : proposal.proposedLines;
-  atomicWrite(r.full, encode(lines, { bom: fmt.bom, eol: fmt.eol, trailingNewline: trailingNL ? true : fmt.trailingNewline }));
-  return { ok: true, kind: 'edit', path: r.rel, sha: sha256File(r.full) };
+  const next = encode(lines, { bom: fmt.bom, eol: fmt.eol, trailingNewline: trailingNL ? true : fmt.trailingNewline });
+  atomicWrite(r.full, next);
+  return { ok: true, kind: 'edit', path: r.rel, sha: sha256File(r.full), _mutation: { files: [{ path: r.rel, beforeExists: true, afterExists: true, before: raw, after: next }] } };
 }
 
 function buildCreateProposal(ws, relPath, content) {
@@ -126,8 +127,9 @@ function applyCreate(ws, proposal) {
   if (fs.existsSync(r.full)) return { ok: false, error: 'STALE_EDIT: file appeared since proposal — aborted' , stale: true };
   const lines = proposal.content.replace(/\r\n/g, '\n').split('\n');
   const trailingNL = lines.length && lines[lines.length - 1] === '';
-  atomicWrite(r.full, encode(trailingNL ? lines.slice(0, -1) : lines, { bom: false, eol: '\n', trailingNewline: trailingNL ? true : true }));
-  return { ok: true, kind: 'create', path: r.rel, sha: sha256File(r.full) };
+  const next = encode(trailingNL ? lines.slice(0, -1) : lines, { bom: false, eol: '\n', trailingNewline: trailingNL ? true : true });
+  atomicWrite(r.full, next);
+  return { ok: true, kind: 'create', path: r.rel, sha: sha256File(r.full), _mutation: { files: [{ path: r.rel, beforeExists: false, afterExists: true, before: null, after: next }] } };
 }
 
 function trashDir(ws) {
@@ -156,7 +158,7 @@ function applyDelete(ws, proposal) {
     return { ok: false, error: 'STALE_EDIT: file changed since proposal — aborted', stale: true };
   const dest = path.join(trashDir(ws), `${Date.now()}-${path.basename(r.full)}.deleted`);
   fs.renameSync(r.full, dest); // reversible: content preserved under workspace trash
-  return { ok: true, kind: 'delete', path: r.rel, trash: path.relative(ws.root, dest) };
+  return { ok: true, kind: 'delete', path: r.rel, trash: path.relative(ws.root, dest), _mutation: { files: [{ path: r.rel, beforeExists: true, afterExists: false, before: raw, after: null }] } };
 }
 
 function buildRenameProposal(ws, srcRel, dstRel) {
@@ -183,7 +185,10 @@ function applyRename(ws, proposal) {
     return { ok: false, error: 'STALE_EDIT: source changed since proposal — aborted', stale: true };
   if (fs.existsSync(d.full)) return { ok: false, error: 'destination appeared since proposal — aborted', stale: true };
   fs.renameSync(s.full, d.full);
-  return { ok: true, kind: 'rename', path: s.rel, dest: d.rel, sha: sha256File(d.full) };
+  return { ok: true, kind: 'rename', path: s.rel, dest: d.rel, sha: sha256File(d.full), _mutation: { files: [
+    { path: s.rel, beforeExists: true, afterExists: false, before: raw, after: null },
+    { path: d.rel, beforeExists: false, afterExists: true, before: null, after: raw },
+  ] } };
 }
 
 module.exports = {

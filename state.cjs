@@ -38,6 +38,8 @@ function load() {
       language: g('language', 'system'),
       theme: g('tuiTheme', 'auto'),
       debugMode: Boolean(g('tuiDebugMode', false)),
+      showThinking: Boolean(g('tuiShowThinking', false)),
+      showDetails: Boolean(g('tuiShowDetails', false)),
     },
   };
 }
@@ -55,6 +57,8 @@ async function save(s) {
     tuiContextPreference: s.settings.contextPreference,
     tuiTheme: s.settings.theme,
     tuiDebugMode: s.settings.debugMode,
+    tuiShowThinking: Boolean(s.settings.showThinking),
+    tuiShowDetails: Boolean(s.settings.showDetails),
     runtimeBackend: s.runtime.backend,
   };
   for (const [k, v] of Object.entries(writes)) await s.store.set(k, v);

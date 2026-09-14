@@ -244,12 +244,12 @@ async function execIntent(intent, ctx) {
 // `history`: prior {role,content} turns for session resume (additive, opt-in
 // — omitted or empty behaves exactly as before). Bounded here to keep prompt
 // size sane; the caller (sessions.cjs) also bounds what it persists.
-async function runTurn({ prompt, mode, approval, model, tools, cwd, workspace = null, onEvent, localCtx = null, onToken = null, signal = null, debugLog = null, maxTokens = 512, onApproval = null, session = null, history = [] }) {
+async function runTurn({ prompt, mode, approval, model, tools, cwd, workspace = null, onEvent, localCtx = null, onToken = null, signal = null, debugLog = null, maxTokens = 512, onApproval = null, session = null, history = [], taskKind = 'chat', systemInstruction = null }) {
   const emit = (t) => onEvent && onEvent(t);
   const sess = session || { approveAll: false };
   const userTokens = context.estimateTokens(prompt);
   emit({ type: 'tool', text: `● Building context (~${userTokens} tokens)` });
-  const intents = detectIntents(prompt);
+  const intents = taskKind === 'review' ? [] : detectIntents(prompt);
   const primary = intents[0] || null;
   // Explicit route names — generic text is NEVER "analyze". Only workspace
   // routes may demand tool evidence; direct chat must stay tool-free.
@@ -260,7 +260,7 @@ async function runTurn({ prompt, mode, approval, model, tools, cwd, workspace = 
     rename_file: 'workspace_mutation', run_command: 'command',
   };
   const route = primary ? (ROUTE_OF[primary.tool] || 'direct') : 'direct';
-  const plannedOp = primary ? primary.tool : 'direct';
+  const plannedOp = taskKind === 'review' ? 'review' : (primary ? primary.tool : 'direct');
   emit({ type: 'tool', text: `● Routing → ${route} (${model.name} · ${model.locality})` });
 
   const mutating = primary && (primary.kind === 'mutation' || primary.kind === 'command');
@@ -282,6 +282,17 @@ async function runTurn({ prompt, mode, approval, model, tools, cwd, workspace = 
     } catch (e) { result = { error: e.message }; }
     emit({ type: 'tool', text: `● Result received` });
     return { answer: `(${mode}) ${model.name}: processed “${prompt.slice(0, 80)}” → ${plannedOp} done.`, result, op: plannedOp, route };
+  }
+
+  if (taskKind === 'review') {
+    emit({ type: 'tool', text: `● Reviewing with ${localCtx.friendly || model.name}…` });
+    const r = await streamModel(localCtx, [
+      { role: 'system', content: systemInstruction || 'You are BotConnector performing a read-only code review. Prioritize correctness, regressions, security, data-loss risk, missing tests, and material performance issues. Be concise and do not propose edits.' },
+      { role: 'user', content: prompt },
+    ], { maxTokens: Math.max(maxTokens, 1024), signal, onToken, debugLog });
+    if (!r.ok) return { answer: r.reason === 'cancelled' ? '(cancelled — runtime untouched)' : r.reason, failed: r.reason !== 'cancelled', cancelled: r.reason === 'cancelled', op: plannedOp, route };
+    emit({ type: 'tool', text: `● Review result received (${r.finish || 'done'})` });
+    return { answer: r.content || '(empty review result)', result: { op: plannedOp }, op: plannedOp, route, streamed: true, firstTokenAt: r.firstTokenAt };
   }
 
   const ctx = { ws, emit, localCtx, signal, onToken, debugLog, mode, approval, session: sess, onApproval, taskPrompt: prompt };

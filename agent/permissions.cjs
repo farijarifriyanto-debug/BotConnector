@@ -4,7 +4,7 @@
 
 const READ_OPS = new Set([
   'read', 'list', 'search', 'analyze', 'explain', 'propose',
-  'direct', // plain conversational chat: no tools, no workspace, always allowed
+  'direct', 'review', // plain chat and read-only code review: no mutations
   'list_directory', 'read_file', 'search_files', // Phase-1B/1 real read tools
 ]);
 
