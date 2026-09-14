@@ -14,7 +14,10 @@ const OUT_DIR = path.join(ROOT, 'dist-sea');
 const BUNDLE = path.join(OUT_DIR, 'bundle.cjs');
 const BLOB = path.join(OUT_DIR, 'sea-prep.blob');
 const SEA_CONFIG = path.join(OUT_DIR, 'sea-config.json');
-const EXE = path.join(OUT_DIR, 'botconnector.exe');
+// Windows -> botconnector.exe (PE), Linux -> botconnector (ELF, no
+// extension). Never reuse one platform's SEA binary on the other — each
+// embeds process.execPath's actual platform-native node binary.
+const EXE = path.join(OUT_DIR, process.platform === 'win32' ? 'botconnector.exe' : 'botconnector');
 const WEB_DIR = path.join(ROOT, 'dist', 'web');
 
 fs.rmSync(OUT_DIR, { recursive: true, force: true });
@@ -81,9 +84,10 @@ fs.writeFileSync(SEA_CONFIG, JSON.stringify({
 console.log('[3/5] generating SEA blob (node --experimental-sea-config)...');
 execFileSync(process.execPath, ['--experimental-sea-config', 'sea-config.json'], { cwd: OUT_DIR, stdio: 'inherit' });
 
-console.log('[4/5] copying node.exe -> botconnector.exe...');
+console.log(`[4/5] copying node runtime -> ${path.basename(EXE)}...`);
 fs.copyFileSync(process.execPath, EXE);
-try { execFileSync('signtool', ['remove', '/s', EXE], { stdio: 'ignore' }); } catch { /* not signed yet on Windows, fine */ }
+if (process.platform === 'win32') { try { execFileSync('signtool', ['remove', '/s', EXE], { stdio: 'ignore' }); } catch { /* not signed yet on Windows, fine */ } }
+else { try { fs.chmodSync(EXE, 0o755); } catch {} }
 
 console.log('[5/5] injecting blob via postject...');
 execFileSync(process.execPath, [
