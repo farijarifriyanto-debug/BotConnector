@@ -1,8 +1,16 @@
-import os from 'node:os';import {execFileSync,execFile} from 'node:child_process';import {mkdir,writeFile,rm,stat,readdir,readFile} from 'node:fs/promises';import path from 'node:path';import {fileURLToPath} from 'node:url';import {createRequire} from 'node:module';
+import os from 'node:os';import {execFileSync,execFile} from 'node:child_process';import {mkdir,writeFile,rm,stat,readdir,readFile} from 'node:fs/promises';import path from 'node:path';import {fileURLToPath} from 'node:url';
+// Static ESM imports, not require(createRequire(import.meta.url)) — the
+// same lesson already learned and documented in bin/botconnector.mjs.
+// import.meta.url is empty once esbuild bundles this file to CJS for the
+// SEA build, and createRequire(undefined) throws immediately ("filename
+// must be a file URL..."), breaking `botconnector doctor` in EVERY shipped
+// SEA build (Windows and Linux both) — caught live by actually running the
+// built exe, not just `node scripts/doctor.mjs` in dev mode where
+// import.meta.url is always valid and this bug is invisible.
 import * as platformPaths from '../runtime/platform-paths.cjs';
-const require=createRequire(import.meta.url);
-const {RuntimeManager,SERVER_BIN}=require('../runtime/runtime-manager.cjs');
-const {version:PKG_VERSION}=require('../package.json');
+import {RuntimeManager,SERVER_BIN} from '../runtime/runtime-manager.cjs';
+import PKG_JSON from '../package.json' with {type:'json'};
+const PKG_VERSION=PKG_JSON.version;
 function nvidia(){try{const out=execFileSync('nvidia-smi',['--query-gpu=name,memory.total,driver_version','--format=csv,noheader,nounits'],{encoding:'utf8',timeout:5000});return out.trim().split(/\r?\n/).filter(Boolean).map(line=>{const[name,memoryMb,driver]=line.split(',').map(x=>x.trim());return{name,memoryGb:+(Number(memoryMb)/1024).toFixed(1),driver}})}catch{return[]}}
 async function probe(name,url){const t=Date.now();try{const r=await fetch(url,{headers:{'User-Agent':'BotConnectorAI-Doctor/0.4'},signal:AbortSignal.timeout(15000)});return{name,ok:r.ok,status:r.status,ms:Date.now()-t}}catch(e){return{name,ok:false,error:String(e.message||e),ms:Date.now()-t}}}
 // Finding the installed managed-runtime binary reuses RuntimeManager's own
