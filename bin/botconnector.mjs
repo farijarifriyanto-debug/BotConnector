@@ -6,6 +6,7 @@ import path from 'node:path';
 import fs from 'node:fs';
 import fsp from 'node:fs/promises';
 import {spawn,execFileSync} from 'node:child_process';
+import {fileURLToPath} from 'node:url';
 // Static ESM imports (not require()) throughout this file — deliberately.
 // This file gets bundled by esbuild into botconnector.exe (a Node SEA); a
 // require() reached only through a runtime-reassigned `require` variable
@@ -33,6 +34,7 @@ import {UnitEngine} from '../runtime/cloud/units.cjs';
 import {BudgetGuard} from '../runtime/cloud/budget.cjs';
 import {CloudRouter} from '../runtime/cloud/router.cjs';
 import {CloudServer} from '../runtime/cloud/server.cjs';
+import {startUiServer} from '../webui/server.cjs';
 
 // Everything below is wrapped in one async function (rather than using
 // top-level await, as the previous version did) so this file can be bundled
@@ -89,6 +91,7 @@ const HELP=`botconnector - BotConnector AI CLI (shares Core/config with the desk
   botconnector cloud usage [--limit N] [--json] | routing [--json]
   botconnector cloud test [model-id] [--prompt "..."]   (small cost-capped probe)
   botconnector launch <opencode|claude-code|codex|cline> [--apply]
+  botconnector ui [--ui-port N] [--no-browser]   (Portable Web App: local server + opens your browser)
 `;
 const [cmd,sub]=rawArgs.filter(a=>!a.startsWith('--'));
 // NOTE: `--help`/`--version` never survive the filter above (they start with
@@ -101,6 +104,27 @@ if(!cmd){
   // Electron desktop app. Never launched implicitly by any other command.
   await runTui({debug:rawArgs.includes('--debug'),workspace:process.cwd()});
   process.exit(0);
+}
+
+if(cmd==='ui'){
+  // Portable Web App entrypoint: local-only HTTP server (webui/server.cjs,
+  // shares the exact same Core modules as the CLI/Electron above) serving
+  // the same renderer that already works in `npm run desktop`, then opens
+  // the user's default browser. No Electron, no bundled browser engine.
+  const scriptDir=import.meta.url?path.dirname(fileURLToPath(import.meta.url)):null;
+  const webRoot=scriptDir?path.join(scriptDir,'..','dist','web'):null;
+  if(webRoot&&!fs.existsSync(path.join(webRoot,'index.html')))fail(`dist/web is missing (${webRoot}). Run: npm run build:web`);
+  const uiPort=Number(opt('ui-port',32100));
+  const {port:boundPort}=await startUiServer({userDataDir:userData,webRoot,preferredPort:uiPort,log:m=>console.error(m)});
+  const url=`http://127.0.0.1:${boundPort}`;
+  console.error(`BotConnector UI on ${url} (localhost only; Ctrl-C stops)`);
+  if(!rawArgs.includes('--no-browser')){
+    try{
+      const openCmd=process.platform==='win32'?['cmd',['/c','start','""',url]]:process.platform==='darwin'?['open',[url]]:['xdg-open',[url]];
+      spawn(openCmd[0],openCmd[1],{detached:true,stdio:'ignore',windowsHide:true}).unref();
+    }catch(e){console.error(`Could not auto-open a browser (${e.message||e}); open ${url} manually.`);}
+  }
+  await new Promise(()=>{});
 }
 
 if(cmd==='doctor'){
