@@ -286,7 +286,13 @@ function startUiServer({ userDataDir, webRoot, getAsset, preferredPort = 32100, 
       if (p === '/api/models/search' && req.method === 'POST') { const input = await readJson(req); if (!plainObject(input)) throw new Error('Model search payload must be an object'); const hardware = await detectHardware(); return sendJson(res, 200, await hf.searchModels({ ...input, hardware, token: getToken() })); }
       if (p === '/api/models/details' && req.method === 'POST') { const { id } = await readJson(req); if (typeof id !== 'string' || !id || id.length > 300) throw new Error('Model id is invalid'); const hardware = await detectHardware(); return sendJson(res, 200, await hf.modelDetails({ id, hardware, token: getToken() })); }
       if (p === '/api/models/installed' && req.method === 'GET') return sendJson(res, 200, await scanInstalled(store.get('modelsDir')));
-      if (p === '/api/models/reveal' && req.method === 'POST') { const { path: fp } = await readJson(req); if (typeof fp !== 'string' || !fp) return sendJson(res, 200, false); require('node:child_process').execFile('explorer.exe', ['/select,', fp], () => {}); return sendJson(res, 200, true); }
+      if (p === '/api/models/reveal' && req.method === 'POST') {
+        const { path: fp } = await readJson(req); if (typeof fp !== 'string' || !fp) return sendJson(res, 200, false);
+        const { execFile } = require('node:child_process');
+        if (process.platform === 'win32') execFile('explorer.exe', ['/select,', fp], () => {});
+        else execFile('xdg-open', [path.dirname(fp)], () => {}); // no Linux equivalent of "select this exact file" without knowing the desktop's file manager; open the containing folder instead
+        return sendJson(res, 200, true);
+      }
       if (p === '/api/models/delete' && req.method === 'POST') {
         const { dir } = await readJson(req); const root = path.resolve(store.get('modelsDir')); const target = path.resolve(String(dir || ''));
         if (!target.startsWith(root + path.sep)) throw new Error('Refusing to delete outside model directory');

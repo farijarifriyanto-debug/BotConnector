@@ -22,6 +22,7 @@ import {scanInstalled} from '../runtime/installed.cjs';
 import {detectHardware} from '../runtime/hardware.cjs';
 import {claimOwnership,readOwnership,releaseOwnership,setChild,statePath} from '../runtime/ownership.cjs';
 import {runTui} from '../tui/app.cjs';
+import {runAttach} from '../tui/attach.cjs';
 import * as llama from '../runtime/llama.cjs';
 import {CredentialManager} from '../runtime/credentials.cjs';
 import {NebiusProvider} from '../runtime/cloud/nebius.cjs';
@@ -37,6 +38,7 @@ import {CloudRouter} from '../runtime/cloud/router.cjs';
 import {CloudServer} from '../runtime/cloud/server.cjs';
 import {startUiServer} from '../webui/server.cjs';
 import {findExisting as findExistingUi,writeLock as writeUiLock,clearLock as clearUiLock} from '../webui/single-instance.cjs';
+import * as platformPaths from '../runtime/platform-paths.cjs';
 
 // Everything below is wrapped in one async function (rather than using
 // top-level await, as the previous version did) so this file can be bundled
@@ -47,7 +49,13 @@ import {findExisting as findExistingUi,writeLock as writeUiLock,clearLock as cle
 async function __botconnectorMain(){
 
 const APP='botconnector-ai-local-cloud';
-const userData=path.join(process.env.APPDATA||path.join(os.homedir(),'AppData','Roaming'),APP);
+// Windows: unchanged from the existing shipped path (%APPDATA%\botconnector-
+// ai-local-cloud) — real users' existing settings/sessions already live
+// there; silently relocating them is exactly what this project's data-path
+// rules exist to prevent. Linux is a brand-new platform with no existing
+// installs to preserve, so it goes straight to the XDG-compliant root
+// (platformPaths.dataDir()) with no separate legacy path to reconcile.
+const userData=platformPaths.isWindows()?path.join(process.env.APPDATA||path.join(os.homedir(),'AppData','Roaming'),APP):platformPaths.dataDir();
 const store=new Store(userData);store.load();
 const runtimes=new RuntimeManager({baseDir:path.join(userData,'runtimes','llama.cpp')});
 const downloads=new DownloadManager({getModelsDir:()=>store.get('modelsDir'),getToken:()=>process.env.HF_TOKEN||''});
@@ -93,7 +101,9 @@ const HELP=`botconnector - BotConnector AI CLI (shares Core/config with the desk
   botconnector cloud usage [--limit N] [--json] | routing [--json]
   botconnector cloud test [model-id] [--prompt "..."]   (small cost-capped probe)
   botconnector launch <opencode|claude-code|codex|cline> [--apply]
-  botconnector ui [--ui-port N] [--no-browser]   (Portable Web App: local server + opens your browser)
+  botconnector ui [--ui-port N] [--no-browser]   (Web Agent Workspace: local server + opens your browser)
+  botconnector serve [--hostname 127.0.0.1] [--port N]   (same backend as 'ui', headless — no browser auto-open)
+  botconnector attach <url>               (attach a terminal session to an already-running 'ui'/'serve' backend)
 `;
 const [cmd,sub]=rawArgs.filter(a=>!a.startsWith('--'));
 // NOTE: `--help`/`--version` never survive the filter above (they start with
@@ -109,39 +119,57 @@ if(!cmd){
 }
 
 function openBrowser(url){
+  // Server must survive regardless of outcome here — this is best-effort
+  // convenience, never a precondition for the backend being usable
+  // (explicitly required for headless Linux: server starts and the URL is
+  // printed either way — see the console.error right before this call in
+  // the `ui`/`serve` handlers below).
   try{
     const openCmd=process.platform==='win32'?['cmd',['/c','start','""',url]]:process.platform==='darwin'?['open',[url]]:['xdg-open',[url]];
-    spawn(openCmd[0],openCmd[1],{detached:true,stdio:'ignore',windowsHide:true}).unref();
+    const child=spawn(openCmd[0],openCmd[1],{detached:true,stdio:'ignore',windowsHide:true});
+    // spawn() does not throw synchronously for a missing command (e.g. no
+    // xdg-open on a minimal/headless Linux box) — ENOENT arrives async via
+    // this 'error' event. Without listening for it, a failed launch there
+    // looks identical to a successful one: no visible error, no browser.
+    child.once('error',e=>console.error(`Could not auto-open a browser (${e.message||e}); open ${url} manually.`));
+    child.unref();
   }catch(e){console.error(`Could not auto-open a browser (${e.message||e}); open ${url} manually.`);}
 }
-if(cmd==='ui'){
-  // Portable Web App entrypoint: local-only HTTP server (webui/server.cjs,
-  // shares the exact same Core modules as the CLI/Electron above) serving
-  // the same renderer that already works in `npm run desktop`, then opens
-  // the user's default browser. No Electron, no bundled browser engine.
-  //
-  // Deliberately its OWN data root under %LOCALAPPDATA%, not the
-  // %APPDATA%\botconnector-ai-local-cloud the Electron app and every other
-  // CLI command above use. Two consequences, both disclosed rather than
-  // silently accepted: settings.json and the managed llama.cpp runtime
-  // binary are separate per distribution channel (each downloads/manages
-  // its own copy); downloaded MODELS are still naturally shared, since
-  // Store's modelsDir default (runtime/store.cjs) is a fixed
-  // ~/BotConnector AI/models path independent of which userData root asked
-  // for it. If Electron and the portable app try to own the local runtime
-  // at the same time, ownership.cjs's existing single-owner lock makes the
-  // second one refuse safely — never silently collide or corrupt state.
-  //
-  // Folder name is "BotConnector AI" (matching this product's own naming
-  // everywhere else: the Electron install dir, the models default path),
-  // not the bare "BotConnector" a literal reading might suggest — verified
-  // live that %LOCALAPPDATA%\BotConnector\ already exists on a real test
-  // machine as an unrelated pre-existing application's data folder
-  // (Codex-*/HermesTunnel/PersonalAssistant subfolders, nothing to do with
-  // this product). Writing into that shared name would silently mix data
-  // with an unrelated app — exactly what this project's data-path rules
-  // exist to prevent.
-  const uiUserData=path.join(process.env.LOCALAPPDATA||path.join(os.homedir(),'AppData','Local'),'BotConnector AI');
+// Shared by `ui` and `serve` — the ONE backend both the browser Web Agent
+// Workspace and (via `attach`) the TUI talk to. `ui` opens a browser after
+// starting it; `serve` is the same backend, headless, for CI/remote/no-
+// display Linux boxes ("Do not require graphical desktop for core
+// operation").
+//
+// Deliberately its OWN data root under %LOCALAPPDATA% on Windows, not the
+// %APPDATA%\botconnector-ai-local-cloud the Electron app and every other
+// CLI command above use. Two consequences, both disclosed rather than
+// silently accepted: settings.json and the managed llama.cpp runtime
+// binary are separate per distribution channel (each downloads/manages
+// its own copy); downloaded MODELS are still naturally shared, since
+// Store's modelsDir default (runtime/store.cjs) is a fixed
+// ~/BotConnector AI/models path independent of which userData root asked
+// for it. If Electron and the portable app try to own the local runtime
+// at the same time, ownership.cjs's existing single-owner lock makes the
+// second one refuse safely — never silently collide or corrupt state.
+//
+// Folder name is "BotConnector AI" (matching this product's own naming
+// everywhere else: the Electron install dir, the models default path),
+// not the bare "BotConnector" a literal reading might suggest — verified
+// live that %LOCALAPPDATA%\BotConnector\ already exists on a real test
+// machine as an unrelated pre-existing application's data folder
+// (Codex-*/HermesTunnel/PersonalAssistant subfolders, nothing to do with
+// this product). Writing into that shared name would silently mix data
+// with an unrelated app — exactly what this project's data-path rules
+// exist to prevent.
+//
+// On Linux there is no such legacy-path concern (brand new platform), so
+// `ui`/`serve` use the exact same platformPaths.dataDir() root every
+// other command already uses there — meaning botconnector doctor,
+// botconnector ui, and botconnector serve genuinely share one profile on
+// Linux out of the box, not just when explicitly bridged via `attach`.
+async function startBackendServer({preferredPort,openBrowserAfter}){
+  const uiUserData=platformPaths.isWindows()?path.join(process.env.LOCALAPPDATA||path.join(os.homedir(),'AppData','Local'),'BotConnector AI'):platformPaths.dataDir();
   const lockFile=path.join(uiUserData,'ui.lock');
   const existing=await findExistingUi(lockFile);
   if(existing){
@@ -150,8 +178,8 @@ if(cmd==='ui'){
     // the honest equivalent is opening a new tab at the same running
     // server, without starting a second core/server process.
     const url=`http://127.0.0.1:${existing.port}`;
-    console.error(`BotConnector UI is already running on ${url} (pid ${existing.pid}). Opening a new tab there instead of starting a second instance.`);
-    if(!rawArgs.includes('--no-browser'))openBrowser(url);
+    console.error(`BotConnector backend is already running on ${url} (pid ${existing.pid}).${openBrowserAfter?' Opening a new tab there instead of starting a second instance.':' Not starting a second instance.'}`);
+    if(openBrowserAfter&&!rawArgs.includes('--no-browser'))openBrowser(url);
     process.exit(0);
   }
   // Prefer assets embedded in the SEA exe (node:sea) — the whole point of
@@ -166,17 +194,42 @@ if(cmd==='ui'){
     webRoot=scriptDir?path.join(scriptDir,'..','dist','web'):null;
     if(!webRoot||!fs.existsSync(path.join(webRoot,'index.html')))fail(`dist/web is missing (${webRoot}). Run: npm run build:web`);
   }
-  const uiPort=Number(opt('ui-port',32100));
-  const {port:boundPort}=await startUiServer({userDataDir:uiUserData,webRoot,getAsset:getWebAsset,preferredPort:uiPort,log:m=>console.error(m),onQuit:()=>process.exit(0)});
+  const {port:boundPort}=await startUiServer({userDataDir:uiUserData,webRoot,getAsset:getWebAsset,preferredPort,log:m=>console.error(m),onQuit:()=>process.exit(0)});
   writeUiLock(lockFile,{pid:process.pid,port:boundPort});
   const cleanup=()=>{clearUiLock(lockFile,process.pid);};
   process.on('exit',cleanup);
   process.on('SIGINT',()=>process.exit(0));
   process.on('SIGTERM',()=>process.exit(0));
   const url=`http://127.0.0.1:${boundPort}`;
-  console.error(`BotConnector UI on ${url} (localhost only; Ctrl-C stops)`);
-  if(!rawArgs.includes('--no-browser'))openBrowser(url);
+  console.error(`BotConnector backend on ${url} (localhost only; Ctrl-C stops)`);
+  if(openBrowserAfter&&!rawArgs.includes('--no-browser'))openBrowser(url);
   await new Promise(()=>{});
+}
+if(cmd==='ui'){
+  // Portable Web App entrypoint: local-only HTTP server (webui/server.cjs,
+  // shares the exact same Core modules as the CLI/Electron above) serving
+  // the same renderer that already works in `npm run desktop`, then opens
+  // the user's default browser. No Electron, no bundled browser engine.
+  await startBackendServer({preferredPort:Number(opt('ui-port',32100)),openBrowserAfter:true});
+}
+if(cmd==='serve'){
+  // Headless variant of `ui`: same shared backend, no browser auto-open —
+  // for CI, remote sessions, or a Linux box with no display. `--hostname`
+  // is accepted (matching the documented command contract) but only
+  // 127.0.0.1/localhost are honored: binding anything else means exposing
+  // this server beyond the local machine, which needs real authentication
+  // this build does not implement yet — refusing is safer than silently
+  // binding somewhere the "localhost only by default" security policy
+  // doesn't actually cover.
+  const hostname=opt('hostname','127.0.0.1');
+  if(hostname!=='127.0.0.1'&&hostname!=='localhost')fail(`--hostname ${hostname} is not supported: this build only binds 127.0.0.1/localhost. Remote exposure needs authentication this version does not implement.`);
+  await startBackendServer({preferredPort:Number(opt('port',32100)),openBrowserAfter:false});
+}
+if(cmd==='attach'){
+  const url=rawArgs.find((a,i)=>i>0&&!a.startsWith('--'));
+  if(!url)fail('attach <url> — e.g. botconnector attach http://127.0.0.1:32100');
+  await runAttach(url);
+  process.exit(0);
 }
 
 if(cmd==='doctor'){
