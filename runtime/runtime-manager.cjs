@@ -2,12 +2,14 @@ const fs=require('node:fs');
 const fsp=require('node:fs/promises');
 const path=require('node:path');
 const crypto=require('node:crypto');
+const zlib=require('node:zlib');
 const {pipeline}=require('node:stream/promises');
 const {execFile}=require('node:child_process');
 const yauzl=require('yauzl');
 
 const UA='BotConnectorAI/0.4';
 const RELEASES_URL='https://api.github.com/repos/ggml-org/llama.cpp/releases';
+const SERVER_BIN=process.platform==='win32'?'llama-server.exe':'llama-server';
 
 function digestOf(a){const d=a?.digest||'';return d.replace(/^sha256:/i,'')||null;}
 
@@ -27,7 +29,7 @@ function verifyBinary(binary,timeout=30000){
   return new Promise((resolve,reject)=>{
     execFile(binary,['--version'],{shell:false,windowsHide:true,timeout},(err,stdout,stderr)=>{
       const out=String(stdout||stderr||'').trim();
-      if(err)return reject(new Error(`llama-server.exe --version failed: ${err.message}${out?` — ${out.slice(0,300)}`:''}`));
+      if(err)return reject(new Error(`llama-server --version failed: ${err.message}${out?` — ${out.slice(0,300)}`:''}`));
       resolve(out.slice(0,500));
     });
   });
@@ -141,6 +143,108 @@ async function extractZipSecure(zipPath,extractionRoot,options={}){
   }finally{try{zip.close();}catch{}}
 }
 
+// Linux llama.cpp releases ship .tar.gz, not .zip. Node has no built-in tar
+// parser, and reaching for a dependency (or shelling out to the system's
+// `tar`, trusting whatever version/behavior happens to be installed) both
+// sit less comfortably next to extractZipSecure's from-scratch, fully
+//-audited approach than just parsing the (simple, fixed-layout) POSIX
+// ustar format directly — reusing every one of extractZipSecure's safety
+// primitives (safeEntryName, inside, assertSafeComponents, the same byte
+// limits) so both archive formats get identical guarantees. ustar only:
+// GNU longname ('L') entries and anything else non-plain-file/directory is
+// rejected rather than guessed at.
+function tarString(buf,start,len){const i=buf.indexOf(0,start);const end=i>=0&&i<start+len?i:start+len;return buf.toString('utf8',start,end).trim();}
+function tarOctal(buf,start,len){const s=tarString(buf,start,len).trim();return s?parseInt(s,8):0;}
+async function extractTarGzSecure(tarGzPath,extractionRoot,options={}){
+  const limits=archiveOptions(options),archiveStat=await fsp.lstat(tarGzPath);
+  if(!archiveStat.isFile()||archiveStat.isSymbolicLink())throw new Error('Archive must be a regular file');
+  if(archiveStat.size>limits.maxArchiveBytes)throw new Error('Archive size limit exceeded');
+  const root=path.resolve(extractionRoot);try{await fsp.mkdir(root);}catch(error){if(error.code!=='EEXIST')throw error;}
+  const rootStat=await fsp.lstat(root);if(rootStat.isSymbolicLink()||!rootStat.isDirectory())throw new Error('Extraction root is unsafe');
+  const gz=await fsp.readFile(tarGzPath);
+  let tar;
+  try{tar=zlib.gunzipSync(gz,{maxOutputLength:limits.maxTotalUncompressedBytes});}
+  catch(e){throw new Error(`Archive is not valid gzip or exceeds expansion limit: ${e.message}`);}
+  if(tar.length/Math.max(1,gz.length)>limits.maxCompressionRatio)throw new Error('Archive compression ratio limit exceeded');
+  const seen=new Set();let count=0,offset=0;
+  while(offset+512<=tar.length){
+    const header=tar.subarray(offset,offset+512);
+    if(header.every(b=>b===0)){offset+=512;continue;} // end-of-archive padding block
+    const name=tarString(header,0,100);
+    const prefix=tarString(header,345,155);
+    const fullName=prefix?`${prefix}/${name}`:name;
+    const size=tarOctal(header,124,12);
+    const typeflag=String.fromCharCode(header[156]||0);
+    offset+=512;
+    const dataBlocks=Math.ceil(size/512);
+    const data=tar.subarray(offset,offset+size);
+    offset+=dataBlocks*512;
+    if(!fullName)continue; // pure padding / malformed, already handled by the all-zero check above
+    if(typeflag==='g'||typeflag==='x')continue; // pax extended header blocks — no entries in these releases use them; skip safely, entry name/size below still comes from the ustar fields, never from pax data
+    if(typeflag==='L')throw new Error(`Unsupported archive entry (GNU long name) blocked: ${fullName}`);
+    // Symlinks are otherwise rejected outright (same as the zip path) —
+    // EXCEPT the narrow, validated case tar-packaged Linux binaries
+    // actually need: a relative symlink whose target contains no '..' and
+    // resolves to somewhere still inside the extraction root (standard
+    // shared-library SONAME convention, e.g. libllama.so -> libllama.so.0
+    // — confirmed live: llama.cpp's own Ubuntu release tarball ships
+    // exactly this, and llama-server will not dynamically link without
+    // it). Anything else about the symlink (absolute target, '..', a
+    // target that resolves outside root) is still blocked.
+    if(typeflag==='2'){
+      const linkTarget=tarString(header,157,100);
+      if(!linkTarget||linkTarget.includes('\u0000')||path.isAbsolute(linkTarget)||linkTarget.split(/[\\/]/).some(p=>p==='..'))
+        throw new Error(`Unsafe symlink target blocked: ${fullName} -> ${linkTarget||'(empty)'}`);
+      const bareName=fullName.replace(/\/+$/,'');
+      const entryName=safeEntryName(bareName);
+      if(!entryName||entryName.length>limits.maxPathLength)throw new Error(`Unsafe archive entry blocked: ${fullName}`);
+      count++;if(count>limits.maxEntryCount)throw new Error('Archive entry count limit exceeded');
+      const key=process.platform==='win32'?entryName.toLowerCase():entryName;
+      if(seen.has(key))throw new Error(`Duplicate archive entry blocked: ${fullName}`);seen.add(key);
+      const target=path.resolve(root,entryName.replace(/\//g,path.sep));
+      if(!inside(root,target))throw new Error(`Archive entry escapes extraction root: ${fullName}`);
+      const resolvedTarget=path.resolve(path.dirname(target),linkTarget);
+      if(!inside(root,resolvedTarget))throw new Error(`Symlink target escapes extraction root: ${fullName} -> ${linkTarget}`);
+      await assertSafeComponents(root,target);
+      try{await fsp.lstat(target);throw new Error(`Archive destination collision: ${fullName}`);}catch(error){if(error.code!=='ENOENT')throw error;}
+      await fsp.symlink(linkTarget,target);
+      continue;
+    }
+    if(typeflag!=='0'&&typeflag!=='\0'&&typeflag!=='5')throw new Error(`Unsupported archive entry type blocked: ${fullName}`);
+    const isDirectory=typeflag==='5'||fullName.endsWith('/');
+    // fullName may already carry its own trailing slash (common from
+    // GNU/BSD tar) — strip before conditionally re-adding exactly one, or
+    // safeEntryName correctly (by design) rejects the resulting empty path
+    // segment from a doubled "name//" as unsafe. Caught live: this exact
+    // bug blocked every directory entry in a real llama.cpp release tarball.
+    const bareName=fullName.replace(/\/+$/,'');
+    const entryName=safeEntryName(isDirectory?`${bareName}/`:fullName);
+    if(!entryName||entryName.length>limits.maxPathLength)throw new Error(`Unsafe archive entry blocked: ${fullName}`);
+    count++;if(count>limits.maxEntryCount)throw new Error('Archive entry count limit exceeded');
+    if(!Number.isSafeInteger(size)||size>limits.maxSingleEntryUncompressedBytes)throw new Error(`Archive entry size limit exceeded: ${fullName}`);
+    const key=process.platform==='win32'?entryName.toLowerCase():entryName;
+    if(seen.has(key))throw new Error(`Duplicate archive entry blocked: ${fullName}`);seen.add(key);
+    const target=path.resolve(root,entryName.replace(/\//g,path.sep));
+    if(!inside(root,target))throw new Error(`Archive entry escapes extraction root: ${fullName}`);
+    if(isDirectory){
+      if(await fsp.lstat(target).then(s=>s.isDirectory()&&!s.isSymbolicLink()).catch(e=>e.code==='ENOENT'?false:Promise.reject(e))){}else{
+        await assertSafeComponents(root,target);
+        await fsp.mkdir(target);
+      }
+      continue;
+    }
+    await assertSafeComponents(root,target);
+    try{await fsp.lstat(target);throw new Error(`Archive destination collision: ${fullName}`);}catch(error){if(error.code!=='ENOENT')throw error;}
+    // 0o700, not the zip path's 0o600: these entries are Linux ELF binaries
+    // that must be directly executable by the owner (tar's own claimed mode
+    // bits are never trusted, same philosophy as the zip path — this is a
+    // fixed value BotConnector chooses, not one the archive can dictate).
+    const handle=await fsp.open(target,fs.constants.O_CREAT|fs.constants.O_EXCL|fs.constants.O_WRONLY|(fs.constants.O_NOFOLLOW||0),0o700);
+    try{await handle.writeFile(data);}finally{await handle.close();}
+  }
+  return {entries:count};
+}
+
 class RuntimeManager{
   constructor({baseDir,emit}){this.baseDir=baseDir;this.emit=emit||(()=>{});}
 
@@ -152,11 +256,13 @@ class RuntimeManager{
     return arr.map(normRelease);
   }
 
-  // Newest release first that contains ANY official Windows x64 zip (excludes arm64-only, source tarballs).
+  // Newest release first that contains an official x64 asset for THIS platform
+  // (excludes arm64-only, source tarballs). Windows -> *.zip, Linux -> *.tar.gz.
   async latest(){
     const releases=await this.listReleases(15);
-    const usable=releases.find(r=>(r.assets||[]).some(a=>/-win-.*-x64\.zip$/i.test(a.name)));
-    if(!usable)throw new Error('No recent llama.cpp release contains an official Windows x64 asset');
+    const re=process.platform==='win32'?/-win-.*-x64\.zip$/i:/-ubuntu-.*x64\.tar\.gz$/i;
+    const usable=releases.find(r=>(r.assets||[]).some(a=>re.test(a.name)));
+    if(!usable)throw new Error(`No recent llama.cpp release contains an official ${process.platform==='win32'?'Windows':'Linux'} x64 asset`);
     return usable;
   }
 
@@ -172,19 +278,32 @@ class RuntimeManager{
     if(backend==='auto')throw new Error('Use resolveBackend() for backend "auto" (tries vulkan, then cpu fallback)');
     const a=(release.assets||[]).filter(x=>!/-arm64\./i.test(x.name));
     const find=re=>a.find(x=>re.test(x.name));
+    const win=process.platform==='win32';
+    const platformLabel=win?'Windows':'Linux';
     let primary=null;
-    if(backend==='cuda12')primary=find(/^llama-.*-bin-win-cuda-12(?:\.[0-9.]+)?-x64\.zip$/i);
-    if(backend==='cuda13')primary=find(/^llama-.*-bin-win-cuda-13(?:\.[0-9.]+)?-x64\.zip$/i);
-    if(backend==='vulkan')primary=find(/^llama-.*-bin-win-vulkan-x64\.zip$/i);
-    if(backend==='rocm')primary=find(/^llama-.*-bin-win-(rocm|hip).*x64\.zip$/i);
-    if(backend==='cpu')primary=find(/^llama-.*-bin-win-cpu-x64\.zip$/i);
+    if(win){
+      if(backend==='cuda12')primary=find(/^llama-.*-bin-win-cuda-12(?:\.[0-9.]+)?-x64\.zip$/i);
+      if(backend==='cuda13')primary=find(/^llama-.*-bin-win-cuda-13(?:\.[0-9.]+)?-x64\.zip$/i);
+      if(backend==='vulkan')primary=find(/^llama-.*-bin-win-vulkan-x64\.zip$/i);
+      if(backend==='rocm')primary=find(/^llama-.*-bin-win-(rocm|hip).*x64\.zip$/i);
+      if(backend==='cpu')primary=find(/^llama-.*-bin-win-cpu-x64\.zip$/i);
+    }else{
+      // ggml-org/llama.cpp does not currently publish cuda12/cuda13 Ubuntu
+      // binaries (verified live against the actual releases API — only
+      // win-cuda-* exists) — those fall through to the "not found" error
+      // below rather than silently substituting a different backend.
+      if(backend==='vulkan')primary=find(/^llama-.*-bin-ubuntu-vulkan-x64\.tar\.gz$/i);
+      if(backend==='rocm')primary=find(/^llama-.*-bin-ubuntu-rocm.*-x64\.tar\.gz$/i);
+      if(backend==='cpu')primary=find(/^llama-.*-bin-ubuntu-x64\.tar\.gz$/i);
+    }
     if(!primary){
-      const cands=a.filter(x=>/^llama-.*-bin-win-.*\.zip$/i.test(x.name)).map(x=>x.name).slice(0,8);
-      throw new Error(`No official Windows x64 llama.cpp asset found for backend ${backend} in ${release.tag}${cands.length?` (win assets: ${cands.join(', ')})`:''}`);
+      const re=win?/^llama-.*-bin-win-.*\.zip$/i:/^llama-.*-bin-ubuntu-.*\.tar\.gz$/i;
+      const cands=a.filter(x=>re.test(x.name)).map(x=>x.name).slice(0,8);
+      throw new Error(`No official ${platformLabel} x64 llama.cpp asset found for backend ${backend} in ${release.tag}${cands.length?` (${platformLabel.toLowerCase()} assets: ${cands.join(', ')})`:''}`);
     }
     const out=[primary];
-    if(backend==='cuda12'){const c=find(/^cudart-llama-bin-win-cuda-12.*-x64\.zip$/i);if(c)out.push(c);}
-    if(backend==='cuda13'){const c=find(/^cudart-llama-bin-win-cuda-13.*-x64\.zip$/i);if(c)out.push(c);}
+    if(win&&backend==='cuda12'){const c=find(/^cudart-llama-bin-win-cuda-12.*-x64\.zip$/i);if(c)out.push(c);}
+    if(win&&backend==='cuda13'){const c=find(/^cudart-llama-bin-win-cuda-13.*-x64\.zip$/i);if(c)out.push(c);}
     return out;
   }
 
@@ -234,7 +353,7 @@ class RuntimeManager{
   }
 
   async install({backend='vulkan'}={}){
-    if(process.platform!=='win32')throw new Error('Managed runtime installation currently targets Windows x64.');
+    if(process.platform!=='win32'&&process.platform!=='linux')throw new Error(`Managed runtime installation targets Windows and Linux x64 (this platform: ${process.platform}).`);
     const norm=this.normalizeBackend(backend);
     const order=norm==='auto'?['vulkan','cpu']:[norm];
     let lastError=null;
@@ -267,11 +386,12 @@ class RuntimeManager{
         const zipPath=path.join(stagingDir,asset.name);
         await this.downloadAsset(asset,zipPath,meta);
         this.emit('runtime:install-progress',{...meta,status:'extracting',downloadedBytes:asset.size||0,totalBytes:asset.size||0});
-        await extractZipSecure(zipPath,stagingDir);
+        if(/\.tar\.gz$/i.test(asset.name))await extractTarGzSecure(zipPath,stagingDir);
+        else await extractZipSecure(zipPath,stagingDir);
         await fsp.rm(zipPath,{force:true});
       }
       const exe=await this.findServer(stagingDir);
-      if(!exe)throw new Error('llama-server.exe was not found after extraction');
+      if(!exe)throw new Error(`${SERVER_BIN} was not found after extraction`);
       // Verification gate (shell:false) BEFORE promotion.
       this.emit('runtime:install-progress',{backend,release:releaseTag,status:'verifying-binary'});
       const versionOutput=await verifyBinary(exe);
@@ -295,8 +415,15 @@ class RuntimeManager{
     }
   }
 
-  async findServer(dir=this.baseDir){const stack=[dir];while(stack.length){const d=stack.pop();let items=[];try{items=await fsp.readdir(d,{withFileTypes:true});}catch{continue;}for(const x of items){const p=path.join(d,x.name);if(x.isDirectory()){if(path.basename(p).startsWith('.staging-'))continue;stack.push(p);}else if(x.name.toLowerCase()==='llama-server.exe')return p;}}return null;}
+  async findServer(dir=this.baseDir){const stack=[dir];while(stack.length){const d=stack.pop();let items=[];try{items=await fsp.readdir(d,{withFileTypes:true});}catch{continue;}for(const x of items){const p=path.join(d,x.name);if(x.isDirectory()){if(path.basename(p).startsWith('.staging-'))continue;stack.push(p);}else if(x.name.toLowerCase()===SERVER_BIN){
+    // Extraction always writes 0o700; this only matters for a binary that
+    // reached this directory some other way (a manually-copied build, a
+    // pre-existing install from before this fix) — belt-and-braces so
+    // "found" always implies "runnable".
+    if(process.platform!=='win32'){try{fs.chmodSync(p,0o700);}catch{}}
+    return p;
+  }}}return null;}
   async installed(){const exe=await this.findServer();return exe?{installed:true,binary:exe}:{installed:false,binary:null};}
   async verifyInstalled(){const s=await this.installed();if(!s.installed)return{installed:false,verified:false};try{const out=await verifyBinary(s.binary);return{installed:true,binary:s.binary,verified:true,version:out};}catch(e){return{installed:true,binary:s.binary,verified:false,error:String(e.message||e)};}}
 }
-module.exports={ARCHIVE_LIMITS,RuntimeManager,verifyBinary,safeEntryName,extractZipSecure};
+module.exports={ARCHIVE_LIMITS,RuntimeManager,verifyBinary,safeEntryName,extractZipSecure,extractTarGzSecure,SERVER_BIN};
