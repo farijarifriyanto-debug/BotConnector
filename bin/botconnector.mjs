@@ -1,3 +1,4 @@
+#!/usr/bin/env node
 // botconnector CLI - shares BotConnector Core (same Store, HF adapter, DownloadManager,
 // RuntimeManager, model paths and config as the Electron desktop). Works with GUI closed.
 // Usage: node bin/botconnector.mjs <command> [args] [--json] [--port N]
@@ -41,6 +42,7 @@ import {startUiServer} from '../webui/server.cjs';
 import {findExisting as findExistingUi,writeLock as writeUiLock,clearLock as clearUiLock} from '../webui/single-instance.cjs';
 import * as platformPaths from '../runtime/platform-paths.cjs';
 import integrationModule from '../registry/integrations.cjs';
+import PKG_JSON from '../package.json' with {type:'json'};
 
 const {createIntegrationRegistry, resolveAutoModel, launchIntegration} = integrationModule;
 
@@ -114,7 +116,7 @@ const [cmd,sub]=rawArgs.filter(a=>!a.startsWith('--'));
 // NOTE: `--help`/`--version` never survive the filter above (they start with
 // `--`), so they must be checked against rawArgs directly, not against cmd.
 if(rawArgs.includes('--help')||cmd==='help'){console.log(HELP);process.exit(0);}
-if(rawArgs.includes('--version')||cmd==='version'){out({name:APP,version:'0.5.0-beta1'});process.exit(0);}
+if(rawArgs.includes('--version')||cmd==='version'){out({name:APP,version:PKG_JSON.version});process.exit(0);}
 if(!cmd){
   // Native Agent TUI — first-party terminal client, shares Core (Store, hf,
   // DownloadManager, RuntimeManager, ownership) with the CLI above and the
