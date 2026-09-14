@@ -7,6 +7,7 @@ import fs from 'node:fs';
 import fsp from 'node:fs/promises';
 import {spawn,execFileSync} from 'node:child_process';
 import {fileURLToPath} from 'node:url';
+import {isSea,getAsset} from 'node:sea';
 // Static ESM imports (not require()) throughout this file — deliberately.
 // This file gets bundled by esbuild into botconnector.exe (a Node SEA); a
 // require() reached only through a runtime-reassigned `require` variable
@@ -111,11 +112,20 @@ if(cmd==='ui'){
   // shares the exact same Core modules as the CLI/Electron above) serving
   // the same renderer that already works in `npm run desktop`, then opens
   // the user's default browser. No Electron, no bundled browser engine.
-  const scriptDir=import.meta.url?path.dirname(fileURLToPath(import.meta.url)):null;
-  const webRoot=scriptDir?path.join(scriptDir,'..','dist','web'):null;
-  if(webRoot&&!fs.existsSync(path.join(webRoot,'index.html')))fail(`dist/web is missing (${webRoot}). Run: npm run build:web`);
+  // Prefer assets embedded in the SEA exe (node:sea) — the whole point of
+  // the portable build is one exe, no sibling dist/web folder needed. Fall
+  // back to reading dist/web/ straight off disk in dev (unbundled `node
+  // bin/botconnector.mjs ui`), where isSea() is always false.
+  let webRoot=null,getWebAsset=null;
+  if(isSea()){
+    getWebAsset=(rel)=>{try{return Buffer.from(getAsset(`web/${rel}`));}catch{return null;}};
+  }else{
+    const scriptDir=import.meta.url?path.dirname(fileURLToPath(import.meta.url)):null;
+    webRoot=scriptDir?path.join(scriptDir,'..','dist','web'):null;
+    if(!webRoot||!fs.existsSync(path.join(webRoot,'index.html')))fail(`dist/web is missing (${webRoot}). Run: npm run build:web`);
+  }
   const uiPort=Number(opt('ui-port',32100));
-  const {port:boundPort}=await startUiServer({userDataDir:userData,webRoot,preferredPort:uiPort,log:m=>console.error(m)});
+  const {port:boundPort}=await startUiServer({userDataDir:userData,webRoot,getAsset:getWebAsset,preferredPort:uiPort,log:m=>console.error(m)});
   const url=`http://127.0.0.1:${boundPort}`;
   console.error(`BotConnector UI on ${url} (localhost only; Ctrl-C stops)`);
   if(!rawArgs.includes('--no-browser')){

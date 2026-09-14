@@ -15,9 +15,32 @@ const BUNDLE = path.join(OUT_DIR, 'bundle.cjs');
 const BLOB = path.join(OUT_DIR, 'sea-prep.blob');
 const SEA_CONFIG = path.join(OUT_DIR, 'sea-config.json');
 const EXE = path.join(OUT_DIR, 'botconnector.exe');
+const WEB_DIR = path.join(ROOT, 'dist', 'web');
 
 fs.rmSync(OUT_DIR, { recursive: true, force: true });
 fs.mkdirSync(OUT_DIR, { recursive: true });
+
+if (!fs.existsSync(path.join(WEB_DIR, 'index.html'))) {
+  console.error(`dist/web is missing (${WEB_DIR}). Run: npm run build:web (or use npm run build:sea, which does this first).`);
+  process.exit(1);
+}
+// Auto-enumerate dist/web/** into the SEA's embedded asset table so the
+// portable `botconnector ui` server can serve the web UI from inside the
+// single exe, with no separate files shipped alongside it. Keys are
+// "web/<relative-path>" — bin/botconnector.mjs's getAsset() strips the
+// "web/" prefix when looking a path up, matching webui/server.cjs's
+// getAsset(relativePath) contract.
+function collectAssets(dir, base = '') {
+  const assets = {};
+  for (const entry of fs.readdirSync(dir, { withFileTypes: true })) {
+    const rel = base ? `${base}/${entry.name}` : entry.name;
+    const abs = path.join(dir, entry.name);
+    if (entry.isDirectory()) Object.assign(assets, collectAssets(abs, rel));
+    else assets[`web/${rel}`] = abs;
+  }
+  return assets;
+}
+const webAssets = collectAssets(WEB_DIR);
 
 console.log('[1/5] bundling bin/botconnector.mjs -> single CommonJS file...');
 await build({
@@ -39,7 +62,7 @@ await build({
 });
 console.log(`    bundle size: ${(fs.statSync(BUNDLE).size / 1e6).toFixed(2)}MB`);
 
-console.log('[2/5] writing sea-config.json...');
+console.log(`[2/5] writing sea-config.json (embedding ${Object.keys(webAssets).length} web UI assets from dist/web/)...`);
 fs.writeFileSync(SEA_CONFIG, JSON.stringify({
   main: 'bundle.cjs',
   output: 'sea-prep.blob',
@@ -52,6 +75,7 @@ fs.writeFileSync(SEA_CONFIG, JSON.stringify({
   // does NOT block this — verified live (NODE_OPTIONS=--require=evil.js
   // executed injected code before this fix).
   execArgvExtension: 'none',
+  assets: webAssets,
 }, null, 2));
 
 console.log('[3/5] generating SEA blob (node --experimental-sea-config)...');
