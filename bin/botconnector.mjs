@@ -99,7 +99,7 @@ const [cmd,sub]=rawArgs.filter(a=>!a.startsWith('--'));
 // NOTE: `--help`/`--version` never survive the filter above (they start with
 // `--`), so they must be checked against rawArgs directly, not against cmd.
 if(rawArgs.includes('--help')||cmd==='help'){console.log(HELP);process.exit(0);}
-if(rawArgs.includes('--version')||cmd==='version'){out({name:APP,version:'0.4.0'});process.exit(0);}
+if(rawArgs.includes('--version')||cmd==='version'){out({name:APP,version:'0.5.0-beta1'});process.exit(0);}
 if(!cmd){
   // Native Agent TUI — first-party terminal client, shares Core (Store, hf,
   // DownloadManager, RuntimeManager, ownership) with the CLI above and the

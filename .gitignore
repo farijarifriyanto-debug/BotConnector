@@ -19,6 +19,7 @@ models/
 # Managed runtime binaries/archives (reproducible via installer — never commit)
 runtimes/
 *.zip
+*.zip.sha256
 *.tar.gz
 llama-server.exe
 llama-*.exe

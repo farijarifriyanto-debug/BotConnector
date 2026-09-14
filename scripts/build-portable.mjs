@@ -5,6 +5,7 @@
 // source tree, matching the explicit "just the two exes + a short README"
 // scope for this POC.
 import { execFileSync } from 'node:child_process';
+import crypto from 'node:crypto';
 import fs from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
@@ -12,7 +13,14 @@ import yazl from 'yazl';
 
 const ROOT = path.dirname(path.dirname(fileURLToPath(import.meta.url)));
 const STAGE = path.join(ROOT, 'dist-portable');
-const VERSION = 'v0.5-poc';
+// Pass a version string as the first CLI arg to override, e.g.:
+//   node scripts/build-portable.mjs v0.5.0-beta1
+// Defaults to package.json's version so this never silently drifts from it
+// (bin/botconnector.mjs's --version and desktop/index.html's badge are the
+// other two places this same version is asserted — see VERSION_CONSISTENCY
+// in the RC acceptance report).
+const PKG_VERSION = JSON.parse(fs.readFileSync(path.join(ROOT, 'package.json'), 'utf8')).version;
+const VERSION = process.argv[2] || `v${PKG_VERSION}`;
 const ZIP_PATH = path.join(ROOT, `BotConnector-Portable-${VERSION}.zip`);
 
 console.log('[1/4] building web UI, SEA core, and native launcher...');
@@ -30,36 +38,23 @@ fs.mkdirSync(STAGE, { recursive: true });
 fs.copyFileSync(path.join(ROOT, 'dist-sea', 'botconnector.exe'), path.join(STAGE, 'botconnector-core.exe'));
 fs.copyFileSync(path.join(ROOT, 'dist-sea', 'botconnector-launcher.exe'), path.join(STAGE, 'BotConnector.exe'));
 
-const README = `BotConnector AI — Portable (${VERSION})
-========================================
+const README = `BotConnector AI (${VERSION})
 
-This is a portable, no-install build. It runs entirely from this folder
-and writes its settings under %LOCALAPPDATA%\\BotConnector AI\\ — it never
-writes anything beside these two files, and it needs no administrator
-rights, no registry changes, and no Program Files entry.
+1. Extract this ZIP.
+2. Double-click BotConnector.exe.
+3. BotConnector opens in your default browser.
 
-To run:
-  Double-click BotConnector.exe
+No installation is required. Keep BotConnector.exe and
+botconnector-core.exe together in the same folder.
 
-What happens:
-  BotConnector.exe silently starts botconnector-core.exe, which runs a
-  small local web server on 127.0.0.1 (localhost only — nothing is ever
-  exposed to your network) and then opens the app in your default browser.
-  Running BotConnector.exe again while it's already open will just open a
-  new browser tab to the running instance instead of starting a second one.
+Data is stored in your Windows user profile, under
+%LOCALAPPDATA%\\BotConnector AI\\ — nothing is written beside these files.
 
-To stop:
-  Close the browser tab and end the "botconnector-core" process from Task
-  Manager, or simply sign out / restart — nothing is installed as a
-  background service and nothing needs manual cleanup.
+To stop BotConnector: click "Quit BotConnector" in the app's sidebar.
 
-Keep both files together
-  BotConnector.exe needs botconnector-core.exe in the same folder.
-
-This is a proof-of-concept build (v0.5-poc). The full-featured Electron
-desktop app remains available separately; this portable build is an
-alternate, lighter-weight way to run the same local + cloud AI runtime
-through your browser instead of a bundled app window.
+If Windows shows a security warning for this beta, verify that you
+downloaded the file from the official BotConnector source before
+continuing. Do not disable Windows Defender or SmartScreen to get past it.
 `;
 fs.writeFileSync(path.join(STAGE, 'README.txt'), README);
 
@@ -73,7 +68,14 @@ await new Promise((resolve, reject) => {
   zipfile.end();
 });
 
-console.log('[4/4] done.');
+console.log('[4/4] writing SHA256SUMS.txt...');
+const hash = crypto.createHash('sha256').update(fs.readFileSync(ZIP_PATH)).digest('hex');
+const sumsPath = path.join(ROOT, `BotConnector-Portable-${VERSION}.zip.sha256`);
+fs.writeFileSync(sumsPath, `${hash}  BotConnector-Portable-${VERSION}.zip\n`);
+
 const sizeMb = (fs.statSync(ZIP_PATH).size / 1e6).toFixed(1);
+console.log(`\nDone.`);
 console.log(`Artifact: ${ZIP_PATH} (${sizeMb} MB)`);
+console.log(`Checksum: ${sumsPath}`);
+console.log(`SHA256:   ${hash}`);
 console.log(`Staged folder (unzipped, for quick local testing): ${STAGE}`);
