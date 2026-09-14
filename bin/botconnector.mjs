@@ -113,10 +113,56 @@ const HELP=`botconnector - BotConnector AI CLI (shares Core/config with the desk
   botconnector attach <url>               (attach a terminal session to an already-running 'ui'/'serve' backend)
 `;
 const [cmd,sub]=rawArgs.filter(a=>!a.startsWith('--'));
+const SUBCOMMAND_HELP={
+  models:`botconnector models - discover local-AI models from Hugging Face
+
+  botconnector models search <query> [--recommended] [--json]
+  botconnector models info <user/model> [--json]`,
+  runtime:`botconnector runtime - manage the BotConnector llama.cpp runtime
+
+  botconnector runtime status [--json]
+  botconnector runtime resolve [--backend auto|cpu|vulkan|cuda12|cuda13|rocm]
+  botconnector runtime verify [--json]
+  botconnector runtime install [--backend auto|cpu|vulkan|cuda12|cuda13|rocm]
+  botconnector runtime use <auto|cpu|vulkan|cuda12|cuda13|rocm>`,
+  cloud:`botconnector cloud - inspect optional cloud-provider preview routing
+
+  botconnector cloud status|providers|models|usage|routing [--json]
+  botconnector cloud serve [--cloud-port N]
+  botconnector cloud set-key <nebius|together>
+  botconnector cloud key-status [--json]
+  botconnector cloud remove-key <nebius|together>
+  botconnector cloud test [model-id] [--prompt "..."]`,
+  server:`botconnector server - run a local OpenAI-compatible model endpoint
+
+  botconnector server start <model-ref> [--ctx N] [--backend ...]
+  botconnector server status [--json]
+  botconnector server stop`,
+  launch:`botconnector launch - inspect or start a supported local integration
+
+  botconnector launch --list [--json]
+  botconnector launch <integration> [--model <model>|auto] [--config|--restore]`,
+  ui:`botconnector ui - start the localhost Web Agent Workspace and open a browser
+
+  botconnector ui [--ui-port N] [--no-browser]`,
+  serve:`botconnector serve - start the localhost Web Agent Workspace without a browser
+
+  botconnector serve [--hostname 127.0.0.1] [--port N]`,
+  attach:`botconnector attach - attach the TUI to an existing Web Agent Workspace
+
+  botconnector attach <url>`,
+  chat:`botconnector chat - send a prompt to the local OpenAI-compatible endpoint
+
+  botconnector chat "prompt" [--stream] [--api-key KEY]`,
+  embed:`botconnector embed - create embeddings through the local endpoint
+
+  botconnector embed "text" [--json] [--api-key KEY]`,
+};
 // NOTE: `--help`/`--version` never survive the filter above (they start with
 // `--`), so they must be checked against rawArgs directly, not against cmd.
+if(rawArgs.includes('--help') && cmd && SUBCOMMAND_HELP[cmd]){console.log(SUBCOMMAND_HELP[cmd]);process.exit(0);}
 if(rawArgs.includes('--help')||cmd==='help'){console.log(HELP);process.exit(0);}
-if(rawArgs.includes('--version')||cmd==='version'){out({name:APP,version:PKG_JSON.version});process.exit(0);}
+if(rawArgs.includes('--version')||cmd==='version'){console.log(`botconnector ${PKG_JSON.version}`);process.exit(0);}
 if(!cmd){
   // Native Agent TUI — first-party terminal client, shares Core (Store, hf,
   // DownloadManager, RuntimeManager, ownership) with the CLI above and the
@@ -411,7 +457,10 @@ if((cmd==='server'&&sub==='start')||cmd==='load'){
   const ref=rawArgs.find((a,i)=>i>1&&!a.startsWith('--')&&a!==sub&&a!=='start'&&!/^\d+$/.test(a)&&a!==opt('ctx','__none__'))||rawArgs[2];
   if(!ref)fail(cmd==='load'?'load <model-ref>':'server start <model-ref>');
   out({ok:true,server:await startServer(ref,Number(opt('ctx',4096)))});
-  process.exit(0);
+  // The detached runtime has already been handed off. Returning lets Node
+  // close its own child-process bookkeeping naturally; forcing process.exit()
+  // here can trip a Windows libuv assertion while the detached handle closes.
+  return;
 }
 if((cmd==='server'&&sub==='stop')||cmd==='unload'){
   const st=readState();

@@ -214,7 +214,16 @@ async function launchIntegration(entry, options = {}) {
   return await new Promise((resolve) => {
     let child;
     const windowsShim = process.platform === 'win32' && /\.(?:cmd|bat)$/i.test(entry.executable);
-    try { child = spawn(entry.executable, args, { cwd, env: launchEnv, stdio: 'inherit', windowsHide: false, shell: windowsShim }); }
+    try {
+      if (windowsShim) {
+        // A shim path can contain spaces (the default VS Code install does).
+        // Calling it through an explicit cmd.exe keeps the executable quoted
+        // while avoiding Node's shell-string concatenation/deprecation path.
+        child = spawn(process.env.ComSpec || 'cmd.exe', ['/d', '/c', 'call', entry.executable, ...args], { cwd, env: launchEnv, stdio: 'inherit', windowsHide: false, shell: false });
+      } else {
+        child = spawn(entry.executable, args, { cwd, env: launchEnv, stdio: 'inherit', windowsHide: false, shell: false });
+      }
+    }
     catch (error) { resolve({ ok: false, reason: `Could not launch ${entry.name}: ${error.message}` }); return; }
     child.once('error', (error) => resolve({ ok: false, reason: `Could not launch ${entry.name}: ${error.message}` }));
     child.once('exit', (code, signal) => resolve({ ok: code === 0, exitCode: code, signal: signal || null, reason: code === 0 ? '' : `${entry.name} exited with ${signal || code}` }));
