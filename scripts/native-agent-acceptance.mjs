@@ -198,7 +198,12 @@ async function main() {
   const help = execSync('node bin/botconnector.mjs --help', { encoding: 'utf8', cwd: ROOT });
   check('CLI_HELP_UNCHANGED', /\bdoctor\b/.test(help) && /botconnector cloud/.test(help) && /botconnector launch/.test(help) && /botconnector server/.test(help) && /botconnector models/.test(help));
   const ver = execSync('node bin/botconnector.mjs --version', { encoding: 'utf8', cwd: ROOT });
-  check('CLI_VERSION_FLAG', JSON.parse(ver).version === '0.4.0');
+  const pkgVersion = require('../package.json').version;
+  // Checked against package.json's own version, not a hardcoded literal —
+  // a hardcoded string here goes stale on every version bump (caught live:
+  // this failed after 0.4.0 -> 0.5.0-beta1 until fixed to compare against
+  // the source of truth instead of a frozen copy of it).
+  check('CLI_VERSION_FLAG', JSON.parse(ver).version === pkgVersion, `--version reports ${JSON.parse(ver).version}, package.json says ${pkgVersion}`);
   const bareTui = execSync('node bin/botconnector.mjs', { encoding: 'utf8', cwd: ROOT, env: { ...process.env, BOTCONNECTOR_USERDATA: ISOLATED } });
   check('BARE_ARGS_LAUNCHES_TUI', /BotConnector AI/.test(bareTui) && /What do you want to build/.test(bareTui));
 
