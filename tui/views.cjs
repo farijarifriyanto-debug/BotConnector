@@ -305,6 +305,25 @@ function mcpDetailView(s, server = {}) {
   return L.join('\n');
 }
 
+function integrationDetailView(s, integration = {}, actions = []) {
+  const row = (k, v) => '  ' + layout.spread(k, String(v == null || v === '' ? '—' : v), layout.width() - 2);
+  const L = ['', '  ' + theme.bold(integration.name || 'Integration'), ''];
+  L.push(row('Status', integration.status || 'Unknown'));
+  L.push(row('Executable', integration.executable || 'not found'));
+  L.push(row('Protocol', integration.protocol || '—'));
+  L.push(row('Model', integration.model || s.model.name || 'Auto'));
+  L.push(row('Endpoint', integration.endpoint || 'BotConnector gateway'));
+  L.push(row('Workspace', s.workspace || 'current project'));
+  if (integration.disabledReason) L.push('', '  ' + theme.dim(integration.disabledReason));
+  if (integration.description) L.push('', '  ' + theme.dim(integration.description));
+  L.push('', '  ' + theme.bold('Actions'));
+  (actions.length ? actions : [{ label: 'Launch', _launchAction: 'launch' }]).forEach((item, i) => {
+    L.push(`  ${i === (integration.index || 0) ? '›' : ' '} ${item.label}${item.detail ? '  ' + theme.dim(item.detail) : ''}${item.disabled ? '  ' + theme.dim(item.disabledReason || 'disabled') : ''}`);
+  });
+  L.push('', '  Up/Down move · Enter select · Esc back', '', '  ' + statusBar(s));
+  return L.join('\n');
+}
+
 function sessionTimelineView(s, sess, t = {}) {
   const rows = t.messages || [];
   const L = ['', '  ' + theme.bold(`Timeline · ${sess.title || 'Session'}`), ''];
@@ -613,7 +632,7 @@ function firstRunFailed(s, reason) {
 
 module.exports = {
   home, homeCursor, homeFrame: buildHomeFrame, statusBar, picker, composerPopover, approvalDetail,
-  diffView, diffDetailView, mcpDetailView, sessionTimelineView, commandsView,
+  diffView, diffDetailView, mcpDetailView, integrationDetailView, sessionTimelineView, commandsView,
   textInputView, choiceView,
   contextNeedsLarger, contextGettingFull,
   doctorSummary, settingsView, statusView, errorView,

@@ -5,7 +5,8 @@ import os from 'node:os';
 import path from 'node:path';
 import fs from 'node:fs';
 import fsp from 'node:fs/promises';
-import {spawn,execFileSync} from 'node:child_process';
+import {spawn} from 'node:child_process';
+import readline from 'node:readline';
 import {fileURLToPath} from 'node:url';
 import {isSea,getAsset} from 'node:sea';
 // Static ESM imports (not require()) throughout this file — deliberately.
@@ -39,6 +40,9 @@ import {CloudServer} from '../runtime/cloud/server.cjs';
 import {startUiServer} from '../webui/server.cjs';
 import {findExisting as findExistingUi,writeLock as writeUiLock,clearLock as clearUiLock} from '../webui/single-instance.cjs';
 import * as platformPaths from '../runtime/platform-paths.cjs';
+import integrationModule from '../registry/integrations.cjs';
+
+const {createIntegrationRegistry, resolveAutoModel, launchIntegration} = integrationModule;
 
 // Everything below is wrapped in one async function (rather than using
 // top-level await, as the previous version did) so this file can be bundled
@@ -100,7 +104,8 @@ const HELP=`botconnector - BotConnector AI CLI (shares Core/config with the desk
   botconnector cloud set-key <nebius|together> | key-status [--json] | remove-key <provider>
   botconnector cloud usage [--limit N] [--json] | routing [--json]
   botconnector cloud test [model-id] [--prompt "..."]   (small cost-capped probe)
-  botconnector launch <opencode|claude-code|codex|cline> [--apply]
+  botconnector launch [--list|--json]
+  botconnector launch <integration> [--model <model>|auto] [--config|--restore]
   botconnector ui [--ui-port N] [--no-browser]   (Web Agent Workspace: local server + opens your browser)
   botconnector serve [--hostname 127.0.0.1] [--port N]   (same backend as 'ui', headless — no browser auto-open)
   botconnector attach <url>               (attach a terminal session to an already-running 'ui'/'serve' backend)
@@ -466,27 +471,48 @@ if(cmd==='embed'){
   process.exit(0);
 }
 if(cmd==='launch'){
-  const target=sub||'';
-  const base=`http://127.0.0.1:${port}`;
-  const catalog={
-    opencode:{detected:onPath('opencode'),config:'opencode.json (model provider override)',preview:{'$schema':'https://opencode.ai/config.json','provider':{'botconnector-local':{npm:'@ai-sdk/openai-compatible','name':'BotConnector Local','options':{'baseURL':base+'/v1','apiKey':'local'},'models':{'local-model':{'name':'BotConnector Local (llama.cpp)'}}}}},applyNote:'writes provider block with backup'},
-    'claude-code':{config:'~/.claude.json / ANTHROPIC_BASE_URL (manual)',preview:{'ANTHROPIC_BASE_URL':base,'note':'EXPERIMENTAL_COMPATIBILITY: native /v1/messages is available on the accepted b10930 runtime; Claude Code client interoperability was smoke-tested locally. This is not official Claude support for Spark/non-Claude model routing.'}},
-    codex:{config:'~/.codex/config.toml (manual)',preview:{'model_provider':'botconnector-local','model_provider_config':{'base_url':base+'/v1'}}},
-    cline:{config:'VS Code settings cline.providerSettings (manual or --apply)',preview:{'cline.apiProvider':'openai-compatible','cline.baseUrl':base+'/v1','cline.apiKey':'local','cline.model':'local-model'}},
+  const registry=createIntegrationRegistry({cwd:process.cwd(),env:process.env,platform:process.platform});
+  const printRows=()=>registry.list().map((entry)=>({id:entry.id,name:entry.name,category:entry.category,status:entry.status,executable:entry.executable,verified:entry.verified,launchable:entry.launchable,reason:entry.disabledReason}));
+  const showList=()=>{
+    const rows=printRows();
+    if(json) out({ok:true,integrations:rows,unverifiedCandidates:registry.unverifiedCandidates()});
+    else { let category=''; for(const row of rows){if(row.category!==category){category=row.category;console.log(`\n${category}`);} console.log(`  ${row.name.padEnd(22)} ${row.status}${row.reason&&row.status==='Unknown'?' — '+row.reason:''}`);} console.log('\nUse: botconnector launch <integration> [--model <model>] [--config]'); }
   };
-  if(!catalog[target])fail('launch <opencode|claude-code|codex|cline>');
-  const entry=catalog[target];
-  if(!rawArgs.includes('--apply')){out({target,...entry,hint:'re-run with --apply to write config (existing config is backed up first). Native Anthropic support is runtime/model dependent and must be smoke-tested by the installed client.'});process.exit(0);}
-  if(target!=='opencode')fail(`${target} --apply is not implemented; apply the preview manually`);
-  const cfgPath=path.join(process.cwd(),'opencode.json');
-  let existing={};if(fs.existsSync(cfgPath))existing=JSON.parse(fs.readFileSync(cfgPath,'utf8'));
-  await fsp.writeFile(cfgPath+'.bak-'+Date.now(),JSON.stringify(existing,null,2));
-  const merged={...existing,...entry.preview,provider:{...(existing.provider||{}),...entry.preview.provider}};
-  await fsp.writeFile(cfgPath,JSON.stringify(merged,null,2));
-  out({ok:true,wrote:cfgPath});
-  process.exit(0);
+  async function pickTarget(rows){
+    if(!process.stdin.isTTY||!process.stdout.isTTY){showList();return null;}
+    let index=0; const oldRaw=process.stdin.isRaw;
+    readline.emitKeypressEvents(process.stdin); process.stdin.setRawMode(true); process.stdin.resume();
+    const render=()=>{process.stdout.write('\x1b[2J\x1b[HBotConnector Launch\n\n'); rows.forEach((row,i)=>process.stdout.write(`${i===index?'›':' '} ${row.name.padEnd(22)} ${row.status}\n`)); process.stdout.write('\nUp/Down move · Enter select · Esc cancel\n');};
+    render();
+    return await new Promise((resolve)=>{const done=(value)=>{process.stdin.removeListener('keypress',onKey);try{process.stdin.setRawMode(oldRaw);}catch{} process.stdin.pause();process.stdout.write('\x1b[2J\x1b[H');resolve(value);};const onKey=(ch,key={})=>{if(key.name==='escape'||(key.ctrl&&key.name==='c'))return done(null);if(key.name==='up')index=Math.max(0,index-1);else if(key.name==='down')index=Math.min(rows.length-1,index+1);else if(key.name==='return')return done(rows[index]);render();};process.stdin.on('keypress',onKey);});
+  }
+  let target=sub||'';
+  if(rawArgs.includes('--list')||(!target&&json)){showList();process.exit(0);}
+  const entry=target?registry.get(target):await pickTarget(registry.list());
+  if(!entry){if(!target)process.exit(2);fail(`unknown integration: ${target}`);}
+  const requestedModel=opt('model','auto');
+  const model=resolveAutoModel({requested:requestedModel,store});
+  const endpointBase=`http://127.0.0.1:${port}`;
+  if(rawArgs.includes('--restore')){
+    const result=await registry.restoreIntegration({id:entry.id,cwd:process.cwd(),env:process.env});
+    if(!result.ok)fail(result.reason); out(result); process.exit(0);
+  }
+  if(rawArgs.includes('--config')||rawArgs.includes('--apply')){
+    if(entry.id==='opencode'){
+      const result=await registry.configureOpenCode({cwd:process.cwd(),endpoint:endpointBase,modelId:model.id,modelName:store.get('tuiModel')?.name,env:process.env});
+      out({...result,integration:entry.id,model:model.id}); process.exit(result.ok?0:1);
+    }
+    if(!entry.verified) fail(`${entry.name} has no verified BotConnector configuration adapter.`);
+    out({ok:true,integration:entry.id,changed:[],note:'This adapter uses process-scoped environment at launch; no persistent configuration was changed.'}); process.exit(0);
+  }
+  if(entry.status===integrationModule.STATUS.NOT_INSTALLED) fail(`${entry.name} is not installed. Use its official installation instructions; BotConnector does not install it silently.`);
+  if(entry.status===integrationModule.STATUS.UNKNOWN||entry.status===integrationModule.STATUS.UNSUPPORTED||!entry.launchable) fail(entry.disabledReason||`${entry.name} has no verified launch adapter.`);
+  if(!json) console.error(`Launching ${entry.name} · model ${model.id} · workspace ${process.cwd()}`);
+  if(entry.id==='terminal'){await runTui({debug:rawArgs.includes('--debug'),workspace:process.cwd()});process.exit(0);}
+  const result=await launchIntegration(entry,{cwd:process.cwd(),endpoint:endpointBase,modelId:model.id,requestedModel,modelName:store.get('tuiModel')?.name,env:process.env});
+  if(json) out({...result,integration:entry.id,model:model.id}); else if(!result.ok&&result.reason) console.error(`Error: ${result.reason}`);
+  process.exit(result.ok?0:(result.exitCode||1));
 }
-function onPath(bin){try{execFileSync(process.platform==='win32'?'where':'which',[bin],{stdio:'ignore',windowsHide:true});return true;}catch{return false;}}
 
 // ---------- Cloud: credentials + status (Core-shared, secrets never echoed) ----------
 // CLI runs outside Electron, so safeStorage blobs cannot be decrypted here; a

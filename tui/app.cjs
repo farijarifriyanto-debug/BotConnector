@@ -30,6 +30,7 @@ const { createWorkspace } = require('../agent/tools.cjs');
 const shellTool = require('../agent/shell.cjs');
 const viewport = require('./viewport.cjs');
 const review = require('./review.cjs');
+const integrationModule = require('../registry/integrations.cjs');
 
 const ALT_ON = '\x1b[?1049h\x1b[H';
 const ALT_OFF = '\x1b[?1049l';
@@ -93,6 +94,8 @@ async function runTui(opts = {}) {
   let reviewWatchdog = null;
   let reviewCancelRequested = false;
   let commandRegistry;
+  let integrationRegistry;
+  let launchDetailIntegration = null;
   // The offset is the zero-based rendered-line index at the top of the
   // conversation viewport. It is not a message index: wrapped messages and
   // streaming activity can occupy multiple rows. At bottom means live-follow.
@@ -148,6 +151,7 @@ async function runTui(opts = {}) {
     else if (overlay === 'mcp-detail') screen = views.mcpDetailView(s, mcpState);
     else if (overlay === 'timeline') screen = views.sessionTimelineView(s, sess, timelineState || {});
     else if (overlay === 'commands') screen = views.commandsView(s, commandRegistry ? commandRegistry.filter(timelineState?.query || '') : [], timelineState?.query || '');
+    else if (overlay === 'choice' && pickerState?.kind === 'launch-detail') screen = views.integrationDetailView(s, { ...pickerState.integration, index: pickerState.index, model: s.model.name, endpoint: 'BotConnector gateway' }, pickerState.filtered || pickerState.items || []);
     else if (overlay === 'choice') screen = views.choiceView(s, pickerState.title, pickerState.filtered || pickerState.items || [], pickerState.index || 0, pickerState.hint);
     else if (overlay === 'text-input') ({ screen, cursor } = views.textInputView(s, pickerState.title, pickerState.label, s.input, pickerState.hint));
     else if (overlay === 'review') screen = renderReview();
@@ -338,6 +342,7 @@ async function runTui(opts = {}) {
     s.project = path.basename(p) || p;
     projects.touch(p);
     commandRegistry = createCommandRegistry({ workspace: s.workspace, gitAvailable: diffRegistry.isGitRepository(s.workspace), journalStatus: () => journal.status({ workspace: s.workspace, sessionId: sess.id }), mcpPrompts: () => mcpRegistry.listConfigured(s.store).flatMap((server) => Array.isArray(server.prompts) ? server.prompts.map((prompt) => ({ ...prompt, server: server.name })) : []) });
+    integrationRegistry = integrationModule.createIntegrationRegistry({ cwd: s.workspace, env: process.env, platform: process.platform });
     activity.push(`✓ Project: ${s.project}`);
   }
 
@@ -442,6 +447,53 @@ async function runTui(opts = {}) {
       items: rows.length ? rows.map((server) => ({ label: server.name, provider: server.transport || 'stdio', status: server.status, detail: `${server.command} · tools ${server.toolsCount}`, _mcp: server })) : [{ label: mcpRegistry.zeroState().label, detail: mcpRegistry.zeroState().action, disabled: true }],
       hint: 'Enter details · Space toggle · R reconnect · A add · D remove · L auth · Esc close' };
     applyFilter(pickerState); overlay = 'picker'; draw();
+  }
+
+  function openLaunch({ contextual = true } = {}) {
+    integrationRegistry = integrationRegistry || integrationModule.createIntegrationRegistry({ cwd: s.workspace, env: process.env, platform: process.platform });
+    const rows = integrationRegistry.list();
+    pickerState = { kind: 'launch', type: 'launch', title: 'Launch', index: 0, contextual,
+      items: rows.map((entry) => ({ label: entry.name, provider: entry.category, status: entry.status, detail: entry.description, _integration: entry, disabled: !entry.launchable && entry.status !== integrationModule.STATUS.READY, disabledReason: entry.disabledReason })),
+      hint: 'Up/Down move · Enter details · M model · C configure · I install info · Esc back' };
+    applyFilter(pickerState); overlay = contextual ? 'composer-picker' : 'picker'; draw();
+  }
+
+  function openLaunchDetails(entry) {
+    launchDetailIntegration = entry;
+    const actions = [
+      { label: 'Launch', detail: entry.executable ? 'Start with a process-scoped BotConnector endpoint' : 'Executable not found', _launchAction: 'launch', disabled: !entry.executable || !entry.launchable, disabledReason: entry.disabledReason || 'Install the integration first' },
+      { label: 'Choose model', detail: 'Use the existing BotConnector model registry', _launchAction: 'model', disabled: !entry.launchable },
+      { label: 'Configure', detail: entry.id === 'opencode' ? 'Backup and update only the BotConnector provider block' : 'No persistent adapter is available', _launchAction: 'configure', disabled: entry.id !== 'opencode' },
+      { label: 'Install instructions', detail: 'Show the official installation path; no silent install', _launchAction: 'install' },
+      { label: 'Restore original config', detail: 'Restore only fields previously changed by BotConnector', _launchAction: 'restore', disabled: entry.id !== 'opencode' },
+    ];
+    pickerState = { kind: 'launch-detail', title: entry.name, integration: entry, index: 0, items: actions, hint: 'Up/Down move · Enter select · M model · C configure · I install · Esc back' };
+    applyFilter(pickerState); overlay = 'choice'; draw();
+  }
+
+  async function runLaunchAction(entry, action) {
+    if (action === 'model') { launchDetailIntegration = entry; overlay = null; pickerState = null; await openModelPicker({ contextual: false }); return; }
+    if (action === 'install') { answer = `${entry.name}: no silent installer is registered. Install it from the official documentation${entry.docsUrl ? `: ${entry.docsUrl}` : '.'}`; overlay = null; pickerState = null; draw(); return; }
+    if (action === 'configure') {
+      if (entry.id !== 'opencode') { answer = `${entry.name} has no persistent BotConnector configuration adapter.`; overlay = null; pickerState = null; draw(); return; }
+      try { const model = integrationModule.resolveAutoModel({ requested: 'auto', store: s.store }); const result = await integrationRegistry.configureOpenCode({ cwd: s.workspace, endpoint: 'http://127.0.0.1:11435', modelId: model.id, modelName: s.model.name, env: process.env }); answer = result.ok ? `✓ ${entry.name} configured. Original saved locally at ${result.backupPath}.` : `✗ ${result.reason}`; }
+      catch (e) { answer = `✗ Configuration failed: ${e.message}`; }
+      overlay = null; pickerState = null; draw(); return;
+    }
+    if (action === 'restore') {
+      const result = await integrationRegistry.restoreIntegration({ id: entry.id, cwd: s.workspace, env: process.env }); answer = result.ok ? `✓ Restored ${entry.name} configuration.` : `✗ ${result.reason}`; overlay = null; pickerState = null; draw(); return;
+    }
+    if (action !== 'launch') return;
+    if (entry.id === 'terminal') { answer = 'Already running in the BotConnector Terminal integration.'; overlay = null; pickerState = null; draw(); return; }
+    const wasRaw = process.stdin.isRaw;
+    try {
+      try { process.stdin.setRawMode(false); } catch {}
+      process.stdin.pause(); restore();
+      const model = integrationModule.resolveAutoModel({ requested: 'auto', store: s.store });
+      const result = await integrationModule.launchIntegration(entry, { cwd: s.workspace, endpoint: 'http://127.0.0.1:11435', modelId: model.id, requestedModel: 'auto', modelName: s.model.name, env: process.env });
+      answer = result.ok ? `✓ ${entry.name} exited cleanly.` : `✗ ${result.reason || `${entry.name} exited with ${result.exitCode}`}`;
+    } catch (e) { answer = `✗ Launch failed: ${e.message}`; }
+    finally { process.stdout.write(ALT_ON + MOUSE_ON); process.stdin.resume(); try { process.stdin.setRawMode(wasRaw); } catch {}; overlay = null; pickerState = null; draw(); }
   }
 
   async function toggleMcp(server) {
@@ -686,6 +738,7 @@ async function runTui(opts = {}) {
     journalStatus: () => journal.status({ workspace: s.workspace, sessionId: sess.id }),
     mcpPrompts: () => mcpRegistry.listConfigured(s.store).flatMap((server) => Array.isArray(server.prompts) ? server.prompts.map((prompt) => ({ ...prompt, server: server.name })) : []),
   });
+  integrationRegistry = integrationModule.createIntegrationRegistry({ cwd: s.workspace, env: process.env, platform: process.platform });
 
   async function handlePickerSelect(ps, it) {
     if (ps.kind === 'fork-choice') {
@@ -723,6 +776,8 @@ async function runTui(opts = {}) {
       overlay = null; draw(); return;
     }
     if (ps.kind === 'review') { reviewTrace('REVIEW_SCOPE_SELECTED', { scope: it._review }); await runReview(it._review); return; }
+    if (ps.kind === 'launch') { openLaunchDetails(it._integration); return; }
+    if (ps.kind === 'launch-detail') { await runLaunchAction(ps.integration, it._launchAction); return; }
     if (ps.kind === 'palette') {
       overlay = null; draw();
       if (it._command && it._command.available !== false) await runCommand(it._command, false);
@@ -1063,6 +1118,7 @@ async function runTui(opts = {}) {
       }
       case 'export': return openExport();
       case 'project': return openProjectPicker({ contextual });
+      case 'launch': return openLaunch({ contextual: true });
       case 'agents': return openAgents({ contextual });
       case 'skills': return openSkills({ contextual });
       case 'permissions': return showPermissionsInfo();
@@ -1173,6 +1229,12 @@ async function runTui(opts = {}) {
       if (k.name === 'escape') { overlay = null; pickerState = null; s.input = ''; draw(); return; }
       if (k.name === 'up') { ps.index = Math.max(0, ps.index - 1); draw(); return; }
       if (k.name === 'down') { ps.index = Math.min(Math.max(0, rows.length - 1), ps.index + 1); draw(); return; }
+      if (ps.kind === 'launch-detail') {
+        const c = (ch || '').toLowerCase();
+        if (c === 'm') { await runLaunchAction(ps.integration, 'model'); return; }
+        if (c === 'c') { await runLaunchAction(ps.integration, 'configure'); return; }
+        if (c === 'i') { await runLaunchAction(ps.integration, 'install'); return; }
+      }
       if (k.name === 'return') { const it = rows[ps.index]; if (it && !it.disabled) await handlePickerSelect(ps, it); return; }
       return;
     }

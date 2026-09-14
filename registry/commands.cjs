@@ -14,6 +14,7 @@ const BUILTINS = [
   ['copy', 'Copy transcript', 'Copy a safe Markdown transcript to the clipboard', 'Workspace', 'copy'],
   ['export', 'Export session', 'Export this session as Markdown or safe JSON', 'Workspace', 'export'],
   ['project', 'Open project', 'Switch workspace/project', 'Workspace', 'project'],
+  ['launch', 'Launch integration', 'Launch a registered coding agent, assistant, editor, or BotConnector terminal', 'Workspace', 'launch'],
   ['agents', 'Agents', 'Choose an available agent or mode', 'Agent', 'agents'],
   ['skills', 'Skills', 'Discover project and global agent skills', 'Agent', 'skills'],
   ['permissions', 'Permissions', 'Approval and execution policy', 'System', 'permissions'],
