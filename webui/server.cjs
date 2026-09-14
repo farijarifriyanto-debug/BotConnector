@@ -411,20 +411,37 @@ function startUiServer({ userDataDir, webRoot, getAsset, preferredPort = 32100, 
   });
 
   return new Promise((resolve, reject) => {
+    // Each retry attempt gets its OWN error/listening listener pair, removed
+    // the instant that attempt settles either way. Reusing server.listen()'s
+    // callback form across retries on the same server instance stacks a new
+    // 'listening' listener on every attempt without removing the failed
+    // ones — when the port finally binds, ALL accumulated listeners fire,
+    // and the FIRST one (registered for the first, FAILED port) wins the
+    // promise race with its own stale port number. Confirmed live: this
+    // resolved with the originally-requested port even though the server
+    // was actually listening on a fallback port two higher.
     function tryListen(port, attemptsLeft) {
-      server.once('error', (err) => {
+      function onError(err) {
+        cleanup();
         if (err.code === 'EADDRINUSE' && attemptsLeft > 0) { tryListen(port + 1, attemptsLeft - 1); return; }
         reject(err);
-      });
-      server.listen(port, '127.0.0.1', () => {
-        server.removeAllListeners('error');
+      }
+      function onListening() {
+        cleanup();
         boundPort = port;
         log(`BotConnector UI server listening on http://127.0.0.1:${port}`);
         resolve({
           server, port, secret,
           close: () => new Promise(r => { for (const c of sseClients) try { c.end(); } catch {} server.close(() => r()); }),
         });
-      });
+      }
+      function cleanup() {
+        server.removeListener('error', onError);
+        server.removeListener('listening', onListening);
+      }
+      server.once('error', onError);
+      server.once('listening', onListening);
+      server.listen(port, '127.0.0.1');
     }
     tryListen(preferredPort, 20);
   });
