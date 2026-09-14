@@ -36,6 +36,7 @@ import {BudgetGuard} from '../runtime/cloud/budget.cjs';
 import {CloudRouter} from '../runtime/cloud/router.cjs';
 import {CloudServer} from '../runtime/cloud/server.cjs';
 import {startUiServer} from '../webui/server.cjs';
+import {findExisting as findExistingUi,writeLock as writeUiLock,clearLock as clearUiLock} from '../webui/single-instance.cjs';
 
 // Everything below is wrapped in one async function (rather than using
 // top-level await, as the previous version did) so this file can be bundled
@@ -107,11 +108,29 @@ if(!cmd){
   process.exit(0);
 }
 
+function openBrowser(url){
+  try{
+    const openCmd=process.platform==='win32'?['cmd',['/c','start','""',url]]:process.platform==='darwin'?['open',[url]]:['xdg-open',[url]];
+    spawn(openCmd[0],openCmd[1],{detached:true,stdio:'ignore',windowsHide:true}).unref();
+  }catch(e){console.error(`Could not auto-open a browser (${e.message||e}); open ${url} manually.`);}
+}
 if(cmd==='ui'){
   // Portable Web App entrypoint: local-only HTTP server (webui/server.cjs,
   // shares the exact same Core modules as the CLI/Electron above) serving
   // the same renderer that already works in `npm run desktop`, then opens
   // the user's default browser. No Electron, no bundled browser engine.
+  const lockFile=path.join(userData,'ui.lock');
+  const existing=await findExistingUi(lockFile);
+  if(existing){
+    // A background process cannot literally focus another process's
+    // already-open browser tab (browsers don't expose that, by design) —
+    // the honest equivalent is opening a new tab at the same running
+    // server, without starting a second core/server process.
+    const url=`http://127.0.0.1:${existing.port}`;
+    console.error(`BotConnector UI is already running on ${url} (pid ${existing.pid}). Opening a new tab there instead of starting a second instance.`);
+    if(!rawArgs.includes('--no-browser'))openBrowser(url);
+    process.exit(0);
+  }
   // Prefer assets embedded in the SEA exe (node:sea) — the whole point of
   // the portable build is one exe, no sibling dist/web folder needed. Fall
   // back to reading dist/web/ straight off disk in dev (unbundled `node
@@ -126,14 +145,14 @@ if(cmd==='ui'){
   }
   const uiPort=Number(opt('ui-port',32100));
   const {port:boundPort}=await startUiServer({userDataDir:userData,webRoot,getAsset:getWebAsset,preferredPort:uiPort,log:m=>console.error(m)});
+  writeUiLock(lockFile,{pid:process.pid,port:boundPort});
+  const cleanup=()=>{clearUiLock(lockFile,process.pid);};
+  process.on('exit',cleanup);
+  process.on('SIGINT',()=>process.exit(0));
+  process.on('SIGTERM',()=>process.exit(0));
   const url=`http://127.0.0.1:${boundPort}`;
   console.error(`BotConnector UI on ${url} (localhost only; Ctrl-C stops)`);
-  if(!rawArgs.includes('--no-browser')){
-    try{
-      const openCmd=process.platform==='win32'?['cmd',['/c','start','""',url]]:process.platform==='darwin'?['open',[url]]:['xdg-open',[url]];
-      spawn(openCmd[0],openCmd[1],{detached:true,stdio:'ignore',windowsHide:true}).unref();
-    }catch(e){console.error(`Could not auto-open a browser (${e.message||e}); open ${url} manually.`);}
-  }
+  if(!rawArgs.includes('--no-browser'))openBrowser(url);
   await new Promise(()=>{});
 }
 

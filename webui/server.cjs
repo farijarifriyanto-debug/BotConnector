@@ -56,6 +56,7 @@ const MIME = { '.html': 'text/html; charset=utf-8', '.js': 'text/javascript; cha
 
 function startUiServer({ userDataDir, webRoot, getAsset, preferredPort = 32100, log = () => {} } = {}) {
   if (!userDataDir) throw new Error('userDataDir is required');
+  fs.mkdirSync(userDataDir, { recursive: true }); // fresh install / first run: nothing has created this yet
   const secret = crypto.randomBytes(24).toString('hex');
   const store = new Store(userDataDir);
   store.load();
