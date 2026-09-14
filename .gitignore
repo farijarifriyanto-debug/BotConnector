@@ -1,7 +1,12 @@
 node_modules/
 dist/
+dist-sea/
 *.log
 .DS_Store
+
+# Native Agent acceptance suite's isolated scratch userData (regenerated
+# fresh on every run — never committed, unlike the seeded fixtures next to it)
+tests/fixtures/.native-agent-userdata/
 
 # Downloaded models (multi-GB, user data — never commit)
 *.gguf

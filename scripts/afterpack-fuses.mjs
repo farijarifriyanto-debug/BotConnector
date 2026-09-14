@@ -6,9 +6,15 @@ export default async function afterPack(context) {
   const { appOutDir, electronPlatformName } = context;
   if (electronPlatformName !== 'win32') return;
 
-  // Find the main .exe — electron-builder names it after productName
-  const exeName = fs.readdirSync(appOutDir).find(f => f.endsWith('.exe'));
-  if (!exeName) throw new Error(`No .exe found in ${appOutDir}`);
+  // Find the main GUI .exe specifically — electron-builder names it after
+  // productName. Do NOT use a generic "first .exe found" glob: the CLI's
+  // botconnector.exe (a separate, unrelated Node SEA — see extraFiles in
+  // package.json) also lands in this same directory, and fusing the wrong
+  // binary here would either silently skip hardening the real GUI exe or
+  // corrupt the unrelated CLI exe.
+  const exeName = `${context.packager.appInfo.productFilename}.exe`;
+  if (!fs.existsSync(path.join(appOutDir, exeName)))
+    throw new Error(`Expected GUI executable not found: ${exeName} in ${appOutDir}`);
   const exePath = path.join(appOutDir, exeName);
 
   console.log(`[afterPack] injecting fuses into ${exePath}`);

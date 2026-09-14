@@ -6,15 +6,41 @@ import path from 'node:path';
 import fs from 'node:fs';
 import fsp from 'node:fs/promises';
 import {spawn,execFileSync} from 'node:child_process';
-import {createRequire} from 'node:module';
-const require=createRequire(import.meta.url);
-const {Store}=require('../runtime/store.cjs');
-const hf=require('../runtime/hf.cjs');
-const {DownloadManager}=require('../runtime/downloads.cjs');
-const {RuntimeManager}=require('../runtime/runtime-manager.cjs');
-const {scanInstalled}=require('../runtime/installed.cjs');
-const {detectHardware}=require('../runtime/hardware.cjs');
-const {claimOwnership,readOwnership,releaseOwnership,setChild,statePath}=require('../runtime/ownership.cjs');
+// Static ESM imports (not require()) throughout this file — deliberately.
+// This file gets bundled by esbuild into botconnector.exe (a Node SEA); a
+// require() reached only through a runtime-reassigned `require` variable
+// (the old createRequire(import.meta.url) pattern) can't be followed by a
+// bundler's static analysis and silently stays an unresolvable relative
+// path at runtime. Static imports are what the bundler actually inlines.
+import {Store} from '../runtime/store.cjs';
+import hf from '../runtime/hf.cjs';
+import {DownloadManager} from '../runtime/downloads.cjs';
+import {RuntimeManager} from '../runtime/runtime-manager.cjs';
+import {scanInstalled} from '../runtime/installed.cjs';
+import {detectHardware} from '../runtime/hardware.cjs';
+import {claimOwnership,readOwnership,releaseOwnership,setChild,statePath} from '../runtime/ownership.cjs';
+import {runTui} from '../tui/app.cjs';
+import * as llama from '../runtime/llama.cjs';
+import {CredentialManager} from '../runtime/credentials.cjs';
+import {NebiusProvider} from '../runtime/cloud/nebius.cjs';
+import {TogetherProvider} from '../runtime/cloud/together.cjs';
+import {ModelCatalog} from '../runtime/cloud/catalog.cjs';
+import {RoutingTable} from '../runtime/cloud/routing.cjs';
+import {HealthBoard} from '../runtime/cloud/health.cjs';
+import {UsageLedger} from '../runtime/cloud/usage.cjs';
+import {PricingRegistry} from '../runtime/cloud/pricing.cjs';
+import {UnitEngine} from '../runtime/cloud/units.cjs';
+import {BudgetGuard} from '../runtime/cloud/budget.cjs';
+import {CloudRouter} from '../runtime/cloud/router.cjs';
+import {CloudServer} from '../runtime/cloud/server.cjs';
+
+// Everything below is wrapped in one async function (rather than using
+// top-level await, as the previous version did) so this file can be bundled
+// to CommonJS for the botconnector.exe SEA build — CJS output doesn't
+// support top-level await. Behavior is unchanged; this is a mechanical
+// wrap only, no control-flow changes (process.exit() still terminates
+// immediately from anywhere inside).
+async function __botconnectorMain(){
 
 const APP='botconnector-ai-local-cloud';
 const userData=path.join(process.env.APPDATA||path.join(os.homedir(),'AppData','Roaming'),APP);
@@ -44,6 +70,7 @@ async function waitReady(tries=45){for(let i=0;i<tries;i++){const h=await server
 
 const HELP=`botconnector - BotConnector AI CLI (shares Core/config with the desktop app)
 
+  botconnector                            Start the Native Agent TUI (default; shares Core with the desktop app)
   botconnector --help | version | doctor [--json]
   botconnector models search <query> [--json]
   botconnector models search --recommended [--json]
@@ -64,8 +91,17 @@ const HELP=`botconnector - BotConnector AI CLI (shares Core/config with the desk
   botconnector launch <opencode|claude-code|codex|cline> [--apply]
 `;
 const [cmd,sub]=rawArgs.filter(a=>!a.startsWith('--'));
-if(!cmd||cmd==='--help'||cmd==='help'){console.log(HELP);process.exit(0);}
-if(cmd==='version'){out({name:APP,version:'0.4.0'});process.exit(0);}
+// NOTE: `--help`/`--version` never survive the filter above (they start with
+// `--`), so they must be checked against rawArgs directly, not against cmd.
+if(rawArgs.includes('--help')||cmd==='help'){console.log(HELP);process.exit(0);}
+if(rawArgs.includes('--version')||cmd==='version'){out({name:APP,version:'0.4.0'});process.exit(0);}
+if(!cmd){
+  // Native Agent TUI — first-party terminal client, shares Core (Store, hf,
+  // DownloadManager, RuntimeManager, ownership) with the CLI above and the
+  // Electron desktop app. Never launched implicitly by any other command.
+  await runTui({debug:rawArgs.includes('--debug'),workspace:process.cwd()});
+  process.exit(0);
+}
 
 if(cmd==='doctor'){
   const {runDoctor}=await import('../scripts/doctor.mjs');
@@ -140,17 +176,6 @@ if(cmd==='runtime'&&sub==='use'){
 }
 function cloudParts(){
   const cloudDir=path.join(userData,'cloud');
-  const {CredentialManager}=require('../runtime/credentials.cjs');
-  const {NebiusProvider}=require('../runtime/cloud/nebius.cjs');
-  const {TogetherProvider}=require('../runtime/cloud/together.cjs');
-  const {ModelCatalog}=require('../runtime/cloud/catalog.cjs');
-  const {RoutingTable}=require('../runtime/cloud/routing.cjs');
-  const {HealthBoard}=require('../runtime/cloud/health.cjs');
-  const {UsageLedger}=require('../runtime/cloud/usage.cjs');
-  const {PricingRegistry}=require('../runtime/cloud/pricing.cjs');
-  const {UnitEngine}=require('../runtime/cloud/units.cjs');
-  const {BudgetGuard}=require('../runtime/cloud/budget.cjs');
-  const {CloudRouter}=require('../runtime/cloud/router.cjs');
   const credentials=new CredentialManager({store,env:process.env});
   const adapters={
     nebius:new NebiusProvider({getKey:()=>{const s=credentials.source('nebius');return s.source==='missing'?null:s.key;}}),
@@ -168,7 +193,6 @@ async function cloudApiRequest(pathname,{method='GET',body}={}){
 }
 if(cmd==='cloud'&&sub==='serve'){
   // Deterministic localhost sidecar exposing /api/cloud/* for CLI/SDK surfaces.
-  const {CloudServer}=require('../runtime/cloud/server.cjs');
   const cs=new CloudServer({store,port:CLOUD_API_PORT()});
   await cs.listen();
   console.error(`BotConnector cloud API on http://127.0.0.1:${CLOUD_API_PORT()} (localhost only; Ctrl-C stops)`);
@@ -273,7 +297,6 @@ if(cmd==='run'){
   const ref=rawArgs[1]||'';
   const installed=await scanInstalled(store.get('modelsDir'));
   const {modelPath,projector}=resolveModelRef(ref,installed);
-  const llama=require('../runtime/llama.cjs');
   const {binary}=await runtimes.installed();
   if(!binary)fail('No managed runtime installed. Run: botconnector runtime install');
   const backend=store.get('runtimeBackend')||'auto';
@@ -342,7 +365,6 @@ function onPath(bin){try{execFileSync(process.platform==='win32'?'where':'which'
 // state. Key WRITES from CLI go through Electron main when available; in pure
 // CLI context we store an env-resolvable reference, never plaintext.
 function cloudCredentialManager(){
-  const {CredentialManager}=require('../runtime/credentials.cjs');
   return new CredentialManager({store,env:process.env});
 }
 function cloudDir(){return path.join(userData,'cloud');}
@@ -374,10 +396,10 @@ function hiddenPrompt(text){
         process.stdin.pause();
         process.stdout.write('\n');
         resolve(s);
-      }else if(ch==='\u0003'){
+      }else if(ch===''){
         try{process.stdin.setRawMode(wasRaw);}catch{}
         process.exit(130);
-      }else if(ch==='\u007f'||ch==='\b'){
+      }else if(ch===''||ch==='\b'){
         if(s.length)s=s.slice(0,-1);
       }else if(ch>=' '&&s.length<512){
         s+=ch;process.stdout.write('*');
@@ -423,3 +445,5 @@ if(cmd==='cloud'&&sub==='remove-key'){
   process.exit(0);
 }
 console.error(`unknown command: ${cmd}\n`+HELP);process.exit(2);
+}
+__botconnectorMain().catch(e=>{console.error('botconnector: fatal:',e&&e.message||e);process.exit(1);});

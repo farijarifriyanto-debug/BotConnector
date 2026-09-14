@@ -29,9 +29,19 @@ export async function runDoctor(){
   const result={version:'0.4.0',os:`${os.type()} ${os.release()}`,arch:os.arch(),cpu:os.cpus()[0]?.model||'unknown',logicalCores:os.cpus().length,ramGb:+(os.totalmem()/1024**3).toFixed(1),freeRamGb:+(os.freemem()/1024**3).toFixed(1),nvidia:nv,storage:{...storage,freeGb},network,runtime:{installed:Boolean(exe),binary:exe},port11435:pb,config:cfg,checks};
   return result;
 }
-if(process.argv[1]===fileURLToPath(import.meta.url)){
-  const r=await runDoctor();
-  console.log(JSON.stringify(r,null,2));
-  const fails=r.checks.filter(c=>c.status==='FAIL').length;
-  process.exit(fails?1:0);
+// import.meta.url is empty when this file is bundled to CJS (the SEA build)
+// — guard against fileURLToPath(undefined) throwing, which would otherwise
+// crash even a plain `import` of this module from the bundled botconnector
+// CLI. This block only ever matters for the real standalone `node
+// scripts/doctor.mjs` usage, where import.meta.url is always a real URL.
+if(import.meta.url&&process.argv[1]===fileURLToPath(import.meta.url)){
+  // Wrapped in an async IIFE (not top-level await) so this file can be
+  // bundled to CommonJS for the botconnector.exe SEA build. Behavior when
+  // run directly (`node scripts/doctor.mjs`) is unchanged.
+  (async()=>{
+    const r=await runDoctor();
+    console.log(JSON.stringify(r,null,2));
+    const fails=r.checks.filter(c=>c.status==='FAIL').length;
+    process.exit(fails?1:0);
+  })();
 }
