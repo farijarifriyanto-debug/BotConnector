@@ -54,7 +54,7 @@ const { CloudRouter } = require('../runtime/cloud/router.cjs');
 
 const MIME = { '.html': 'text/html; charset=utf-8', '.js': 'text/javascript; charset=utf-8', '.css': 'text/css; charset=utf-8', '.json': 'application/json; charset=utf-8', '.ico': 'image/x-icon', '.svg': 'image/svg+xml' };
 
-function startUiServer({ userDataDir, webRoot, getAsset, preferredPort = 32100, log = () => {} } = {}) {
+function startUiServer({ userDataDir, webRoot, getAsset, preferredPort = 32100, log = () => {}, onQuit = () => {} } = {}) {
   if (!userDataDir) throw new Error('userDataDir is required');
   fs.mkdirSync(userDataDir, { recursive: true }); // fresh install / first run: nothing has created this yet
   const secret = crypto.randomBytes(24).toString('hex');
@@ -193,6 +193,26 @@ function startUiServer({ userDataDir, webRoot, getAsset, preferredPort = 32100, 
     if (given !== secret) return sendJson(res, 403, { error: 'Missing or invalid session credential' });
 
     try {
+      // ---- quit ----
+      if (p === '/api/quit' && req.method === 'POST') {
+        sendJson(res, 200, { ok: true, message: 'BotConnector is stopping.' });
+        setImmediate(async () => {
+          try {
+            if (llama.status().running) { llama.stopLlama(); await releaseOwnership(ownershipFile); }
+          } catch (e) { log(`[quit] runtime stop error: ${e.message || e}`); }
+          for (const client of mcpClients.values()) { try { await client.stop(); } catch {} }
+          mcpClients.clear();
+          for (const c of sseClients) { try { c.end(); } catch {} }
+          let quitCalled = false;
+          const finishQuit = () => { if (quitCalled) return; quitCalled = true; onQuit(); };
+          server.close(finishQuit);
+          // Belt-and-braces: if something (a lingering socket) keeps close()
+          // from firing its callback, still exit — a hung "quit" would be
+          // worse than a slightly-abrupt one after cleanup already ran.
+          setTimeout(finishQuit, 3000).unref();
+        });
+        return;
+      }
       // ---- overview / settings ----
       if (p === '/api/overview' && req.method === 'GET') {
         const hardware = await detectHardware();

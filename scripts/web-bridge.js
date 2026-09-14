@@ -122,5 +122,55 @@
     onChatToolResult: (cb) => onChat('toolresult', cb),
     onChatDone: (cb) => onChat('done', cb),
     onChatError: (cb) => onChat('error', cb),
+
+    quit: () => post('/api/quit'),
   };
+
+  // ---------- portable-only "Quit BotConnector" control ----------
+  // Electron has no equivalent of this: its window close / Alt+F4 already
+  // ends the whole app. A browser tab close must NOT stop the background
+  // core (other tabs, or a deliberate "leave it running" choice, are valid)
+  // — quitting the core process is only ever a deliberate, explicit action.
+  // Injected here (not in desktop.js/index.html) so the shared renderer
+  // stays byte-identical between Electron and the portable build; this is
+  // pure DOM bolt-on, added once the page's own script has finished
+  // rendering the sidebar it attaches to.
+  function injectQuitControl() {
+    const host = document.querySelector('.side-bottom');
+    if (!host || document.getElementById('bcQuitBtn')) return;
+    // In-page confirm, not window.confirm(): a native dialog blocks the
+    // page's own render/script thread until dismissed, which is both a
+    // jarring UX pattern and unreliable to drive from automated tooling.
+    const btn = document.createElement('button');
+    btn.id = 'bcQuitBtn';
+    btn.textContent = '⏻ Quit BotConnector';
+    btn.style.cssText = 'margin-top:8px;opacity:.75;';
+    const confirmRow = document.createElement('div');
+    confirmRow.hidden = true;
+    confirmRow.style.cssText = 'margin-top:6px;font-size:12px;';
+    confirmRow.innerHTML = '<div style="opacity:.8;margin-bottom:4px;">Stop the local server and any running local model?</div>';
+    const yesBtn = document.createElement('button');
+    yesBtn.textContent = 'Yes, quit';
+    yesBtn.style.cssText = 'margin-right:6px;';
+    const noBtn = document.createElement('button');
+    noBtn.textContent = 'Cancel';
+    confirmRow.appendChild(yesBtn);
+    confirmRow.appendChild(noBtn);
+    btn.onclick = () => { btn.hidden = true; confirmRow.hidden = false; };
+    noBtn.onclick = () => { confirmRow.hidden = true; btn.hidden = false; };
+    yesBtn.onclick = async () => {
+      yesBtn.disabled = true; noBtn.disabled = true;
+      confirmRow.querySelector('div').textContent = 'Stopping…';
+      try {
+        await window.botconnector.quit();
+      } catch (e) {
+        console.error('quit failed', e);
+      }
+      document.body.innerHTML = '<div style="display:flex;align-items:center;justify-content:center;height:100vh;font:15px system-ui;color:#ccc;background:#080b10;">BotConnector has stopped. You can close this tab.</div>';
+    };
+    host.appendChild(btn);
+    host.appendChild(confirmRow);
+  }
+  if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', injectQuitControl);
+  else injectQuitControl();
 })();

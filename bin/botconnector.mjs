@@ -167,7 +167,7 @@ if(cmd==='ui'){
     if(!webRoot||!fs.existsSync(path.join(webRoot,'index.html')))fail(`dist/web is missing (${webRoot}). Run: npm run build:web`);
   }
   const uiPort=Number(opt('ui-port',32100));
-  const {port:boundPort}=await startUiServer({userDataDir:uiUserData,webRoot,getAsset:getWebAsset,preferredPort:uiPort,log:m=>console.error(m)});
+  const {port:boundPort}=await startUiServer({userDataDir:uiUserData,webRoot,getAsset:getWebAsset,preferredPort:uiPort,log:m=>console.error(m),onQuit:()=>process.exit(0)});
   writeUiLock(lockFile,{pid:process.pid,port:boundPort});
   const cleanup=()=>{clearUiLock(lockFile,process.pid);};
   process.on('exit',cleanup);
