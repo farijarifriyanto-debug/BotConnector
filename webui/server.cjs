@@ -29,6 +29,11 @@ const fsp = require('node:fs/promises');
 const crypto = require('node:crypto');
 const { pickFolder, pickFile } = require('./dialogs.cjs');
 const { isSafeExternal, providerName, plainObject } = require('../desktop/security.cjs');
+const agentLoop = require('../agent/loop.cjs');
+const agentLocal = require('../agent/local.cjs');
+const { createWorkspace } = require('../agent/tools.cjs');
+const agentMutate = require('../agent/mutate.cjs');
+const agentShell = require('../agent/shell.cjs');
 
 const { detectHardware } = require('../runtime/hardware.cjs');
 const llama = require('../runtime/llama.cjs');
@@ -156,6 +161,18 @@ function startUiServer({ userDataDir, webRoot, getAsset, preferredPort = 32100, 
   // ---------- SSE broadcast (download/runtime-install progress) ----------
   const sseClients = new Set();
   function broadcast(type, payload) { const line = `data: ${JSON.stringify({ type, payload })}\n\n`; for (const res of sseClients) { try { res.write(line); } catch {} } }
+
+  // ---------- minimal browser Agent workflow (Section 5) ----------
+  // One user message -> one tool intent -> proposal -> approve/reject ->
+  // apply -> plain result. Deliberately NOT the full TUI experience (no
+  // multi-tool bounded task loop, no session-resume-across-restart, no rich
+  // tool-call timeline) — this reuses the exact same Core primitives
+  // (agent/loop.cjs, agent/mutate.cjs, agent/shell.cjs) the TUI already
+  // uses, just composed for a two-request HTTP flow instead of the TUI's
+  // in-process approval promise. A pending proposal/command is held here in
+  // memory only, keyed by a short-lived taskId — never written to disk.
+  const pendingAgentTasks = new Map();
+  function prunePendingTasks() { const now = Date.now(); for (const [id, t] of pendingAgentTasks) if (t.expiresAt < now) pendingAgentTasks.delete(id); }
 
   // ---------- HTTP plumbing ----------
   function readJson(req) {
@@ -317,6 +334,70 @@ function startUiServer({ userDataDir, webRoot, getAsset, preferredPort = 32100, 
         return sendJson(res, 200, { name: path.basename(fp), dataUrl: `data:image/${ext};base64,${b.toString('base64')}` });
       }
       if (p === '/api/chat/stream' && req.method === 'POST') return handleChatStream(req, res, await readJson(req));
+
+      // ---- agent (minimal browser workflow) ----
+      if (p === '/api/agent/task' && req.method === 'POST') {
+        const { prompt, workspace } = await readJson(req);
+        if (typeof prompt !== 'string' || !prompt.trim()) throw new Error('A task/prompt is required');
+        if (typeof workspace !== 'string' || !workspace.trim()) throw new Error('A workspace folder is required');
+
+        const intents = agentLoop.detectIntents(prompt);
+        const primary = intents[0] || null;
+        if (primary && primary.kind === 'command') {
+          const ws = createWorkspace(workspace);
+          const analysis = agentShell.analyzeCommand(primary.args.display);
+          prunePendingTasks();
+          const taskId = crypto.randomBytes(12).toString('hex');
+          pendingAgentTasks.set(taskId, { expiresAt: Date.now() + 10 * 60 * 1000, kind: 'command', ws, exe: primary.args.exe, args: primary.args.args, display: primary.args.display });
+          return sendJson(res, 200, { status: 'needsApproval', taskId, op: 'run', kind: 'command', detail: `Command:\n${primary.args.display}\n\nWorking directory:\n${ws.root}${analysis.dangerous ? `\n\nWarning: dangerous pattern (${analysis.hits.join(', ')}) — this will NOT run without your approval.` : ''}` });
+        }
+
+        const resolvedEp = await agentLocal.resolveEndpoint();
+        const found = await agentLocal.discoverLocalModel({ endpoint: resolvedEp.endpoint, timeoutMs: 5000 });
+        if (!found.ok) throw new Error('Local runtime is not available. Start a local model first (Runtime tab), then try again.');
+        const localCtx = { endpoint: found.endpoint, modelId: found.id, friendly: found.friendly };
+        const model = { name: found.friendly, locality: 'Local', backend: resolvedEp.backend || 'auto', provider: 'llama.cpp', cost: '$0.00' };
+
+        const r = await agentLoop.runTurn({ prompt, mode: 'Act', approval: 'ask', model, tools: [], cwd: workspace, workspace, localCtx, session: { approveAll: false }, history: [] });
+        if (r.needsApproval && r.proposal) {
+          const ws = createWorkspace(workspace);
+          prunePendingTasks();
+          const taskId = crypto.randomBytes(12).toString('hex');
+          pendingAgentTasks.set(taskId, { expiresAt: Date.now() + 10 * 60 * 1000, kind: 'mutation', ws, proposal: r.proposal });
+          const proposal = r.proposal;
+          const detail = proposal.kind === 'edit' ? proposal.diffText
+            : proposal.kind === 'create' ? `Create ${proposal.path} (${proposal.content.split('\n').length} lines):\n\n${proposal.content.slice(0, 3000)}${proposal.content.length > 3000 ? '\n… (truncated preview)' : ''}`
+            : proposal.kind === 'delete' ? `Delete ${proposal.path} (${proposal.bytes} bytes)\n(Reversible: moved to workspace trash on apply.)`
+            : `Rename ${proposal.path} → ${proposal.dest}`;
+          return sendJson(res, 200, { status: 'needsApproval', taskId, op: r.op, kind: proposal.kind, detail });
+        }
+        return sendJson(res, 200, { status: 'done', answer: r.answer, op: r.op, blocked: Boolean(r.blocked), failed: Boolean(r.failed) });
+      }
+      if (p === '/api/agent/apply' && req.method === 'POST') {
+        const { taskId, approved } = await readJson(req);
+        const pending = pendingAgentTasks.get(String(taskId || ''));
+        if (!pending) throw new Error('This proposal has expired or was already handled. Ask again.');
+        pendingAgentTasks.delete(String(taskId));
+        if (!approved) return sendJson(res, 200, { status: 'done', answer: 'Rejected — nothing changed.' });
+
+        if (pending.kind === 'mutation') {
+          const { proposal, ws } = pending;
+          let applied;
+          try {
+            if (proposal.kind === 'edit') applied = agentMutate.applyEdit(ws, proposal);
+            else if (proposal.kind === 'create') applied = agentMutate.applyCreate(ws, proposal);
+            else if (proposal.kind === 'delete') applied = agentMutate.applyDelete(ws, proposal);
+            else applied = agentMutate.applyRename(ws, proposal);
+          } catch (e) { applied = { ok: false, error: `apply failed: ${e.message}` }; }
+          if (!applied.ok) return sendJson(res, 200, { status: 'done', answer: `Apply failed: ${applied.error}`, failed: true });
+          return sendJson(res, 200, { status: 'done', answer: `Applied ${proposal.kind} to ${proposal.path}.`, toolResult: applied });
+        }
+        const { ws, exe, args, display } = pending;
+        const result = await agentShell.run({ ws, exe, args, cwdRel: '.', timeoutMs: 120000 });
+        if (result.cancelled) return sendJson(res, 200, { status: 'done', answer: '(command cancelled)' });
+        if (!result.ok) return sendJson(res, 200, { status: 'done', answer: `Command failed to start: ${result.error}`, failed: true });
+        return sendJson(res, 200, { status: 'done', answer: `Ran: ${display}\nExit code: ${result.exitCode}${result.stdout ? `\n\n${String(result.stdout).slice(0, 3000)}` : ''}${result.stderr ? `\n\n[stderr]\n${String(result.stderr).slice(0, 1500)}` : ''}`, toolResult: result });
+      }
 
       // ---- cloud ----
       if (p === '/api/cloud/status' && req.method === 'GET') return sendJson(res, 200, { ...cloudPublic(), routing: (await cloud.routing.load()).rules });

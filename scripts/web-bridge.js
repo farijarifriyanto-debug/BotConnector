@@ -133,6 +133,9 @@
     onChatError: (cb) => onChat('error', cb),
 
     quit: () => post('/api/quit'),
+
+    agentTask: (p) => post('/api/agent/task', p),
+    agentApply: (p) => post('/api/agent/apply', p),
   };
 
   // ---------- portable-only "Quit BotConnector" control ----------
@@ -261,4 +264,119 @@
     if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', injectReopenSetupLink);
     else injectReopenSetupLink();
   });
+
+  // ---------- minimal browser Agent view (Section 5) ----------
+  // Reuses existing desktop.css classes (.panel/.button-row/.log-box/etc.)
+  // wherever they already fit, so this needs no new stylesheet rules.
+  // Deliberately minimal per product decision: one prompt in, one proposal
+  // (diff or command) out, approve/reject, apply, plain result — no
+  // multi-step task timeline, no session resume across a restart.
+  function injectAgentView() {
+    if (document.getElementById('view-agent')) return;
+    const main = document.querySelector('main');
+    const sidebarNav = document.querySelector('.sidebar nav');
+    if (!main || !sidebarNav) return;
+
+    const navBtn = el('button', { textContent: '⚙ Agent (browser)' });
+    navBtn.dataset.view = 'agent';
+    sidebarNav.appendChild(navBtn);
+
+    const workspaceInput = el('input', { id: 'bcAgentWorkspace', placeholder: 'C:\\path\\to\\your\\project' });
+    const promptInput = el('textarea', { id: 'bcAgentPrompt', rows: 3, placeholder: 'e.g. Add a subtract function to src/math.js and export it' });
+    const sendBtn = el('button', { className: 'primary', id: 'bcAgentSend', textContent: 'Send' });
+    const status = el('div', { className: 'inline-status', id: 'bcAgentStatus' });
+    const askPanel = el('article', { className: 'panel' }, [
+      el('label', { textContent: 'Workspace folder' }, [workspaceInput]),
+      el('label', { textContent: 'What do you want the agent to do?' }, [promptInput]),
+      el('div', { className: 'button-row' }, [sendBtn]),
+      status,
+    ]);
+
+    const approvalTitle = el('h3', { id: 'bcAgentApprovalTitle', textContent: 'Proposed change' });
+    const diffBox = el('pre', { className: 'log-box', id: 'bcAgentDiff' });
+    const approveBtn = el('button', { className: 'primary', id: 'bcAgentApprove', textContent: 'Approve' });
+    const rejectBtn = el('button', { className: 'danger', id: 'bcAgentReject', textContent: 'Reject' });
+    const approvalPanel = el('article', { className: 'panel top-gap', id: 'bcAgentApprovalPanel', hidden: true }, [
+      approvalTitle, diffBox, el('div', { className: 'button-row' }, [approveBtn, rejectBtn]),
+    ]);
+
+    const resultBox = el('pre', { className: 'log-box', id: 'bcAgentResult' });
+    const resultPanel = el('article', { className: 'panel top-gap', id: 'bcAgentResultPanel', hidden: true }, [
+      el('h3', { textContent: 'Result' }), resultBox,
+    ]);
+
+    const section = el('section', { id: 'view-agent', className: 'view' }, [
+      el('div', { className: 'section-head' }, [
+        el('div', {}, [
+          el('span', { className: 'kicker', textContent: 'NATIVE AGENT' }),
+          el('h2', { textContent: 'Agent (browser)' }),
+          el('p', { textContent: 'Reads/edits files and runs commands in the workspace you point it at. Every file change or command needs your approval before anything happens.' }),
+        ]),
+      ]),
+      askPanel, approvalPanel, resultPanel,
+    ]);
+    main.appendChild(section);
+
+    navBtn.onclick = () => { if (typeof window.navigate === 'function') window.navigate('agent'); };
+
+    let currentTaskId = null;
+    function resetPanels() { approvalPanel.hidden = true; resultPanel.hidden = true; currentTaskId = null; }
+    function showResult(answer) { resultBox.textContent = answer || '(no answer)'; resultPanel.hidden = false; approvalPanel.hidden = true; }
+
+    sendBtn.onclick = async () => {
+      const workspace = workspaceInput.value.trim();
+      const prompt = promptInput.value.trim();
+      if (!workspace) { status.textContent = 'Enter a workspace folder first.'; return; }
+      if (!prompt) { status.textContent = 'Describe what you want the agent to do.'; return; }
+      resetPanels();
+      sendBtn.disabled = true;
+      status.textContent = 'Working…';
+      try {
+        const r = await window.botconnector.agentTask({ prompt, workspace });
+        if (r.status === 'needsApproval') {
+          currentTaskId = r.taskId;
+          approvalTitle.textContent = r.kind === 'command' ? 'Proposed command' : `Proposed ${r.kind}`;
+          diffBox.textContent = r.detail;
+          approvalPanel.hidden = false;
+          status.textContent = 'Review before approving.';
+        } else {
+          showResult(r.answer);
+          status.textContent = r.blocked ? 'Blocked.' : r.failed ? 'Failed.' : 'Done.';
+        }
+      } catch (e) {
+        status.textContent = `Error: ${e.message || e}`;
+      } finally {
+        sendBtn.disabled = false;
+      }
+    };
+    approveBtn.onclick = async () => {
+      if (!currentTaskId) return;
+      approveBtn.disabled = true; rejectBtn.disabled = true;
+      status.textContent = 'Applying…';
+      try {
+        const r = await window.botconnector.agentApply({ taskId: currentTaskId, approved: true });
+        showResult(r.answer);
+        status.textContent = r.failed ? 'Apply failed.' : 'Applied.';
+      } catch (e) {
+        status.textContent = `Error: ${e.message || e}`;
+      } finally {
+        approveBtn.disabled = false; rejectBtn.disabled = false;
+      }
+    };
+    rejectBtn.onclick = async () => {
+      if (!currentTaskId) return;
+      approveBtn.disabled = true; rejectBtn.disabled = true;
+      try {
+        const r = await window.botconnector.agentApply({ taskId: currentTaskId, approved: false });
+        showResult(r.answer);
+        status.textContent = 'Rejected.';
+      } catch (e) {
+        status.textContent = `Error: ${e.message || e}`;
+      } finally {
+        approveBtn.disabled = false; rejectBtn.disabled = false;
+      }
+    };
+  }
+  if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', injectAgentView);
+  else injectAgentView();
 })();
