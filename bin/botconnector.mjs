@@ -119,7 +119,30 @@ if(cmd==='ui'){
   // shares the exact same Core modules as the CLI/Electron above) serving
   // the same renderer that already works in `npm run desktop`, then opens
   // the user's default browser. No Electron, no bundled browser engine.
-  const lockFile=path.join(userData,'ui.lock');
+  //
+  // Deliberately its OWN data root under %LOCALAPPDATA%, not the
+  // %APPDATA%\botconnector-ai-local-cloud the Electron app and every other
+  // CLI command above use. Two consequences, both disclosed rather than
+  // silently accepted: settings.json and the managed llama.cpp runtime
+  // binary are separate per distribution channel (each downloads/manages
+  // its own copy); downloaded MODELS are still naturally shared, since
+  // Store's modelsDir default (runtime/store.cjs) is a fixed
+  // ~/BotConnector AI/models path independent of which userData root asked
+  // for it. If Electron and the portable app try to own the local runtime
+  // at the same time, ownership.cjs's existing single-owner lock makes the
+  // second one refuse safely — never silently collide or corrupt state.
+  //
+  // Folder name is "BotConnector AI" (matching this product's own naming
+  // everywhere else: the Electron install dir, the models default path),
+  // not the bare "BotConnector" a literal reading might suggest — verified
+  // live that %LOCALAPPDATA%\BotConnector\ already exists on a real test
+  // machine as an unrelated pre-existing application's data folder
+  // (Codex-*/HermesTunnel/PersonalAssistant subfolders, nothing to do with
+  // this product). Writing into that shared name would silently mix data
+  // with an unrelated app — exactly what this project's data-path rules
+  // exist to prevent.
+  const uiUserData=path.join(process.env.LOCALAPPDATA||path.join(os.homedir(),'AppData','Local'),'BotConnector AI');
+  const lockFile=path.join(uiUserData,'ui.lock');
   const existing=await findExistingUi(lockFile);
   if(existing){
     // A background process cannot literally focus another process's
@@ -144,7 +167,7 @@ if(cmd==='ui'){
     if(!webRoot||!fs.existsSync(path.join(webRoot,'index.html')))fail(`dist/web is missing (${webRoot}). Run: npm run build:web`);
   }
   const uiPort=Number(opt('ui-port',32100));
-  const {port:boundPort}=await startUiServer({userDataDir:userData,webRoot,getAsset:getWebAsset,preferredPort:uiPort,log:m=>console.error(m)});
+  const {port:boundPort}=await startUiServer({userDataDir:uiUserData,webRoot,getAsset:getWebAsset,preferredPort:uiPort,log:m=>console.error(m)});
   writeUiLock(lockFile,{pid:process.pid,port:boundPort});
   const cleanup=()=>{clearUiLock(lockFile,process.pid);};
   process.on('exit',cleanup);
