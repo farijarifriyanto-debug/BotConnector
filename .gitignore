@@ -20,6 +20,7 @@ models/
 runtimes/
 *.zip
 *.zip.sha256
+*.tar.gz.sha256
 *.tar.gz
 llama-server.exe
 llama-*.exe
