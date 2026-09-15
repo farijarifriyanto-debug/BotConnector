@@ -1,0 +1,54 @@
+{
+  "servers": [
+    {
+      "id": "github",
+      "repo": "github/github-mcp-server",
+      "description": "MCP server resmi GitHub (repo, issue, PR).",
+      "transport": "stdio",
+      "runtime": { "tool": "docker", "package": "ghcr.io/github/github-mcp-server" },
+      "license": "MIT",
+      "needsAuth": "GITHUB_PERSONAL_ACCESS_TOKEN",
+      "install": "pull image dulu; tanpa docker tidak jalan"
+    },
+    {
+      "id": "playwright",
+      "repo": "microsoft/playwright-mcp",
+      "description": "Otomasi browser untuk coding agent.",
+      "transport": "stdio",
+      "runtime": { "tool": "npx", "package": "@playwright/mcp@latest" },
+      "license": "Apache-2.0",
+      "needsAuth": null,
+      "install": "npx mengunduh saat pertama jalan (butuh internet)"
+    },
+    {
+      "id": "chrome-devtools",
+      "repo": "ChromeDevTools/chrome-devtools-mcp",
+      "description": "Chrome DevTools untuk coding agent.",
+      "transport": "stdio",
+      "runtime": { "tool": "npx", "package": "chrome-devtools-mcp@latest" },
+      "license": "Apache-2.0",
+      "needsAuth": null,
+      "install": "npx mengunduh saat pertama jalan (butuh internet)"
+    },
+    {
+      "id": "serena",
+      "repo": "oraios/serena",
+      "description": "Semantic code retrieval/editing untuk agent. LISENSI GPL-3.0: jalankan sebagai proses luar, jangan link/embed ke kode proprietary.",
+      "transport": "stdio",
+      "runtime": { "tool": "uvx", "package": "git+https://github.com/oraios/serena" },
+      "license": "GPL-3.0-or-later",
+      "needsAuth": null,
+      "install": "butuh uv/uvx + internet"
+    },
+    {
+      "id": "filesystem",
+      "repo": "modelcontextprotocol/servers (filesystem)",
+      "description": "Akses file terbatas ke direktori yang diizinkan.",
+      "transport": "stdio",
+      "runtime": { "tool": "npx", "package": "@modelcontextprotocol/server-filesystem" },
+      "license": "MIT",
+      "needsAuth": null,
+      "install": "npx mengunduh saat pertama jalan (butuh internet)"
+    }
+  ]
+}
