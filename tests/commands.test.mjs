@@ -15,11 +15,11 @@ test('switch tanpa nama meminta picker', async () => {
   assert.deepEqual(await execCommand({ cmd: 'switch', args: [] }), [{ role: 'picker' }]);
 });
 
-test('/cloud tanpa key jujur (tanpa network)', async () => {
+test('/cloud tanpa key: status tetap jawab (tags publik), chat menolak', async () => {
   const saved = process.env.OLLAMA_API_KEY;
   delete process.env.OLLAMA_API_KEY;
   try {
-    const r = await execCommand({ cmd: 'cloud', args: ['status'] });
+    const r = await execCommand({ cmd: 'cloud', args: ['chat', 'm', 'hi'] });
     assert.equal(r[0].role, 'error');
   } finally { if (saved) process.env.OLLAMA_API_KEY = saved; }
 });

@@ -8,12 +8,14 @@ const withoutKey = (fn) => async () => { delete process.env.OLLAMA_API_KEY; try 
 
 test('base resmi ollama.com', () => assert.equal(CLOUD_BASE, 'https://ollama.com'));
 
-test('tanpa key: gagal jujur sebelum request', withoutKey(async () => {
+test('tanpa key: chat gagal sebelum request; tags tetap jalan (publik)', withoutKey(async () => {
   assert.equal(getKey(), null);
   assert.equal(keyStatus().configured, false);
   let called = false;
   await assert.rejects(() => chat('m', [{ role: 'user', content: 'hi' }], { fetchImpl: async () => { called = true; } }), /OLLAMA_API_KEY/);
   assert.equal(called, false);
+  const stub = async () => ({ ok: true, status: 200, json: async () => ({ models: [] }) });
+  assert.deepEqual(await listModels({ fetchImpl: stub }), []);
 }));
 
 test('dengan key: header Bearer + parse /api/tags', withKey(async () => {

@@ -112,10 +112,11 @@ if (cmd === 'cloud') {
   const action = sub || 'status';
   if (action === 'status') {
     const ks = keyStatus();
-    if (!ks.configured) { out(json ? { ok: false, ...ks } : 'OLLAMA_API_KEY belum diset.\nBuat di https://ollama.com/settings/keys lalu:\n  export OLLAMA_API_KEY=...'); process.exit(ks.configured ? 0 : 1); }
     try {
       const models = await listModels();
-      out(json ? { ok: true, ...ks, models: models.length } : `OK: key valid, ${models.length} model terlihat di ollama.com.`);
+      const chatOk = ks.configured ? 'chat SIAP' : 'chat BUTUH KEY (export OLLAMA_API_KEY=...)';
+      out(json ? { ok: true, ...ks, live: true, publicModels: models.length }
+        : `ollama.com TERHUBUNG (${models.length} model publik). Key: ${ks.configured ? 'ADA' : 'BELUM ADA'} — ${chatOk}.`);
     } catch (e) { fail(e.message); }
     process.exit(0);
   }
