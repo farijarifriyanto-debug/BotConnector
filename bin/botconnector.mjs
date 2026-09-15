@@ -14,7 +14,7 @@ const {DownloadManager}=require('../runtime/downloads.cjs');
 const {RuntimeManager}=require('../runtime/runtime-manager.cjs');
 const {scanInstalled}=require('../runtime/installed.cjs');
 const {detectHardware}=require('../runtime/hardware.cjs');
-const {claimOwnership,readOwnership,releaseOwnership,setChild,statePath}=require('../runtime/ownership.cjs');
+const {claimOwnership,readOwnership,releaseOwnership,releaseModelSlot,listModelSlots,setChild,statePath}=require('../runtime/ownership.cjs');
 
 const APP='botconnector-ai-local-cloud';
 const userData=path.join(process.env.APPDATA||path.join(os.homedir(),'AppData','Roaming'),APP);
@@ -31,7 +31,7 @@ const fail=(m)=>{console.error(json?JSON.stringify({ok:false,error:m}):`Error: $
 const sleep=(ms)=>new Promise(r=>setTimeout(r,ms));
 async function endpoint(pathname){const r=await fetch(`http://127.0.0.1:${port}${pathname}`,{signal:AbortSignal.timeout(5000)});return r;}
 async function serverHealth(){try{const r=await endpoint('/health');return{up:r.ok,status:r.status};}catch(e){return{up:false,error:String(e.cause?.message||e.message)};}}
-function readState(){try{const s=JSON.parse(fs.readFileSync(STATE_FILE,'utf8'));if(s&&!s.pid)s.pid=s.childPid;return s;}catch{return null;}}
+function readState(){try{const s=JSON.parse(fs.readFileSync(STATE_FILE,'utf8'));if(!s||(!s.modelPath&&!s.activeModel))return null;if(s&&!s.pid)s.pid=s.childPid;return s;}catch{return null;}}
 function pidAlive(pid){try{process.kill(pid,0);return true;}catch{return false;}}
 function resolveModelRef(ref,installed){
   if(!ref)fail('model reference required');
@@ -52,11 +52,12 @@ const HELP=`botconnector - BotConnector AI CLI (shares Core/config with the desk
   botconnector ls [--json]
   botconnector runtime status|resolve|verify|install [--backend auto|cpu|vulkan|cuda12|cuda13] [--json]
   botconnector runtime use <auto|cpu|vulkan|cuda12|cuda13|rocm>
-  botconnector load <model-ref> | unload | ps [--json]
+  botconnector load <model-ref> | unload [model-ref] | ps [--json]
+  botconnector profiles [--json]
   botconnector run <model-ref>            (foreground; Ctrl-C stops)
   botconnector chat <model-ref?> "prompt" [--stream] [--api-key KEY]
   botconnector embed "text" [--json] [--api-key KEY]
-  botconnector server start <model-ref> [--ctx N] [--backend auto|cpu|vulkan|cuda12|cuda13|rocm] [--api-key KEY] | stop | status [--json]
+  botconnector server start <model-ref> [--ctx N] [--backend auto|cpu|vulkan|cuda12|cuda13|rocm] [--api-key KEY] | switch <model-ref> | stop | unload [model-ref] | status [--json]
   botconnector cloud status [--json] | providers [--json] | models [--refresh] [provider] [--json]
   botconnector cloud set-key <nebius|together> | key-status [--json] | remove-key <provider>
   botconnector cloud usage [--limit N] [--json] | routing [--json]
@@ -250,10 +251,35 @@ async function startServer(modelRef,ctx){
 if((cmd==='server'&&sub==='start')||cmd==='load'){
   const ref=rawArgs.find((a,i)=>i>1&&!a.startsWith('--')&&a!==sub&&a!=='start'&&!/^\d+$/.test(a)&&a!==opt('ctx','__none__'))||rawArgs[2];
   if(!ref)fail(cmd==='load'?'load <model-ref>':'server start <model-ref>');
-  out({ok:true,server:await startServer(ref,Number(opt('ctx',4096)))});
+  try{out({ok:true,server:await startServer(ref,Number(opt('ctx',4096)))});}catch(e){fail(e.message);}
   process.exit(0);
 }
-if((cmd==='server'&&sub==='stop')||cmd==='unload'){
+if(cmd==='server'&&sub==='switch'){
+  const ref=rawArgs.find((a,i)=>i>1&&!a.startsWith('--')&&a!==sub&&!/^\d+$/.test(a)&&a!==opt('ctx','__none__'))||rawArgs[2];
+  if(!ref)fail('server switch <model-ref>');
+  const st=readState();
+  if(st){
+    if(st.ownerType&&st.ownerType!=='cli')fail(`runtime is owned by ${st.ownerType}; refusing to switch another interface`);
+    const pid=st.pid||st.childPid;
+    if(pid&&pidAlive(pid)){try{process.kill(pid);}catch(e){fail('could not stop pid '+pid+': '+e.message);}}
+    await releaseModelSlot(STATE_FILE,st.modelPath,st.ownerPid||process.pid);
+  }
+  try{out({ok:true,server:await startServer(ref,Number(opt('ctx',4096)))});}catch(e){fail(e.message);}
+  process.exit(0);
+}
+if((cmd==='server'&&(sub==='stop'||sub==='unload'))||cmd==='unload'){
+  const refArg=(cmd==='server'?rawArgs.find((a,i)=>i>1&&!a.startsWith('--')&&a!==sub):rawArgs[1])||null;
+  if(refArg&&sub!=='stop'){
+    const slots=await listModelSlots(STATE_FILE).catch(()=>[]);
+    const slot=slots.find(s=>s.modelPath===path.resolve(refArg)||path.basename(s.modelPath||'')===path.basename(refArg)||(s.modelPath||'').endsWith(refArg));
+    if(!slot)fail(`no runtime slot for model: ${refArg} (see: botconnector ps --json)`);
+    if(slot.ownerType&&slot.ownerType!=='cli')fail(`runtime slot for ${path.basename(slot.modelPath||refArg)} is owned by ${slot.ownerType}; refusing to unload another interface`);
+    const pid=slot.childPid||slot.pid||slot.ownerPid;
+    if(pid&&pidAlive(pid)){try{process.kill(pid);}catch(e){fail('could not stop pid '+pid+': '+e.message);}}
+    await releaseModelSlot(STATE_FILE,slot.modelPath,slot.ownerPid);
+    out({ok:true,unloaded:slot.modelPath});
+    process.exit(0);
+  }
   const st=readState();
   if(!st)fail('no CLI-managed server recorded');
   if(st.ownerType&&st.ownerType!=='cli')fail(`runtime is owned by ${st.ownerType}; refusing to stop another interface`);
@@ -265,8 +291,21 @@ if((cmd==='server'&&sub==='stop')||cmd==='unload'){
 if((cmd==='server'&&sub==='status')||cmd==='ps'){
   const st=readState();
   const health=await serverHealth();
-  const info={port,endpoint:health,cliServer:st&&pidAlive(st.pid)?st:(st?{...st,alive:false}:null)};
-  out(json?info:`port ${port}: ${health.up?`UP (HTTP ${health.status})`:'down'}${info.cliServer?` | cli-server pid=${info.cliServer.pid} model=${path.basename(info.cliServer.modelPath||'?')} alive=${pidAlive(info.cliServer.pid)}`:''}`);
+  const slots=await listModelSlots(STATE_FILE).catch(()=>[]);
+  const running=slots.map(s=>({modelPath:s.modelPath,ownerType:s.ownerType,ownerPid:s.ownerPid,childPid:s.childPid,port:s.port,backend:s.backend,alive:s.alive,active:s.active}));
+  const info={port,endpoint:health,cliServer:st&&pidAlive(st.pid)?st:(st?{...st,alive:false}:null),running};
+  out(json?info:`port ${port}: ${health.up?`UP (HTTP ${health.status})`:'down'}${info.cliServer?` | cli-server pid=${info.cliServer.pid} model=${path.basename(info.cliServer.modelPath||'?')} alive=${pidAlive(info.cliServer.pid)}`:''}${running.filter(r=>r.alive).map(r=>` | slot ${path.basename(r.modelPath||'?')} pid=${r.childPid||r.ownerPid}`).join('')}`);
+  process.exit(0);
+}
+if(cmd==='profiles'){
+  const items=await scanInstalled(store.get('modelsDir'));
+  const slots=await listModelSlots(STATE_FILE).catch(()=>[]);
+  const live=slots.find(s=>s.active&&s.alive)||slots.find(s=>s.alive);
+  const active=live?live.modelPath:null;
+  const rows=items.map(m=>({...m,active:m.path===active}));
+  if(json)out({active,models:rows});
+  else if(!rows.length)console.log('No downloaded GGUF models.');
+  else rows.forEach(m=>console.log(`${m.active?'*':' '} ${m.repoId||'(unknown)'}@${m.quant||'?'}  ${(m.size/1073741824).toFixed(2)}GB  ${m.path}`));
   process.exit(0);
 }
 if(cmd==='run'){
