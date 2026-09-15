@@ -23,6 +23,9 @@ const HELP = `botconnector-poc — sandbox pembuktian (bukan produk)
   poc ps [--json]                        = profiles (alias)
   poc mcp [--json]                       katalog MCP + probe PATH asli
   poc launch [--json]                    deteksi coding tool + preview config
+  poc cloud status [--json]              cek OLLAMA_API_KEY + probe ollama.com
+  poc cloud models [--json]              daftar model cloud (butuh key)
+  poc cloud chat <model> <prompt>        chat non-stream via ollama.com
   poc tui                                loop interaktif mini
   poc ui                                 TUI OpenTUI (stack opencode, butuh bun)
 `;
@@ -104,6 +107,37 @@ if (cmd === 'launch') {
   process.exit(0);
 }
 
+if (cmd === 'cloud') {
+  const { keyStatus, listModels, chat } = await import('../lib/ollama-cloud.mjs');
+  const action = sub || 'status';
+  if (action === 'status') {
+    const ks = keyStatus();
+    if (!ks.configured) { out(json ? { ok: false, ...ks } : 'OLLAMA_API_KEY belum diset.\nBuat di https://ollama.com/settings/keys lalu:\n  export OLLAMA_API_KEY=...'); process.exit(ks.configured ? 0 : 1); }
+    try {
+      const models = await listModels();
+      out(json ? { ok: true, ...ks, models: models.length } : `OK: key valid, ${models.length} model terlihat di ollama.com.`);
+    } catch (e) { fail(e.message); }
+    process.exit(0);
+  }
+  if (action === 'models') {
+    try {
+      const models = await listModels();
+      out(json ? models : (models.length ? models.map((m) => `${m.name}  ${(m.size / 1073741824).toFixed(1)}GB`).join('\n') : '(kosong)'));
+    } catch (e) { fail(e.message); }
+    process.exit(0);
+  }
+  if (action === 'chat') {
+    const model = rawArgs[2] || '';
+    const prompt = rawArgs.slice(3).filter((a) => !a.startsWith('--')).join(' ');
+    if (!model || !prompt) fail('cloud chat <model> <prompt>   (mis. gpt-oss:120b-cloud "halo")');
+    try {
+      const r = await chat(model, [{ role: 'user', content: prompt }]);
+      out(json ? r : r.content);
+    } catch (e) { fail(e.message); }
+    process.exit(0);
+  }
+  fail('cloud <status|models|chat>');
+}
 if (cmd === 'tui') {
   const { runTui, canFullScreen } = await import('../lib/tui.mjs');
   if (!canFullScreen()) { console.log('(bukan TTY: fallback loop sederhana)'); }

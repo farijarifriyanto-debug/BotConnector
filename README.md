@@ -20,6 +20,24 @@ Tanpa dependensi (Node built-in saja). Tanpa push ke mana pun sampai disetujui.
    di PATH + preview config localhost. `--apply` SENGAJA tidak ada.
    Terbukti: opencode/claude/codex `+`, gemini `x`.
 
+## Ollama Cloud (opsional, butuh key sendiri)
+
+API resmi langsung `https://ollama.com/api`, auth Bearer `OLLAMA_API_KEY`
+(buat di https://ollama.com/settings/keys). Key hanya dari env — tidak
+pernah ditulis ke disk oleh POC ini.
+
+```bash
+export OLLAMA_API_KEY=...
+node bin/poc.mjs cloud status        # verifikasi key + hitung model
+node bin/poc.mjs cloud models
+node bin/poc.mjs cloud chat gpt-oss:120b-cloud "halo"
+```
+
+Di TUI: `/cloud status | models | chat <model> <prompt>`.
+Tanpa key semua gagal jujur sebelum request. Belum live-test dengan key
+asli (tidak ada key di box ini); bentuk respons `/api/tags` sudah
+divalidasi melawan server Ollama lokal (`{"models":[]}`).
+
 ## Jalankan
 
 ```bash

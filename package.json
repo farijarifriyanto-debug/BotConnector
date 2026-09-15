@@ -7,8 +7,8 @@
   "scripts": {
     "poc": "node bin/poc.mjs",
     "ui": "bun bin/poc-ui.mjs",
-    "test": "node --test tests/slots.test.mjs tests/hardware.test.mjs tests/mcp.test.mjs tests/launcher.test.mjs tests/tui.test.mjs tests/commands.test.mjs",
-    "check": "node --check bin/poc.mjs && node --check lib/slots.mjs && node --check lib/hardware.mjs && node --check lib/mcp.mjs && node --check lib/launcher.mjs && node --check lib/tui.mjs && node --check lib/commands.mjs && bun --check lib/ui-opentui.mjs bin/poc-ui.mjs"
+    "test": "node --test tests/slots.test.mjs tests/hardware.test.mjs tests/mcp.test.mjs tests/launcher.test.mjs tests/tui.test.mjs tests/commands.test.mjs tests/ollama-cloud.test.mjs",
+    "check": "node --check bin/poc.mjs && node --check lib/slots.mjs && node --check lib/hardware.mjs && node --check lib/mcp.mjs && node --check lib/launcher.mjs && node --check lib/tui.mjs && node --check lib/commands.mjs && node --check lib/ollama-cloud.mjs && bun --check lib/ui-opentui.mjs bin/poc-ui.mjs"
   },
   "engines": {
     "node": ">=20"
