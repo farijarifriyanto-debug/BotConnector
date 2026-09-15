@@ -23,14 +23,19 @@ Tanpa dependensi (Node built-in saja). Tanpa push ke mana pun sampai disetujui.
 ## Jalankan
 
 ```bash
-npm run check && npm test   # 13/13
+npm run check && npm test   # 15/15
 node bin/poc.mjs hw
 node bin/poc.mjs mcp
 node bin/poc.mjs launch
 node bin/poc.mjs profiles add <nama> --url http://127.0.0.1:PORT
 node bin/poc.mjs switch <nama>
-node bin/poc.mjs tui
+node bin/poc.mjs tui        # TUI fullscreen ala opencode (butuh terminal TTY)
 ```
+
+`poc tui`: alternate screen, slash menu (`/hw /ps /switch /add /rm /mcp /
+launch /help /quit`), Tab melengkapi, Up/Down riwayat + navigasi menu,
+Esc keluar, Ctrl+C paksa keluar. Di luar TTY otomatis fallback loop
+sederhana. Semua perintah mengeksekusi fungsi lib yang sama dengan CLI.
 
 ## Yang TIDAK dibuktikan di sini
 

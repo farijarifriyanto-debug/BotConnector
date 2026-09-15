@@ -99,6 +99,9 @@ if (cmd === 'launch') {
 }
 
 if (cmd === 'tui') {
+  const { runTui, canFullScreen } = await import('../lib/tui.mjs');
+  if (!canFullScreen()) { console.log('(bukan TTY: fallback loop sederhana)'); }
+  else { await runTui(); process.exit(0); }
   const rl = readline.createInterface({ input: process.stdin, output: process.stdout, prompt: 'poc> ' });
   console.log('Perintah: hw | ps | switch <nama> | mcp | launch | quit');
   rl.prompt();

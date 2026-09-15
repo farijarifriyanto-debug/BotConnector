@@ -6,8 +6,8 @@
   "type": "module",
   "scripts": {
     "poc": "node bin/poc.mjs",
-    "test": "node --test tests/slots.test.mjs tests/hardware.test.mjs tests/mcp.test.mjs tests/launcher.test.mjs",
-    "check": "node --check bin/poc.mjs && node --check lib/slots.mjs && node --check lib/hardware.mjs && node --check lib/mcp.mjs && node --check lib/launcher.mjs"
+    "test": "node --test tests/slots.test.mjs tests/hardware.test.mjs tests/mcp.test.mjs tests/launcher.test.mjs tests/tui.test.mjs",
+    "check": "node --check bin/poc.mjs && node --check lib/slots.mjs && node --check lib/hardware.mjs && node --check lib/mcp.mjs && node --check lib/launcher.mjs && node --check lib/tui.mjs"
   },
   "engines": {
     "node": ">=20"
