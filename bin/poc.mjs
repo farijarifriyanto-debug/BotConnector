@@ -24,10 +24,16 @@ const HELP = `botconnector-poc — sandbox pembuktian (bukan produk)
   poc mcp [--json]                       katalog MCP + probe PATH asli
   poc launch [--json]                    deteksi coding tool + preview config
   poc tui                                loop interaktif mini
+  poc ui                                 TUI OpenTUI (stack opencode, butuh bun)
 `;
 const [cmd, sub] = rawArgs.filter((a) => !a.startsWith('--'));
 
 if (!cmd || cmd === '--help' || cmd === 'help') { console.log(HELP); process.exit(0); }
+
+if (cmd === 'ui') {
+  console.log('Jalankan dengan bun:  bun bin/poc-ui.mjs');
+  process.exit(0);
+}
 
 if (cmd === 'hw') {
   const hw = await detectHardware();
