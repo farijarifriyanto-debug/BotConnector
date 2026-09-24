@@ -97,7 +97,9 @@ jobs:
       - name: Build upstream lazy-tool
         run: |
           mkdir -p build
-          GOBIN="$PWD/build" go install github.com/rpgeeganage/lazy-tool/cmd/lazy-tool@latest
+          git clone --depth 1 --branch v1.0.2 https://github.com/mcp-shark/lazy-tool.git /tmp/lazy-tool
+          make -C /tmp/lazy-tool build
+          cp /tmp/lazy-tool/bin/lazy-tool build/lazy-tool
           ./build/lazy-tool --help >/dev/null
           sha256sum build/lazy-tool > build/lazy-tool.sha256
       - uses: actions/upload-artifact@v4
