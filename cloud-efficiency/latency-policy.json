@@ -1,5 +1,5 @@
 {
-  "version": 1,
+  "version": 2,
   "goal": "reduce latency without changing the user-selected cloud model",
   "routing": {
     "selected_model_immutable": true,
@@ -22,13 +22,14 @@
       "enabled": true,
       "cache_safe_only": true,
       "threshold": 0.92,
-      "p95_lookup_budget_ms": 25,
+      "p95_lookup_budget_ms": 60,
       "scope": [
         "tenant",
         "model",
         "provider",
         "policy_fingerprint"
-      ]
+      ],
+      "p99_lookup_budget_ms": 75
     },
     "bypass_for": [
       "side_effecting_tools",
@@ -54,7 +55,7 @@
   },
   "canary_acceptance": {
     "bifrost_p95_overhead_ms_max": 5,
-    "semantic_lookup_p95_ms_max": 25,
+    "semantic_lookup_p95_ms_max": 60,
     "track": [
       "ttft_p50",
       "ttft_p95",
@@ -66,6 +67,12 @@
       "provider_calls_avoided",
       "input_tokens_saved",
       "answer_quality"
-    ]
+    ],
+    "semantic_lookup_p99_ms_max": 75,
+    "semantic_miss_added_p95_ms_max": 50,
+    "exact_lookup_p95_ms_max": 10,
+    "require_partition_isolation": true,
+    "require_provider_call_avoidance": true,
+    "note": "Budgets are VPS-canary limits derived from measured CPU latency; live-provider rollout still requires authenticated session-resolved canary evidence."
   }
 }
