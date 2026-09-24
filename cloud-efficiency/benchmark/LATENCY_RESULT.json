@@ -1,0 +1,47 @@
+{
+  "benchmark": "BotConnector cloud-efficiency latency synthetic-v1",
+  "github_actions_run": 36069367868,
+  "result": "PASS",
+  "environment": "GitHub-hosted ubuntu-latest",
+  "mock_provider": {
+    "base_latency_ms": 300,
+    "jitter_ms": 0
+  },
+  "direct_mock_provider": {
+    "p50_ms": 301.604,
+    "p95_ms": 301.883
+  },
+  "bifrost_same_provider": {
+    "p50_ms": 302.641,
+    "p95_ms": 302.955
+  },
+  "bifrost_gateway_delta": {
+    "p50_ms": 1.037,
+    "p95_ms": 1.072
+  },
+  "exact_cache_cpu_lookup": {
+    "p50_ms": 0.001,
+    "p95_ms": 0.001,
+    "note": "CPU-only; excludes Redis/network/serialization"
+  },
+  "semantic_cache_local_tei": {
+    "p50_ms": 8.604,
+    "p95_ms": 11.516,
+    "synthetic_speedup_vs_300ms_provider_p50_x": 35.05
+  },
+  "llmlingua2_long_context_cpu": {
+    "p50_ms": 1746.733,
+    "p95_ms": 1752.259
+  },
+  "policy": {
+    "semantic_threshold": 0.92,
+    "semantic_lookup_p95_budget_ms": 25,
+    "bifrost_p95_overhead_acceptance_ms": 5,
+    "interactive_llmlingua": false,
+    "long_context_llmlingua": "conditional",
+    "openrouter_interactive_sort": "latency",
+    "openrouter_long_generation_sort": "throughput",
+    "openrouter_stable_session_id": true,
+    "selected_model_immutable": true
+  }
+}
