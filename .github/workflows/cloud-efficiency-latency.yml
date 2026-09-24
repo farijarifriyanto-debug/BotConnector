@@ -60,7 +60,9 @@ jobs:
         run: |
           git clone --depth 1 https://github.com/maximhq/bifrost-benchmarking.git /tmp/bifrost-benchmarking
           docker build -t botconnector-bifrost-mocker /tmp/bifrost-benchmarking/mocker
+          docker network create botconnector-latency-net
           docker run -d --name bifrost-mocker \
+            --network botconnector-latency-net \
             -p 127.0.0.1:18080:8000 \
             botconnector-bifrost-mocker \
             ./mocker -host 0.0.0.0 -port 8000 -latency 300 -jitter 40
@@ -75,7 +77,7 @@ jobs:
         run: |
           docker pull maximhq/bifrost:latest
           docker run -d --name bifrost-latency \
-            --add-host host.docker.internal:host-gateway \
+            --network botconnector-latency-net \
             -p 127.0.0.1:18081:8080 \
             maximhq/bifrost:latest
           for i in {1..90}; do
@@ -89,7 +91,7 @@ jobs:
             -d '{
               "provider": "botconnector-mock",
               "network_config": {
-                "base_url": "http://host.docker.internal:18080",
+                "base_url": "http://bifrost-mocker:8000",
                 "allow_private_network": true,
                 "default_request_timeout_in_seconds": 30
               },
