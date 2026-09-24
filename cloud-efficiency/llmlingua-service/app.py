@@ -68,12 +68,19 @@ def compress(request: CompressRequest):
             if isinstance(candidate, str) and candidate:
                 text = candidate
                 did_compress = text != segment.text
+            origin_tokens = result.get("origin_tokens")
+            compressed_tokens = result.get("compressed_tokens")
+        else:
+            origin_tokens = None
+            compressed_tokens = None
         output.append({
             "kind": segment.kind,
             "text": text,
             "compressed": did_compress,
             "original_chars": len(segment.text),
             "output_chars": len(text),
+            "origin_tokens": origin_tokens,
+            "compressed_tokens": compressed_tokens,
         })
 
     return {
