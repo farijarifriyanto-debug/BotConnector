@@ -9,21 +9,21 @@ services:
       retries: 10
 
   embeddings:
-    image: ghcr.io/huggingface/text-embeddings-inference:cpu-1.9
+    image: ghcr.io/huggingface/text-embeddings-inference:cpu-1.9.4
     command:
       - --model-id
       - intfloat/multilingual-e5-small
       - --port
       - "80"
       - --tokenization-workers
-      - "2"
+      - "1"
       - --max-concurrent-requests
-      - "64"
+      - "16"
       - --max-batch-tokens
-      - "4096"
+      - "2048"
       - --max-client-batch-size
-      - "8"
-    mem_limit: 3g
+      - "4"
+    mem_limit: 1536m
     healthcheck:
       test: ["CMD", "curl", "-fsS", "http://127.0.0.1:80/health"]
       interval: 5s
