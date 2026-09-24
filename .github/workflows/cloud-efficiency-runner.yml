@@ -25,7 +25,7 @@ jobs:
           python -m json.tool cloud-efficiency/bifrost/semantic-cache.config.example.json >/dev/null
           python -m compileall -q cloud-efficiency/llmlingua-service
           python -m pip install --disable-pip-version-check pytest
-          pytest -q cloud-efficiency/test_contract.py
+          pytest -q cloud-efficiency/test_contract.py cloud-efficiency/test_accounting_contract.py
           docker compose -f cloud-efficiency/docker-compose.yml config --quiet
 
   bifrost:
