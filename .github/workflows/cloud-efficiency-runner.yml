@@ -145,8 +145,12 @@ jobs:
           docker run -d --name tei-bench \
             -p 127.0.0.1:18092:80 \
             -v "${RUNNER_TEMP}/tei-data:/data" \
-            ghcr.io/huggingface/text-embeddings-inference:cpu-1.9 \
-            --model-id intfloat/multilingual-e5-small --port 80
+            ghcr.io/huggingface/text-embeddings-inference:cpu-1.9.4 \
+            --model-id intfloat/multilingual-e5-small --port 80 \
+            --tokenization-workers 1 \
+            --max-concurrent-requests 16 \
+            --max-batch-tokens 2048 \
+            --max-client-batch-size 4
           for i in {1..180}; do
             if curl -fsS http://127.0.0.1:18092/health >/dev/null; then exit 0; fi
             sleep 2
