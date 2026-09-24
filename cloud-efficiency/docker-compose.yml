@@ -15,6 +15,20 @@ services:
       - intfloat/multilingual-e5-small
       - --port
       - "80"
+      - --tokenization-workers
+      - "2"
+      - --max-concurrent-requests
+      - "64"
+      - --max-batch-tokens
+      - "4096"
+      - --max-client-batch-size
+      - "8"
+    mem_limit: 3g
+    healthcheck:
+      test: ["CMD", "curl", "-fsS", "http://127.0.0.1:80/health"]
+      interval: 5s
+      timeout: 3s
+      retries: 60
     volumes:
       - tei_data:/data
 
@@ -35,9 +49,10 @@ services:
       redis-stack:
         condition: service_healthy
       embeddings:
-        condition: service_started
+        condition: service_healthy
 
   context-optimizer:
+    profiles: ["long-context"]
     build:
       context: ./llmlingua-service
     environment:
