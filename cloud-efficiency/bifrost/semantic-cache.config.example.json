@@ -1,0 +1,48 @@
+{
+  "$schema": "https://www.getbifrost.ai/schema",
+  "client": {
+    "drop_excess_requests": false,
+    "enable_logging": true,
+    "disable_content_logging": true
+  },
+  "config_store": {
+    "enabled": true,
+    "type": "sqlite",
+    "config": {
+      "path": "/app/data/config.db"
+    }
+  },
+  "vector_store": {
+    "enabled": true,
+    "type": "redis",
+    "config": {
+      "addr": "redis-stack:6379",
+      "db": 0,
+      "username": "",
+      "password": "",
+      "pool_size": 50,
+      "min_idle_conns": 2,
+      "max_idle_conns": 10
+    }
+  },
+  "plugins": [
+    {
+      "enabled": true,
+      "name": "semantic_cache",
+      "config": {
+        "cache_by_model": true,
+        "cache_by_provider": true,
+        "cleanup_on_shutdown": false,
+        "conversation_history_threshold": 3,
+        "dimension": 384,
+        "embedding_model": "__BOTCONNECTOR_EMBEDDING_MODEL__",
+        "exclude_system_prompt": false,
+        "keys": [],
+        "provider": "__BOTCONNECTOR_EMBEDDING_PROVIDER__",
+        "threshold": 0.92,
+        "ttl": 3600,
+        "vector_store_namespace": "botconnector-cloud-v1"
+      }
+    }
+  ]
+}
