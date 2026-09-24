@@ -7,7 +7,12 @@ ENV PYTHONDONTWRITEBYTECODE=1 \
 
 WORKDIR /app
 COPY requirements.txt .
+
+# LLMLingua requires PyTorch. Install the CPU wheel first so the build does not
+# pull unused CUDA runtime packages on GitHub-hosted runners or CPU production.
+RUN pip install --no-cache-dir --index-url https://download.pytorch.org/whl/cpu torch
 RUN pip install --no-cache-dir -r requirements.txt
+
 COPY app.py .
 
 EXPOSE 8091
