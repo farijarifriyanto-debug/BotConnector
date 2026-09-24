@@ -21,3 +21,35 @@ Semantic cache must also be tenant/policy scoped at integration time. Do not ser
 Do not compress the active system/security policy, latest user instruction, tool arguments, IDs, amounts, dates, or exact structured values. Initial compression targets are old history, long RAG passages, and verbose read-only tool output.
 
 This repository builds the reusable components in GitHub Actions. It contains no provider keys and does not deploy to production.
+
+
+## VPS canary status
+
+Isolated production-VPS canary evidence is recorded in `benchmark/VPS_CANARY_RESULT.md`.
+
+Current measured limits:
+
+- Bifrost overhead: <= 5 ms p95
+- exact-cache hit: <= 10 ms p95
+- semantic-cache hit: <= 60 ms p95 and <= 75 ms p99
+- semantic miss added latency: <= 50 ms p95
+- semantic similarity threshold remains 0.92
+- tenant/model/provider/policy partition isolation and provider-call avoidance are mandatory
+
+The Bifrost TEI custom provider uses the root URL `http://embeddings:80`.
+The default compose keeps LLMLingua off the interactive path; start the
+`long-context` profile only for conditional long-context optimization.
+
+## Accounting gate
+
+Semantic response caching must remain behind BotConnector authentication and
+quota reservation. Full trusted Bifrost response-cache hits must be normalized
+to cached input for settlement while output remains charged. Arbitrary external
+providers are not trusted to claim this discount.
+
+See `SEMANTIC_CACHE_ACCOUNTING.md` and
+`semantic-cache-accounting.contract.json`.
+
+Authenticated live-provider cutover remains gated on the canonical production
+gateway source repository plus a session-resolved BFF canary. No fabricated
+user UUID or authentication bypass is allowed.
