@@ -12,6 +12,29 @@
       "path": "/app/data/config.db"
     }
   },
+  "providers": {
+    "botconnector_embedding": {
+      "keys": [
+        {
+          "name": "local-tei",
+          "value": "not-needed",
+          "models": ["text-embeddings-inference"],
+          "weight": 1
+        }
+      ],
+      "network_config": {
+        "base_url": "http://embeddings:80/v1",
+        "default_request_timeout_in_seconds": 30
+      },
+      "custom_provider_config": {
+        "base_provider_type": "openai",
+        "allowed_requests": {
+          "embedding": true,
+          "list_models": false
+        }
+      }
+    }
+  },
   "vector_store": {
     "enabled": true,
     "type": "redis",
@@ -35,10 +58,10 @@
         "cleanup_on_shutdown": false,
         "conversation_history_threshold": 3,
         "dimension": 384,
-        "embedding_model": "__BOTCONNECTOR_EMBEDDING_MODEL__",
+        "embedding_model": "text-embeddings-inference",
         "exclude_system_prompt": false,
         "keys": [],
-        "provider": "__BOTCONNECTOR_EMBEDDING_PROVIDER__",
+        "provider": "botconnector_embedding",
         "threshold": 0.92,
         "ttl": 3600,
         "vector_store_namespace": "botconnector-cloud-v1"
