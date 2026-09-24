@@ -1,0 +1,71 @@
+{
+  "version": 1,
+  "goal": "reduce latency without changing the user-selected cloud model",
+  "routing": {
+    "selected_model_immutable": true,
+    "openrouter": {
+      "interactive": {
+        "provider_sort": "latency"
+      },
+      "long_generation": {
+        "provider_sort": "throughput"
+      },
+      "stable_session_id": true
+    }
+  },
+  "cache": {
+    "exact": {
+      "enabled": true,
+      "cache_safe_only": true
+    },
+    "semantic": {
+      "enabled": true,
+      "cache_safe_only": true,
+      "threshold": 0.92,
+      "p95_lookup_budget_ms": 25,
+      "scope": [
+        "tenant",
+        "model",
+        "provider",
+        "policy_fingerprint"
+      ]
+    },
+    "bypass_for": [
+      "side_effecting_tools",
+      "write_operations",
+      "non_cache_safe_requests"
+    ]
+  },
+  "compression": {
+    "interactive_default": false,
+    "long_context_mode": "conditional",
+    "enable_when": "measured provider prefill savings exceed local compressor p95 plus safety margin",
+    "fail_open_to_original_prompt": true,
+    "protected_segments": [
+      "system_policy",
+      "security_policy",
+      "latest_user_message",
+      "tool_arguments",
+      "identifiers",
+      "amounts",
+      "dates",
+      "exact_structured_values"
+    ]
+  },
+  "canary_acceptance": {
+    "bifrost_p95_overhead_ms_max": 5,
+    "semantic_lookup_p95_ms_max": 25,
+    "track": [
+      "ttft_p50",
+      "ttft_p95",
+      "total_latency_p50",
+      "total_latency_p95",
+      "throughput_tps",
+      "exact_hit_rate",
+      "semantic_hit_rate",
+      "provider_calls_avoided",
+      "input_tokens_saved",
+      "answer_quality"
+    ]
+  }
+}
