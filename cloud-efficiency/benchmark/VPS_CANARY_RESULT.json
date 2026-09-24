@@ -1,0 +1,129 @@
+{
+  "benchmark": "BotConnector cloud-efficiency VPS canary v1",
+  "timestamp": "2026-09-25T06:19:53+07:00",
+  "environment": {
+    "host": "production VPS, isolated loopback canary",
+    "canary_ports": [
+      "127.0.0.1:18280",
+      "127.0.0.1:18281",
+      "127.0.0.1:18292"
+    ],
+    "production_routing_changed": false,
+    "mock_provider_latency_ms": 300,
+    "semantic_threshold": 0.92
+  },
+  "primary_run": {
+    "direct": {
+      "n": 30,
+      "p50_ms": 303.09,
+      "p95_ms": 303.327,
+      "p99_ms": 303.696
+    },
+    "bifrost_bypass": {
+      "n": 30,
+      "p50_ms": 305.904,
+      "p95_ms": 306.516,
+      "p99_ms": 306.622
+    },
+    "bifrost_overhead": {
+      "p50_ms": 2.814,
+      "p95_ms": 3.189
+    },
+    "exact_hit": {
+      "n": 50,
+      "p50_ms": 3.129,
+      "p95_ms": 3.619,
+      "p99_ms": 3.922,
+      "provider_calls_after_prime": 1
+    },
+    "semantic_hit": {
+      "n": 50,
+      "p50_ms": 23.283,
+      "p95_ms": 53.07,
+      "p99_ms": 63.404,
+      "provider_calls_after_prime": 1
+    },
+    "semantic_miss": {
+      "n": 20,
+      "p50_ms": 323.433,
+      "p95_ms": 340.875,
+      "p99_ms": 343.047,
+      "provider_calls": 20
+    },
+    "semantic_miss_added_p95_ms": 37.548,
+    "partition_isolation": {
+      "same_tenant_policy_provider_calls": 1,
+      "after_different_tenant_provider_calls": 2,
+      "after_different_policy_provider_calls": 3,
+      "pass": true
+    }
+  },
+  "profiling_run": {
+    "tei_direct": {
+      "n": 100,
+      "p50_ms": 15.518,
+      "p95_ms": 25.989,
+      "p99_ms": 33.261
+    },
+    "bifrost_embedding_proxy": {
+      "n": 100,
+      "p50_ms": 19.928,
+      "p95_ms": 40.183,
+      "p99_ms": 45.366
+    },
+    "bifrost_embedding_proxy_added_p95_ms": 14.194,
+    "semantic_hit_end_to_end": {
+      "n": 100,
+      "p50_ms": 23.614,
+      "p95_ms": 37.364,
+      "p99_ms": 51.223
+    },
+    "semantic_cache_debug_hit_latency": {
+      "n": 100,
+      "p50_ms": 19.5,
+      "p95_ms": 32.05,
+      "p99_ms": 43.1
+    }
+  },
+  "correctness": {
+    "embedding_route_http_200": true,
+    "embedding_dimension": 384,
+    "semantic_similarity_fixture": 0.99443787336349,
+    "semantic_provider_call_avoidance": true,
+    "exact_provider_call_avoidance": true,
+    "tenant_policy_partition_isolation": true
+  },
+  "vps_resource_snapshot": {
+    "bifrost_memory": "113.8MiB",
+    "tei_memory": "1.173GiB",
+    "redis_stack_memory": "10.51MiB",
+    "mocker_memory": "22.69MiB",
+    "host_available_memory": "8.7GiB",
+    "root_disk_used_percent": 89
+  },
+  "alternative_embedding_probe": {
+    "service": "existing qwen3-embedding:0.6b",
+    "first_request_ms": 7824.906,
+    "p50_ms": 56.811,
+    "p95_ms": 82.176,
+    "selected_for_fast_path": false
+  },
+  "config_fixes_proven": {
+    "tei_bifrost_base_url": "http://embeddings:80",
+    "allow_private_network_for_isolated_docker_provider": true,
+    "tei_memory_limit_gib": 3,
+    "tei_tokenization_workers": 2
+  },
+  "vps_canary_policy": {
+    "semantic_p95_budget_ms": 60,
+    "semantic_p99_budget_ms": 75,
+    "semantic_miss_added_p95_budget_ms": 50,
+    "bifrost_p95_overhead_budget_ms": 5,
+    "exact_p95_budget_ms": 10,
+    "semantic_threshold": 0.92
+  },
+  "live_provider_status": {
+    "executed": false,
+    "reason": "Production web-cloud routes require the existing BFF secret plus a canonical session-resolved user UUID and request UUID. The canary did not fabricate or bypass that identity envelope."
+  }
+}
