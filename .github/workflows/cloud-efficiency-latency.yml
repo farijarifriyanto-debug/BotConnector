@@ -88,12 +88,6 @@ jobs:
             -H 'content-type: application/json' \
             -d '{
               "provider": "botconnector-mock",
-              "keys": [{
-                "name": "mocker-key",
-                "value": "dummy",
-                "models": ["*"],
-                "weight": 1.0
-              }],
               "network_config": {
                 "base_url": "http://host.docker.internal:18080",
                 "allow_private_network": true,
@@ -106,6 +100,16 @@ jobs:
                   "chat_completion_stream": true
                 }
               }
+            }'
+
+          # Bifrost v1.5+ separates provider-key management from provider creation.
+          curl -fsS -X POST http://127.0.0.1:18081/api/providers/botconnector-mock/keys \
+            -H 'content-type: application/json' \
+            -d '{
+              "name": "mocker-key",
+              "value": "dummy",
+              "models": ["*"],
+              "weight": 1.0
             }'
 
           curl -fsS -X POST http://127.0.0.1:18081/v1/chat/completions \
