@@ -200,7 +200,6 @@ def main() -> None:
     gateway_overhead_p95 = bifrost_s["p95_ms"] - direct_s["p95_ms"]
 
     # Conservative synthetic speedup against the same fixed mock provider.
-    exact_speedup = direct_s["p50_ms"] / max(exact_s["p50_ms"], 0.000001)
     semantic_speedup = direct_s["p50_ms"] / max(semantic_s["p50_ms"], 0.000001)
 
     result = {
@@ -208,7 +207,7 @@ def main() -> None:
         "environment": "GitHub-hosted ubuntu-latest",
         "mock_provider": {
             "configured_base_latency_ms": 300,
-            "configured_jitter_ms": 40,
+            "configured_jitter_ms": 0,
         },
         "direct_mock_provider": direct_s,
         "bifrost_to_same_mock_provider": bifrost_s,
@@ -220,8 +219,8 @@ def main() -> None:
         "semantic_cache_local_tei_lookup": semantic_s,
         "llmlingua2_long_context_preprocessing": compressor_s,
         "synthetic_cache_speedup_vs_mock_provider": {
-            "exact_p50_x": round(exact_speedup, 2),
             "semantic_p50_x": round(semantic_speedup, 2),
+            "exact_note": "Exact cache CPU lookup is below millisecond timer resolution here; do not report a multiplicative speedup from this fixture."
         },
         "policy": {
             "small_prompt_compression": "skip",
@@ -253,7 +252,7 @@ def main() -> None:
         f"- Exact-cache CPU lookup p50/p95: **{exact_s['p50_ms']} / {exact_s['p95_ms']} ms**",
         f"- Semantic-cache local TEI lookup p50/p95: **{semantic_s['p50_ms']} / {semantic_s['p95_ms']} ms**",
         f"- LLMLingua-2 long-context preprocess p50/p95: **{compressor_s['p50_ms']} / {compressor_s['p95_ms']} ms**",
-        f"- Exact cache synthetic p50 speedup vs 300ms mock provider: **{exact_speedup:.2f}x**",
+        "- Exact cache CPU lookup is sub-millisecond in this fixture; no multiplicative speedup is reported because Redis/network overhead is excluded.",
         f"- Semantic cache synthetic p50 speedup vs 300ms mock provider: **{semantic_speedup:.2f}x**",
         "",
         "## Interpretation",
