@@ -1,0 +1,125 @@
+name: cloud-efficiency-runner
+
+on:
+  push:
+    branches:
+      - "feat/cloud-efficiency-runner"
+      - "feat/cloud-efficiency-runner/**"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  contract:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - name: Validate source contracts
+        run: |
+          python -m json.tool cloud-efficiency/bifrost/semantic-cache.config.example.json >/dev/null
+          python -m compileall -q cloud-efficiency/llmlingua-service
+          python -m pip install --disable-pip-version-check pytest
+          pytest -q cloud-efficiency/test_contract.py
+          docker compose -f cloud-efficiency/docker-compose.yml config --quiet
+
+  bifrost:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - name: Smoke test official Bifrost
+        run: |
+          docker pull maximhq/bifrost:latest
+          docker run -d --name bifrost-ci -p 127.0.0.1:18081:8080 maximhq/bifrost:latest
+          ok=0
+          for i in {1..60}; do
+            if curl -fsS http://127.0.0.1:18081/health >/dev/null; then ok=1; break; fi
+            sleep 2
+          done
+          if [ "$ok" != "1" ]; then docker logs bifrost-ci; exit 1; fi
+          mkdir -p build
+          docker image inspect maximhq/bifrost:latest --format '{{index .RepoDigests 0}}' > build/bifrost-image.txt
+      - uses: actions/upload-artifact@v4
+        with:
+          name: bifrost-image-identity-${{ github.sha }}
+          path: build/bifrost-image.txt
+          retention-days: 14
+
+  llmlingua:
+    runs-on: ubuntu-latest
+    timeout-minutes: 35
+    steps:
+      - uses: actions/checkout@v4
+      - name: Build context optimizer
+        run: docker build -t botconnector-context-optimizer:${GITHUB_SHA} cloud-efficiency/llmlingua-service
+      - name: Contract smoke test without model download
+        run: |
+          docker run -d --name optimizer-ci \
+            -e BOTCONNECTOR_LLMLINGUA_DISABLED=1 \
+            -p 127.0.0.1:18091:8091 \
+            botconnector-context-optimizer:${GITHUB_SHA}
+          ok=0
+          for i in {1..30}; do
+            if curl -fsS http://127.0.0.1:18091/health >/dev/null; then ok=1; break; fi
+            sleep 2
+          done
+          test "$ok" = "1"
+          curl -fsS -X POST http://127.0.0.1:18091/v1/compress \
+            -H 'content-type: application/json' \
+            -d '{"rate":0.5,"segments":[{"kind":"history","compress":true,"text":"old context"},{"kind":"other","compress":false,"text":"LATEST USER MESSAGE MUST STAY EXACT"}]}' > /tmp/compress.json
+          python - <<'PY'
+          import json
+          data=json.load(open('/tmp/compress.json'))
+          assert data['disabled'] is True
+          assert data['segments'][1]['text'] == 'LATEST USER MESSAGE MUST STAY EXACT'
+          PY
+      - name: Export deployable image
+        run: |
+          mkdir -p build
+          docker save botconnector-context-optimizer:${GITHUB_SHA} | gzip -1 > build/context-optimizer-image.tar.gz
+          sha256sum build/context-optimizer-image.tar.gz > build/SHA256SUMS
+      - uses: actions/upload-artifact@v4
+        with:
+          name: context-optimizer-${{ github.sha }}
+          path: build/
+          retention-days: 7
+
+  lazy-tool:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-go@v5
+        with:
+          go-version: "1.25.x"
+      - name: Build upstream lazy-tool
+        run: |
+          mkdir -p build
+          GOBIN="$PWD/build" go install github.com/rpgeeganage/lazy-tool/cmd/lazy-tool@latest
+          ./build/lazy-tool --help >/dev/null
+          sha256sum build/lazy-tool > build/lazy-tool.sha256
+      - uses: actions/upload-artifact@v4
+        with:
+          name: lazy-tool-linux-amd64-${{ github.sha }}
+          path: |
+            build/lazy-tool
+            build/lazy-tool.sha256
+          retention-days: 14
+
+  bundle:
+    runs-on: ubuntu-latest
+    needs: [contract, bifrost, llmlingua, lazy-tool]
+    steps:
+      - uses: actions/checkout@v4
+      - name: Package config bundle
+        run: |
+          mkdir -p build
+          tar -czf build/cloud-efficiency-config-${GITHUB_SHA}.tar.gz cloud-efficiency
+          sha256sum build/cloud-efficiency-config-${GITHUB_SHA}.tar.gz > build/SHA256SUMS
+      - uses: actions/upload-artifact@v4
+        with:
+          name: cloud-efficiency-config-${{ github.sha }}
+          path: build/
+          retention-days: 14
