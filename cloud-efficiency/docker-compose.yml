@@ -1,0 +1,30 @@
+services:
+  redis-stack:
+    image: redis/redis-stack:7.4.0-v6
+    command: redis-stack-server --protected-mode no
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 5s
+      timeout: 3s
+      retries: 10
+
+  bifrost:
+    image: maximhq/bifrost:latest
+    ports:
+      - "127.0.0.1:18081:8080"
+    environment:
+      APP_HOST: 0.0.0.0
+      APP_PORT: "8080"
+      LOG_LEVEL: info
+      LOG_STYLE: json
+    depends_on:
+      redis-stack:
+        condition: service_healthy
+
+  context-optimizer:
+    build:
+      context: ./llmlingua-service
+    environment:
+      BOTCONNECTOR_LLMLINGUA_MODEL: microsoft/llmlingua-2-bert-base-multilingual-cased-meetingbank
+    ports:
+      - "127.0.0.1:18091:8091"
