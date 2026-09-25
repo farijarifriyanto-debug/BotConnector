@@ -16,14 +16,14 @@ services:
       - --port
       - "80"
       - --tokenization-workers
-      - "1"
+      - "2"
       - --max-concurrent-requests
-      - "16"
+      - "64"
       - --max-batch-tokens
-      - "2048"
+      - "4096"
       - --max-client-batch-size
-      - "4"
-    mem_limit: 1536m
+      - "8"
+    mem_limit: 3g
     healthcheck:
       test: ["CMD", "curl", "-fsS", "http://127.0.0.1:80/health"]
       interval: 5s
