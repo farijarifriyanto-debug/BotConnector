@@ -1,0 +1,33 @@
+name: Provider Routing Registry
+
+on:
+  push:
+    branches:
+      - maintenance/consolidate-provider-registry-20260925
+    paths:
+      - "provider-routing-registry/**"
+      - ".github/workflows/provider-routing-registry.yml"
+  pull_request:
+    paths:
+      - "provider-routing-registry/**"
+      - ".github/workflows/provider-routing-registry.yml"
+
+permissions:
+  contents: read
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: provider-routing-registry
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "24"
+          cache: npm
+          cache-dependency-path: provider-routing-registry/package-lock.json
+      - run: npm ci
+      - run: npm test
+      - run: npm run routes:validate

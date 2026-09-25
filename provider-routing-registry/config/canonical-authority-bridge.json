@@ -1,0 +1,813 @@
+{
+  "schema": "botconnector.canonical-authority-bridge.v1",
+  "authorityRegistry": {
+    "owner": "Product Model Registry",
+    "module": "app.product_models (backend-product-model-registry / backend-billing, identical copies)",
+    "identityForm": "source:source_id (e.g. hf:org/repo)",
+    "catalogEndpoint": "GET /app/models/catalog",
+    "pythonImport": "app.product_models:registry",
+    "note": "This bridge stores external references only. It never duplicates model identity, family, capability, status, or target data. The Product Model Registry remains the single canonical authority."
+  },
+  "snapshot": {
+    "file": "config/product-model-registry-snapshot.json",
+    "generatedAt": "2026-09-18",
+    "generator": "python3: ModelRecordResponse.from_record(r).model_dump() over app.product_models.registry.list_all()",
+    "coverage": "SEED_ONLY",
+    "note": "The authority catalog currently contains only 3 seed records. Membership checks are enforced only for routes bridged to these records; all other routes stay PENDING_AUTHORITY_ENRICHMENT and must not silently pass or fail."
+  },
+  "providerModelIdNormalization": {
+    "-TEE": "chutes serves TEE variants of an upstream HF model; the -TEE suffix is a provider-side deployment suffix and is stripped before comparison against the canonical source_id.",
+    "accounts/fireworks/models/*": "fireworks wraps the upstream HF model under a provider-internal prefix; the last path segment is used for comparison.",
+    "lowercaseVsOriginalCasing": "Some providers lowercase the org segment (e.g. qwen/qwen3-coder-30b-a3b-instruct); comparison is case-insensitive on the org segment and exact on the file segment only when no exact-case entry exists; mismatches are emitted as REVIEW evidence, never auto-failed.",
+    "turboAndInstructSuffixes": "Provider-specific serving suffixes (e.g. -Turbo) belong to the provider deployment, not the canonical identity; they are preserved in providerModelId and excluded from the canonical comparison which the bridge records explicitly."
+  },
+  "routes": [
+    {
+      "routeRef": "deepseek-v4.1-flash:deepinfra",
+      "canonicalModelId": "deepseek-v4.1-flash",
+      "providerModelId": "deepseek-ai/DeepSeek-V4.1-Flash",
+      "authoritySource": "hf",
+      "hfSourceId": "deepseek-ai/DeepSeek-V4.1-Flash",
+      "membership": "PENDING_AUTHORITY_ENRICHMENT"
+    },
+    {
+      "routeRef": "deepseek-v4-flash-0731:deepinfra",
+      "canonicalModelId": "deepseek-v4-flash-0731",
+      "providerModelId": "deepseek-ai/DeepSeek-V4-Flash-0731",
+      "authoritySource": "hf",
+      "hfSourceId": "deepseek-ai/DeepSeek-V4-Flash-0731",
+      "membership": "PENDING_AUTHORITY_ENRICHMENT"
+    },
+    {
+      "routeRef": "deepseek-v4-flash:deepinfra",
+      "canonicalModelId": "deepseek-v4-flash",
+      "providerModelId": "deepseek-ai/DeepSeek-V4-Flash",
+      "authoritySource": "hf",
+      "hfSourceId": "deepseek-ai/DeepSeek-V4-Flash",
+      "membership": "PENDING_AUTHORITY_ENRICHMENT"
+    },
+    {
+      "routeRef": "deepseek-v4-pro:deepinfra",
+      "canonicalModelId": "deepseek-v4-pro",
+      "providerModelId": "deepseek-ai/DeepSeek-V4-Pro",
+      "authoritySource": "hf",
+      "hfSourceId": "deepseek-ai/DeepSeek-V4-Pro",
+      "membership": "PENDING_AUTHORITY_ENRICHMENT"
+    },
+    {
+      "routeRef": "deepseek-v3.2:novita",
+      "canonicalModelId": "deepseek-v3.2",
+      "providerModelId": "deepseek/deepseek-v3.2",
+      "authoritySource": "hf",
+      "hfSourceId": "deepseek/deepseek-v3.2",
+      "membership": "PENDING_AUTHORITY_ENRICHMENT"
+    },
+    {
+      "routeRef": "deepseek-v3.1:deepinfra",
+      "canonicalModelId": "deepseek-v3.1",
+      "providerModelId": "deepseek-ai/DeepSeek-V3.1",
+      "authoritySource": "hf",
+      "hfSourceId": "deepseek-ai/DeepSeek-V3.1",
+      "membership": "PENDING_AUTHORITY_ENRICHMENT"
+    },
+    {
+      "routeRef": "deepseek-v3-0324:deepinfra",
+      "canonicalModelId": "deepseek-v3-0324",
+      "providerModelId": "deepseek-ai/DeepSeek-V3-0324",
+      "authoritySource": "hf",
+      "hfSourceId": "deepseek-ai/DeepSeek-V3-0324",
+      "membership": "PENDING_AUTHORITY_ENRICHMENT"
+    },
+    {
+      "routeRef": "deepseek-v3:deepinfra",
+      "canonicalModelId": "deepseek-v3",
+      "providerModelId": "deepseek-ai/DeepSeek-V3",
+      "authoritySource": "hf",
+      "hfSourceId": "deepseek-ai/DeepSeek-V3",
+      "membership": "PENDING_AUTHORITY_ENRICHMENT"
+    },
+    {
+      "routeRef": "deepseek-r1-0528:deepinfra",
+      "canonicalModelId": "deepseek-r1-0528",
+      "providerModelId": "deepseek-ai/DeepSeek-R1-0528",
+      "authoritySource": "hf",
+      "hfSourceId": "deepseek-ai/DeepSeek-R1-0528",
+      "membership": "PENDING_AUTHORITY_ENRICHMENT"
+    },
+    {
+      "routeRef": "deepseek-ocr-2:novita",
+      "canonicalModelId": "deepseek-ocr-2",
+      "providerModelId": "deepseek/deepseek-ocr-2",
+      "authoritySource": "hf",
+      "hfSourceId": "deepseek/deepseek-ocr-2",
+      "membership": "PENDING_AUTHORITY_ENRICHMENT"
+    },
+    {
+      "routeRef": "kimi-k3:inference_net",
+      "canonicalModelId": "kimi-k3",
+      "providerModelId": "moonshotai/kimi-k3",
+      "authoritySource": "vendor_catalog",
+      "membership": "PENDING_AUTHORITY_ENRICHMENT"
+    },
+    {
+      "routeRef": "kimi-k2.7-code:deepinfra",
+      "canonicalModelId": "kimi-k2.7-code",
+      "providerModelId": "moonshotai/Kimi-K2.7-Code",
+      "authoritySource": "hf",
+      "hfSourceId": "moonshotai/Kimi-K2.7-Code",
+      "membership": "PENDING_AUTHORITY_ENRICHMENT"
+    },
+    {
+      "routeRef": "kimi-k2.6:chutes",
+      "canonicalModelId": "kimi-k2.6",
+      "providerModelId": "moonshotai/Kimi-K2.6-TEE",
+      "authoritySource": "hf",
+      "hfSourceId": "moonshotai/Kimi-K2.6",
+      "membership": "PENDING_AUTHORITY_ENRICHMENT"
+    },
+    {
+      "routeRef": "kimi-k2.5:novita",
+      "canonicalModelId": "kimi-k2.5",
+      "providerModelId": "moonshotai/kimi-k2.5",
+      "authoritySource": "hf",
+      "hfSourceId": "moonshotai/kimi-k2.5",
+      "membership": "PENDING_AUTHORITY_ENRICHMENT"
+    },
+    {
+      "routeRef": "kimi-k2-instruct:novita",
+      "canonicalModelId": "kimi-k2-instruct",
+      "providerModelId": "moonshotai/kimi-k2-instruct",
+      "authoritySource": "hf",
+      "hfSourceId": "moonshotai/kimi-k2-instruct",
+      "membership": "PENDING_AUTHORITY_ENRICHMENT"
+    },
+    {
+      "routeRef": "qwen3.8-2.4t-a95b:deepinfra",
+      "canonicalModelId": "qwen3.8-2.4t-a95b",
+      "providerModelId": "Qwen/Qwen3.8-2.4T-A95B",
+      "authoritySource": "hf",
+      "hfSourceId": "Qwen/Qwen3.8-2.4T-A95B",
+      "membership": "PENDING_AUTHORITY_ENRICHMENT"
+    },
+    {
+      "routeRef": "qwen3.8-max:alibaba_global",
+      "canonicalModelId": "qwen3.8-max",
+      "providerModelId": "qwen3.8-max",
+      "authoritySource": "vendor_catalog",
+      "membership": "PENDING_AUTHORITY_ENRICHMENT"
+    },
+    {
+      "routeRef": "qwen3.8-flash:alibaba_global",
+      "canonicalModelId": "qwen3.8-flash",
+      "providerModelId": "qwen3.8-flash",
+      "authoritySource": "vendor_catalog",
+      "membership": "PENDING_AUTHORITY_ENRICHMENT"
+    },
+    {
+      "routeRef": "qwen3.8-27b:chutes",
+      "canonicalModelId": "qwen3.8-27b",
+      "providerModelId": "Qwen/Qwen3.8-27B-TEE",
+      "authoritySource": "hf",
+      "hfSourceId": "Qwen/Qwen3.8-27B",
+      "membership": "PENDING_AUTHORITY_ENRICHMENT"
+    },
+    {
+      "routeRef": "qwen3.7-max:alibaba_global",
+      "canonicalModelId": "qwen3.7-max",
+      "providerModelId": "qwen3.7-max",
+      "authoritySource": "vendor_catalog",
+      "membership": "PENDING_AUTHORITY_ENRICHMENT"
+    },
+    {
+      "routeRef": "qwen3.7-plus:together",
+      "canonicalModelId": "qwen3.7-plus",
+      "providerModelId": "Qwen/Qwen3.7-Plus",
+      "authoritySource": "hf",
+      "hfSourceId": "Qwen/Qwen3.7-Plus",
+      "membership": "PENDING_AUTHORITY_ENRICHMENT"
+    },
+    {
+      "routeRef": "qwen3.6-35b-a3b:deepinfra",
+      "canonicalModelId": "qwen3.6-35b-a3b",
+      "providerModelId": "Qwen/Qwen3.6-35B-A3B",
+      "authoritySource": "hf",
+      "hfSourceId": "Qwen/Qwen3.6-35B-A3B",
+      "membership": "PENDING_AUTHORITY_ENRICHMENT"
+    },
+    {
+      "routeRef": "qwen3.6-27b:chutes",
+      "canonicalModelId": "qwen3.6-27b",
+      "providerModelId": "Qwen/Qwen3.6-27B-TEE",
+      "authoritySource": "hf",
+      "hfSourceId": "Qwen/Qwen3.6-27B",
+      "membership": "PENDING_AUTHORITY_ENRICHMENT"
+    },
+    {
+      "routeRef": "qwen3.5-397b-a17b:alibaba_global",
+      "canonicalModelId": "qwen3.5-397b-a17b",
+      "providerModelId": "qwen3.5-397b-a17b",
+      "authoritySource": "vendor_catalog",
+      "membership": "PENDING_AUTHORITY_ENRICHMENT"
+    },
+    {
+      "routeRef": "qwen3.5-122b-a10b:alibaba_global",
+      "canonicalModelId": "qwen3.5-122b-a10b",
+      "providerModelId": "qwen3.5-122b-a10b",
+      "authoritySource": "vendor_catalog",
+      "membership": "PENDING_AUTHORITY_ENRICHMENT"
+    },
+    {
+      "routeRef": "qwen3.5-35b-a3b:alibaba_global",
+      "canonicalModelId": "qwen3.5-35b-a3b",
+      "providerModelId": "qwen3.5-35b-a3b",
+      "authoritySource": "vendor_catalog",
+      "membership": "PENDING_AUTHORITY_ENRICHMENT"
+    },
+    {
+      "routeRef": "qwen3.5-27b:alibaba_global",
+      "canonicalModelId": "qwen3.5-27b",
+      "providerModelId": "qwen3.5-27b",
+      "authoritySource": "vendor_catalog",
+      "membership": "PENDING_AUTHORITY_ENRICHMENT"
+    },
+    {
+      "routeRef": "qwen3.5-9b:deepinfra",
+      "canonicalModelId": "qwen3.5-9b",
+      "providerModelId": "Qwen/Qwen3.5-9B",
+      "authoritySource": "hf",
+      "hfSourceId": "Qwen/Qwen3.5-9B",
+      "membership": "PENDING_AUTHORITY_ENRICHMENT"
+    },
+    {
+      "routeRef": "qwen3.5-plus:alibaba_global",
+      "canonicalModelId": "qwen3.5-plus",
+      "providerModelId": "qwen3.5-plus",
+      "authoritySource": "vendor_catalog",
+      "membership": "PENDING_AUTHORITY_ENRICHMENT"
+    },
+    {
+      "routeRef": "qwen3.5-flash:alibaba_global",
+      "canonicalModelId": "qwen3.5-flash",
+      "providerModelId": "qwen3.5-flash",
+      "authoritySource": "vendor_catalog",
+      "membership": "PENDING_AUTHORITY_ENRICHMENT"
+    },
+    {
+      "routeRef": "qwen3-max-thinking:inference_net",
+      "canonicalModelId": "qwen3-max-thinking",
+      "providerModelId": "qwen/qwen3-max-thinking",
+      "authoritySource": "vendor_catalog",
+      "membership": "PENDING_AUTHORITY_ENRICHMENT"
+    },
+    {
+      "routeRef": "qwen3-max:alibaba_global",
+      "canonicalModelId": "qwen3-max",
+      "providerModelId": "qwen3-max",
+      "authoritySource": "vendor_catalog",
+      "membership": "PENDING_AUTHORITY_ENRICHMENT"
+    },
+    {
+      "routeRef": "qwen3-next-80b-a3b:deepinfra",
+      "canonicalModelId": "qwen3-next-80b-a3b",
+      "providerModelId": "Qwen/Qwen3-Next-80B-A3B-Instruct",
+      "authoritySource": "hf",
+      "hfSourceId": "Qwen/Qwen3-Next-80B-A3B-Instruct",
+      "membership": "PENDING_AUTHORITY_ENRICHMENT"
+    },
+    {
+      "routeRef": "qwen3-coder-480b-a35b:deepinfra",
+      "canonicalModelId": "qwen3-coder-480b-a35b",
+      "providerModelId": "Qwen/Qwen3-Coder-480B-A35B-Instruct",
+      "authoritySource": "hf",
+      "hfSourceId": "Qwen/Qwen3-Coder-480B-A35B-Instruct",
+      "membership": "PENDING_AUTHORITY_ENRICHMENT"
+    },
+    {
+      "routeRef": "qwen3-coder-30b-a3b:novita",
+      "canonicalModelId": "qwen3-coder-30b-a3b",
+      "providerModelId": "qwen/qwen3-coder-30b-a3b-instruct",
+      "authoritySource": "hf",
+      "hfSourceId": "qwen/qwen3-coder-30b-a3b-instruct",
+      "membership": "PENDING_AUTHORITY_ENRICHMENT"
+    },
+    {
+      "routeRef": "qwen3-235b-a22b-thinking-2507:fireworks",
+      "canonicalModelId": "qwen3-235b-a22b-thinking-2507",
+      "providerModelId": "accounts/fireworks/models/qwen3-235b-a22b-thinking-2507",
+      "authoritySource": "vendor_catalog",
+      "membership": "PENDING_AUTHORITY_ENRICHMENT"
+    },
+    {
+      "routeRef": "qwen3-235b-a22b-instruct-2507:deepinfra",
+      "canonicalModelId": "qwen3-235b-a22b-instruct-2507",
+      "providerModelId": "Qwen/Qwen3-235B-A22B-Instruct-2507",
+      "authoritySource": "hf",
+      "hfSourceId": "Qwen/Qwen3-235B-A22B-Instruct-2507",
+      "membership": "PENDING_AUTHORITY_ENRICHMENT"
+    },
+    {
+      "routeRef": "qwen3-vl-235b-a22b:deepinfra",
+      "canonicalModelId": "qwen3-vl-235b-a22b",
+      "providerModelId": "Qwen/Qwen3-VL-235B-A22B-Instruct",
+      "authoritySource": "hf",
+      "hfSourceId": "Qwen/Qwen3-VL-235B-A22B-Instruct",
+      "membership": "PENDING_AUTHORITY_ENRICHMENT"
+    },
+    {
+      "routeRef": "qwen3-vl-30b-a3b:deepinfra",
+      "canonicalModelId": "qwen3-vl-30b-a3b",
+      "providerModelId": "Qwen/Qwen3-VL-30B-A3B-Instruct",
+      "authoritySource": "hf",
+      "hfSourceId": "Qwen/Qwen3-VL-30B-A3B-Instruct",
+      "membership": "PENDING_AUTHORITY_ENRICHMENT"
+    },
+    {
+      "routeRef": "qwen3-32b:deepinfra",
+      "canonicalModelId": "qwen3-32b",
+      "providerModelId": "Qwen/Qwen3-32B",
+      "authoritySource": "hf",
+      "hfSourceId": "Qwen/Qwen3-32B",
+      "membership": "PENDING_AUTHORITY_ENRICHMENT"
+    },
+    {
+      "routeRef": "qwen3-30b-a3b:deepinfra",
+      "canonicalModelId": "qwen3-30b-a3b",
+      "providerModelId": "Qwen/Qwen3-30B-A3B",
+      "authoritySource": "hf",
+      "hfSourceId": "Qwen/Qwen3-30B-A3B",
+      "membership": "PENDING_AUTHORITY_ENRICHMENT"
+    },
+    {
+      "routeRef": "qwen3-14b:deepinfra",
+      "canonicalModelId": "qwen3-14b",
+      "providerModelId": "Qwen/Qwen3-14B",
+      "authoritySource": "hf",
+      "hfSourceId": "Qwen/Qwen3-14B",
+      "membership": "PENDING_AUTHORITY_ENRICHMENT"
+    },
+    {
+      "routeRef": "qwen2.5-72b:deepinfra",
+      "canonicalModelId": "qwen2.5-72b",
+      "providerModelId": "Qwen/Qwen2.5-72B-Instruct",
+      "authoritySource": "hf",
+      "hfSourceId": "Qwen/Qwen2.5-72B-Instruct",
+      "membership": "PENDING_AUTHORITY_ENRICHMENT",
+      "relatedAuthorityRecords": [
+        "hf:Qwen/Qwen2.5-7B-Instruct"
+      ],
+      "relationNote": "Distinct canonical model: 72B vs 7B seed. Same family only; not treated as membership evidence."
+    },
+    {
+      "routeRef": "glm-5.3:deepinfra",
+      "canonicalModelId": "glm-5.3",
+      "providerModelId": "zai-org/GLM-5.3",
+      "authoritySource": "hf",
+      "hfSourceId": "zai-org/GLM-5.3",
+      "membership": "PENDING_AUTHORITY_ENRICHMENT"
+    },
+    {
+      "routeRef": "glm-5.3-flash:deepinfra",
+      "canonicalModelId": "glm-5.3-flash",
+      "providerModelId": "zai-org/GLM-5.3-Flash",
+      "authoritySource": "hf",
+      "hfSourceId": "zai-org/GLM-5.3-Flash",
+      "membership": "PENDING_AUTHORITY_ENRICHMENT"
+    },
+    {
+      "routeRef": "glm-5.2:deepinfra",
+      "canonicalModelId": "glm-5.2",
+      "providerModelId": "zai-org/GLM-5.2",
+      "authoritySource": "hf",
+      "hfSourceId": "zai-org/GLM-5.2",
+      "membership": "PENDING_AUTHORITY_ENRICHMENT"
+    },
+    {
+      "routeRef": "glm-5.1:chutes",
+      "canonicalModelId": "glm-5.1",
+      "providerModelId": "zai-org/GLM-5.1-TEE",
+      "authoritySource": "hf",
+      "hfSourceId": "zai-org/GLM-5.1",
+      "membership": "PENDING_AUTHORITY_ENRICHMENT"
+    },
+    {
+      "routeRef": "glm-5:inference_net",
+      "canonicalModelId": "glm-5",
+      "providerModelId": "z-ai/glm-5",
+      "authoritySource": "vendor_catalog",
+      "membership": "PENDING_AUTHORITY_ENRICHMENT"
+    },
+    {
+      "routeRef": "glm-4.7-flash-nvfp4:chutes",
+      "canonicalModelId": "glm-4.7-flash-nvfp4",
+      "providerModelId": "zai-org/GLM-4.7-Flash-NVFP4-TEE",
+      "authoritySource": "hf",
+      "hfSourceId": "zai-org/GLM-4.7-Flash-NVFP4",
+      "membership": "PENDING_AUTHORITY_ENRICHMENT"
+    },
+    {
+      "routeRef": "glm-4.7-bf16:novita",
+      "canonicalModelId": "glm-4.7-bf16",
+      "providerModelId": "zai-org/glm-4.7",
+      "authoritySource": "hf",
+      "hfSourceId": "zai-org/glm-4.7",
+      "membership": "PENDING_AUTHORITY_ENRICHMENT"
+    },
+    {
+      "routeRef": "glm-4.5-air:novita",
+      "canonicalModelId": "glm-4.5-air",
+      "providerModelId": "zai-org/glm-4.5-air",
+      "authoritySource": "hf",
+      "hfSourceId": "zai-org/glm-4.5-air",
+      "membership": "PENDING_AUTHORITY_ENRICHMENT"
+    },
+    {
+      "routeRef": "gemma-4-e4b:deepinfra",
+      "canonicalModelId": "gemma-4-e4b",
+      "providerModelId": "google/gemma-4-e4b-it",
+      "authoritySource": "hf",
+      "hfSourceId": "google/gemma-4-e4b-it",
+      "membership": "PENDING_AUTHORITY_ENRICHMENT"
+    },
+    {
+      "routeRef": "gemma-4-31b-ultra:deepinfra",
+      "canonicalModelId": "gemma-4-31b-ultra",
+      "providerModelId": "google/gemma-4-31b-it-ultra",
+      "authoritySource": "hf",
+      "hfSourceId": "google/gemma-4-31b-it-ultra",
+      "membership": "PENDING_AUTHORITY_ENRICHMENT"
+    },
+    {
+      "routeRef": "gemma-4-31b-turbo:deepinfra",
+      "canonicalModelId": "gemma-4-31b-turbo",
+      "providerModelId": "google/gemma-4-31B-it-turbo",
+      "authoritySource": "hf",
+      "hfSourceId": "google/gemma-4-31B-it-turbo",
+      "membership": "PENDING_AUTHORITY_ENRICHMENT"
+    },
+    {
+      "routeRef": "gemma-4-31b:deepinfra",
+      "canonicalModelId": "gemma-4-31b",
+      "providerModelId": "google/gemma-4-31b-it",
+      "authoritySource": "hf",
+      "hfSourceId": "google/gemma-4-31b-it",
+      "membership": "PENDING_AUTHORITY_ENRICHMENT"
+    },
+    {
+      "routeRef": "gemma-4-26b-a4b:deepinfra",
+      "canonicalModelId": "gemma-4-26b-a4b",
+      "providerModelId": "google/gemma-4-26B-A4B-it",
+      "authoritySource": "hf",
+      "hfSourceId": "google/gemma-4-26B-A4B-it",
+      "membership": "PENDING_AUTHORITY_ENRICHMENT"
+    },
+    {
+      "routeRef": "gemma-3-27b:deepinfra",
+      "canonicalModelId": "gemma-3-27b",
+      "providerModelId": "google/gemma-3-27b-it",
+      "authoritySource": "hf",
+      "hfSourceId": "google/gemma-3-27b-it",
+      "membership": "PENDING_AUTHORITY_ENRICHMENT"
+    },
+    {
+      "routeRef": "gemma-3-12b:novita",
+      "canonicalModelId": "gemma-3-12b",
+      "providerModelId": "google/gemma-3-12b-it",
+      "authoritySource": "hf",
+      "hfSourceId": "google/gemma-3-12b-it",
+      "membership": "PENDING_AUTHORITY_ENRICHMENT"
+    },
+    {
+      "routeRef": "gemma-3-4b:deepinfra",
+      "canonicalModelId": "gemma-3-4b",
+      "providerModelId": "google/gemma-3-4b-it",
+      "authoritySource": "hf",
+      "hfSourceId": "google/gemma-3-4b-it",
+      "membership": "PENDING_AUTHORITY_ENRICHMENT"
+    },
+    {
+      "routeRef": "llama-4-scout:deepinfra",
+      "canonicalModelId": "llama-4-scout",
+      "providerModelId": "meta-llama/Llama-4-Scout",
+      "authoritySource": "hf",
+      "hfSourceId": "meta-llama/Llama-4-Scout",
+      "membership": "PENDING_AUTHORITY_ENRICHMENT"
+    },
+    {
+      "routeRef": "llama-4-maverick:deepinfra",
+      "canonicalModelId": "llama-4-maverick",
+      "providerModelId": "meta-llama/Llama-4-Maverick",
+      "authoritySource": "hf",
+      "hfSourceId": "meta-llama/Llama-4-Maverick",
+      "membership": "PENDING_AUTHORITY_ENRICHMENT"
+    },
+    {
+      "routeRef": "llama-guard-4-12b:deepinfra",
+      "canonicalModelId": "llama-guard-4-12b",
+      "providerModelId": "meta-llama/Llama-Guard-4-12B",
+      "authoritySource": "hf",
+      "hfSourceId": "meta-llama/Llama-Guard-4-12B",
+      "membership": "PENDING_AUTHORITY_ENRICHMENT"
+    },
+    {
+      "routeRef": "llama-3.3-70b-turbo:deepinfra",
+      "canonicalModelId": "llama-3.3-70b-turbo",
+      "providerModelId": "meta-llama/Llama-3.3-70B-Instruct-Turbo",
+      "authoritySource": "hf",
+      "hfSourceId": "meta-llama/Llama-3.3-70B-Instruct-Turbo",
+      "membership": "PENDING_AUTHORITY_ENRICHMENT"
+    },
+    {
+      "routeRef": "llama-3.1-70b-turbo:deepinfra",
+      "canonicalModelId": "llama-3.1-70b-turbo",
+      "providerModelId": "meta-llama/Meta-Llama-3.1-70B-Instruct-Turbo",
+      "authoritySource": "hf",
+      "hfSourceId": "meta-llama/Meta-Llama-3.1-70B-Instruct-Turbo",
+      "membership": "PENDING_AUTHORITY_ENRICHMENT"
+    },
+    {
+      "routeRef": "llama-3.1-8b-turbo:deepinfra",
+      "canonicalModelId": "llama-3.1-8b-turbo",
+      "providerModelId": "meta-llama/Meta-Llama-3.1-8B-Instruct-Turbo",
+      "authoritySource": "hf",
+      "hfSourceId": "meta-llama/Meta-Llama-3.1-8B-Instruct-Turbo",
+      "membership": "PENDING_AUTHORITY_ENRICHMENT",
+      "relatedAuthorityRecords": [
+        "hf:meta-llama/Llama-3.1-8B-Instruct"
+      ],
+      "relationNote": "Distinct canonical model: the seed record is the plain Llama-3.1-8B-Instruct; this route is the DeepInfra Turbo serving SKU (Meta-Llama-3.1-8B-Instruct-Turbo). Not treated as membership evidence."
+    },
+    {
+      "routeRef": "nemotron-3-nano-omni-30b:chutes",
+      "canonicalModelId": "nemotron-3-nano-omni-30b",
+      "providerModelId": "nvidia/Nemotron-3-Nano-Omni-30B-TEE",
+      "authoritySource": "hf",
+      "hfSourceId": "nvidia/Nemotron-3-Nano-Omni-30B",
+      "membership": "PENDING_AUTHORITY_ENRICHMENT"
+    },
+    {
+      "routeRef": "nemotron-3-nano-30b-a3b:deepinfra",
+      "canonicalModelId": "nemotron-3-nano-30b-a3b",
+      "providerModelId": "nvidia/NVIDIA-Nemotron-3-Nano-30B-A3B",
+      "authoritySource": "hf",
+      "hfSourceId": "nvidia/NVIDIA-Nemotron-3-Nano-30B-A3B",
+      "membership": "PENDING_AUTHORITY_ENRICHMENT"
+    },
+    {
+      "routeRef": "nemotron-3-super-120b-a12b:deepinfra",
+      "canonicalModelId": "nemotron-3-super-120b-a12b",
+      "providerModelId": "nvidia/NVIDIA-Nemotron-3-Super-120B-A12B",
+      "authoritySource": "hf",
+      "hfSourceId": "nvidia/NVIDIA-Nemotron-3-Super-120B-A12B",
+      "membership": "PENDING_AUTHORITY_ENRICHMENT"
+    },
+    {
+      "routeRef": "nemotron-3-ultra-550b-a55b:deepinfra",
+      "canonicalModelId": "nemotron-3-ultra-550b-a55b",
+      "providerModelId": "nvidia/NVIDIA-Nemotron-3-Ultra-550B-A55B",
+      "authoritySource": "hf",
+      "hfSourceId": "nvidia/NVIDIA-Nemotron-3-Ultra-550B-A55B",
+      "membership": "PENDING_AUTHORITY_ENRICHMENT"
+    },
+    {
+      "routeRef": "nemotron-content-safety-3.5:deepinfra",
+      "canonicalModelId": "nemotron-content-safety-3.5",
+      "providerModelId": "nvidia/Nemotron-Content-Safety-3.5",
+      "authoritySource": "hf",
+      "hfSourceId": "nvidia/Nemotron-Content-Safety-3.5",
+      "membership": "PENDING_AUTHORITY_ENRICHMENT"
+    },
+    {
+      "routeRef": "nemotron-3.5-lightning:deepinfra",
+      "canonicalModelId": "nemotron-3.5-lightning",
+      "providerModelId": "nvidia/Nemotron-3.5-Lightning",
+      "authoritySource": "hf",
+      "hfSourceId": "nvidia/Nemotron-3.5-Lightning",
+      "membership": "PENDING_AUTHORITY_ENRICHMENT"
+    },
+    {
+      "routeRef": "mistral-nemo:deepinfra",
+      "canonicalModelId": "mistral-nemo",
+      "providerModelId": "mistralai/Mistral-Nemo-Instruct-2407",
+      "authoritySource": "hf",
+      "hfSourceId": "mistralai/Mistral-Nemo-Instruct-2407",
+      "membership": "PENDING_AUTHORITY_ENRICHMENT"
+    },
+    {
+      "routeRef": "mistral-small-3.2-24b:deepinfra",
+      "canonicalModelId": "mistral-small-3.2-24b",
+      "providerModelId": "mistralai/Mistral-Small-3.2-24B-Instruct-2506",
+      "authoritySource": "hf",
+      "hfSourceId": "mistralai/Mistral-Small-3.2-24B-Instruct-2506",
+      "membership": "PENDING_AUTHORITY_ENRICHMENT"
+    },
+    {
+      "routeRef": "mistral-small-24b-2501:deepinfra",
+      "canonicalModelId": "mistral-small-24b-2501",
+      "providerModelId": "mistralai/Mistral-Small-24B-Instruct-2501",
+      "authoritySource": "hf",
+      "hfSourceId": "mistralai/Mistral-Small-24B-Instruct-2501",
+      "membership": "PENDING_AUTHORITY_ENRICHMENT"
+    },
+    {
+      "routeRef": "gpt-oss-120b:deepinfra",
+      "canonicalModelId": "gpt-oss-120b",
+      "providerModelId": "openai/gpt-oss-120b",
+      "authoritySource": "hf",
+      "hfSourceId": "openai/gpt-oss-120b",
+      "membership": "PENDING_AUTHORITY_ENRICHMENT"
+    },
+    {
+      "routeRef": "gpt-oss-20b:deepinfra",
+      "canonicalModelId": "gpt-oss-20b",
+      "providerModelId": "openai/gpt-oss-20b",
+      "authoritySource": "hf",
+      "hfSourceId": "openai/gpt-oss-20b",
+      "membership": "PENDING_AUTHORITY_ENRICHMENT"
+    },
+    {
+      "routeRef": "phi-4:deepinfra",
+      "canonicalModelId": "phi-4",
+      "providerModelId": "microsoft/phi-4",
+      "authoritySource": "hf",
+      "hfSourceId": "microsoft/phi-4",
+      "membership": "PENDING_AUTHORITY_ENRICHMENT"
+    },
+    {
+      "routeRef": "minimax-m3:deepinfra",
+      "canonicalModelId": "minimax-m3",
+      "providerModelId": "MiniMaxAI/MiniMax-M3",
+      "authoritySource": "hf",
+      "hfSourceId": "MiniMaxAI/MiniMax-M3",
+      "membership": "PENDING_AUTHORITY_ENRICHMENT"
+    },
+    {
+      "routeRef": "minimax-m2.7:novita",
+      "canonicalModelId": "minimax-m2.7",
+      "providerModelId": "minimax/minimax-m2.7",
+      "authoritySource": "hf",
+      "hfSourceId": "minimax/minimax-m2.7",
+      "membership": "PENDING_AUTHORITY_ENRICHMENT"
+    },
+    {
+      "routeRef": "novita:ling-3.0-flash-vl:novita",
+      "canonicalModelId": "novita:ling-3.0-flash-vl",
+      "providerModelId": "inclusionai/ling-3.0-flash-vl",
+      "authoritySource": "vendor_catalog",
+      "membership": "PENDING_AUTHORITY_ENRICHMENT"
+    },
+    {
+      "routeRef": "novita:ling-3.0-flash-sante:novita",
+      "canonicalModelId": "novita:ling-3.0-flash-sante",
+      "providerModelId": "inclusionai/ling-3.0-flash-sante",
+      "authoritySource": "vendor_catalog",
+      "membership": "PENDING_AUTHORITY_ENRICHMENT"
+    },
+    {
+      "routeRef": "ternary-bonsai-27b:together",
+      "canonicalModelId": "ternary-bonsai-27b",
+      "providerModelId": "Prism-ML/Ternary-Bonsai-27B",
+      "authoritySource": "vendor_catalog",
+      "membership": "PENDING_AUTHORITY_ENRICHMENT"
+    },
+    {
+      "routeRef": "mimo-v2.5:xiaomi_mimo",
+      "canonicalModelId": "mimo-v2.5",
+      "providerModelId": "mimo-v2.5",
+      "authoritySource": "vendor_catalog",
+      "membership": "PENDING_AUTHORITY_ENRICHMENT"
+    },
+    {
+      "routeRef": "gpt-5.6-luna:openai_direct",
+      "canonicalModelId": "gpt-5.6-luna",
+      "providerModelId": "gpt-5.6-luna",
+      "authoritySource": "vendor_catalog",
+      "membership": "PENDING_AUTHORITY_ENRICHMENT"
+    },
+    {
+      "routeRef": "gpt-5.6-terra:openai_direct",
+      "canonicalModelId": "gpt-5.6-terra",
+      "providerModelId": "gpt-5.6-terra",
+      "authoritySource": "vendor_catalog",
+      "membership": "PENDING_AUTHORITY_ENRICHMENT"
+    },
+    {
+      "routeRef": "gpt-5.6-sol:openai_direct",
+      "canonicalModelId": "gpt-5.6-sol",
+      "providerModelId": "gpt-5.6-sol",
+      "authoritySource": "vendor_catalog",
+      "membership": "PENDING_AUTHORITY_ENRICHMENT"
+    },
+    {
+      "routeRef": "claude-sonnet-5:anthropic_direct",
+      "canonicalModelId": "claude-sonnet-5",
+      "providerModelId": "claude-sonnet-5",
+      "authoritySource": "vendor_catalog",
+      "membership": "PENDING_AUTHORITY_ENRICHMENT"
+    },
+    {
+      "routeRef": "claude-opus-5:anthropic_direct",
+      "canonicalModelId": "claude-opus-5",
+      "providerModelId": "claude-opus-5",
+      "authoritySource": "vendor_catalog",
+      "membership": "PENDING_AUTHORITY_ENRICHMENT"
+    },
+    {
+      "routeRef": "xkiro:qwen3.7-flash-free:xkiro",
+      "canonicalModelId": "xkiro:qwen3.7-flash-free",
+      "providerModelId": "qwen/qwen3.7-flash:free",
+      "authoritySource": "vendor_catalog",
+      "membership": "PENDING_AUTHORITY_ENRICHMENT"
+    },
+    {
+      "routeRef": "xkiro:minimax-m3-free:xkiro",
+      "canonicalModelId": "xkiro:minimax-m3-free",
+      "providerModelId": "minimax/minimax-m3:free",
+      "authoritySource": "vendor_catalog",
+      "membership": "PENDING_AUTHORITY_ENRICHMENT"
+    },
+    {
+      "routeRef": "xkiro:mistral-medium-3.5-free:xkiro",
+      "canonicalModelId": "xkiro:mistral-medium-3.5-free",
+      "providerModelId": "mistralai/mistral-medium-3.5",
+      "authoritySource": "vendor_catalog",
+      "membership": "PENDING_AUTHORITY_ENRICHMENT"
+    },
+    {
+      "routeRef": "xkiro:qwen3-coder-plus-free:xkiro",
+      "canonicalModelId": "xkiro:qwen3-coder-plus-free",
+      "providerModelId": "qwen/qwen3-coder-plus:free",
+      "authoritySource": "vendor_catalog",
+      "membership": "PENDING_AUTHORITY_ENRICHMENT"
+    },
+    {
+      "routeRef": "xkiro:qwen3.8-omni-flash-free:xkiro",
+      "canonicalModelId": "xkiro:qwen3.8-omni-flash-free",
+      "providerModelId": "qwen/qwen3.8-omni-flash:free",
+      "authoritySource": "vendor_catalog",
+      "membership": "PENDING_AUTHORITY_ENRICHMENT"
+    },
+    {
+      "routeRef": "agnes:agnes-2.5-flash:agnes",
+      "canonicalModelId": "agnes:agnes-2.5-flash",
+      "providerModelId": "agnes-2.5-flash",
+      "authoritySource": "vendor_catalog",
+      "membership": "PENDING_AUTHORITY_ENRICHMENT"
+    },
+    {
+      "routeRef": "agnes:agnes-3.0-flash:agnes",
+      "canonicalModelId": "agnes:agnes-3.0-flash",
+      "providerModelId": "agnes-3.0-flash",
+      "authoritySource": "vendor_catalog",
+      "membership": "PENDING_AUTHORITY_ENRICHMENT"
+    },
+    {
+      "routeRef": "novita:ling-3.0-flash-fin:novita",
+      "canonicalModelId": "novita:ling-3.0-flash-fin",
+      "providerModelId": "inclusionai/ling-3.0-flash-fin",
+      "authoritySource": "vendor_catalog",
+      "membership": "PENDING_AUTHORITY_ENRICHMENT"
+    },
+    {
+      "routeRef": "poolside:laguna-s-2.1:poolside",
+      "canonicalModelId": "poolside:laguna-s-2.1",
+      "providerModelId": "poolside/laguna-s-2.1",
+      "authoritySource": "vendor_catalog",
+      "membership": "PENDING_AUTHORITY_ENRICHMENT"
+    },
+    {
+      "routeRef": "poolside:laguna-xs-2.1:poolside",
+      "canonicalModelId": "poolside:laguna-xs-2.1",
+      "providerModelId": "poolside/laguna-xs-2.1",
+      "authoritySource": "vendor_catalog",
+      "membership": "PENDING_AUTHORITY_ENRICHMENT"
+    },
+    {
+      "routeRef": "cohere:north-mini-code-1-0:cohere",
+      "canonicalModelId": "cohere:north-mini-code-1-0",
+      "providerModelId": "north-mini-code-1-0",
+      "authoritySource": "vendor_catalog",
+      "membership": "PENDING_AUTHORITY_ENRICHMENT"
+    },
+    {
+      "routeRef": "openrouter:cohere/north-mini-code:free:openrouter",
+      "canonicalModelId": "openrouter:cohere/north-mini-code:free",
+      "providerModelId": "cohere/north-mini-code:free",
+      "authoritySource": "vendor_catalog",
+      "membership": "PENDING_AUTHORITY_ENRICHMENT"
+    },
+    {
+      "routeRef": "openrouter:stealth/space-bunny-alpha:openrouter",
+      "canonicalModelId": "openrouter:stealth/space-bunny-alpha",
+      "providerModelId": "stealth/space-bunny-alpha",
+      "authoritySource": "vendor_catalog",
+      "membership": "PENDING_AUTHORITY_ENRICHMENT"
+    },
+    {
+      "routeRef": "novita:ling-3.0-flash:novita",
+      "canonicalModelId": "novita:ling-3.0-flash",
+      "providerModelId": "inclusionai/ling-3.0-flash",
+      "authoritySource": "vendor_catalog",
+      "membership": "PENDING_AUTHORITY_ENRICHMENT"
+    }
+  ]
+}

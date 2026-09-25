@@ -1,0 +1,262 @@
+{
+  "schema": "botconnector.provider-shadow-activation-gates.v1",
+  "provider": "nara",
+  "activationPolicy": "FAIL_CLOSED",
+  "requiredGates": [
+    "modelListed",
+    "entitlementVerified",
+    "pricingVerified",
+    "commercialScopeVerified",
+    "capabilitiesVerified",
+    "executionClientReady"
+  ],
+  "models": {
+    "claude-opus-5": {
+      "modelListed": true,
+      "entitlementVerified": false,
+      "pricingVerified": true,
+      "commercialScopeVerified": false,
+      "capabilitiesVerified": false,
+      "executionClientReady": false,
+      "evidence": {
+        "modelListCheckedAt": "2026-09-24T23:17:03.322Z",
+        "modelMetadataCheckedAt": "2026-09-24T23:17:04.133Z",
+        "publicPlansCheckedAt": "2026-09-24T23:17:04.835Z",
+        "paygEnabled": true,
+        "inputIdrPer1m": 26532.191,
+        "outputIdrPer1m": 132660.953,
+        "cacheReadIdrPer1m": 4653.219,
+        "publicPlans": [],
+        "vision": true,
+        "reasoning": null
+      }
+    },
+    "claude-sonnet-5": {
+      "modelListed": true,
+      "entitlementVerified": false,
+      "pricingVerified": true,
+      "commercialScopeVerified": false,
+      "capabilitiesVerified": false,
+      "executionClientReady": false,
+      "evidence": {
+        "modelListCheckedAt": "2026-09-24T23:17:03.322Z",
+        "modelMetadataCheckedAt": "2026-09-24T23:17:04.133Z",
+        "publicPlansCheckedAt": "2026-09-24T23:17:04.835Z",
+        "paygEnabled": true,
+        "inputIdrPer1m": 6647,
+        "outputIdrPer1m": 30592,
+        "cacheReadIdrPer1m": 2284,
+        "publicPlans": [],
+        "vision": true,
+        "reasoning": null
+      }
+    },
+    "deepseek-v4.1-flash": {
+      "modelListed": true,
+      "entitlementVerified": false,
+      "pricingVerified": true,
+      "commercialScopeVerified": false,
+      "capabilitiesVerified": false,
+      "executionClientReady": false,
+      "evidence": {
+        "modelListCheckedAt": "2026-09-24T23:17:03.322Z",
+        "modelMetadataCheckedAt": "2026-09-24T23:17:04.133Z",
+        "publicPlansCheckedAt": "2026-09-24T23:17:04.835Z",
+        "paygEnabled": true,
+        "inputIdrPer1m": 530.644,
+        "outputIdrPer1m": 2122.575,
+        "cacheReadIdrPer1m": 20.613,
+        "publicPlans": [],
+        "vision": true,
+        "reasoning": true
+      }
+    },
+    "glm-5.2": {
+      "modelListed": true,
+      "entitlementVerified": false,
+      "pricingVerified": true,
+      "commercialScopeVerified": false,
+      "capabilitiesVerified": false,
+      "executionClientReady": false,
+      "evidence": {
+        "modelListCheckedAt": "2026-09-24T23:17:03.322Z",
+        "modelMetadataCheckedAt": "2026-09-24T23:17:04.133Z",
+        "publicPlansCheckedAt": "2026-09-24T23:17:04.835Z",
+        "paygEnabled": true,
+        "inputIdrPer1m": 3169.103,
+        "outputIdrPer1m": 10563.676,
+        "cacheReadIdrPer1m": 792.276,
+        "publicPlans": [],
+        "vision": null,
+        "reasoning": null
+      }
+    },
+    "glm-5.3-flash": {
+      "modelListed": true,
+      "entitlementVerified": false,
+      "pricingVerified": true,
+      "commercialScopeVerified": false,
+      "capabilitiesVerified": false,
+      "executionClientReady": false,
+      "evidence": {
+        "modelListCheckedAt": "2026-09-24T23:17:03.322Z",
+        "modelMetadataCheckedAt": "2026-09-24T23:17:04.133Z",
+        "publicPlansCheckedAt": "2026-09-24T23:17:04.835Z",
+        "paygEnabled": true,
+        "inputIdrPer1m": 533.714,
+        "outputIdrPer1m": 1779.047,
+        "cacheReadIdrPer1m": 177.905,
+        "publicPlans": [],
+        "vision": true,
+        "reasoning": true
+      }
+    },
+    "gpt-5.6-luna": {
+      "modelListed": true,
+      "entitlementVerified": false,
+      "pricingVerified": true,
+      "commercialScopeVerified": false,
+      "capabilitiesVerified": false,
+      "executionClientReady": false,
+      "evidence": {
+        "modelListCheckedAt": "2026-09-24T23:17:03.322Z",
+        "modelMetadataCheckedAt": "2026-09-24T23:17:04.133Z",
+        "publicPlansCheckedAt": "2026-09-24T23:17:04.835Z",
+        "paygEnabled": true,
+        "inputIdrPer1m": 356.809,
+        "outputIdrPer1m": 2140.853,
+        "cacheReadIdrPer1m": 107.043,
+        "publicPlans": [
+          {
+            "id": "GPT Fams",
+            "tokenCapDaily": 25000000,
+            "rpmLimit": 50
+          }
+        ],
+        "vision": true,
+        "reasoning": null
+      }
+    },
+    "gpt-5.6-sol": {
+      "modelListed": true,
+      "entitlementVerified": false,
+      "pricingVerified": true,
+      "commercialScopeVerified": false,
+      "capabilitiesVerified": false,
+      "executionClientReady": false,
+      "evidence": {
+        "modelListCheckedAt": "2026-09-24T23:17:03.322Z",
+        "modelMetadataCheckedAt": "2026-09-24T23:17:04.133Z",
+        "publicPlansCheckedAt": "2026-09-24T23:17:04.835Z",
+        "paygEnabled": true,
+        "inputIdrPer1m": 10246.638,
+        "outputIdrPer1m": 70479.83,
+        "cacheReadIdrPer1m": 2924.664,
+        "publicPlans": [
+          {
+            "id": "GPT Fams",
+            "tokenCapDaily": 25000000,
+            "rpmLimit": 50
+          }
+        ],
+        "vision": true,
+        "reasoning": null
+      }
+    },
+    "gpt-5.6-terra": {
+      "modelListed": true,
+      "entitlementVerified": false,
+      "pricingVerified": true,
+      "commercialScopeVerified": false,
+      "capabilitiesVerified": false,
+      "executionClientReady": false,
+      "evidence": {
+        "modelListCheckedAt": "2026-09-24T23:17:03.322Z",
+        "modelMetadataCheckedAt": "2026-09-24T23:17:04.133Z",
+        "publicPlansCheckedAt": "2026-09-24T23:17:04.835Z",
+        "paygEnabled": true,
+        "inputIdrPer1m": 5306.438,
+        "outputIdrPer1m": 31838.629,
+        "cacheReadIdrPer1m": 1530.644,
+        "publicPlans": [
+          {
+            "id": "GPT Fams",
+            "tokenCapDaily": 25000000,
+            "rpmLimit": 50
+          }
+        ],
+        "vision": true,
+        "reasoning": true
+      }
+    },
+    "kimi-k3": {
+      "modelListed": true,
+      "entitlementVerified": false,
+      "pricingVerified": true,
+      "commercialScopeVerified": false,
+      "capabilitiesVerified": false,
+      "executionClientReady": false,
+      "evidence": {
+        "modelListCheckedAt": "2026-09-24T23:17:03.322Z",
+        "modelMetadataCheckedAt": "2026-09-24T23:17:04.133Z",
+        "publicPlansCheckedAt": "2026-09-24T23:17:04.835Z",
+        "paygEnabled": true,
+        "inputIdrPer1m": 15929.881,
+        "outputIdrPer1m": 79649.405,
+        "cacheReadIdrPer1m": 2592.988,
+        "publicPlans": [],
+        "vision": true,
+        "reasoning": true
+      }
+    },
+    "minimax-m3": {
+      "modelListed": true,
+      "entitlementVerified": false,
+      "pricingVerified": true,
+      "commercialScopeVerified": false,
+      "capabilitiesVerified": false,
+      "executionClientReady": false,
+      "evidence": {
+        "modelListCheckedAt": "2026-09-24T23:17:03.322Z",
+        "modelMetadataCheckedAt": "2026-09-24T23:17:04.133Z",
+        "publicPlansCheckedAt": "2026-09-24T23:17:04.835Z",
+        "paygEnabled": true,
+        "inputIdrPer1m": 2648.297,
+        "outputIdrPer1m": 10593.187,
+        "cacheReadIdrPer1m": 529.659,
+        "publicPlans": [],
+        "vision": true,
+        "reasoning": null
+      }
+    },
+    "qwen3.8-flash": {
+      "modelListed": true,
+      "entitlementVerified": false,
+      "pricingVerified": true,
+      "commercialScopeVerified": false,
+      "capabilitiesVerified": false,
+      "executionClientReady": false,
+      "evidence": {
+        "modelListCheckedAt": "2026-09-24T23:17:03.322Z",
+        "modelMetadataCheckedAt": "2026-09-24T23:17:04.133Z",
+        "publicPlansCheckedAt": "2026-09-24T23:17:04.835Z",
+        "paygEnabled": true,
+        "inputIdrPer1m": 663.745,
+        "outputIdrPer1m": 2079.734,
+        "cacheReadIdrPer1m": 127.995,
+        "publicPlans": [],
+        "vision": true,
+        "reasoning": true
+      }
+    }
+  },
+  "updatedAt": "2026-09-24T23:17:04.981Z",
+  "evidencePolicy": {
+    "modelListed": "authenticated /v1/models exact id",
+    "pricingVerified": "authenticated /v1/models explicit IDR input/output prices and payg_enabled",
+    "entitlementVerified": "requires successful exact-model execution under the credential/plan intended for BotConnector",
+    "commercialScopeVerified": "requires provider terms or explicit provider authorization for intended shared/commercial use",
+    "capabilitiesVerified": "requires workload-specific verification; model metadata alone is insufficient for tools",
+    "executionClientReady": "requires candidate gateway client + secret boundary + smoke"
+  }
+}

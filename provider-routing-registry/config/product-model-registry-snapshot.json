@@ -1,0 +1,70 @@
+{
+  "schema": "botconnector.pmr-snapshot.v1",
+  "generatedAt": "2026-09-18",
+  "generator": "python3 -c 'from app.product_models import registry, ModelRecordResponse; [ModelRecordResponse.from_record(r).model_dump() for r in registry.list_all()]'",
+  "authorityModule": "app/product_models.py @ /home/botadmin/newbotconnector/worktrees/backend-product-model-registry (and identical backend-billing copy)",
+  "authorityIntegrity": "Module files verified byte-identical between backend-product-model-registry and backend-billing worktrees (diff exit 0).",
+  "coverageNote": "SEED_ONLY \u2014 authority catalog contains 3 seed records; most routing routes cannot yet be membership-checked and remain PENDING_AUTHORITY_ENRICHMENT. This snapshot is a verbatim export for bridge validation, not a second maintained catalog.",
+  "models": [
+    {
+      "id": "hf:Qwen/Qwen2.5-7B-Instruct",
+      "source": "hf",
+      "source_id": "Qwen/Qwen2.5-7B-Instruct",
+      "name": "Qwen2.5 7B Instruct",
+      "family": "qwen",
+      "capabilities": [
+        "chat",
+        "reasoning",
+        "coding"
+      ],
+      "targets": {
+        "cloud": "available",
+        "browser": "unknown",
+        "device": "unknown"
+      },
+      "status": "stable",
+      "commercial": {
+        "cloud_available": true
+      }
+    },
+    {
+      "id": "hf:meta-llama/Llama-3.1-8B-Instruct",
+      "source": "hf",
+      "source_id": "meta-llama/Llama-3.1-8B-Instruct",
+      "name": "Llama 3.1 8B Instruct",
+      "family": "llama",
+      "capabilities": [
+        "chat",
+        "reasoning"
+      ],
+      "targets": {
+        "cloud": "available",
+        "browser": "unknown",
+        "device": "unavailable"
+      },
+      "status": "beta",
+      "commercial": {
+        "cloud_available": true
+      }
+    },
+    {
+      "id": "hf:ista-daslab/next-gen-gguf",
+      "source": "hf",
+      "source_id": "ista-daslab/next-gen-gguf",
+      "name": "Next-Gen GGUF (planned)",
+      "family": "experimental",
+      "capabilities": [
+        "chat"
+      ],
+      "targets": {
+        "cloud": "planned",
+        "browser": "unknown",
+        "device": "unknown"
+      },
+      "status": "planned",
+      "commercial": {
+        "cloud_available": false
+      }
+    }
+  ]
+}

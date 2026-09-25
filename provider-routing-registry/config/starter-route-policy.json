@@ -1,0 +1,713 @@
+{
+  "schema": "botconnector.starter-route-policy.v1",
+  "eligibleRouteCount": 10,
+  "routes": [
+    {
+      "modelId": "deepseek-v4.1-flash",
+      "canonicalModelId": "deepseek-v4.1-flash",
+      "provider": "deepinfra",
+      "providerModelId": "deepseek-ai/DeepSeek-V4.1-Flash",
+      "starterFreeEligible": false
+    },
+    {
+      "modelId": "deepseek-v4-flash-0731",
+      "canonicalModelId": "deepseek-v4-flash-0731",
+      "provider": "deepinfra",
+      "providerModelId": "deepseek-ai/DeepSeek-V4-Flash-0731",
+      "starterFreeEligible": false
+    },
+    {
+      "modelId": "deepseek-v4-flash",
+      "canonicalModelId": "deepseek-v4-flash",
+      "provider": "deepinfra",
+      "providerModelId": "deepseek-ai/DeepSeek-V4-Flash",
+      "starterFreeEligible": false
+    },
+    {
+      "modelId": "deepseek-v4-pro",
+      "canonicalModelId": "deepseek-v4-pro",
+      "provider": "deepinfra",
+      "providerModelId": "deepseek-ai/DeepSeek-V4-Pro",
+      "starterFreeEligible": false
+    },
+    {
+      "modelId": "deepseek-v3.2",
+      "canonicalModelId": "deepseek-v3.2",
+      "provider": "novita",
+      "providerModelId": "deepseek/deepseek-v3.2",
+      "starterFreeEligible": false
+    },
+    {
+      "modelId": "deepseek-v3.1",
+      "canonicalModelId": "deepseek-v3.1",
+      "provider": "deepinfra",
+      "providerModelId": "deepseek-ai/DeepSeek-V3.1",
+      "starterFreeEligible": false
+    },
+    {
+      "modelId": "deepseek-v3-0324",
+      "canonicalModelId": "deepseek-v3-0324",
+      "provider": "deepinfra",
+      "providerModelId": "deepseek-ai/DeepSeek-V3-0324",
+      "starterFreeEligible": false
+    },
+    {
+      "modelId": "deepseek-v3",
+      "canonicalModelId": "deepseek-v3",
+      "provider": "deepinfra",
+      "providerModelId": "deepseek-ai/DeepSeek-V3",
+      "starterFreeEligible": false
+    },
+    {
+      "modelId": "deepseek-r1-0528",
+      "canonicalModelId": "deepseek-r1-0528",
+      "provider": "deepinfra",
+      "providerModelId": "deepseek-ai/DeepSeek-R1-0528",
+      "starterFreeEligible": false
+    },
+    {
+      "modelId": "deepseek-ocr-2",
+      "canonicalModelId": "deepseek-ocr-2",
+      "provider": "novita",
+      "providerModelId": "deepseek/deepseek-ocr-2",
+      "starterFreeEligible": false
+    },
+    {
+      "modelId": "kimi-k3",
+      "canonicalModelId": "kimi-k3",
+      "provider": "inference_net",
+      "providerModelId": "moonshotai/kimi-k3",
+      "starterFreeEligible": false
+    },
+    {
+      "modelId": "kimi-k2.7-code",
+      "canonicalModelId": "kimi-k2.7-code",
+      "provider": "deepinfra",
+      "providerModelId": "moonshotai/Kimi-K2.7-Code",
+      "starterFreeEligible": false
+    },
+    {
+      "modelId": "kimi-k2.6",
+      "canonicalModelId": "kimi-k2.6",
+      "provider": "chutes",
+      "providerModelId": "moonshotai/Kimi-K2.6-TEE",
+      "starterFreeEligible": false
+    },
+    {
+      "modelId": "kimi-k2.5",
+      "canonicalModelId": "kimi-k2.5",
+      "provider": "novita",
+      "providerModelId": "moonshotai/kimi-k2.5",
+      "starterFreeEligible": false
+    },
+    {
+      "modelId": "kimi-k2-instruct",
+      "canonicalModelId": "kimi-k2-instruct",
+      "provider": "novita",
+      "providerModelId": "moonshotai/kimi-k2-instruct",
+      "starterFreeEligible": false
+    },
+    {
+      "modelId": "qwen3.8-2.4t-a95b",
+      "canonicalModelId": "qwen3.8-2.4t-a95b",
+      "provider": "deepinfra",
+      "providerModelId": "Qwen/Qwen3.8-2.4T-A95B",
+      "starterFreeEligible": false
+    },
+    {
+      "modelId": "qwen3.8-max",
+      "canonicalModelId": "qwen3.8-max",
+      "provider": "alibaba_global",
+      "providerModelId": "qwen3.8-max",
+      "starterFreeEligible": false
+    },
+    {
+      "modelId": "qwen3.8-flash",
+      "canonicalModelId": "qwen3.8-flash",
+      "provider": "alibaba_global",
+      "providerModelId": "qwen3.8-flash",
+      "starterFreeEligible": false
+    },
+    {
+      "modelId": "qwen3.8-27b",
+      "canonicalModelId": "qwen3.8-27b",
+      "provider": "chutes",
+      "providerModelId": "Qwen/Qwen3.8-27B-TEE",
+      "starterFreeEligible": false
+    },
+    {
+      "modelId": "qwen3.7-max",
+      "canonicalModelId": "qwen3.7-max",
+      "provider": "alibaba_global",
+      "providerModelId": "qwen3.7-max",
+      "starterFreeEligible": false
+    },
+    {
+      "modelId": "qwen3.7-plus",
+      "canonicalModelId": "qwen3.7-plus",
+      "provider": "together",
+      "providerModelId": "Qwen/Qwen3.7-Plus",
+      "starterFreeEligible": false
+    },
+    {
+      "modelId": "qwen3.6-35b-a3b",
+      "canonicalModelId": "qwen3.6-35b-a3b",
+      "provider": "deepinfra",
+      "providerModelId": "Qwen/Qwen3.6-35B-A3B",
+      "starterFreeEligible": false
+    },
+    {
+      "modelId": "qwen3.6-27b",
+      "canonicalModelId": "qwen3.6-27b",
+      "provider": "chutes",
+      "providerModelId": "Qwen/Qwen3.6-27B-TEE",
+      "starterFreeEligible": false
+    },
+    {
+      "modelId": "qwen3.5-397b-a17b",
+      "canonicalModelId": "qwen3.5-397b-a17b",
+      "provider": "alibaba_global",
+      "providerModelId": "qwen3.5-397b-a17b",
+      "starterFreeEligible": false
+    },
+    {
+      "modelId": "qwen3.5-122b-a10b",
+      "canonicalModelId": "qwen3.5-122b-a10b",
+      "provider": "alibaba_global",
+      "providerModelId": "qwen3.5-122b-a10b",
+      "starterFreeEligible": false
+    },
+    {
+      "modelId": "qwen3.5-35b-a3b",
+      "canonicalModelId": "qwen3.5-35b-a3b",
+      "provider": "alibaba_global",
+      "providerModelId": "qwen3.5-35b-a3b",
+      "starterFreeEligible": false
+    },
+    {
+      "modelId": "qwen3.5-27b",
+      "canonicalModelId": "qwen3.5-27b",
+      "provider": "alibaba_global",
+      "providerModelId": "qwen3.5-27b",
+      "starterFreeEligible": false
+    },
+    {
+      "modelId": "qwen3.5-9b",
+      "canonicalModelId": "qwen3.5-9b",
+      "provider": "deepinfra",
+      "providerModelId": "Qwen/Qwen3.5-9B",
+      "starterFreeEligible": false
+    },
+    {
+      "modelId": "qwen3.5-plus",
+      "canonicalModelId": "qwen3.5-plus",
+      "provider": "alibaba_global",
+      "providerModelId": "qwen3.5-plus",
+      "starterFreeEligible": false
+    },
+    {
+      "modelId": "qwen3.5-flash",
+      "canonicalModelId": "qwen3.5-flash",
+      "provider": "alibaba_global",
+      "providerModelId": "qwen3.5-flash",
+      "starterFreeEligible": false
+    },
+    {
+      "modelId": "qwen3-max-thinking",
+      "canonicalModelId": "qwen3-max-thinking",
+      "provider": "inference_net",
+      "providerModelId": "qwen/qwen3-max-thinking",
+      "starterFreeEligible": false
+    },
+    {
+      "modelId": "qwen3-max",
+      "canonicalModelId": "qwen3-max",
+      "provider": "alibaba_global",
+      "providerModelId": "qwen3-max",
+      "starterFreeEligible": false
+    },
+    {
+      "modelId": "qwen3-next-80b-a3b",
+      "canonicalModelId": "qwen3-next-80b-a3b",
+      "provider": "deepinfra",
+      "providerModelId": "Qwen/Qwen3-Next-80B-A3B-Instruct",
+      "starterFreeEligible": false
+    },
+    {
+      "modelId": "qwen3-coder-480b-a35b",
+      "canonicalModelId": "qwen3-coder-480b-a35b",
+      "provider": "deepinfra",
+      "providerModelId": "Qwen/Qwen3-Coder-480B-A35B-Instruct",
+      "starterFreeEligible": false
+    },
+    {
+      "modelId": "qwen3-coder-30b-a3b",
+      "canonicalModelId": "qwen3-coder-30b-a3b",
+      "provider": "novita",
+      "providerModelId": "qwen/qwen3-coder-30b-a3b-instruct",
+      "starterFreeEligible": false
+    },
+    {
+      "modelId": "qwen3-235b-a22b-thinking-2507",
+      "canonicalModelId": "qwen3-235b-a22b-thinking-2507",
+      "provider": "fireworks",
+      "providerModelId": "accounts/fireworks/models/qwen3-235b-a22b-thinking-2507",
+      "starterFreeEligible": false
+    },
+    {
+      "modelId": "qwen3-235b-a22b-instruct-2507",
+      "canonicalModelId": "qwen3-235b-a22b-instruct-2507",
+      "provider": "deepinfra",
+      "providerModelId": "Qwen/Qwen3-235B-A22B-Instruct-2507",
+      "starterFreeEligible": false
+    },
+    {
+      "modelId": "qwen3-vl-235b-a22b",
+      "canonicalModelId": "qwen3-vl-235b-a22b",
+      "provider": "deepinfra",
+      "providerModelId": "Qwen/Qwen3-VL-235B-A22B-Instruct",
+      "starterFreeEligible": false
+    },
+    {
+      "modelId": "qwen3-vl-30b-a3b",
+      "canonicalModelId": "qwen3-vl-30b-a3b",
+      "provider": "deepinfra",
+      "providerModelId": "Qwen/Qwen3-VL-30B-A3B-Instruct",
+      "starterFreeEligible": false
+    },
+    {
+      "modelId": "qwen3-32b",
+      "canonicalModelId": "qwen3-32b",
+      "provider": "deepinfra",
+      "providerModelId": "Qwen/Qwen3-32B",
+      "starterFreeEligible": false
+    },
+    {
+      "modelId": "qwen3-30b-a3b",
+      "canonicalModelId": "qwen3-30b-a3b",
+      "provider": "deepinfra",
+      "providerModelId": "Qwen/Qwen3-30B-A3B",
+      "starterFreeEligible": false
+    },
+    {
+      "modelId": "qwen3-14b",
+      "canonicalModelId": "qwen3-14b",
+      "provider": "deepinfra",
+      "providerModelId": "Qwen/Qwen3-14B",
+      "starterFreeEligible": false
+    },
+    {
+      "modelId": "qwen2.5-72b",
+      "canonicalModelId": "qwen2.5-72b",
+      "provider": "deepinfra",
+      "providerModelId": "Qwen/Qwen2.5-72B-Instruct",
+      "starterFreeEligible": false
+    },
+    {
+      "modelId": "glm-5.3",
+      "canonicalModelId": "glm-5.3",
+      "provider": "deepinfra",
+      "providerModelId": "zai-org/GLM-5.3",
+      "starterFreeEligible": false
+    },
+    {
+      "modelId": "glm-5.3-flash",
+      "canonicalModelId": "glm-5.3-flash",
+      "provider": "deepinfra",
+      "providerModelId": "zai-org/GLM-5.3-Flash",
+      "starterFreeEligible": false
+    },
+    {
+      "modelId": "glm-5.2",
+      "canonicalModelId": "glm-5.2",
+      "provider": "deepinfra",
+      "providerModelId": "zai-org/GLM-5.2",
+      "starterFreeEligible": false
+    },
+    {
+      "modelId": "glm-5.1",
+      "canonicalModelId": "glm-5.1",
+      "provider": "chutes",
+      "providerModelId": "zai-org/GLM-5.1-TEE",
+      "starterFreeEligible": false
+    },
+    {
+      "modelId": "glm-5",
+      "canonicalModelId": "glm-5",
+      "provider": "inference_net",
+      "providerModelId": "z-ai/glm-5",
+      "starterFreeEligible": false
+    },
+    {
+      "modelId": "glm-4.7-flash-nvfp4",
+      "canonicalModelId": "glm-4.7-flash-nvfp4",
+      "provider": "chutes",
+      "providerModelId": "zai-org/GLM-4.7-Flash-NVFP4-TEE",
+      "starterFreeEligible": false
+    },
+    {
+      "modelId": "glm-4.7-bf16",
+      "canonicalModelId": "glm-4.7-bf16",
+      "provider": "novita",
+      "providerModelId": "zai-org/glm-4.7",
+      "starterFreeEligible": false
+    },
+    {
+      "modelId": "glm-4.5-air",
+      "canonicalModelId": "glm-4.5-air",
+      "provider": "novita",
+      "providerModelId": "zai-org/glm-4.5-air",
+      "starterFreeEligible": false
+    },
+    {
+      "modelId": "gemma-4-e4b",
+      "canonicalModelId": "gemma-4-e4b",
+      "provider": "deepinfra",
+      "providerModelId": "google/gemma-4-e4b-it",
+      "starterFreeEligible": false
+    },
+    {
+      "modelId": "gemma-4-31b-ultra",
+      "canonicalModelId": "gemma-4-31b-ultra",
+      "provider": "deepinfra",
+      "providerModelId": "google/gemma-4-31b-it-ultra",
+      "starterFreeEligible": false
+    },
+    {
+      "modelId": "gemma-4-31b-turbo",
+      "canonicalModelId": "gemma-4-31b-turbo",
+      "provider": "deepinfra",
+      "providerModelId": "google/gemma-4-31B-it-turbo",
+      "starterFreeEligible": false
+    },
+    {
+      "modelId": "gemma-4-31b",
+      "canonicalModelId": "gemma-4-31b",
+      "provider": "deepinfra",
+      "providerModelId": "google/gemma-4-31b-it",
+      "starterFreeEligible": false
+    },
+    {
+      "modelId": "gemma-4-26b-a4b",
+      "canonicalModelId": "gemma-4-26b-a4b",
+      "provider": "deepinfra",
+      "providerModelId": "google/gemma-4-26B-A4B-it",
+      "starterFreeEligible": false
+    },
+    {
+      "modelId": "gemma-3-27b",
+      "canonicalModelId": "gemma-3-27b",
+      "provider": "deepinfra",
+      "providerModelId": "google/gemma-3-27b-it",
+      "starterFreeEligible": false
+    },
+    {
+      "modelId": "gemma-3-12b",
+      "canonicalModelId": "gemma-3-12b",
+      "provider": "novita",
+      "providerModelId": "google/gemma-3-12b-it",
+      "starterFreeEligible": false
+    },
+    {
+      "modelId": "gemma-3-4b",
+      "canonicalModelId": "gemma-3-4b",
+      "provider": "deepinfra",
+      "providerModelId": "google/gemma-3-4b-it",
+      "starterFreeEligible": false
+    },
+    {
+      "modelId": "llama-4-scout",
+      "canonicalModelId": "llama-4-scout",
+      "provider": "deepinfra",
+      "providerModelId": "meta-llama/Llama-4-Scout",
+      "starterFreeEligible": false
+    },
+    {
+      "modelId": "llama-4-maverick",
+      "canonicalModelId": "llama-4-maverick",
+      "provider": "deepinfra",
+      "providerModelId": "meta-llama/Llama-4-Maverick",
+      "starterFreeEligible": false
+    },
+    {
+      "modelId": "llama-guard-4-12b",
+      "canonicalModelId": "llama-guard-4-12b",
+      "provider": "deepinfra",
+      "providerModelId": "meta-llama/Llama-Guard-4-12B",
+      "starterFreeEligible": false
+    },
+    {
+      "modelId": "llama-3.3-70b-turbo",
+      "canonicalModelId": "llama-3.3-70b-turbo",
+      "provider": "deepinfra",
+      "providerModelId": "meta-llama/Llama-3.3-70B-Instruct-Turbo",
+      "starterFreeEligible": false
+    },
+    {
+      "modelId": "llama-3.1-70b-turbo",
+      "canonicalModelId": "llama-3.1-70b-turbo",
+      "provider": "deepinfra",
+      "providerModelId": "meta-llama/Meta-Llama-3.1-70B-Instruct-Turbo",
+      "starterFreeEligible": false
+    },
+    {
+      "modelId": "llama-3.1-8b-turbo",
+      "canonicalModelId": "llama-3.1-8b-turbo",
+      "provider": "deepinfra",
+      "providerModelId": "meta-llama/Meta-Llama-3.1-8B-Instruct-Turbo",
+      "starterFreeEligible": false
+    },
+    {
+      "modelId": "nemotron-3-nano-omni-30b",
+      "canonicalModelId": "nemotron-3-nano-omni-30b",
+      "provider": "chutes",
+      "providerModelId": "nvidia/Nemotron-3-Nano-Omni-30B-TEE",
+      "starterFreeEligible": false
+    },
+    {
+      "modelId": "nemotron-3-nano-30b-a3b",
+      "canonicalModelId": "nemotron-3-nano-30b-a3b",
+      "provider": "deepinfra",
+      "providerModelId": "nvidia/NVIDIA-Nemotron-3-Nano-30B-A3B",
+      "starterFreeEligible": false
+    },
+    {
+      "modelId": "nemotron-3-super-120b-a12b",
+      "canonicalModelId": "nemotron-3-super-120b-a12b",
+      "provider": "deepinfra",
+      "providerModelId": "nvidia/NVIDIA-Nemotron-3-Super-120B-A12B",
+      "starterFreeEligible": false
+    },
+    {
+      "modelId": "nemotron-3-ultra-550b-a55b",
+      "canonicalModelId": "nemotron-3-ultra-550b-a55b",
+      "provider": "deepinfra",
+      "providerModelId": "nvidia/NVIDIA-Nemotron-3-Ultra-550B-A55B",
+      "starterFreeEligible": false
+    },
+    {
+      "modelId": "nemotron-content-safety-3.5",
+      "canonicalModelId": "nemotron-content-safety-3.5",
+      "provider": "deepinfra",
+      "providerModelId": "nvidia/Nemotron-Content-Safety-3.5",
+      "starterFreeEligible": false
+    },
+    {
+      "modelId": "nemotron-3.5-lightning",
+      "canonicalModelId": "nemotron-3.5-lightning",
+      "provider": "deepinfra",
+      "providerModelId": "nvidia/Nemotron-3.5-Lightning",
+      "starterFreeEligible": false
+    },
+    {
+      "modelId": "mistral-nemo",
+      "canonicalModelId": "mistral-nemo",
+      "provider": "deepinfra",
+      "providerModelId": "mistralai/Mistral-Nemo-Instruct-2407",
+      "starterFreeEligible": false
+    },
+    {
+      "modelId": "mistral-small-3.2-24b",
+      "canonicalModelId": "mistral-small-3.2-24b",
+      "provider": "deepinfra",
+      "providerModelId": "mistralai/Mistral-Small-3.2-24B-Instruct-2506",
+      "starterFreeEligible": false
+    },
+    {
+      "modelId": "mistral-small-24b-2501",
+      "canonicalModelId": "mistral-small-24b-2501",
+      "provider": "deepinfra",
+      "providerModelId": "mistralai/Mistral-Small-24B-Instruct-2501",
+      "starterFreeEligible": false
+    },
+    {
+      "modelId": "gpt-oss-120b",
+      "canonicalModelId": "gpt-oss-120b",
+      "provider": "deepinfra",
+      "providerModelId": "openai/gpt-oss-120b",
+      "starterFreeEligible": false
+    },
+    {
+      "modelId": "gpt-oss-20b",
+      "canonicalModelId": "gpt-oss-20b",
+      "provider": "deepinfra",
+      "providerModelId": "openai/gpt-oss-20b",
+      "starterFreeEligible": false
+    },
+    {
+      "modelId": "phi-4",
+      "canonicalModelId": "phi-4",
+      "provider": "deepinfra",
+      "providerModelId": "microsoft/phi-4",
+      "starterFreeEligible": false
+    },
+    {
+      "modelId": "minimax-m3",
+      "canonicalModelId": "minimax-m3",
+      "provider": "deepinfra",
+      "providerModelId": "MiniMaxAI/MiniMax-M3",
+      "starterFreeEligible": false
+    },
+    {
+      "modelId": "minimax-m2.7",
+      "canonicalModelId": "minimax-m2.7",
+      "provider": "novita",
+      "providerModelId": "minimax/minimax-m2.7",
+      "starterFreeEligible": false
+    },
+    {
+      "modelId": "novita:ling-3.0-flash-vl",
+      "canonicalModelId": "novita:ling-3.0-flash-vl",
+      "provider": "novita",
+      "providerModelId": "inclusionai/ling-3.0-flash-vl",
+      "starterFreeEligible": true
+    },
+    {
+      "modelId": "novita:ling-3.0-flash-sante",
+      "canonicalModelId": "novita:ling-3.0-flash-sante",
+      "provider": "novita",
+      "providerModelId": "inclusionai/ling-3.0-flash-sante",
+      "starterFreeEligible": true
+    },
+    {
+      "modelId": "ternary-bonsai-27b",
+      "canonicalModelId": "ternary-bonsai-27b",
+      "provider": "together",
+      "providerModelId": "Prism-ML/Ternary-Bonsai-27B",
+      "starterFreeEligible": false
+    },
+    {
+      "modelId": "mimo-v2.5",
+      "canonicalModelId": "mimo-v2.5",
+      "provider": "xiaomi_mimo",
+      "providerModelId": "mimo-v2.5",
+      "starterFreeEligible": false
+    },
+    {
+      "modelId": "gpt-5.6-luna",
+      "canonicalModelId": "gpt-5.6-luna",
+      "provider": "openai_direct",
+      "providerModelId": "gpt-5.6-luna",
+      "starterFreeEligible": false
+    },
+    {
+      "modelId": "gpt-5.6-terra",
+      "canonicalModelId": "gpt-5.6-terra",
+      "provider": "openai_direct",
+      "providerModelId": "gpt-5.6-terra",
+      "starterFreeEligible": false
+    },
+    {
+      "modelId": "gpt-5.6-sol",
+      "canonicalModelId": "gpt-5.6-sol",
+      "provider": "openai_direct",
+      "providerModelId": "gpt-5.6-sol",
+      "starterFreeEligible": false
+    },
+    {
+      "modelId": "claude-sonnet-5",
+      "canonicalModelId": "claude-sonnet-5",
+      "provider": "anthropic_direct",
+      "providerModelId": "claude-sonnet-5",
+      "starterFreeEligible": false
+    },
+    {
+      "modelId": "claude-opus-5",
+      "canonicalModelId": "claude-opus-5",
+      "provider": "anthropic_direct",
+      "providerModelId": "claude-opus-5",
+      "starterFreeEligible": false
+    },
+    {
+      "modelId": "xkiro:qwen3.7-flash-free",
+      "canonicalModelId": "xkiro:qwen3.7-flash-free",
+      "provider": "xkiro",
+      "providerModelId": "qwen/qwen3.7-flash:free",
+      "starterFreeEligible": true
+    },
+    {
+      "modelId": "xkiro:minimax-m3-free",
+      "canonicalModelId": "xkiro:minimax-m3-free",
+      "provider": "xkiro",
+      "providerModelId": "minimax/minimax-m3:free",
+      "starterFreeEligible": true
+    },
+    {
+      "modelId": "xkiro:mistral-medium-3.5-free",
+      "canonicalModelId": "xkiro:mistral-medium-3.5-free",
+      "provider": "xkiro",
+      "providerModelId": "mistralai/mistral-medium-3.5",
+      "starterFreeEligible": true
+    },
+    {
+      "modelId": "xkiro:qwen3-coder-plus-free",
+      "canonicalModelId": "xkiro:qwen3-coder-plus-free",
+      "provider": "xkiro",
+      "providerModelId": "qwen/qwen3-coder-plus:free",
+      "starterFreeEligible": true
+    },
+    {
+      "modelId": "xkiro:qwen3.8-omni-flash-free",
+      "canonicalModelId": "xkiro:qwen3.8-omni-flash-free",
+      "provider": "xkiro",
+      "providerModelId": "qwen/qwen3.8-omni-flash:free",
+      "starterFreeEligible": true
+    },
+    {
+      "modelId": "agnes:agnes-2.5-flash",
+      "canonicalModelId": "agnes:agnes-2.5-flash",
+      "provider": "agnes",
+      "providerModelId": "agnes-2.5-flash",
+      "starterFreeEligible": false
+    },
+    {
+      "modelId": "agnes:agnes-3.0-flash",
+      "canonicalModelId": "agnes:agnes-3.0-flash",
+      "provider": "agnes",
+      "providerModelId": "agnes-3.0-flash",
+      "starterFreeEligible": true
+    },
+    {
+      "modelId": "novita:ling-3.0-flash-fin",
+      "canonicalModelId": "novita:ling-3.0-flash-fin",
+      "provider": "novita",
+      "providerModelId": "inclusionai/ling-3.0-flash-fin",
+      "starterFreeEligible": true
+    },
+    {
+      "modelId": "poolside:laguna-s-2.1",
+      "canonicalModelId": "poolside:laguna-s-2.1",
+      "provider": "poolside",
+      "providerModelId": "poolside/laguna-s-2.1",
+      "starterFreeEligible": false
+    },
+    {
+      "modelId": "poolside:laguna-xs-2.1",
+      "canonicalModelId": "poolside:laguna-xs-2.1",
+      "provider": "poolside",
+      "providerModelId": "poolside/laguna-xs-2.1",
+      "starterFreeEligible": false
+    },
+    {
+      "modelId": "cohere:north-mini-code-1-0",
+      "canonicalModelId": "cohere:north-mini-code-1-0",
+      "provider": "cohere",
+      "providerModelId": "north-mini-code-1-0",
+      "starterFreeEligible": false
+    },
+    {
+      "modelId": "openrouter:cohere/north-mini-code:free",
+      "canonicalModelId": "openrouter:cohere/north-mini-code:free",
+      "provider": "openrouter",
+      "providerModelId": "cohere/north-mini-code:free",
+      "starterFreeEligible": false
+    },
+    {
+      "modelId": "novita:ling-3.0-flash",
+      "canonicalModelId": "novita:ling-3.0-flash",
+      "provider": "novita",
+      "providerModelId": "inclusionai/ling-3.0-flash",
+      "starterFreeEligible": true
+    }
+  ]
+}
