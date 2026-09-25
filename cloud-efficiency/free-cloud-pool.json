@@ -1,0 +1,175 @@
+{
+  "version": 1,
+  "purpose": "BotConnector Free Cloud provider relationship pool",
+  "routing_rules": {
+    "preserve_user_selected_model": true,
+    "prefer_free_routes": true,
+    "free_route_order": [
+      "healthy",
+      "lowest_ttft",
+      "session_affinity"
+    ],
+    "failover_on": [
+      "rate_limit",
+      "provider_error",
+      "timeout",
+      "unhealthy"
+    ],
+    "provider_relationship": "Providers contributing free capacity should also receive meaningful PAYG traffic."
+  },
+  "models": [
+    {
+      "id": "ling-3.0-flash",
+      "display_name": "Ling 3.0 Flash",
+      "free": true,
+      "routes": [
+        {
+          "provider": "novita",
+          "upstream_model": "inclusionai/ling-3.0-flash-fin",
+          "price_in_per_m": 0,
+          "price_out_per_m": 0,
+          "credential_env": "NOVITA_API_KEY",
+          "priority": 10
+        },
+        {
+          "provider": "gmi",
+          "upstream_model": "inclusionai/Ling-3.0-flash-fin",
+          "price_in_per_m": 0,
+          "price_out_per_m": 0,
+          "credential_env": "GMI_API_KEY",
+          "priority": 20
+        }
+      ]
+    },
+    {
+      "id": "ternary-bonsai-27b",
+      "display_name": "Ternary Bonsai 27B",
+      "free": true,
+      "routes": [
+        {
+          "provider": "together",
+          "upstream_model": "Prism-ML/Ternary-Bonsai-27B",
+          "price_in_per_m": 0,
+          "price_out_per_m": 0,
+          "credential_env": "TOGETHER_API_KEY",
+          "priority": 10
+        }
+      ]
+    },
+    {
+      "id": "qwen3.8-flash",
+      "display_name": "Qwen 3.8 Flash",
+      "free_to_user": true,
+      "subsidized_payg": true,
+      "routes": [
+        {
+          "provider": "together",
+          "upstream_model": "Qwen/Qwen3.8-Flash",
+          "price_in_per_m": 0.09,
+          "price_out_per_m": 0.28,
+          "price_source": "account_console_2026-09-26",
+          "credential_env": "TOGETHER_API_KEY",
+          "priority": 10
+        }
+      ]
+    },
+    {
+      "id": "glm-5.3-flash",
+      "display_name": "GLM 5.3 Flash",
+      "free_to_user": true,
+      "subsidized_payg": true,
+      "routes": [
+        {
+          "provider": "gmi",
+          "upstream_model": "zai-org/GLM-5.3-Flash",
+          "price_in_per_m": 0.09,
+          "price_out_per_m": 0.3,
+          "price_source": "account_console_2026-09-26",
+          "credential_env": "GMI_API_KEY",
+          "priority": 10
+        }
+      ]
+    },
+    {
+      "id": "mistral-nemo",
+      "display_name": "Mistral Nemo",
+      "free_to_user": true,
+      "subsidized_payg": true,
+      "routes": [
+        {
+          "provider": "novita",
+          "upstream_model": "mistralai/mistral-nemo",
+          "price_in_per_m": 0.04,
+          "price_out_per_m": 0.17,
+          "credential_env": "NOVITA_API_KEY",
+          "priority": 10
+        }
+      ]
+    },
+    {
+      "id": "nemotron-3-nano-30b-a3b",
+      "display_name": "NVIDIA Nemotron 3 Nano 30B A3B",
+      "free_to_user": true,
+      "subsidized_payg": true,
+      "routes": [
+        {
+          "provider": "novita",
+          "upstream_model": "nvidia/nemotron-3-nano-30b-a3b",
+          "price_in_per_m": 0.05,
+          "price_out_per_m": 0.2,
+          "credential_env": "NOVITA_API_KEY",
+          "priority": 10
+        }
+      ]
+    },
+    {
+      "id": "deepseek-v4-flash",
+      "display_name": "DeepSeek V4 Flash",
+      "free_to_user": true,
+      "subsidized_payg": true,
+      "routes": [
+        {
+          "provider": "novita",
+          "upstream_model": "deepseek/deepseek-v4-flash",
+          "price_in_per_m": 0.14,
+          "price_cached_in_per_m": 0.028,
+          "price_out_per_m": 0.28,
+          "credential_env": "NOVITA_API_KEY",
+          "priority": 10
+        }
+      ]
+    },
+    {
+      "id": "tencent-hy3",
+      "display_name": "Tencent Hy3",
+      "free_to_user": true,
+      "subsidized_payg": true,
+      "routes": [
+        {
+          "provider": "novita",
+          "upstream_model": "tencent/hy3",
+          "price_in_per_m": 0.14,
+          "price_out_per_m": 0.58,
+          "credential_env": "NOVITA_API_KEY",
+          "priority": 10
+        }
+      ]
+    },
+    {
+      "id": "mimo-v2.5",
+      "display_name": "Xiaomi MiMo V2.5",
+      "free_to_user": true,
+      "subsidized_payg": true,
+      "routes": [
+        {
+          "provider": "novita",
+          "upstream_model": "xiaomimimo/mimo-v2.5",
+          "price_in_per_m": 0.168,
+          "price_out_per_m": 0.336,
+          "credential_env": "NOVITA_API_KEY",
+          "priority": 10
+        }
+      ]
+    }
+  ]
+}
