@@ -1,0 +1,3 @@
+CHEAPER_PROVIDER_DETECTED model=qwen3.7-plus selected=together candidate=alibaba_global selectedEstimatedCost=0.06400000 candidateEstimatedCost=0.05512500 savingsPct=13.87% trafficProfile={"inputTokens":100000,"outputTokens":25000} eligibilityEvidence=[] verifiedAt=2026-09-18 ACTION=REVIEW_ONLY
+PRICE_DRIFT_COUNT=1
+ROUTES_CHANGED=0

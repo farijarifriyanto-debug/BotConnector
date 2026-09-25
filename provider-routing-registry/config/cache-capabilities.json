@@ -1,0 +1,79 @@
+{
+  "schema": "botconnector.cache-capabilities.v1",
+  "policy": {
+    "manualModelSelection": "same-canonical-model-only",
+    "tenantIsolationRequired": true,
+    "semanticCacheEnabledByDefault": false,
+    "exactResponseCacheEnabledByDefault": false,
+    "sessionAffinityEnabledByDefault": true,
+    "unknownCachePricingBehavior": "fail-closed"
+  },
+  "providers": [
+    {
+      "id": "nararouter",
+      "promptCache": {
+        "support": "observed",
+        "mode": "implicit",
+        "usageReportsCachedTokens": true,
+        "minCacheableTokens": null,
+        "ttlSeconds": null,
+        "notes": "Live account smoke test reported usage.prompt_tokens_details.cached_tokens."
+      }
+    },
+    {
+      "id": "xkiro",
+      "promptCache": {
+        "support": "unknown",
+        "mode": "unknown",
+        "usageReportsCachedTokens": false,
+        "minCacheableTokens": null,
+        "ttlSeconds": null,
+        "notes": "Do not assume prompt-cache support until verified."
+      }
+    },
+    {
+      "id": "siliconflow",
+      "promptCache": {
+        "support": "unknown",
+        "mode": "unknown",
+        "usageReportsCachedTokens": false,
+        "minCacheableTokens": null,
+        "ttlSeconds": null,
+        "notes": "Do not assume prompt-cache support until verified."
+      }
+    },
+    {
+      "id": "opencode_zen",
+      "promptCache": {
+        "support": "unknown",
+        "mode": "unknown",
+        "usageReportsCachedTokens": false,
+        "minCacheableTokens": null,
+        "ttlSeconds": null,
+        "notes": "Do not assume prompt-cache support until verified."
+      }
+    },
+    {
+      "id": "poolside",
+      "promptCache": {
+        "support": "unknown",
+        "mode": "unknown",
+        "usageReportsCachedTokens": false,
+        "minCacheableTokens": null,
+        "ttlSeconds": null,
+        "notes": "Do not assume prompt-cache support until verified."
+      }
+    },
+    {
+      "id": "alibaba_global",
+      "promptCache": {
+        "support": "verified",
+        "mode": "implicit",
+        "usageReportsCachedTokens": true,
+        "minCacheableTokens": 1024,
+        "ttlSeconds": null,
+        "notes": "Alibaba Model Studio official docs: qwen3.8-flash implicit context cache is automatic; common-prefix matching; minimum about 1024 tokens. qwen3.8-flash Global cache-read price is $0.014/M vs $0.113/M standard input as verified 2026-09-23."
+      }
+    }
+  ]
+}

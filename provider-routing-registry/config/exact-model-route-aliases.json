@@ -1,0 +1,15 @@
+{
+  "schema": "botconnector.exact-model-route-aliases.v1",
+  "aliases": [
+    {
+      "canonicalModelId": "minimax-m3-free",
+      "sourceCanonicalModelId": "minimax-m3",
+      "priceKeys": [
+        "xkiro:minimax-m3-free",
+        "deepinfra:minimax-m3"
+      ],
+      "scope": "plain-text-only",
+      "evidence": "Existing BotConnector exact-model authority already treats xKiro minimax/minimax-m3:free and DeepInfra MiniMaxAI/MiniMax-M3 as the same MiniMax M3 canonical model. This alias only gives the Starter free SKU the already-configured DeepInfra exact-model fallback; it does not permit cross-model substitution."
+    }
+  ]
+}

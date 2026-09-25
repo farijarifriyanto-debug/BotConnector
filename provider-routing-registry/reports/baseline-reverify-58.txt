@@ -1,0 +1,67 @@
+# Frozen 2026-09-18 from the unmodified baseline validator run:
+#   node --experimental-strip-types scripts/validate-registry.mjs
+#   cwd: /home/botadmin/newbotconnector/sources/botconnector-model-routing-registry
+# This is the explicit per-item checklist for BASELINE_PRICE_REVERIFY_REQUIRED=58.
+# Format: PRICE_REVERIFY_REQUIRED:<modelId>:<provider>
+
+PRICE_REVERIFY_REQUIRED:deepseek-v3.1:deepinfra
+PRICE_REVERIFY_REQUIRED:deepseek-v3-0324:deepinfra
+PRICE_REVERIFY_REQUIRED:deepseek-v3:deepinfra
+PRICE_REVERIFY_REQUIRED:deepseek-r1-0528:deepinfra
+PRICE_REVERIFY_REQUIRED:deepseek-ocr-2:novita
+PRICE_REVERIFY_REQUIRED:kimi-k3:inference_net
+PRICE_REVERIFY_REQUIRED:kimi-k2.6:chutes
+PRICE_REVERIFY_REQUIRED:kimi-k2.5:novita
+PRICE_REVERIFY_REQUIRED:qwen3.8-27b:chutes
+PRICE_REVERIFY_REQUIRED:qwen3.7-max:alibaba_global
+PRICE_REVERIFY_REQUIRED:qwen3.6-27b:chutes
+PRICE_REVERIFY_REQUIRED:qwen3.5-9b:deepinfra
+PRICE_REVERIFY_REQUIRED:qwen3.5-plus:alibaba_global
+PRICE_REVERIFY_REQUIRED:qwen3.5-flash:alibaba_global
+PRICE_REVERIFY_REQUIRED:qwen3-max-thinking:inference_net
+PRICE_REVERIFY_REQUIRED:qwen3-max:alibaba_global
+PRICE_REVERIFY_REQUIRED:qwen3-next-80b-a3b:deepinfra
+PRICE_REVERIFY_REQUIRED:qwen3-coder-480b-a35b:deepinfra
+PRICE_REVERIFY_REQUIRED:qwen3-235b-a22b-instruct-2507:deepinfra
+PRICE_REVERIFY_REQUIRED:qwen3-vl-235b-a22b:deepinfra
+PRICE_REVERIFY_REQUIRED:qwen3-vl-30b-a3b:deepinfra
+PRICE_REVERIFY_REQUIRED:qwen3-32b:deepinfra
+PRICE_REVERIFY_REQUIRED:qwen3-30b-a3b:deepinfra
+PRICE_REVERIFY_REQUIRED:qwen3-14b:deepinfra
+PRICE_REVERIFY_REQUIRED:qwen2.5-72b:deepinfra
+PRICE_REVERIFY_REQUIRED:glm-5.1:chutes
+PRICE_REVERIFY_REQUIRED:glm-5:inference_net
+PRICE_REVERIFY_REQUIRED:glm-4.7-flash-nvfp4:chutes
+PRICE_REVERIFY_REQUIRED:glm-4.7-bf16:novita
+PRICE_REVERIFY_REQUIRED:glm-4.5-air:novita
+PRICE_REVERIFY_REQUIRED:gemma-4-e4b:deepinfra
+PRICE_REVERIFY_REQUIRED:gemma-4-31b-ultra:deepinfra
+PRICE_REVERIFY_REQUIRED:gemma-4-31b-turbo:deepinfra
+PRICE_REVERIFY_REQUIRED:gemma-4-31b:deepinfra
+PRICE_REVERIFY_REQUIRED:gemma-4-26b-a4b:deepinfra
+PRICE_REVERIFY_REQUIRED:gemma-3-27b:deepinfra
+PRICE_REVERIFY_REQUIRED:gemma-3-12b:novita
+PRICE_REVERIFY_REQUIRED:gemma-3-4b:deepinfra
+PRICE_REVERIFY_REQUIRED:llama-4-scout:deepinfra
+PRICE_REVERIFY_REQUIRED:llama-4-maverick:deepinfra
+PRICE_REVERIFY_REQUIRED:llama-guard-4-12b:deepinfra
+PRICE_REVERIFY_REQUIRED:llama-3.3-70b-turbo:deepinfra
+PRICE_REVERIFY_REQUIRED:llama-3.1-70b-turbo:deepinfra
+PRICE_REVERIFY_REQUIRED:llama-3.1-8b-turbo:deepinfra
+PRICE_REVERIFY_REQUIRED:nemotron-3-nano-omni-30b:chutes
+PRICE_REVERIFY_REQUIRED:nemotron-3-nano-30b-a3b:deepinfra
+PRICE_REVERIFY_REQUIRED:nemotron-3-super-120b-a12b:deepinfra
+PRICE_REVERIFY_REQUIRED:nemotron-content-safety-3.5:deepinfra
+PRICE_REVERIFY_REQUIRED:nemotron-3.5-lightning:deepinfra
+PRICE_REVERIFY_REQUIRED:mistral-nemo:deepinfra
+PRICE_REVERIFY_REQUIRED:mistral-small-3.2-24b:deepinfra
+PRICE_REVERIFY_REQUIRED:mistral-small-24b-2501:deepinfra
+PRICE_REVERIFY_REQUIRED:gpt-oss-120b:deepinfra
+PRICE_REVERIFY_REQUIRED:gpt-oss-20b:deepinfra
+PRICE_REVERIFY_REQUIRED:phi-4:deepinfra
+PRICE_REVERIFY_REQUIRED:minimax-m2.7:novita
+PRICE_REVERIFY_REQUIRED:ling-3.0-flash-vl:novita
+PRICE_REVERIFY_REQUIRED:ling-3.0-flash-sante:novita
+# Baseline config SHA256 (frozen provenance):
+#   static-model-routes.json: fdb8d66ef0e2094e686b775b25310b2c93b385c19c6d1958720b91f7934d3239
+#   price-registry.json: ec4db942457427b7c8cb94e11c6c0b4461d2fc90734ffe548f64468ee290c25a

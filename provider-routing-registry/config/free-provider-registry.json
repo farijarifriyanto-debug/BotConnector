@@ -1,0 +1,108 @@
+{
+  "schema": "botconnector.free-provider-registry.v1",
+  "policy": {
+    "modelSelection": "user-locked",
+    "providerFallback": "same-canonical-model-only",
+    "autoModelSwitch": false,
+    "credentialStorage": "environment-reference-only",
+    "liveDiscoveryRequired": true
+  },
+  "providers": [
+    {
+      "id": "xkiro",
+      "displayName": "xKiro",
+      "enabled": true,
+      "baseUrl": "https://api.xkiro.com/v1",
+      "modelsPath": "/models",
+      "chatCompletionsPath": "/chat/completions",
+      "credentialEnv": "XKIRO_API_KEY",
+      "availabilityClass": "recurring_free",
+      "discovery": "live",
+      "notes": "Existing Starter free pool provider; keep exact-model routing."
+    },
+    {
+      "id": "siliconflow",
+      "displayName": "SiliconFlow",
+      "enabled": true,
+      "baseUrl": "https://api.siliconflow.com/v1",
+      "modelsPath": "/models",
+      "chatCompletionsPath": "/chat/completions",
+      "credentialEnv": "SILICONFLOW_API_KEY",
+      "availabilityClass": "discovered_free",
+      "discovery": "live",
+      "notes": "Only models confirmed free by live discovery are Starter-eligible."
+    },
+    {
+      "id": "nararouter",
+      "displayName": "NaraRouter",
+      "enabled": true,
+      "baseUrl": "https://router.bynara.id/v1",
+      "modelsPath": "/models",
+      "chatCompletionsPath": "/chat/completions",
+      "credentialEnv": "NARAROUTER_API_KEY",
+      "availabilityClass": "authorized_free",
+      "discovery": "live",
+      "notes": "Commercial/shared use authorization confirmed by operator; model availability remains plan/live-catalog scoped."
+    },
+    {
+      "id": "openrouter",
+      "displayName": "OpenRouter",
+      "enabled": true,
+      "baseUrl": "https://openrouter.ai/api/v1",
+      "modelsPath": "/models",
+      "chatCompletionsPath": "/chat/completions",
+      "credentialEnv": "OPENROUTER_API_KEY",
+      "availabilityClass": "dynamic_free",
+      "discovery": "live",
+      "notes": "Use only models live-discovered at zero input/output price; fail closed if pricing or availability changes."
+    },
+    {
+      "id": "opencode_zen",
+      "displayName": "OpenCode Zen",
+      "enabled": true,
+      "baseUrl": "https://opencode.ai/zen/v1",
+      "modelsPath": "/models",
+      "chatCompletionsPath": "/chat/completions",
+      "credentialEnv": "OPENCODE_ZEN_API_KEY",
+      "availabilityClass": "dynamic_free",
+      "discovery": "live",
+      "notes": "Use only models currently returned/marked free; do not assume promotion persistence."
+    },
+    {
+      "id": "poolside",
+      "displayName": "Poolside",
+      "enabled": true,
+      "baseUrl": "https://inference.poolside.ai/v1",
+      "modelsPath": "/models",
+      "chatCompletionsPath": "/chat/completions",
+      "credentialEnv": "POOLSIDE_API_KEY",
+      "availabilityClass": "limited_time_free",
+      "discovery": "live",
+      "notes": "Direct Poolside free availability is time-sensitive; fail closed when model is no longer free."
+    },
+    {
+      "id": "agnes",
+      "displayName": "Agnes AI",
+      "enabled": true,
+      "baseUrl": "https://apihub.agnes-ai.com/v1",
+      "modelsPath": "/models",
+      "chatCompletionsPath": "/chat/completions",
+      "credentialEnv": "AGNES_API_KEY",
+      "availabilityClass": "dynamic_free",
+      "discovery": "live",
+      "notes": "Direct Agnes API. Current free availability must be live-discovered; Starter eligibility stays fail-closed until shared multi-user permission and lifecycle metadata are verified."
+    },
+    {
+      "id": "novita",
+      "displayName": "Novita AI",
+      "enabled": true,
+      "baseUrl": "https://api.novita.ai/openai/v1",
+      "modelsPath": "/models",
+      "chatCompletionsPath": "/chat/completions",
+      "credentialEnv": "NOVITA_API_KEY",
+      "availabilityClass": "authorized_dynamic_free",
+      "discovery": "live",
+      "notes": "Shared BotConnector integration, server-side credential storage, downstream user routing, and Auto Free pool use explicitly approved by Novita DevRel on 2026-09-23. Pricing/availability remain dynamic; fail closed if free pricing or availability changes."
+    }
+  ]
+}

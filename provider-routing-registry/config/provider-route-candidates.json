@@ -1,0 +1,2207 @@
+{
+  "schema": "botconnector.provider-route-candidates.v1",
+  "generatedAt": "2026-09-23T11:27:39.937Z",
+  "source": {
+    "registry": "botconnector-model-routing-registry",
+    "staticRouteCount": 95,
+    "priceOfferCount": 110,
+    "exactModelAliasCount": 1
+  },
+  "policy": {
+    "canonicalModelLocked": true,
+    "providerFallback": "same-canonical-model-only",
+    "autoModelSwitch": false,
+    "unverifiedExcluded": true,
+    "unavailableExcluded": true,
+    "runtimeExecutionIntersectionRequired": true,
+    "capacityCheckRequiredForFreeRoutes": true
+  },
+  "routes": [
+    {
+      "canonicalModelId": "deepseek-v4.1-flash",
+      "displayName": "DeepSeek V4.1 Flash",
+      "primary": {
+        "provider": "deepinfra",
+        "providerModelId": "deepseek-ai/DeepSeek-V4.1-Flash",
+        "priceKey": "deepinfra:deepseek-v4.1-flash"
+      },
+      "candidates": [
+        {
+          "provider": "deepinfra",
+          "providerModelId": "deepseek-ai/DeepSeek-V4.1-Flash",
+          "priceKey": "deepinfra:deepseek-v4.1-flash",
+          "pricingKind": "list",
+          "pricingTrusted": true,
+          "costSwitchEligible": true,
+          "runtimeCurrentOnly": false,
+          "free": false,
+          "verifiedAt": "2026-09-18",
+          "availability": "available",
+          "maxContextTokens": 1048576,
+          "maxOutputTokens": 131072,
+          "pricing": {
+            "uncachedInputPerMTokensUsd": 0.2,
+            "cachedInputPerMTokensUsd": 0.006,
+            "cacheWritePerMTokensUsd": null,
+            "outputPerMTokensUsd": 0.6
+          },
+          "capabilities": {
+            "tools": "unknown",
+            "structuredOutput": "unknown",
+            "vision": "unknown",
+            "reasoning": "unknown",
+            "embeddings": "unknown"
+          }
+        }
+      ]
+    },
+    {
+      "canonicalModelId": "deepseek-v4-flash-0731",
+      "displayName": "DeepSeek V4 Flash 0731",
+      "primary": {
+        "provider": "deepinfra",
+        "providerModelId": "deepseek-ai/DeepSeek-V4-Flash-0731",
+        "priceKey": "deepinfra:deepseek-v4-flash-0731"
+      },
+      "candidates": [
+        {
+          "provider": "deepinfra",
+          "providerModelId": "deepseek-ai/DeepSeek-V4-Flash-0731",
+          "priceKey": "deepinfra:deepseek-v4-flash-0731",
+          "pricingKind": "list",
+          "pricingTrusted": true,
+          "costSwitchEligible": true,
+          "runtimeCurrentOnly": false,
+          "free": false,
+          "verifiedAt": "2026-09-18",
+          "availability": "available",
+          "maxContextTokens": null,
+          "maxOutputTokens": null,
+          "pricing": {
+            "uncachedInputPerMTokensUsd": 0.06,
+            "cachedInputPerMTokensUsd": null,
+            "cacheWritePerMTokensUsd": null,
+            "outputPerMTokensUsd": 0.18
+          },
+          "capabilities": {
+            "tools": "unknown",
+            "structuredOutput": "unknown",
+            "vision": "unknown",
+            "reasoning": "unknown",
+            "embeddings": "unknown"
+          }
+        },
+        {
+          "provider": "together",
+          "providerModelId": "deepseek-ai/DeepSeek-V4-Flash-0731",
+          "priceKey": "together:deepseek-v4-flash-0731",
+          "pricingKind": "list",
+          "pricingTrusted": true,
+          "costSwitchEligible": true,
+          "runtimeCurrentOnly": false,
+          "free": false,
+          "verifiedAt": "2026-09-18",
+          "availability": "available",
+          "maxContextTokens": null,
+          "maxOutputTokens": null,
+          "pricing": {
+            "uncachedInputPerMTokensUsd": 0.14,
+            "cachedInputPerMTokensUsd": null,
+            "cacheWritePerMTokensUsd": null,
+            "outputPerMTokensUsd": 0.28
+          },
+          "capabilities": {
+            "tools": "unknown",
+            "structuredOutput": "unknown",
+            "vision": "unknown",
+            "reasoning": "unknown",
+            "embeddings": "unknown"
+          }
+        },
+        {
+          "provider": "novita",
+          "providerModelId": "deepseek/deepseek-v4-flash-0731",
+          "priceKey": "novita:deepseek-v4-flash-0731",
+          "pricingKind": "list",
+          "pricingTrusted": true,
+          "costSwitchEligible": true,
+          "runtimeCurrentOnly": false,
+          "free": false,
+          "verifiedAt": "2026-09-18",
+          "availability": "available",
+          "maxContextTokens": null,
+          "maxOutputTokens": null,
+          "pricing": {
+            "uncachedInputPerMTokensUsd": 0.44,
+            "cachedInputPerMTokensUsd": null,
+            "cacheWritePerMTokensUsd": null,
+            "outputPerMTokensUsd": 1.32
+          },
+          "capabilities": {
+            "tools": "unknown",
+            "structuredOutput": "unknown",
+            "vision": "unknown",
+            "reasoning": "unknown",
+            "embeddings": "unknown"
+          }
+        }
+      ]
+    },
+    {
+      "canonicalModelId": "deepseek-v4-flash",
+      "displayName": "DeepSeek V4 Flash",
+      "primary": {
+        "provider": "deepinfra",
+        "providerModelId": "deepseek-ai/DeepSeek-V4-Flash",
+        "priceKey": "deepinfra:deepseek-v4-flash"
+      },
+      "candidates": [
+        {
+          "provider": "deepinfra",
+          "providerModelId": "deepseek-ai/DeepSeek-V4-Flash",
+          "priceKey": "deepinfra:deepseek-v4-flash",
+          "pricingKind": "list",
+          "pricingTrusted": true,
+          "costSwitchEligible": true,
+          "runtimeCurrentOnly": false,
+          "free": false,
+          "verifiedAt": "2026-09-18",
+          "availability": "available",
+          "maxContextTokens": null,
+          "maxOutputTokens": null,
+          "pricing": {
+            "uncachedInputPerMTokensUsd": 0.09,
+            "cachedInputPerMTokensUsd": null,
+            "cacheWritePerMTokensUsd": null,
+            "outputPerMTokensUsd": 0.18
+          },
+          "capabilities": {
+            "tools": "unknown",
+            "structuredOutput": "unknown",
+            "vision": "unknown",
+            "reasoning": "unknown",
+            "embeddings": "unknown"
+          }
+        }
+      ]
+    },
+    {
+      "canonicalModelId": "deepseek-v4-pro",
+      "displayName": "DeepSeek V4 Pro",
+      "primary": {
+        "provider": "deepinfra",
+        "providerModelId": "deepseek-ai/DeepSeek-V4-Pro",
+        "priceKey": "deepinfra:deepseek-v4-pro"
+      },
+      "candidates": [
+        {
+          "provider": "deepinfra",
+          "providerModelId": "deepseek-ai/DeepSeek-V4-Pro",
+          "priceKey": "deepinfra:deepseek-v4-pro",
+          "pricingKind": "list",
+          "pricingTrusted": true,
+          "costSwitchEligible": true,
+          "runtimeCurrentOnly": false,
+          "free": false,
+          "verifiedAt": "2026-09-18",
+          "availability": "available",
+          "maxContextTokens": null,
+          "maxOutputTokens": null,
+          "pricing": {
+            "uncachedInputPerMTokensUsd": 1.3,
+            "cachedInputPerMTokensUsd": null,
+            "cacheWritePerMTokensUsd": null,
+            "outputPerMTokensUsd": 2.6
+          },
+          "capabilities": {
+            "tools": "unknown",
+            "structuredOutput": "unknown",
+            "vision": "unknown",
+            "reasoning": "unknown",
+            "embeddings": "unknown"
+          }
+        }
+      ]
+    },
+    {
+      "canonicalModelId": "deepseek-v3.2",
+      "displayName": "DeepSeek V3.2",
+      "primary": {
+        "provider": "novita",
+        "providerModelId": "deepseek/deepseek-v3.2",
+        "priceKey": "novita:deepseek-v3.2"
+      },
+      "candidates": [
+        {
+          "provider": "novita",
+          "providerModelId": "deepseek/deepseek-v3.2",
+          "priceKey": "novita:deepseek-v3.2",
+          "pricingKind": "list",
+          "pricingTrusted": true,
+          "costSwitchEligible": true,
+          "runtimeCurrentOnly": false,
+          "free": false,
+          "verifiedAt": "2026-09-18",
+          "availability": "available",
+          "maxContextTokens": null,
+          "maxOutputTokens": null,
+          "pricing": {
+            "uncachedInputPerMTokensUsd": 0.269,
+            "cachedInputPerMTokensUsd": null,
+            "cacheWritePerMTokensUsd": null,
+            "outputPerMTokensUsd": 0.4
+          },
+          "capabilities": {
+            "tools": "unknown",
+            "structuredOutput": "unknown",
+            "vision": "unknown",
+            "reasoning": "unknown",
+            "embeddings": "unknown"
+          }
+        }
+      ]
+    },
+    {
+      "canonicalModelId": "kimi-k3",
+      "displayName": "Kimi K3",
+      "primary": {
+        "provider": "inference_net",
+        "providerModelId": "moonshotai/kimi-k3",
+        "priceKey": "inference_net:kimi-k3"
+      },
+      "candidates": [
+        {
+          "provider": "inference_net",
+          "providerModelId": "moonshotai/kimi-k3",
+          "priceKey": "inference_net:kimi-k3",
+          "pricingKind": "list",
+          "pricingTrusted": true,
+          "costSwitchEligible": true,
+          "runtimeCurrentOnly": false,
+          "free": false,
+          "verifiedAt": "2026-09-18",
+          "availability": "available",
+          "maxContextTokens": 1048576,
+          "maxOutputTokens": 1048576,
+          "pricing": {
+            "uncachedInputPerMTokensUsd": 2.1,
+            "cachedInputPerMTokensUsd": 0.23,
+            "cacheWritePerMTokensUsd": null,
+            "outputPerMTokensUsd": 10.95
+          },
+          "capabilities": {
+            "tools": true,
+            "structuredOutput": true,
+            "vision": true,
+            "reasoning": true,
+            "embeddings": "unknown"
+          }
+        }
+      ]
+    },
+    {
+      "canonicalModelId": "kimi-k2.7-code",
+      "displayName": "Kimi K2.7 Code",
+      "primary": {
+        "provider": "deepinfra",
+        "providerModelId": "moonshotai/Kimi-K2.7-Code",
+        "priceKey": "deepinfra:kimi-k2.7-code"
+      },
+      "candidates": [
+        {
+          "provider": "deepinfra",
+          "providerModelId": "moonshotai/Kimi-K2.7-Code",
+          "priceKey": "deepinfra:kimi-k2.7-code",
+          "pricingKind": "list",
+          "pricingTrusted": true,
+          "costSwitchEligible": true,
+          "runtimeCurrentOnly": false,
+          "free": false,
+          "verifiedAt": "2026-09-18",
+          "availability": "available",
+          "maxContextTokens": null,
+          "maxOutputTokens": null,
+          "pricing": {
+            "uncachedInputPerMTokensUsd": 0.68,
+            "cachedInputPerMTokensUsd": null,
+            "cacheWritePerMTokensUsd": null,
+            "outputPerMTokensUsd": 3.4
+          },
+          "capabilities": {
+            "tools": "unknown",
+            "structuredOutput": "unknown",
+            "vision": "unknown",
+            "reasoning": "unknown",
+            "embeddings": "unknown"
+          }
+        }
+      ]
+    },
+    {
+      "canonicalModelId": "kimi-k2.6",
+      "displayName": "Kimi K2.6",
+      "primary": {
+        "provider": "chutes",
+        "providerModelId": "moonshotai/Kimi-K2.6-TEE",
+        "priceKey": "chutes:kimi-k2.6"
+      },
+      "candidates": [
+        {
+          "provider": "chutes",
+          "providerModelId": "moonshotai/Kimi-K2.6-TEE",
+          "priceKey": "chutes:kimi-k2.6",
+          "pricingKind": "list",
+          "pricingTrusted": true,
+          "costSwitchEligible": true,
+          "runtimeCurrentOnly": false,
+          "free": false,
+          "verifiedAt": "2026-09-18",
+          "availability": "available",
+          "maxContextTokens": 262144,
+          "maxOutputTokens": null,
+          "pricing": {
+            "uncachedInputPerMTokensUsd": 0.58,
+            "cachedInputPerMTokensUsd": null,
+            "cacheWritePerMTokensUsd": null,
+            "outputPerMTokensUsd": 3.4
+          },
+          "capabilities": {
+            "tools": "unknown",
+            "structuredOutput": "unknown",
+            "vision": true,
+            "reasoning": "unknown",
+            "embeddings": "unknown"
+          }
+        },
+        {
+          "provider": "deepinfra",
+          "providerModelId": "moonshotai/Kimi-K2.6",
+          "priceKey": "deepinfra:kimi-k2.6",
+          "pricingKind": "list",
+          "pricingTrusted": true,
+          "costSwitchEligible": true,
+          "runtimeCurrentOnly": false,
+          "free": false,
+          "verifiedAt": "2026-09-18",
+          "availability": "available",
+          "maxContextTokens": null,
+          "maxOutputTokens": null,
+          "pricing": {
+            "uncachedInputPerMTokensUsd": 0.75,
+            "cachedInputPerMTokensUsd": null,
+            "cacheWritePerMTokensUsd": null,
+            "outputPerMTokensUsd": 3.5
+          },
+          "capabilities": {
+            "tools": "unknown",
+            "structuredOutput": "unknown",
+            "vision": "unknown",
+            "reasoning": "unknown",
+            "embeddings": "unknown"
+          }
+        }
+      ]
+    },
+    {
+      "canonicalModelId": "kimi-k2-instruct",
+      "displayName": "Kimi K2 Instruct",
+      "primary": {
+        "provider": "novita",
+        "providerModelId": "moonshotai/kimi-k2-instruct",
+        "priceKey": "novita:kimi-k2-instruct"
+      },
+      "candidates": [
+        {
+          "provider": "novita",
+          "providerModelId": "moonshotai/kimi-k2-instruct",
+          "priceKey": "novita:kimi-k2-instruct",
+          "pricingKind": "list",
+          "pricingTrusted": true,
+          "costSwitchEligible": true,
+          "runtimeCurrentOnly": false,
+          "free": false,
+          "verifiedAt": "2026-09-18",
+          "availability": "available",
+          "maxContextTokens": null,
+          "maxOutputTokens": null,
+          "pricing": {
+            "uncachedInputPerMTokensUsd": 0.57,
+            "cachedInputPerMTokensUsd": null,
+            "cacheWritePerMTokensUsd": null,
+            "outputPerMTokensUsd": 2.3
+          },
+          "capabilities": {
+            "tools": "unknown",
+            "structuredOutput": "unknown",
+            "vision": "unknown",
+            "reasoning": "unknown",
+            "embeddings": "unknown"
+          }
+        }
+      ]
+    },
+    {
+      "canonicalModelId": "qwen3.8-2.4t-a95b",
+      "displayName": "Qwen3.8 2.4T A95B",
+      "primary": {
+        "provider": "deepinfra",
+        "providerModelId": "Qwen/Qwen3.8-2.4T-A95B",
+        "priceKey": "deepinfra:qwen3.8-2.4t-a95b"
+      },
+      "candidates": [
+        {
+          "provider": "deepinfra",
+          "providerModelId": "Qwen/Qwen3.8-2.4T-A95B",
+          "priceKey": "deepinfra:qwen3.8-2.4t-a95b",
+          "pricingKind": "list",
+          "pricingTrusted": true,
+          "costSwitchEligible": true,
+          "runtimeCurrentOnly": false,
+          "free": false,
+          "verifiedAt": "2026-09-18",
+          "availability": "available",
+          "maxContextTokens": null,
+          "maxOutputTokens": null,
+          "pricing": {
+            "uncachedInputPerMTokensUsd": 2,
+            "cachedInputPerMTokensUsd": null,
+            "cacheWritePerMTokensUsd": null,
+            "outputPerMTokensUsd": 6
+          },
+          "capabilities": {
+            "tools": "unknown",
+            "structuredOutput": "unknown",
+            "vision": "unknown",
+            "reasoning": "unknown",
+            "embeddings": "unknown"
+          }
+        }
+      ]
+    },
+    {
+      "canonicalModelId": "qwen3.8-max",
+      "displayName": "Qwen3.8 Max",
+      "primary": {
+        "provider": "alibaba_global",
+        "providerModelId": "qwen3.8-max",
+        "priceKey": "alibaba_global:qwen3.8-max"
+      },
+      "candidates": [
+        {
+          "provider": "alibaba_global",
+          "providerModelId": "qwen3.8-max",
+          "priceKey": "alibaba_global:qwen3.8-max",
+          "pricingKind": "list",
+          "pricingTrusted": true,
+          "costSwitchEligible": true,
+          "runtimeCurrentOnly": false,
+          "free": false,
+          "verifiedAt": "2026-09-18",
+          "availability": "available",
+          "maxContextTokens": null,
+          "maxOutputTokens": null,
+          "pricing": {
+            "uncachedInputPerMTokensUsd": 1.65,
+            "cachedInputPerMTokensUsd": null,
+            "cacheWritePerMTokensUsd": null,
+            "outputPerMTokensUsd": 4.951
+          },
+          "capabilities": {
+            "tools": "unknown",
+            "structuredOutput": "unknown",
+            "vision": "unknown",
+            "reasoning": "unknown",
+            "embeddings": "unknown"
+          }
+        }
+      ]
+    },
+    {
+      "canonicalModelId": "qwen3.8-flash",
+      "displayName": "Qwen3.8 Flash",
+      "primary": {
+        "provider": "alibaba_global",
+        "providerModelId": "qwen3.8-flash",
+        "priceKey": "alibaba_global:qwen3.8-flash"
+      },
+      "candidates": [
+        {
+          "provider": "alibaba_global",
+          "providerModelId": "qwen3.8-flash",
+          "priceKey": "alibaba_global:qwen3.8-flash",
+          "pricingKind": "list",
+          "pricingTrusted": true,
+          "costSwitchEligible": true,
+          "runtimeCurrentOnly": false,
+          "free": false,
+          "verifiedAt": "2026-09-18",
+          "availability": "available",
+          "maxContextTokens": 1000000,
+          "maxOutputTokens": 131072,
+          "pricing": {
+            "uncachedInputPerMTokensUsd": 0.113,
+            "cachedInputPerMTokensUsd": 0.014,
+            "cacheWritePerMTokensUsd": 0.177,
+            "outputPerMTokensUsd": 0.382
+          },
+          "capabilities": {
+            "tools": true,
+            "structuredOutput": true,
+            "vision": true,
+            "reasoning": true,
+            "embeddings": "unknown"
+          }
+        }
+      ]
+    },
+    {
+      "canonicalModelId": "qwen3.8-27b",
+      "displayName": "Qwen3.8 27B",
+      "primary": {
+        "provider": "chutes",
+        "providerModelId": "Qwen/Qwen3.8-27B-TEE",
+        "priceKey": "chutes:qwen3.8-27b"
+      },
+      "candidates": [
+        {
+          "provider": "chutes",
+          "providerModelId": "Qwen/Qwen3.8-27B-TEE",
+          "priceKey": "chutes:qwen3.8-27b",
+          "pricingKind": "list",
+          "pricingTrusted": true,
+          "costSwitchEligible": true,
+          "runtimeCurrentOnly": false,
+          "free": false,
+          "verifiedAt": "2026-09-18",
+          "availability": "available",
+          "maxContextTokens": 262144,
+          "maxOutputTokens": null,
+          "pricing": {
+            "uncachedInputPerMTokensUsd": 0.32,
+            "cachedInputPerMTokensUsd": null,
+            "cacheWritePerMTokensUsd": null,
+            "outputPerMTokensUsd": 2.5
+          },
+          "capabilities": {
+            "tools": "unknown",
+            "structuredOutput": "unknown",
+            "vision": true,
+            "reasoning": "unknown",
+            "embeddings": "unknown"
+          }
+        },
+        {
+          "provider": "novita",
+          "providerModelId": "qwen/qwen3.8-27b",
+          "priceKey": "novita:qwen3.8-27b",
+          "pricingKind": "list",
+          "pricingTrusted": true,
+          "costSwitchEligible": true,
+          "runtimeCurrentOnly": false,
+          "free": false,
+          "verifiedAt": "2026-09-18",
+          "availability": "available",
+          "maxContextTokens": null,
+          "maxOutputTokens": null,
+          "pricing": {
+            "uncachedInputPerMTokensUsd": 0.42,
+            "cachedInputPerMTokensUsd": null,
+            "cacheWritePerMTokensUsd": null,
+            "outputPerMTokensUsd": 3
+          },
+          "capabilities": {
+            "tools": "unknown",
+            "structuredOutput": "unknown",
+            "vision": "unknown",
+            "reasoning": "unknown",
+            "embeddings": "unknown"
+          }
+        }
+      ]
+    },
+    {
+      "canonicalModelId": "qwen3.7-plus",
+      "displayName": "Qwen3.7 Plus",
+      "primary": {
+        "provider": "together",
+        "providerModelId": "Qwen/Qwen3.7-Plus",
+        "priceKey": "together:qwen3.7-plus"
+      },
+      "candidates": [
+        {
+          "provider": "together",
+          "providerModelId": "Qwen/Qwen3.7-Plus",
+          "priceKey": "together:qwen3.7-plus",
+          "pricingKind": "list",
+          "pricingTrusted": true,
+          "costSwitchEligible": true,
+          "runtimeCurrentOnly": false,
+          "free": false,
+          "verifiedAt": "2026-09-18",
+          "availability": "available",
+          "maxContextTokens": null,
+          "maxOutputTokens": null,
+          "pricing": {
+            "uncachedInputPerMTokensUsd": 0.32,
+            "cachedInputPerMTokensUsd": null,
+            "cacheWritePerMTokensUsd": null,
+            "outputPerMTokensUsd": 1.28
+          },
+          "capabilities": {
+            "tools": "unknown",
+            "structuredOutput": "unknown",
+            "vision": "unknown",
+            "reasoning": "unknown",
+            "embeddings": "unknown"
+          }
+        }
+      ]
+    },
+    {
+      "canonicalModelId": "qwen3.6-35b-a3b",
+      "displayName": "Qwen3.6 35B A3B",
+      "primary": {
+        "provider": "deepinfra",
+        "providerModelId": "Qwen/Qwen3.6-35B-A3B",
+        "priceKey": "deepinfra:qwen3.6-35b-a3b"
+      },
+      "candidates": [
+        {
+          "provider": "deepinfra",
+          "providerModelId": "Qwen/Qwen3.6-35B-A3B",
+          "priceKey": "deepinfra:qwen3.6-35b-a3b",
+          "pricingKind": "list",
+          "pricingTrusted": true,
+          "costSwitchEligible": true,
+          "runtimeCurrentOnly": false,
+          "free": false,
+          "verifiedAt": "2026-09-18",
+          "availability": "available",
+          "maxContextTokens": null,
+          "maxOutputTokens": null,
+          "pricing": {
+            "uncachedInputPerMTokensUsd": 0.1,
+            "cachedInputPerMTokensUsd": null,
+            "cacheWritePerMTokensUsd": null,
+            "outputPerMTokensUsd": 0.95
+          },
+          "capabilities": {
+            "tools": "unknown",
+            "structuredOutput": "unknown",
+            "vision": "unknown",
+            "reasoning": "unknown",
+            "embeddings": "unknown"
+          }
+        }
+      ]
+    },
+    {
+      "canonicalModelId": "qwen3.6-27b",
+      "displayName": "Qwen3.6 27B",
+      "primary": {
+        "provider": "chutes",
+        "providerModelId": "Qwen/Qwen3.6-27B-TEE",
+        "priceKey": "chutes:qwen3.6-27b"
+      },
+      "candidates": [
+        {
+          "provider": "chutes",
+          "providerModelId": "Qwen/Qwen3.6-27B-TEE",
+          "priceKey": "chutes:qwen3.6-27b",
+          "pricingKind": "list",
+          "pricingTrusted": true,
+          "costSwitchEligible": true,
+          "runtimeCurrentOnly": false,
+          "free": false,
+          "verifiedAt": "2026-09-18",
+          "availability": "available",
+          "maxContextTokens": 262144,
+          "maxOutputTokens": null,
+          "pricing": {
+            "uncachedInputPerMTokensUsd": 0.3,
+            "cachedInputPerMTokensUsd": null,
+            "cacheWritePerMTokensUsd": null,
+            "outputPerMTokensUsd": 2
+          },
+          "capabilities": {
+            "tools": "unknown",
+            "structuredOutput": "unknown",
+            "vision": "unknown",
+            "reasoning": "unknown",
+            "embeddings": "unknown"
+          }
+        }
+      ]
+    },
+    {
+      "canonicalModelId": "qwen3.5-397b-a17b",
+      "displayName": "Qwen3.5 397B A17B",
+      "primary": {
+        "provider": "alibaba_global",
+        "providerModelId": "qwen3.5-397b-a17b",
+        "priceKey": "alibaba_global:qwen3.5-397b-a17b"
+      },
+      "candidates": [
+        {
+          "provider": "alibaba_global",
+          "providerModelId": "qwen3.5-397b-a17b",
+          "priceKey": "alibaba_global:qwen3.5-397b-a17b",
+          "pricingKind": "tiered",
+          "pricingTrusted": true,
+          "costSwitchEligible": true,
+          "runtimeCurrentOnly": false,
+          "free": false,
+          "verifiedAt": "2026-09-18",
+          "availability": "available",
+          "maxContextTokens": null,
+          "maxOutputTokens": null,
+          "pricing": {
+            "uncachedInputPerMTokensUsd": 0.172,
+            "cachedInputPerMTokensUsd": null,
+            "cacheWritePerMTokensUsd": null,
+            "outputPerMTokensUsd": 1.032
+          },
+          "capabilities": {
+            "tools": "unknown",
+            "structuredOutput": "unknown",
+            "vision": "unknown",
+            "reasoning": "unknown",
+            "embeddings": "unknown"
+          }
+        },
+        {
+          "provider": "chutes",
+          "providerModelId": "Qwen/Qwen3.5-397B-A17B-TEE",
+          "priceKey": "chutes:qwen3.5-397b-a17b",
+          "pricingKind": "list",
+          "pricingTrusted": true,
+          "costSwitchEligible": true,
+          "runtimeCurrentOnly": false,
+          "free": false,
+          "verifiedAt": "2026-09-18",
+          "availability": "available",
+          "maxContextTokens": null,
+          "maxOutputTokens": null,
+          "pricing": {
+            "uncachedInputPerMTokensUsd": 0.45,
+            "cachedInputPerMTokensUsd": null,
+            "cacheWritePerMTokensUsd": null,
+            "outputPerMTokensUsd": 3
+          },
+          "capabilities": {
+            "tools": "unknown",
+            "structuredOutput": "unknown",
+            "vision": "unknown",
+            "reasoning": "unknown",
+            "embeddings": "unknown"
+          }
+        },
+        {
+          "provider": "deepinfra",
+          "providerModelId": "Qwen/Qwen3.5-397B-A17B",
+          "priceKey": "deepinfra:qwen3.5-397b-a17b",
+          "pricingKind": "list",
+          "pricingTrusted": true,
+          "costSwitchEligible": true,
+          "runtimeCurrentOnly": false,
+          "free": false,
+          "verifiedAt": "2026-09-18",
+          "availability": "available",
+          "maxContextTokens": null,
+          "maxOutputTokens": null,
+          "pricing": {
+            "uncachedInputPerMTokensUsd": 0.45,
+            "cachedInputPerMTokensUsd": null,
+            "cacheWritePerMTokensUsd": null,
+            "outputPerMTokensUsd": 3
+          },
+          "capabilities": {
+            "tools": "unknown",
+            "structuredOutput": "unknown",
+            "vision": "unknown",
+            "reasoning": "unknown",
+            "embeddings": "unknown"
+          }
+        },
+        {
+          "provider": "together",
+          "providerModelId": "Qwen/Qwen3.5-397B-A17B",
+          "priceKey": "together:qwen3.5-397b-a17b",
+          "pricingKind": "list",
+          "pricingTrusted": true,
+          "costSwitchEligible": true,
+          "runtimeCurrentOnly": false,
+          "free": false,
+          "verifiedAt": "2026-09-18",
+          "availability": "available",
+          "maxContextTokens": null,
+          "maxOutputTokens": null,
+          "pricing": {
+            "uncachedInputPerMTokensUsd": 0.6,
+            "cachedInputPerMTokensUsd": null,
+            "cacheWritePerMTokensUsd": null,
+            "outputPerMTokensUsd": 3.6
+          },
+          "capabilities": {
+            "tools": "unknown",
+            "structuredOutput": "unknown",
+            "vision": "unknown",
+            "reasoning": "unknown",
+            "embeddings": "unknown"
+          }
+        }
+      ]
+    },
+    {
+      "canonicalModelId": "qwen3.5-122b-a10b",
+      "displayName": "Qwen3.5 122B A10B",
+      "primary": {
+        "provider": "alibaba_global",
+        "providerModelId": "qwen3.5-122b-a10b",
+        "priceKey": "alibaba_global:qwen3.5-122b-a10b"
+      },
+      "candidates": [
+        {
+          "provider": "alibaba_global",
+          "providerModelId": "qwen3.5-122b-a10b",
+          "priceKey": "alibaba_global:qwen3.5-122b-a10b",
+          "pricingKind": "tiered",
+          "pricingTrusted": true,
+          "costSwitchEligible": true,
+          "runtimeCurrentOnly": false,
+          "free": false,
+          "verifiedAt": "2026-09-18",
+          "availability": "available",
+          "maxContextTokens": null,
+          "maxOutputTokens": null,
+          "pricing": {
+            "uncachedInputPerMTokensUsd": 0.115,
+            "cachedInputPerMTokensUsd": null,
+            "cacheWritePerMTokensUsd": null,
+            "outputPerMTokensUsd": 0.917
+          },
+          "capabilities": {
+            "tools": "unknown",
+            "structuredOutput": "unknown",
+            "vision": "unknown",
+            "reasoning": "unknown",
+            "embeddings": "unknown"
+          }
+        }
+      ]
+    },
+    {
+      "canonicalModelId": "qwen3.5-35b-a3b",
+      "displayName": "Qwen3.5 35B A3B",
+      "primary": {
+        "provider": "alibaba_global",
+        "providerModelId": "qwen3.5-35b-a3b",
+        "priceKey": "alibaba_global:qwen3.5-35b-a3b"
+      },
+      "candidates": [
+        {
+          "provider": "alibaba_global",
+          "providerModelId": "qwen3.5-35b-a3b",
+          "priceKey": "alibaba_global:qwen3.5-35b-a3b",
+          "pricingKind": "tiered",
+          "pricingTrusted": true,
+          "costSwitchEligible": true,
+          "runtimeCurrentOnly": false,
+          "free": false,
+          "verifiedAt": "2026-09-18",
+          "availability": "available",
+          "maxContextTokens": null,
+          "maxOutputTokens": null,
+          "pricing": {
+            "uncachedInputPerMTokensUsd": 0.057,
+            "cachedInputPerMTokensUsd": null,
+            "cacheWritePerMTokensUsd": null,
+            "outputPerMTokensUsd": 0.459
+          },
+          "capabilities": {
+            "tools": "unknown",
+            "structuredOutput": "unknown",
+            "vision": "unknown",
+            "reasoning": "unknown",
+            "embeddings": "unknown"
+          }
+        }
+      ]
+    },
+    {
+      "canonicalModelId": "qwen3.5-27b",
+      "displayName": "Qwen3.5 27B",
+      "primary": {
+        "provider": "alibaba_global",
+        "providerModelId": "qwen3.5-27b",
+        "priceKey": "alibaba_global:qwen3.5-27b"
+      },
+      "candidates": [
+        {
+          "provider": "alibaba_global",
+          "providerModelId": "qwen3.5-27b",
+          "priceKey": "alibaba_global:qwen3.5-27b",
+          "pricingKind": "tiered",
+          "pricingTrusted": true,
+          "costSwitchEligible": true,
+          "runtimeCurrentOnly": false,
+          "free": false,
+          "verifiedAt": "2026-09-18",
+          "availability": "available",
+          "maxContextTokens": null,
+          "maxOutputTokens": null,
+          "pricing": {
+            "uncachedInputPerMTokensUsd": 0.086,
+            "cachedInputPerMTokensUsd": null,
+            "cacheWritePerMTokensUsd": null,
+            "outputPerMTokensUsd": 0.688
+          },
+          "capabilities": {
+            "tools": "unknown",
+            "structuredOutput": "unknown",
+            "vision": "unknown",
+            "reasoning": "unknown",
+            "embeddings": "unknown"
+          }
+        }
+      ]
+    },
+    {
+      "canonicalModelId": "qwen3.5-plus",
+      "displayName": "Qwen3.5 Plus",
+      "primary": {
+        "provider": "alibaba_global",
+        "providerModelId": "qwen3.5-plus",
+        "priceKey": "alibaba_global:qwen3.5-plus"
+      },
+      "candidates": [
+        {
+          "provider": "alibaba_global",
+          "providerModelId": "qwen3.5-plus",
+          "priceKey": "alibaba_global:qwen3.5-plus",
+          "pricingKind": "tiered",
+          "pricingTrusted": true,
+          "costSwitchEligible": true,
+          "runtimeCurrentOnly": false,
+          "free": false,
+          "verifiedAt": "2026-09-18",
+          "availability": "available",
+          "maxContextTokens": 1000000,
+          "maxOutputTokens": null,
+          "pricing": {
+            "uncachedInputPerMTokensUsd": 0.115,
+            "cachedInputPerMTokensUsd": null,
+            "cacheWritePerMTokensUsd": null,
+            "outputPerMTokensUsd": 0.688
+          },
+          "capabilities": {
+            "tools": "unknown",
+            "structuredOutput": "unknown",
+            "vision": "unknown",
+            "reasoning": "unknown",
+            "embeddings": "unknown"
+          }
+        }
+      ]
+    },
+    {
+      "canonicalModelId": "qwen3.5-flash",
+      "displayName": "Qwen3.5 Flash",
+      "primary": {
+        "provider": "alibaba_global",
+        "providerModelId": "qwen3.5-flash",
+        "priceKey": "alibaba_global:qwen3.5-flash"
+      },
+      "candidates": [
+        {
+          "provider": "alibaba_global",
+          "providerModelId": "qwen3.5-flash",
+          "priceKey": "alibaba_global:qwen3.5-flash",
+          "pricingKind": "tiered",
+          "pricingTrusted": true,
+          "costSwitchEligible": true,
+          "runtimeCurrentOnly": false,
+          "free": false,
+          "verifiedAt": "2026-09-18",
+          "availability": "available",
+          "maxContextTokens": 1000000,
+          "maxOutputTokens": null,
+          "pricing": {
+            "uncachedInputPerMTokensUsd": 0.029,
+            "cachedInputPerMTokensUsd": null,
+            "cacheWritePerMTokensUsd": null,
+            "outputPerMTokensUsd": 0.287
+          },
+          "capabilities": {
+            "tools": "unknown",
+            "structuredOutput": "unknown",
+            "vision": "unknown",
+            "reasoning": "unknown",
+            "embeddings": "unknown"
+          }
+        }
+      ]
+    },
+    {
+      "canonicalModelId": "qwen3-max",
+      "displayName": "Qwen3 Max",
+      "primary": {
+        "provider": "alibaba_global",
+        "providerModelId": "qwen3-max",
+        "priceKey": "alibaba_global:qwen3-max"
+      },
+      "candidates": [
+        {
+          "provider": "alibaba_global",
+          "providerModelId": "qwen3-max",
+          "priceKey": "alibaba_global:qwen3-max",
+          "pricingKind": "tiered",
+          "pricingTrusted": true,
+          "costSwitchEligible": true,
+          "runtimeCurrentOnly": false,
+          "free": false,
+          "verifiedAt": "2026-09-18",
+          "availability": "available",
+          "maxContextTokens": 256000,
+          "maxOutputTokens": null,
+          "pricing": {
+            "uncachedInputPerMTokensUsd": 0.359,
+            "cachedInputPerMTokensUsd": null,
+            "cacheWritePerMTokensUsd": null,
+            "outputPerMTokensUsd": 1.434
+          },
+          "capabilities": {
+            "tools": "unknown",
+            "structuredOutput": "unknown",
+            "vision": "unknown",
+            "reasoning": "unknown",
+            "embeddings": "unknown"
+          }
+        }
+      ]
+    },
+    {
+      "canonicalModelId": "qwen3-coder-30b-a3b",
+      "displayName": "Qwen3 Coder 30B A3B",
+      "primary": {
+        "provider": "novita",
+        "providerModelId": "qwen/qwen3-coder-30b-a3b-instruct",
+        "priceKey": "novita:qwen3-coder-30b-a3b"
+      },
+      "candidates": [
+        {
+          "provider": "novita",
+          "providerModelId": "qwen/qwen3-coder-30b-a3b-instruct",
+          "priceKey": "novita:qwen3-coder-30b-a3b",
+          "pricingKind": "list",
+          "pricingTrusted": true,
+          "costSwitchEligible": true,
+          "runtimeCurrentOnly": false,
+          "free": false,
+          "verifiedAt": "2026-09-18",
+          "availability": "available",
+          "maxContextTokens": null,
+          "maxOutputTokens": null,
+          "pricing": {
+            "uncachedInputPerMTokensUsd": 0.07,
+            "cachedInputPerMTokensUsd": null,
+            "cacheWritePerMTokensUsd": null,
+            "outputPerMTokensUsd": 0.27
+          },
+          "capabilities": {
+            "tools": "unknown",
+            "structuredOutput": "unknown",
+            "vision": "unknown",
+            "reasoning": "unknown",
+            "embeddings": "unknown"
+          }
+        }
+      ]
+    },
+    {
+      "canonicalModelId": "qwen3-235b-a22b-thinking-2507",
+      "displayName": "Qwen3 235B A22B Thinking 2507",
+      "primary": {
+        "provider": "fireworks",
+        "providerModelId": "accounts/fireworks/models/qwen3-235b-a22b-thinking-2507",
+        "priceKey": "fireworks:qwen3-235b-a22b-thinking-2507"
+      },
+      "candidates": [
+        {
+          "provider": "fireworks",
+          "providerModelId": "accounts/fireworks/models/qwen3-235b-a22b-thinking-2507",
+          "priceKey": "fireworks:qwen3-235b-a22b-thinking-2507",
+          "pricingKind": "list",
+          "pricingTrusted": true,
+          "costSwitchEligible": true,
+          "runtimeCurrentOnly": false,
+          "free": false,
+          "verifiedAt": "2026-09-18",
+          "availability": "available",
+          "maxContextTokens": null,
+          "maxOutputTokens": null,
+          "pricing": {
+            "uncachedInputPerMTokensUsd": 0.22,
+            "cachedInputPerMTokensUsd": null,
+            "cacheWritePerMTokensUsd": null,
+            "outputPerMTokensUsd": 0.88
+          },
+          "capabilities": {
+            "tools": "unknown",
+            "structuredOutput": "unknown",
+            "vision": "unknown",
+            "reasoning": "unknown",
+            "embeddings": "unknown"
+          }
+        }
+      ]
+    },
+    {
+      "canonicalModelId": "glm-5.3-flash",
+      "displayName": "GLM 5.3 Flash",
+      "primary": {
+        "provider": "deepinfra",
+        "providerModelId": "zai-org/GLM-5.3-Flash",
+        "priceKey": "deepinfra:glm-5.3-flash"
+      },
+      "candidates": [
+        {
+          "provider": "deepinfra",
+          "providerModelId": "zai-org/GLM-5.3-Flash",
+          "priceKey": "deepinfra:glm-5.3-flash",
+          "pricingKind": "promotion",
+          "pricingTrusted": false,
+          "costSwitchEligible": false,
+          "runtimeCurrentOnly": true,
+          "free": false,
+          "verifiedAt": "2026-09-18",
+          "availability": "available",
+          "maxContextTokens": null,
+          "maxOutputTokens": null,
+          "pricing": {
+            "uncachedInputPerMTokensUsd": 0.075,
+            "cachedInputPerMTokensUsd": null,
+            "cacheWritePerMTokensUsd": null,
+            "outputPerMTokensUsd": 0.25
+          },
+          "capabilities": {
+            "tools": "unknown",
+            "structuredOutput": "unknown",
+            "vision": "unknown",
+            "reasoning": "unknown",
+            "embeddings": "unknown"
+          }
+        }
+      ]
+    },
+    {
+      "canonicalModelId": "glm-5.2",
+      "displayName": "GLM 5.2",
+      "primary": {
+        "provider": "deepinfra",
+        "providerModelId": "zai-org/GLM-5.2",
+        "priceKey": "deepinfra:glm-5.2"
+      },
+      "candidates": [
+        {
+          "provider": "deepinfra",
+          "providerModelId": "zai-org/GLM-5.2",
+          "priceKey": "deepinfra:glm-5.2",
+          "pricingKind": "promotion",
+          "pricingTrusted": false,
+          "costSwitchEligible": false,
+          "runtimeCurrentOnly": true,
+          "free": false,
+          "verifiedAt": "2026-09-18",
+          "availability": "available",
+          "maxContextTokens": null,
+          "maxOutputTokens": null,
+          "pricing": {
+            "uncachedInputPerMTokensUsd": 0.488,
+            "cachedInputPerMTokensUsd": null,
+            "cacheWritePerMTokensUsd": null,
+            "outputPerMTokensUsd": 1.56
+          },
+          "capabilities": {
+            "tools": "unknown",
+            "structuredOutput": "unknown",
+            "vision": "unknown",
+            "reasoning": "unknown",
+            "embeddings": "unknown"
+          }
+        },
+        {
+          "provider": "together",
+          "providerModelId": "zai-org/GLM-5.2",
+          "priceKey": "together:glm-5.2",
+          "pricingKind": "list",
+          "pricingTrusted": true,
+          "costSwitchEligible": false,
+          "runtimeCurrentOnly": false,
+          "free": false,
+          "verifiedAt": "2026-09-18",
+          "availability": "available",
+          "maxContextTokens": null,
+          "maxOutputTokens": null,
+          "pricing": {
+            "uncachedInputPerMTokensUsd": 1.4,
+            "cachedInputPerMTokensUsd": null,
+            "cacheWritePerMTokensUsd": null,
+            "outputPerMTokensUsd": 4.4
+          },
+          "capabilities": {
+            "tools": "unknown",
+            "structuredOutput": "unknown",
+            "vision": "unknown",
+            "reasoning": "unknown",
+            "embeddings": "unknown"
+          }
+        }
+      ]
+    },
+    {
+      "canonicalModelId": "glm-5.1",
+      "displayName": "GLM 5.1",
+      "primary": {
+        "provider": "chutes",
+        "providerModelId": "zai-org/GLM-5.1-TEE",
+        "priceKey": "chutes:glm-5.1"
+      },
+      "candidates": [
+        {
+          "provider": "chutes",
+          "providerModelId": "zai-org/GLM-5.1-TEE",
+          "priceKey": "chutes:glm-5.1",
+          "pricingKind": "list",
+          "pricingTrusted": true,
+          "costSwitchEligible": true,
+          "runtimeCurrentOnly": false,
+          "free": false,
+          "verifiedAt": "2026-09-18",
+          "availability": "available",
+          "maxContextTokens": 202752,
+          "maxOutputTokens": null,
+          "pricing": {
+            "uncachedInputPerMTokensUsd": 0.98,
+            "cachedInputPerMTokensUsd": null,
+            "cacheWritePerMTokensUsd": null,
+            "outputPerMTokensUsd": 3.08
+          },
+          "capabilities": {
+            "tools": "unknown",
+            "structuredOutput": "unknown",
+            "vision": "unknown",
+            "reasoning": "unknown",
+            "embeddings": "unknown"
+          }
+        }
+      ]
+    },
+    {
+      "canonicalModelId": "nemotron-3-nano-omni-30b",
+      "displayName": "Nemotron 3 Nano Omni 30B",
+      "primary": {
+        "provider": "chutes",
+        "providerModelId": "nvidia/Nemotron-3-Nano-Omni-30B-TEE",
+        "priceKey": "chutes:nemotron-3-nano-omni-30b"
+      },
+      "candidates": [
+        {
+          "provider": "chutes",
+          "providerModelId": "nvidia/Nemotron-3-Nano-Omni-30B-TEE",
+          "priceKey": "chutes:nemotron-3-nano-omni-30b",
+          "pricingKind": "list",
+          "pricingTrusted": true,
+          "costSwitchEligible": true,
+          "runtimeCurrentOnly": false,
+          "free": false,
+          "verifiedAt": "2026-09-18",
+          "availability": "available",
+          "maxContextTokens": 131072,
+          "maxOutputTokens": null,
+          "pricing": {
+            "uncachedInputPerMTokensUsd": 0.0245,
+            "cachedInputPerMTokensUsd": null,
+            "cacheWritePerMTokensUsd": null,
+            "outputPerMTokensUsd": 0.0978
+          },
+          "capabilities": {
+            "tools": true,
+            "structuredOutput": "unknown",
+            "vision": true,
+            "reasoning": true,
+            "embeddings": "unknown"
+          }
+        }
+      ]
+    },
+    {
+      "canonicalModelId": "nemotron-3-ultra-550b-a55b",
+      "displayName": "Nemotron 3 Ultra 550B A55B",
+      "primary": {
+        "provider": "deepinfra",
+        "providerModelId": "nvidia/NVIDIA-Nemotron-3-Ultra-550B-A55B",
+        "priceKey": "deepinfra:nemotron-3-ultra-550b-a55b"
+      },
+      "candidates": [
+        {
+          "provider": "deepinfra",
+          "providerModelId": "nvidia/NVIDIA-Nemotron-3-Ultra-550B-A55B",
+          "priceKey": "deepinfra:nemotron-3-ultra-550b-a55b",
+          "pricingKind": "list",
+          "pricingTrusted": true,
+          "costSwitchEligible": true,
+          "runtimeCurrentOnly": false,
+          "free": false,
+          "verifiedAt": "2026-09-18",
+          "availability": "available",
+          "maxContextTokens": null,
+          "maxOutputTokens": null,
+          "pricing": {
+            "uncachedInputPerMTokensUsd": 0.5,
+            "cachedInputPerMTokensUsd": null,
+            "cacheWritePerMTokensUsd": null,
+            "outputPerMTokensUsd": 2.2
+          },
+          "capabilities": {
+            "tools": "unknown",
+            "structuredOutput": "unknown",
+            "vision": "unknown",
+            "reasoning": "unknown",
+            "embeddings": "unknown"
+          }
+        }
+      ]
+    },
+    {
+      "canonicalModelId": "gpt-oss-120b",
+      "displayName": "GPT-OSS 120B",
+      "primary": {
+        "provider": "deepinfra",
+        "providerModelId": "openai/gpt-oss-120b",
+        "priceKey": "deepinfra:gpt-oss-120b"
+      },
+      "candidates": [
+        {
+          "provider": "novita",
+          "providerModelId": "openai/gpt-oss-120b",
+          "priceKey": "novita:gpt-oss-120b",
+          "pricingKind": "list",
+          "pricingTrusted": true,
+          "costSwitchEligible": true,
+          "runtimeCurrentOnly": false,
+          "free": false,
+          "verifiedAt": "2026-09-18",
+          "availability": "available",
+          "maxContextTokens": null,
+          "maxOutputTokens": null,
+          "pricing": {
+            "uncachedInputPerMTokensUsd": 0.05,
+            "cachedInputPerMTokensUsd": null,
+            "cacheWritePerMTokensUsd": null,
+            "outputPerMTokensUsd": 0.25
+          },
+          "capabilities": {
+            "tools": "unknown",
+            "structuredOutput": "unknown",
+            "vision": "unknown",
+            "reasoning": "unknown",
+            "embeddings": "unknown"
+          }
+        },
+        {
+          "provider": "together",
+          "providerModelId": "openai/gpt-oss-120b",
+          "priceKey": "together:gpt-oss-120b",
+          "pricingKind": "list",
+          "pricingTrusted": true,
+          "costSwitchEligible": true,
+          "runtimeCurrentOnly": false,
+          "free": false,
+          "verifiedAt": "2026-09-18",
+          "availability": "available",
+          "maxContextTokens": null,
+          "maxOutputTokens": null,
+          "pricing": {
+            "uncachedInputPerMTokensUsd": 0.15,
+            "cachedInputPerMTokensUsd": null,
+            "cacheWritePerMTokensUsd": null,
+            "outputPerMTokensUsd": 0.6
+          },
+          "capabilities": {
+            "tools": "unknown",
+            "structuredOutput": "unknown",
+            "vision": "unknown",
+            "reasoning": "unknown",
+            "embeddings": "unknown"
+          }
+        }
+      ]
+    },
+    {
+      "canonicalModelId": "minimax-m3",
+      "displayName": "MiniMax M3",
+      "primary": {
+        "provider": "deepinfra",
+        "providerModelId": "MiniMaxAI/MiniMax-M3",
+        "priceKey": "deepinfra:minimax-m3"
+      },
+      "candidates": [
+        {
+          "provider": "xkiro",
+          "providerModelId": "minimax/minimax-m3:free",
+          "priceKey": "xkiro:minimax-m3-free-canonical",
+          "pricingKind": "free",
+          "pricingTrusted": true,
+          "costSwitchEligible": true,
+          "runtimeCurrentOnly": false,
+          "free": true,
+          "verifiedAt": "2026-09-23",
+          "availability": "available",
+          "maxContextTokens": 1000000,
+          "maxOutputTokens": 65536,
+          "pricing": {
+            "uncachedInputPerMTokensUsd": 0,
+            "cachedInputPerMTokensUsd": null,
+            "cacheWritePerMTokensUsd": null,
+            "outputPerMTokensUsd": 0
+          },
+          "capabilities": {
+            "tools": true,
+            "structuredOutput": "unknown",
+            "vision": true,
+            "reasoning": true,
+            "embeddings": false
+          }
+        },
+        {
+          "provider": "deepinfra",
+          "providerModelId": "MiniMaxAI/MiniMax-M3",
+          "priceKey": "deepinfra:minimax-m3",
+          "pricingKind": "list",
+          "pricingTrusted": true,
+          "costSwitchEligible": true,
+          "runtimeCurrentOnly": false,
+          "free": false,
+          "verifiedAt": "2026-09-18",
+          "availability": "available",
+          "maxContextTokens": null,
+          "maxOutputTokens": null,
+          "pricing": {
+            "uncachedInputPerMTokensUsd": 0.3,
+            "cachedInputPerMTokensUsd": null,
+            "cacheWritePerMTokensUsd": null,
+            "outputPerMTokensUsd": 1.2
+          },
+          "capabilities": {
+            "tools": "unknown",
+            "structuredOutput": "unknown",
+            "vision": "unknown",
+            "reasoning": "unknown",
+            "embeddings": "unknown"
+          }
+        },
+        {
+          "provider": "together",
+          "providerModelId": "MiniMaxAI/MiniMax-M3",
+          "priceKey": "together:minimax-m3",
+          "pricingKind": "list",
+          "pricingTrusted": true,
+          "costSwitchEligible": true,
+          "runtimeCurrentOnly": false,
+          "free": false,
+          "verifiedAt": "2026-09-18",
+          "availability": "available",
+          "maxContextTokens": null,
+          "maxOutputTokens": null,
+          "pricing": {
+            "uncachedInputPerMTokensUsd": 0.3,
+            "cachedInputPerMTokensUsd": null,
+            "cacheWritePerMTokensUsd": null,
+            "outputPerMTokensUsd": 1.2
+          },
+          "capabilities": {
+            "tools": "unknown",
+            "structuredOutput": "unknown",
+            "vision": true,
+            "reasoning": true,
+            "embeddings": "unknown"
+          }
+        }
+      ]
+    },
+    {
+      "canonicalModelId": "gpt-5.6-luna",
+      "displayName": "GPT-5.6 Luna",
+      "primary": {
+        "provider": "openai_direct",
+        "providerModelId": "gpt-5.6-luna",
+        "priceKey": "openai_direct:gpt-5.6-luna"
+      },
+      "candidates": [
+        {
+          "provider": "openai_direct",
+          "providerModelId": "gpt-5.6-luna",
+          "priceKey": "openai_direct:gpt-5.6-luna",
+          "pricingKind": "list",
+          "pricingTrusted": true,
+          "costSwitchEligible": true,
+          "runtimeCurrentOnly": false,
+          "free": false,
+          "verifiedAt": "2026-09-18",
+          "availability": "available",
+          "maxContextTokens": 1050000,
+          "maxOutputTokens": 128000,
+          "pricing": {
+            "uncachedInputPerMTokensUsd": 0.2,
+            "cachedInputPerMTokensUsd": 0.02,
+            "cacheWritePerMTokensUsd": 0.25,
+            "outputPerMTokensUsd": 1.2
+          },
+          "capabilities": {
+            "tools": true,
+            "structuredOutput": true,
+            "vision": true,
+            "reasoning": true,
+            "embeddings": "unknown"
+          }
+        }
+      ]
+    },
+    {
+      "canonicalModelId": "gpt-5.6-terra",
+      "displayName": "GPT-5.6 Terra",
+      "primary": {
+        "provider": "openai_direct",
+        "providerModelId": "gpt-5.6-terra",
+        "priceKey": "openai_direct:gpt-5.6-terra"
+      },
+      "candidates": [
+        {
+          "provider": "openai_direct",
+          "providerModelId": "gpt-5.6-terra",
+          "priceKey": "openai_direct:gpt-5.6-terra",
+          "pricingKind": "list",
+          "pricingTrusted": true,
+          "costSwitchEligible": true,
+          "runtimeCurrentOnly": false,
+          "free": false,
+          "verifiedAt": "2026-09-18",
+          "availability": "available",
+          "maxContextTokens": 1050000,
+          "maxOutputTokens": 128000,
+          "pricing": {
+            "uncachedInputPerMTokensUsd": 2,
+            "cachedInputPerMTokensUsd": 0.2,
+            "cacheWritePerMTokensUsd": 2.5,
+            "outputPerMTokensUsd": 12
+          },
+          "capabilities": {
+            "tools": true,
+            "structuredOutput": true,
+            "vision": true,
+            "reasoning": true,
+            "embeddings": "unknown"
+          }
+        }
+      ]
+    },
+    {
+      "canonicalModelId": "gpt-5.6-sol",
+      "displayName": "GPT-5.6 Sol",
+      "primary": {
+        "provider": "openai_direct",
+        "providerModelId": "gpt-5.6-sol",
+        "priceKey": "openai_direct:gpt-5.6-sol"
+      },
+      "candidates": [
+        {
+          "provider": "openai_direct",
+          "providerModelId": "gpt-5.6-sol",
+          "priceKey": "openai_direct:gpt-5.6-sol",
+          "pricingKind": "promotion",
+          "pricingTrusted": false,
+          "costSwitchEligible": false,
+          "runtimeCurrentOnly": true,
+          "free": false,
+          "verifiedAt": "2026-09-18",
+          "availability": "available",
+          "maxContextTokens": 1050000,
+          "maxOutputTokens": 128000,
+          "pricing": {
+            "uncachedInputPerMTokensUsd": 4,
+            "cachedInputPerMTokensUsd": 0.4,
+            "cacheWritePerMTokensUsd": 5,
+            "outputPerMTokensUsd": 20
+          },
+          "capabilities": {
+            "tools": true,
+            "structuredOutput": true,
+            "vision": true,
+            "reasoning": true,
+            "embeddings": "unknown"
+          }
+        }
+      ]
+    },
+    {
+      "canonicalModelId": "claude-sonnet-5",
+      "displayName": "Claude Sonnet 5",
+      "primary": {
+        "provider": "anthropic_direct",
+        "providerModelId": "claude-sonnet-5",
+        "priceKey": "anthropic_direct:claude-sonnet-5"
+      },
+      "candidates": [
+        {
+          "provider": "anthropic_direct",
+          "providerModelId": "claude-sonnet-5",
+          "priceKey": "anthropic_direct:claude-sonnet-5",
+          "pricingKind": "list",
+          "pricingTrusted": true,
+          "costSwitchEligible": true,
+          "runtimeCurrentOnly": false,
+          "free": false,
+          "verifiedAt": "2026-09-18",
+          "availability": "available",
+          "maxContextTokens": null,
+          "maxOutputTokens": null,
+          "pricing": {
+            "uncachedInputPerMTokensUsd": 2,
+            "cachedInputPerMTokensUsd": null,
+            "cacheWritePerMTokensUsd": null,
+            "outputPerMTokensUsd": 10
+          },
+          "capabilities": {
+            "tools": true,
+            "structuredOutput": "unknown",
+            "vision": "unknown",
+            "reasoning": true,
+            "embeddings": "unknown"
+          }
+        }
+      ]
+    },
+    {
+      "canonicalModelId": "claude-opus-5",
+      "displayName": "Claude Opus 5",
+      "primary": {
+        "provider": "anthropic_direct",
+        "providerModelId": "claude-opus-5",
+        "priceKey": "anthropic_direct:claude-opus-5"
+      },
+      "candidates": [
+        {
+          "provider": "anthropic_direct",
+          "providerModelId": "claude-opus-5",
+          "priceKey": "anthropic_direct:claude-opus-5",
+          "pricingKind": "list",
+          "pricingTrusted": true,
+          "costSwitchEligible": true,
+          "runtimeCurrentOnly": false,
+          "free": false,
+          "verifiedAt": "2026-09-18",
+          "availability": "available",
+          "maxContextTokens": null,
+          "maxOutputTokens": null,
+          "pricing": {
+            "uncachedInputPerMTokensUsd": 5,
+            "cachedInputPerMTokensUsd": null,
+            "cacheWritePerMTokensUsd": null,
+            "outputPerMTokensUsd": 25
+          },
+          "capabilities": {
+            "tools": true,
+            "structuredOutput": "unknown",
+            "vision": "unknown",
+            "reasoning": true,
+            "embeddings": "unknown"
+          }
+        }
+      ]
+    },
+    {
+      "canonicalModelId": "xkiro:qwen3.7-flash-free",
+      "displayName": "Qwen 3.7 Flash (Free)",
+      "primary": {
+        "provider": "xkiro",
+        "providerModelId": "qwen/qwen3.7-flash:free",
+        "priceKey": "xkiro:qwen3.7-flash-free"
+      },
+      "candidates": [
+        {
+          "provider": "xkiro",
+          "providerModelId": "qwen/qwen3.7-flash:free",
+          "priceKey": "xkiro:qwen3.7-flash-free",
+          "pricingKind": "free",
+          "pricingTrusted": true,
+          "costSwitchEligible": true,
+          "runtimeCurrentOnly": false,
+          "free": true,
+          "verifiedAt": "2026-09-20",
+          "availability": "available",
+          "maxContextTokens": 1000000,
+          "maxOutputTokens": 65536,
+          "pricing": {
+            "uncachedInputPerMTokensUsd": 0,
+            "cachedInputPerMTokensUsd": null,
+            "cacheWritePerMTokensUsd": null,
+            "outputPerMTokensUsd": 0
+          },
+          "capabilities": {
+            "tools": "unknown",
+            "structuredOutput": "unknown",
+            "vision": "unknown",
+            "reasoning": "unknown",
+            "embeddings": "unknown"
+          }
+        }
+      ]
+    },
+    {
+      "canonicalModelId": "xkiro:minimax-m3-free",
+      "displayName": "MiniMax M3 (Free)",
+      "primary": {
+        "provider": "xkiro",
+        "providerModelId": "minimax/minimax-m3:free",
+        "priceKey": "xkiro:minimax-m3-free"
+      },
+      "candidates": [
+        {
+          "provider": "xkiro",
+          "providerModelId": "minimax/minimax-m3:free",
+          "priceKey": "xkiro:minimax-m3-free",
+          "pricingKind": "free",
+          "pricingTrusted": true,
+          "costSwitchEligible": true,
+          "runtimeCurrentOnly": false,
+          "free": true,
+          "verifiedAt": "2026-09-20",
+          "availability": "available",
+          "maxContextTokens": 1000000,
+          "maxOutputTokens": 65536,
+          "pricing": {
+            "uncachedInputPerMTokensUsd": 0,
+            "cachedInputPerMTokensUsd": null,
+            "cacheWritePerMTokensUsd": null,
+            "outputPerMTokensUsd": 0
+          },
+          "capabilities": {
+            "tools": "unknown",
+            "structuredOutput": "unknown",
+            "vision": "unknown",
+            "reasoning": "unknown",
+            "embeddings": "unknown"
+          }
+        }
+      ]
+    },
+    {
+      "canonicalModelId": "xkiro:mistral-medium-3.5-free",
+      "displayName": "Mistral Medium 3.5 (Free)",
+      "primary": {
+        "provider": "xkiro",
+        "providerModelId": "mistralai/mistral-medium-3.5",
+        "priceKey": "xkiro:mistral-medium-3.5-free"
+      },
+      "candidates": [
+        {
+          "provider": "xkiro",
+          "providerModelId": "mistralai/mistral-medium-3.5",
+          "priceKey": "xkiro:mistral-medium-3.5-free",
+          "pricingKind": "free",
+          "pricingTrusted": true,
+          "costSwitchEligible": true,
+          "runtimeCurrentOnly": false,
+          "free": true,
+          "verifiedAt": "2026-09-20",
+          "availability": "available",
+          "maxContextTokens": 256000,
+          "maxOutputTokens": 65536,
+          "pricing": {
+            "uncachedInputPerMTokensUsd": 0,
+            "cachedInputPerMTokensUsd": null,
+            "cacheWritePerMTokensUsd": null,
+            "outputPerMTokensUsd": 0
+          },
+          "capabilities": {
+            "tools": "unknown",
+            "structuredOutput": "unknown",
+            "vision": "unknown",
+            "reasoning": "unknown",
+            "embeddings": "unknown"
+          }
+        }
+      ]
+    },
+    {
+      "canonicalModelId": "xkiro:qwen3-coder-plus-free",
+      "displayName": "Qwen3 Coder Plus (Free)",
+      "primary": {
+        "provider": "xkiro",
+        "providerModelId": "qwen/qwen3-coder-plus:free",
+        "priceKey": "xkiro:qwen3-coder-plus-free"
+      },
+      "candidates": [
+        {
+          "provider": "xkiro",
+          "providerModelId": "qwen/qwen3-coder-plus:free",
+          "priceKey": "xkiro:qwen3-coder-plus-free",
+          "pricingKind": "free",
+          "pricingTrusted": true,
+          "costSwitchEligible": true,
+          "runtimeCurrentOnly": false,
+          "free": true,
+          "verifiedAt": "2026-09-20",
+          "availability": "available",
+          "maxContextTokens": 1048576,
+          "maxOutputTokens": 65536,
+          "pricing": {
+            "uncachedInputPerMTokensUsd": 0,
+            "cachedInputPerMTokensUsd": null,
+            "cacheWritePerMTokensUsd": null,
+            "outputPerMTokensUsd": 0
+          },
+          "capabilities": {
+            "tools": "unknown",
+            "structuredOutput": "unknown",
+            "vision": "unknown",
+            "reasoning": "unknown",
+            "embeddings": "unknown"
+          }
+        }
+      ]
+    },
+    {
+      "canonicalModelId": "xkiro:qwen3.8-omni-flash-free",
+      "displayName": "Qwen3.8 Omni Flash (Free)",
+      "primary": {
+        "provider": "xkiro",
+        "providerModelId": "qwen/qwen3.8-omni-flash:free",
+        "priceKey": "xkiro:qwen3.8-omni-flash-free"
+      },
+      "candidates": [
+        {
+          "provider": "xkiro",
+          "providerModelId": "qwen/qwen3.8-omni-flash:free",
+          "priceKey": "xkiro:qwen3.8-omni-flash-free",
+          "pricingKind": "free",
+          "pricingTrusted": true,
+          "costSwitchEligible": true,
+          "runtimeCurrentOnly": false,
+          "free": true,
+          "verifiedAt": "2026-09-20",
+          "availability": "available",
+          "maxContextTokens": 1000000,
+          "maxOutputTokens": 65536,
+          "pricing": {
+            "uncachedInputPerMTokensUsd": 0,
+            "cachedInputPerMTokensUsd": null,
+            "cacheWritePerMTokensUsd": null,
+            "outputPerMTokensUsd": 0
+          },
+          "capabilities": {
+            "tools": "unknown",
+            "structuredOutput": "unknown",
+            "vision": "unknown",
+            "reasoning": "unknown",
+            "embeddings": "unknown"
+          }
+        }
+      ]
+    },
+    {
+      "canonicalModelId": "agnes:agnes-3.0-flash",
+      "displayName": "Agnes 3.0 Flash",
+      "primary": {
+        "provider": "agnes",
+        "providerModelId": "agnes-3.0-flash",
+        "priceKey": "agnes:agnes-3.0-flash"
+      },
+      "candidates": [
+        {
+          "provider": "agnes",
+          "providerModelId": "agnes-3.0-flash",
+          "priceKey": "agnes:agnes-3.0-flash",
+          "pricingKind": "free",
+          "pricingTrusted": true,
+          "costSwitchEligible": true,
+          "runtimeCurrentOnly": false,
+          "free": true,
+          "verifiedAt": "2026-09-23",
+          "availability": "available",
+          "maxContextTokens": null,
+          "maxOutputTokens": null,
+          "pricing": {
+            "uncachedInputPerMTokensUsd": 0,
+            "cachedInputPerMTokensUsd": null,
+            "cacheWritePerMTokensUsd": null,
+            "outputPerMTokensUsd": 0
+          },
+          "capabilities": {
+            "tools": "unknown",
+            "structuredOutput": "unknown",
+            "vision": "unknown",
+            "reasoning": "unknown",
+            "embeddings": "unknown"
+          }
+        }
+      ]
+    },
+    {
+      "canonicalModelId": "minimax-m3-free",
+      "displayName": "minimax-m3-free",
+      "primary": {
+        "provider": "xkiro",
+        "providerModelId": "minimax/minimax-m3:free",
+        "priceKey": "xkiro:minimax-m3-free"
+      },
+      "candidates": [
+        {
+          "provider": "xkiro",
+          "providerModelId": "minimax/minimax-m3:free",
+          "priceKey": "xkiro:minimax-m3-free",
+          "pricingKind": "free",
+          "pricingTrusted": true,
+          "costSwitchEligible": true,
+          "runtimeCurrentOnly": false,
+          "free": true,
+          "verifiedAt": "2026-09-20",
+          "availability": "available",
+          "maxContextTokens": 1000000,
+          "maxOutputTokens": 65536,
+          "pricing": {
+            "uncachedInputPerMTokensUsd": 0,
+            "cachedInputPerMTokensUsd": null,
+            "cacheWritePerMTokensUsd": null,
+            "outputPerMTokensUsd": 0
+          },
+          "capabilities": {
+            "tools": "unknown",
+            "structuredOutput": "unknown",
+            "vision": "unknown",
+            "reasoning": "unknown",
+            "embeddings": "unknown"
+          }
+        },
+        {
+          "provider": "deepinfra",
+          "providerModelId": "MiniMaxAI/MiniMax-M3",
+          "priceKey": "deepinfra:minimax-m3",
+          "pricingKind": "list",
+          "pricingTrusted": true,
+          "costSwitchEligible": true,
+          "runtimeCurrentOnly": false,
+          "free": false,
+          "verifiedAt": "2026-09-18",
+          "availability": "available",
+          "maxContextTokens": null,
+          "maxOutputTokens": null,
+          "pricing": {
+            "uncachedInputPerMTokensUsd": 0.3,
+            "cachedInputPerMTokensUsd": null,
+            "cacheWritePerMTokensUsd": null,
+            "outputPerMTokensUsd": 1.2
+          },
+          "capabilities": {
+            "tools": "unknown",
+            "structuredOutput": "unknown",
+            "vision": "unknown",
+            "reasoning": "unknown",
+            "embeddings": "unknown"
+          }
+        }
+      ]
+    },
+    {
+      "canonicalModelId": "qwen3.7-flash-free",
+      "displayName": "qwen3.7-flash-free",
+      "primary": {
+        "provider": "xkiro",
+        "providerModelId": "qwen/qwen3.7-flash:free",
+        "priceKey": "xkiro:qwen3.7-flash-free"
+      },
+      "candidates": [
+        {
+          "provider": "xkiro",
+          "providerModelId": "qwen/qwen3.7-flash:free",
+          "priceKey": "xkiro:qwen3.7-flash-free",
+          "pricingKind": "free",
+          "pricingTrusted": true,
+          "costSwitchEligible": true,
+          "runtimeCurrentOnly": false,
+          "free": true,
+          "verifiedAt": "2026-09-20",
+          "availability": "available",
+          "maxContextTokens": 1000000,
+          "maxOutputTokens": 65536,
+          "pricing": {
+            "uncachedInputPerMTokensUsd": 0,
+            "cachedInputPerMTokensUsd": null,
+            "cacheWritePerMTokensUsd": null,
+            "outputPerMTokensUsd": 0
+          },
+          "capabilities": {
+            "tools": "unknown",
+            "structuredOutput": "unknown",
+            "vision": "unknown",
+            "reasoning": "unknown",
+            "embeddings": "unknown"
+          }
+        }
+      ]
+    },
+    {
+      "canonicalModelId": "mistral-medium-3.5-free",
+      "displayName": "mistral-medium-3.5-free",
+      "primary": {
+        "provider": "xkiro",
+        "providerModelId": "mistralai/mistral-medium-3.5",
+        "priceKey": "xkiro:mistral-medium-3.5-free"
+      },
+      "candidates": [
+        {
+          "provider": "xkiro",
+          "providerModelId": "mistralai/mistral-medium-3.5",
+          "priceKey": "xkiro:mistral-medium-3.5-free",
+          "pricingKind": "free",
+          "pricingTrusted": true,
+          "costSwitchEligible": true,
+          "runtimeCurrentOnly": false,
+          "free": true,
+          "verifiedAt": "2026-09-20",
+          "availability": "available",
+          "maxContextTokens": 256000,
+          "maxOutputTokens": 65536,
+          "pricing": {
+            "uncachedInputPerMTokensUsd": 0,
+            "cachedInputPerMTokensUsd": null,
+            "cacheWritePerMTokensUsd": null,
+            "outputPerMTokensUsd": 0
+          },
+          "capabilities": {
+            "tools": "unknown",
+            "structuredOutput": "unknown",
+            "vision": "unknown",
+            "reasoning": "unknown",
+            "embeddings": "unknown"
+          }
+        }
+      ]
+    },
+    {
+      "canonicalModelId": "qwen3-coder-plus-free",
+      "displayName": "qwen3-coder-plus-free",
+      "primary": {
+        "provider": "xkiro",
+        "providerModelId": "qwen/qwen3-coder-plus:free",
+        "priceKey": "xkiro:qwen3-coder-plus-free"
+      },
+      "candidates": [
+        {
+          "provider": "xkiro",
+          "providerModelId": "qwen/qwen3-coder-plus:free",
+          "priceKey": "xkiro:qwen3-coder-plus-free",
+          "pricingKind": "free",
+          "pricingTrusted": true,
+          "costSwitchEligible": true,
+          "runtimeCurrentOnly": false,
+          "free": true,
+          "verifiedAt": "2026-09-20",
+          "availability": "available",
+          "maxContextTokens": 1048576,
+          "maxOutputTokens": 65536,
+          "pricing": {
+            "uncachedInputPerMTokensUsd": 0,
+            "cachedInputPerMTokensUsd": null,
+            "cacheWritePerMTokensUsd": null,
+            "outputPerMTokensUsd": 0
+          },
+          "capabilities": {
+            "tools": "unknown",
+            "structuredOutput": "unknown",
+            "vision": "unknown",
+            "reasoning": "unknown",
+            "embeddings": "unknown"
+          }
+        }
+      ]
+    },
+    {
+      "canonicalModelId": "qwen3.8-omni-flash-free",
+      "displayName": "qwen3.8-omni-flash-free",
+      "primary": {
+        "provider": "xkiro",
+        "providerModelId": "qwen/qwen3.8-omni-flash:free",
+        "priceKey": "xkiro:qwen3.8-omni-flash-free"
+      },
+      "candidates": [
+        {
+          "provider": "xkiro",
+          "providerModelId": "qwen/qwen3.8-omni-flash:free",
+          "priceKey": "xkiro:qwen3.8-omni-flash-free",
+          "pricingKind": "free",
+          "pricingTrusted": true,
+          "costSwitchEligible": true,
+          "runtimeCurrentOnly": false,
+          "free": true,
+          "verifiedAt": "2026-09-20",
+          "availability": "available",
+          "maxContextTokens": 1000000,
+          "maxOutputTokens": 65536,
+          "pricing": {
+            "uncachedInputPerMTokensUsd": 0,
+            "cachedInputPerMTokensUsd": null,
+            "cacheWritePerMTokensUsd": null,
+            "outputPerMTokensUsd": 0
+          },
+          "capabilities": {
+            "tools": "unknown",
+            "structuredOutput": "unknown",
+            "vision": "unknown",
+            "reasoning": "unknown",
+            "embeddings": "unknown"
+          }
+        }
+      ]
+    },
+    {
+      "canonicalModelId": "agnes-3.0-flash",
+      "displayName": "agnes-3.0-flash",
+      "primary": {
+        "provider": "agnes",
+        "providerModelId": "agnes-3.0-flash",
+        "priceKey": "agnes:agnes-3.0-flash"
+      },
+      "candidates": [
+        {
+          "provider": "agnes",
+          "providerModelId": "agnes-3.0-flash",
+          "priceKey": "agnes:agnes-3.0-flash",
+          "pricingKind": "free",
+          "pricingTrusted": true,
+          "costSwitchEligible": true,
+          "runtimeCurrentOnly": false,
+          "free": true,
+          "verifiedAt": "2026-09-23",
+          "availability": "available",
+          "maxContextTokens": null,
+          "maxOutputTokens": null,
+          "pricing": {
+            "uncachedInputPerMTokensUsd": 0,
+            "cachedInputPerMTokensUsd": null,
+            "cacheWritePerMTokensUsd": null,
+            "outputPerMTokensUsd": 0
+          },
+          "capabilities": {
+            "tools": "unknown",
+            "structuredOutput": "unknown",
+            "vision": "unknown",
+            "reasoning": "unknown",
+            "embeddings": "unknown"
+          }
+        }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,15 @@
+{
+  "name": "botconnector-model-routing-registry",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "test": "node --experimental-strip-types --test tests/*.test.mjs",
+    "routes:validate": "node --experimental-strip-types scripts/validate-registry.mjs",
+    "prices:drift": "node --experimental-strip-types scripts/check-price-drift.mjs",
+    "cache:report": "node --experimental-strip-types scripts/cache-economics-report.mjs"
+  },
+  "dependencies": {
+    "redis": "^5.12.1",
+    "yaml": "^2.9.1"
+  }
+}
