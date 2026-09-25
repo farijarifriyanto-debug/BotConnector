@@ -7,6 +7,7 @@ import {
   contractFields,
   revisionFields,
   revisionedStrictObject,
+  JsonValueSchema,
   type JsonValue,
 } from '../common.js';
 
@@ -44,10 +45,12 @@ const safeDeclarativeKeySchema = z
   .regex(
     /^(?!(?:.*[-_])?(?:command|eval|executable|javascript|script|shell|shell[-_]?command)(?:[-_].*)?$).+$/,
     'Executable keys are forbidden',
-  );
+  )
+  .regex(/^(?!on[-_]).+$/, 'Handler-like keys are forbidden');
 
 const safeDeclarativeStringSchema = z
   .string()
+  .regex(/^[^\u0000-\u001F\u007F]*$/, 'Control characters are forbidden')
   .regex(
     /^(?!\s*(?:[jJ][aA][vV][aA][sS][cC][rR][iI][pP][tT]|[vV][bB][sS][cC][rR][iI][pP][tT]):)/,
     'Executable URI schemes are forbidden',
@@ -189,6 +192,55 @@ export const SelectionContextSchema = z.strictObject({
   },
 );
 
+export const DirectEditTargetSchema = z.enum(['content', 'layout', 'style', 'tokens']);
+
+const directEditPathSchema = z.array(safeDeclarativeKeySchema);
+
+export const DirectEditCommandSchema = z.strictObject({
+  ...contractFields,
+  id: IdentifierSchema,
+  canvas_id: IdentifierSchema,
+  selection_id: IdentifierSchema,
+  uiir_revision: RevisionSchema,
+  node_id: IdentifierSchema,
+  target: DirectEditTargetSchema,
+  path: directEditPathSchema,
+  value: JsonValueSchema,
+}).superRefine((value, context) => {
+  if (value.target === 'content') {
+    if (value.path.length > 0) {
+      context.addIssue({
+        code: 'custom',
+        path: ['path'],
+        message: 'content direct edits do not accept a path',
+      });
+    }
+    if (value.value !== null && typeof value.value !== 'string') {
+      context.addIssue({
+        code: 'custom',
+        path: ['value'],
+        message: 'content direct edits require a string or null value',
+      });
+    }
+  } else {
+    const safeValue = safeDeclarativeValueSchema.safeParse(value.value);
+    if (!safeValue.success) {
+      context.addIssue({
+        code: 'custom',
+        path: ['value'],
+        message: 'Declarative direct-edit values must not contain executable URIs or secret-bearing keys',
+      });
+    }
+    if (value.path.length === 0) {
+      context.addIssue({
+        code: 'custom',
+        path: ['path'],
+        message: 'style, layout, and token direct edits require a path',
+      });
+    }
+  }
+});
+
 export const DesignDecisionSchema = revisionedStrictObject({
   ...contractFields,
   id: IdentifierSchema,
@@ -217,5 +269,6 @@ export const ProjectMemoryRevisionSchema = revisionedStrictObject({
 export type UIIRNode = z.infer<typeof UIIRNodeSchema>;
 export type UIIR = z.infer<typeof UIIRSchema>;
 export type SelectionContext = z.infer<typeof SelectionContextSchema>;
+export type DirectEditCommand = z.infer<typeof DirectEditCommandSchema>;
 export type DesignDecision = z.infer<typeof DesignDecisionSchema>;
 export type ProjectMemoryRevision = z.infer<typeof ProjectMemoryRevisionSchema>;

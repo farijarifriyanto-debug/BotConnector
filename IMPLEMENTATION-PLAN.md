@@ -3,9 +3,9 @@
 ## Current phase
 
 ```
-CURRENT_PHASE=PHASE_7_PREVIEW_RUNTIME_AND_BRIDGE
-CURRENT_PHASE_STATUS=PASS_COMMITTED
-NEXT_PHASE=PHASE_8_CANVAS_SELECTION_DIRECT_EDITING
+CURRENT_PHASE=PHASE_8_CANVAS_SELECTION_DIRECT_EDITING
+CURRENT_PHASE_STATUS=IN_PROGRESS
+NEXT_PHASE=PHASE_9_LIVE_GENERATION_AGENT_CURSOR_BRUSH
 NEXT_PHASE_STATUS=NOT_STARTED
 PHASE_0_STARTED=YES
 PHASE_0_STATUS=PASS_LOCKED
@@ -22,12 +22,21 @@ PHASE_5_STATUS=PASS_LOCKED
 PHASE_6_STARTED=YES
 PHASE_6_STATUS=PASS_LOCKED
 PHASE_7_STARTED=YES
+PHASE_7_STATUS=PASS_COMMITTED
+PHASE_8_STARTED=YES
+PHASE_8_STATUS=IN_PROGRESS
 ```
 
 Phase 7 acceptance gate has passed (33 Phase 7 tests, 105/105 sandbox-manager
 regression tests, 151/151 control tests, 47 database tests, 42 contract tests,
-and typechecks clean). Code is ready to commit. Phase 8 must not start until
-Phase 7 is committed and explicit authorization is given.
+and typechecks clean). Phase 8 is active after the Phase 7 commit and explicit
+owner authorization.
+
+Phase 8 has a validated control-plane vertical slice and a separately validated
+vNext Builder surface. The user-facing VNext slice passed authenticated desktop
+and mobile browser checks, but the two implementations are not connected to one
+another in the deployed runtime. Full production end-to-end acceptance remains
+open; Phase 9 must not start.
 
 ## Locked phase order
 

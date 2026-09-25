@@ -1491,6 +1491,9 @@
                     },
                     {
                       "pattern": "^(?!(?:.*[-_])?(?:command|eval|executable|javascript|script|shell|shell[-_]?command)(?:[-_].*)?$).+$"
+                    },
+                    {
+                      "pattern": "^(?!on[-_]).+$"
                     }
                   ]
                 },
@@ -1515,6 +1518,9 @@
                     },
                     {
                       "pattern": "^(?!(?:.*[-_])?(?:command|eval|executable|javascript|script|shell|shell[-_]?command)(?:[-_].*)?$).+$"
+                    },
+                    {
+                      "pattern": "^(?!on[-_]).+$"
                     }
                   ]
                 },
@@ -1539,6 +1545,9 @@
                     },
                     {
                       "pattern": "^(?!(?:.*[-_])?(?:command|eval|executable|javascript|script|shell|shell[-_]?command)(?:[-_].*)?$).+$"
+                    },
+                    {
+                      "pattern": "^(?!on[-_]).+$"
                     }
                   ]
                 },
@@ -1570,6 +1579,9 @@
                     },
                     {
                       "pattern": "^(?!(?:.*[-_])?(?:command|eval|executable|javascript|script|shell|shell[-_]?command)(?:[-_].*)?$).+$"
+                    },
+                    {
+                      "pattern": "^(?!on[-_]).+$"
                     }
                   ]
                 },
@@ -1594,6 +1606,9 @@
                     },
                     {
                       "pattern": "^(?!(?:.*[-_])?(?:command|eval|executable|javascript|script|shell|shell[-_]?command)(?:[-_].*)?$).+$"
+                    },
+                    {
+                      "pattern": "^(?!on[-_]).+$"
                     }
                   ]
                 },
@@ -1658,6 +1673,9 @@
               "type": "string",
               "allOf": [
                 {
+                  "pattern": "^[^\\u0000-\\u001F\\u007F]*$"
+                },
+                {
                   "pattern": "^(?!\\s*(?:[jJ][aA][vV][aA][sS][cC][rR][iI][pP][tT]|[vV][bB][sS][cC][rR][iI][pP][tT]):)"
                 },
                 {
@@ -1691,6 +1709,9 @@
                   },
                   {
                     "pattern": "^(?!(?:.*[-_])?(?:command|eval|executable|javascript|script|shell|shell[-_]?command)(?:[-_].*)?$).+$"
+                  },
+                  {
+                    "pattern": "^(?!on[-_]).+$"
                   }
                 ]
               },
@@ -1766,6 +1787,9 @@
               },
               {
                 "pattern": "^(?!(?:.*[-_])?(?:command|eval|executable|javascript|script|shell|shell[-_]?command)(?:[-_].*)?$).+$"
+              },
+              {
+                "pattern": "^(?!on[-_]).+$"
               }
             ]
           },
@@ -1790,6 +1814,9 @@
               },
               {
                 "pattern": "^(?!(?:.*[-_])?(?:command|eval|executable|javascript|script|shell|shell[-_]?command)(?:[-_].*)?$).+$"
+              },
+              {
+                "pattern": "^(?!on[-_]).+$"
               }
             ]
           },
@@ -1814,6 +1841,9 @@
               },
               {
                 "pattern": "^(?!(?:.*[-_])?(?:command|eval|executable|javascript|script|shell|shell[-_]?command)(?:[-_].*)?$).+$"
+              },
+              {
+                "pattern": "^(?!on[-_]).+$"
               }
             ]
           },
@@ -1845,6 +1875,9 @@
               },
               {
                 "pattern": "^(?!(?:.*[-_])?(?:command|eval|executable|javascript|script|shell|shell[-_]?command)(?:[-_].*)?$).+$"
+              },
+              {
+                "pattern": "^(?!on[-_]).+$"
               }
             ]
           },
@@ -1869,6 +1902,9 @@
               },
               {
                 "pattern": "^(?!(?:.*[-_])?(?:command|eval|executable|javascript|script|shell|shell[-_]?command)(?:[-_].*)?$).+$"
+              },
+              {
+                "pattern": "^(?!on[-_]).+$"
               }
             ]
           },
@@ -1907,6 +1943,9 @@
               "type": "string",
               "allOf": [
                 {
+                  "pattern": "^[^\\u0000-\\u001F\\u007F]*$"
+                },
+                {
                   "pattern": "^(?!\\s*(?:[jJ][aA][vV][aA][sS][cC][rR][iI][pP][tT]|[vV][bB][sS][cC][rR][iI][pP][tT]):)"
                 },
                 {
@@ -1940,6 +1979,9 @@
                   },
                   {
                     "pattern": "^(?!(?:.*[-_])?(?:command|eval|executable|javascript|script|shell|shell[-_]?command)(?:[-_].*)?$).+$"
+                  },
+                  {
+                    "pattern": "^(?!on[-_]).+$"
                   }
                 ]
               },
@@ -2074,6 +2116,117 @@
       ],
       "additionalProperties": false
     },
+    "DirectEditCommand": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "properties": {
+        "version": {
+          "type": "number",
+          "const": 1
+        },
+        "id": {
+          "type": "string",
+          "minLength": 1
+        },
+        "canvas_id": {
+          "type": "string",
+          "minLength": 1
+        },
+        "selection_id": {
+          "type": "string",
+          "minLength": 1
+        },
+        "uiir_revision": {
+          "type": "string",
+          "pattern": "^[0-9]+$"
+        },
+        "node_id": {
+          "type": "string",
+          "minLength": 1
+        },
+        "target": {
+          "type": "string",
+          "enum": [
+            "content",
+            "layout",
+            "style",
+            "tokens"
+          ]
+        },
+        "path": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "minLength": 1,
+            "allOf": [
+              {
+                "pattern": "^[a-z][a-z0-9_-]*$"
+              },
+              {
+                "pattern": "^(?!on(?:abort|animation(?:end|iteration|start)?|auxclick|beforeinput|blur|cancel|canplay|change|click|close|contextmenu|copy|cut|dblclick|drag(?:end|enter|leave|over|start)?|drop|ended|error|focus|input|invalid|key(?:down|press|up)|load|message|mouse(?:down|enter|leave|move|out|over|up)|paste|pause|play|pointer(?:cancel|down|enter|leave|move|out|over|up)|reset|resize|scroll|submit|touch(?:cancel|end|move|start)|transitionend|unload|wheel)$).+$"
+              },
+              {
+                "pattern": "^(?!.*(?:api[-_]?key|access[-_]?token|auth[-_]?token|bearer[-_]?token|client[-_]?secret|private[-_]?key|provider[-_]?credentials?|refresh[-_]?token|password|passwd|secret|credential)).+$"
+              },
+              {
+                "pattern": "^(?!(?:.*[-_])?(?:command|eval|executable|javascript|script|shell|shell[-_]?command)(?:[-_].*)?$).+$"
+              },
+              {
+                "pattern": "^(?!on[-_]).+$"
+              }
+            ]
+          }
+        },
+        "value": {
+          "$ref": "#/$defs/DirectEditCommand/$defs/__schema0"
+        }
+      },
+      "required": [
+        "version",
+        "id",
+        "canvas_id",
+        "selection_id",
+        "uiir_revision",
+        "node_id",
+        "target",
+        "path",
+        "value"
+      ],
+      "additionalProperties": false,
+      "$defs": {
+        "__schema0": {
+          "anyOf": [
+            {
+              "type": "null"
+            },
+            {
+              "type": "boolean"
+            },
+            {
+              "type": "number"
+            },
+            {
+              "type": "string"
+            },
+            {
+              "type": "array",
+              "items": {
+                "$ref": "#/$defs/DirectEditCommand/$defs/__schema0"
+              }
+            },
+            {
+              "type": "object",
+              "propertyNames": {
+                "type": "string"
+              },
+              "additionalProperties": {
+                "$ref": "#/$defs/DirectEditCommand/$defs/__schema0"
+              }
+            }
+          ]
+        }
+      }
+    },
     "ProjectMemoryRevision": {
       "$schema": "https://json-schema.org/draft/2020-12/schema",
       "type": "object",
@@ -2118,6 +2271,9 @@
                   },
                   {
                     "pattern": "^(?!(?:.*[-_])?(?:command|eval|executable|javascript|script|shell|shell[-_]?command)(?:[-_].*)?$).+$"
+                  },
+                  {
+                    "pattern": "^(?!on[-_]).+$"
                   }
                 ]
               },
@@ -2164,6 +2320,9 @@
               "type": "string",
               "allOf": [
                 {
+                  "pattern": "^[^\\u0000-\\u001F\\u007F]*$"
+                },
+                {
                   "pattern": "^(?!\\s*(?:[jJ][aA][vV][aA][sS][cC][rR][iI][pP][tT]|[vV][bB][sS][cC][rR][iI][pP][tT]):)"
                 },
                 {
@@ -2197,6 +2356,9 @@
                   },
                   {
                     "pattern": "^(?!(?:.*[-_])?(?:command|eval|executable|javascript|script|shell|shell[-_]?command)(?:[-_].*)?$).+$"
+                  },
+                  {
+                    "pattern": "^(?!on[-_]).+$"
                   }
                 ]
               },

@@ -9,6 +9,7 @@ import {
   ChangesetSchema,
   ContextSnapshotSchema,
   DesignDecisionSchema,
+  DirectEditCommandSchema,
   ModelRouteSchema,
   ProjectMemoryRevisionSchema,
   SelectionContextSchema,
@@ -96,8 +97,12 @@ describe('design contracts', () => {
       { clientsecret: 'forbidden' },
       { 'private-key': 'forbidden' },
       { dbpassword: 'forbidden' },
+      { on_click: 'forbidden' },
+      { 'on-click': 'forbidden' },
       { href: 'vbscript:msgbox(1)' },
       { href: 'data:text/html,<script>alert(1)</script>' },
+      { href: 'java\nscript:alert(1)' },
+      { href: 'data:\ntext/html,<script>alert(1)</script>' },
       { background: 'url(javascript:alert(1))' },
     ];
 
@@ -157,6 +162,35 @@ describe('design contracts', () => {
       SelectionContextSchema.safeParse({
         ...selection,
         primary_node_id: 'not-selected',
+      }).success,
+    ).toBe(false);
+  });
+
+  it('validates deterministic direct edit commands', () => {
+    expect(
+      DirectEditCommandSchema.parse({
+        version: 1,
+        id: 'edit-1',
+        canvas_id: 'canvas-1',
+        selection_id: 'selection-1',
+        uiir_revision: '2',
+        node_id: 'heading-1',
+        target: 'style',
+        path: ['color'],
+        value: '#222222',
+      }),
+    ).toBeDefined();
+    expect(
+      DirectEditCommandSchema.safeParse({
+        version: 1,
+        id: 'edit-2',
+        canvas_id: 'canvas-1',
+        selection_id: 'selection-1',
+        uiir_revision: '2',
+        node_id: 'heading-1',
+        target: 'style',
+        path: ['onClick'],
+        value: 'alert(1)',
       }).success,
     ).toBe(false);
   });

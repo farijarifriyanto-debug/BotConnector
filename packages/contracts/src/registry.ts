@@ -18,6 +18,7 @@ import {
 import { DeploymentSchema } from './deploy/index.js';
 import {
   DesignDecisionSchema,
+  DirectEditCommandSchema,
   ProjectMemoryRevisionSchema,
   SelectionContextSchema,
   UIIRNodeSchema,
@@ -73,6 +74,7 @@ export const contractSchemas = {
   UIIRNode: UIIRNodeSchema,
   SelectionContext: SelectionContextSchema,
   DesignDecision: DesignDecisionSchema,
+  DirectEditCommand: DirectEditCommandSchema,
   ProjectMemoryRevision: ProjectMemoryRevisionSchema,
   AgentRun: AgentRunSchema,
   ContextSnapshot: ContextSnapshotSchema,

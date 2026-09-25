@@ -522,6 +522,224 @@
           }
         }
       }
+    },
+    "/api/v1/projects/{projectId}/canvases": {
+      "post": {
+        "operationId": "createCanvas",
+        "summary": "Create a declarative UI-IR canvas",
+        "tags": [
+          "Canvas"
+        ],
+        "parameters": [
+          {
+            "name": "projectId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreateCanvasRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Canvas created",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CanvasResponse"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Artifact not found"
+          },
+          "422": {
+            "description": "Validation error"
+          }
+        }
+      },
+      "get": {
+        "operationId": "listCanvases",
+        "summary": "List canvases in a project",
+        "tags": [
+          "Canvas"
+        ],
+        "parameters": [
+          {
+            "name": "projectId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Canvas list",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CanvasListResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/canvases/{canvasId}": {
+      "get": {
+        "operationId": "getCanvas",
+        "summary": "Get a canvas",
+        "tags": [
+          "Canvas"
+        ],
+        "parameters": [
+          {
+            "name": "canvasId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Canvas",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CanvasResponse"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not found"
+          }
+        }
+      }
+    },
+    "/api/v1/canvases/{canvasId}/selections": {
+      "post": {
+        "operationId": "createCanvasSelection",
+        "summary": "Create a revision-bound selection",
+        "tags": [
+          "Canvas"
+        ],
+        "parameters": [
+          {
+            "name": "canvasId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreateSelectionRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Selection created",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SelectionResponse"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not found"
+          },
+          "409": {
+            "description": "Revision conflict"
+          },
+          "422": {
+            "description": "Validation error"
+          }
+        }
+      }
+    },
+    "/api/v1/canvases/{canvasId}/direct-edits": {
+      "post": {
+        "operationId": "applyCanvasDirectEdit",
+        "summary": "Apply a deterministic direct edit",
+        "tags": [
+          "Canvas"
+        ],
+        "parameters": [
+          {
+            "name": "canvasId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "If-Match",
+            "in": "header",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/DirectEditRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Edit applied",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/DirectEditResponse"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not found"
+          },
+          "409": {
+            "description": "Revision conflict"
+          },
+          "422": {
+            "description": "Validation error"
+          }
+        }
+      }
     }
   },
   "components": {
@@ -543,14 +761,12 @@
             "minLength": 1
           },
           "revision": {
-            "type": "integer",
-            "minimum": 0,
-            "maximum": 9007199254740991
+            "type": "string",
+            "pattern": "^[0-9]+$"
           },
           "base_revision": {
-            "type": "integer",
-            "minimum": 0,
-            "maximum": 9007199254740991
+            "type": "string",
+            "pattern": "^[0-9]+$"
           },
           "created_at": {
             "type": "string",
@@ -615,14 +831,12 @@
             ]
           },
           "revision": {
-            "type": "integer",
-            "minimum": 0,
-            "maximum": 9007199254740991
+            "type": "string",
+            "pattern": "^[0-9]+$"
           },
           "base_revision": {
-            "type": "integer",
-            "minimum": 0,
-            "maximum": 9007199254740991
+            "type": "string",
+            "pattern": "^[0-9]+$"
           },
           "current_version_id": {
             "anyOf": [
@@ -723,14 +937,12 @@
             "minLength": 1
           },
           "revision": {
-            "type": "integer",
-            "minimum": 0,
-            "maximum": 9007199254740991
+            "type": "string",
+            "pattern": "^[0-9]+$"
           },
           "base_revision": {
-            "type": "integer",
-            "minimum": 0,
-            "maximum": 9007199254740991
+            "type": "string",
+            "pattern": "^[0-9]+$"
           },
           "source_revision": {
             "type": "string",
@@ -790,14 +1002,12 @@
             "type": "boolean"
           },
           "revision": {
-            "type": "integer",
-            "minimum": 0,
-            "maximum": 9007199254740991
+            "type": "string",
+            "pattern": "^[0-9]+$"
           },
           "base_revision": {
-            "type": "integer",
-            "minimum": 0,
-            "maximum": 9007199254740991
+            "type": "string",
+            "pattern": "^[0-9]+$"
           },
           "created_at": {
             "type": "string",
@@ -858,14 +1068,12 @@
             ]
           },
           "revision": {
-            "type": "integer",
-            "minimum": 0,
-            "maximum": 9007199254740991
+            "type": "string",
+            "pattern": "^[0-9]+$"
           },
           "base_revision": {
-            "type": "integer",
-            "minimum": 0,
-            "maximum": 9007199254740991
+            "type": "string",
+            "pattern": "^[0-9]+$"
           },
           "acceptance_contract_id": {
             "anyOf": [
@@ -973,14 +1181,12 @@
             "minLength": 1
           },
           "revision": {
-            "type": "integer",
-            "minimum": 0,
-            "maximum": 9007199254740991
+            "type": "string",
+            "pattern": "^[0-9]+$"
           },
           "base_revision": {
-            "type": "integer",
-            "minimum": 0,
-            "maximum": 9007199254740991
+            "type": "string",
+            "pattern": "^[0-9]+$"
           },
           "acquired_at": {
             "type": "string",
@@ -1086,14 +1292,12 @@
             "minLength": 1
           },
           "revision": {
-            "type": "integer",
-            "minimum": 0,
-            "maximum": 9007199254740991
+            "type": "string",
+            "pattern": "^[0-9]+$"
           },
           "base_revision": {
-            "type": "integer",
-            "minimum": 0,
-            "maximum": 9007199254740991
+            "type": "string",
+            "pattern": "^[0-9]+$"
           },
           "criteria": {
             "minItems": 1,
@@ -1214,14 +1418,12 @@
             ]
           },
           "revision": {
-            "type": "integer",
-            "minimum": 0,
-            "maximum": 9007199254740991
+            "type": "string",
+            "pattern": "^[0-9]+$"
           },
           "base_revision": {
-            "type": "integer",
-            "minimum": 0,
-            "maximum": 9007199254740991
+            "type": "string",
+            "pattern": "^[0-9]+$"
           },
           "started_at": {
             "anyOf": [
@@ -1886,14 +2088,12 @@
             ]
           },
           "revision": {
-            "type": "integer",
-            "minimum": 0,
-            "maximum": 9007199254740991
+            "type": "string",
+            "pattern": "^[0-9]+$"
           },
           "base_revision": {
-            "type": "integer",
-            "minimum": 0,
-            "maximum": 9007199254740991
+            "type": "string",
+            "pattern": "^[0-9]+$"
           },
           "candidate_revision": {
             "type": "string",
@@ -1957,14 +2157,12 @@
             "minLength": 1
           },
           "revision": {
-            "type": "integer",
-            "minimum": 0,
-            "maximum": 9007199254740991
+            "type": "string",
+            "pattern": "^[0-9]+$"
           },
           "base_revision": {
-            "type": "integer",
-            "minimum": 0,
-            "maximum": 9007199254740991
+            "type": "string",
+            "pattern": "^[0-9]+$"
           },
           "root_node_id": {
             "type": "string",
@@ -2036,6 +2234,9 @@
                       },
                       {
                         "pattern": "^(?!(?:.*[-_])?(?:command|eval|executable|javascript|script|shell|shell[-_]?command)(?:[-_].*)?$).+$"
+                      },
+                      {
+                        "pattern": "^(?!on[-_]).+$"
                       }
                     ]
                   },
@@ -2060,6 +2261,9 @@
                       },
                       {
                         "pattern": "^(?!(?:.*[-_])?(?:command|eval|executable|javascript|script|shell|shell[-_]?command)(?:[-_].*)?$).+$"
+                      },
+                      {
+                        "pattern": "^(?!on[-_]).+$"
                       }
                     ]
                   },
@@ -2084,6 +2288,9 @@
                       },
                       {
                         "pattern": "^(?!(?:.*[-_])?(?:command|eval|executable|javascript|script|shell|shell[-_]?command)(?:[-_].*)?$).+$"
+                      },
+                      {
+                        "pattern": "^(?!on[-_]).+$"
                       }
                     ]
                   },
@@ -2115,6 +2322,9 @@
                       },
                       {
                         "pattern": "^(?!(?:.*[-_])?(?:command|eval|executable|javascript|script|shell|shell[-_]?command)(?:[-_].*)?$).+$"
+                      },
+                      {
+                        "pattern": "^(?!on[-_]).+$"
                       }
                     ]
                   },
@@ -2139,6 +2349,9 @@
                       },
                       {
                         "pattern": "^(?!(?:.*[-_])?(?:command|eval|executable|javascript|script|shell|shell[-_]?command)(?:[-_].*)?$).+$"
+                      },
+                      {
+                        "pattern": "^(?!on[-_]).+$"
                       }
                     ]
                   },
@@ -2203,6 +2416,9 @@
                 "type": "string",
                 "allOf": [
                   {
+                    "pattern": "^[^\\u0000-\\u001F\\u007F]*$"
+                  },
+                  {
                     "pattern": "^(?!\\s*(?:[jJ][aA][vV][aA][sS][cC][rR][iI][pP][tT]|[vV][bB][sS][cC][rR][iI][pP][tT]):)"
                   },
                   {
@@ -2236,6 +2452,9 @@
                     },
                     {
                       "pattern": "^(?!(?:.*[-_])?(?:command|eval|executable|javascript|script|shell|shell[-_]?command)(?:[-_].*)?$).+$"
+                    },
+                    {
+                      "pattern": "^(?!on[-_]).+$"
                     }
                   ]
                 },
@@ -2311,6 +2530,9 @@
                 },
                 {
                   "pattern": "^(?!(?:.*[-_])?(?:command|eval|executable|javascript|script|shell|shell[-_]?command)(?:[-_].*)?$).+$"
+                },
+                {
+                  "pattern": "^(?!on[-_]).+$"
                 }
               ]
             },
@@ -2335,6 +2557,9 @@
                 },
                 {
                   "pattern": "^(?!(?:.*[-_])?(?:command|eval|executable|javascript|script|shell|shell[-_]?command)(?:[-_].*)?$).+$"
+                },
+                {
+                  "pattern": "^(?!on[-_]).+$"
                 }
               ]
             },
@@ -2359,6 +2584,9 @@
                 },
                 {
                   "pattern": "^(?!(?:.*[-_])?(?:command|eval|executable|javascript|script|shell|shell[-_]?command)(?:[-_].*)?$).+$"
+                },
+                {
+                  "pattern": "^(?!on[-_]).+$"
                 }
               ]
             },
@@ -2390,6 +2618,9 @@
                 },
                 {
                   "pattern": "^(?!(?:.*[-_])?(?:command|eval|executable|javascript|script|shell|shell[-_]?command)(?:[-_].*)?$).+$"
+                },
+                {
+                  "pattern": "^(?!on[-_]).+$"
                 }
               ]
             },
@@ -2414,6 +2645,9 @@
                 },
                 {
                   "pattern": "^(?!(?:.*[-_])?(?:command|eval|executable|javascript|script|shell|shell[-_]?command)(?:[-_].*)?$).+$"
+                },
+                {
+                  "pattern": "^(?!on[-_]).+$"
                 }
               ]
             },
@@ -2452,6 +2686,9 @@
                 "type": "string",
                 "allOf": [
                   {
+                    "pattern": "^[^\\u0000-\\u001F\\u007F]*$"
+                  },
+                  {
                     "pattern": "^(?!\\s*(?:[jJ][aA][vV][aA][sS][cC][rR][iI][pP][tT]|[vV][bB][sS][cC][rR][iI][pP][tT]):)"
                   },
                   {
@@ -2485,6 +2722,9 @@
                     },
                     {
                       "pattern": "^(?!(?:.*[-_])?(?:command|eval|executable|javascript|script|shell|shell[-_]?command)(?:[-_].*)?$).+$"
+                    },
+                    {
+                      "pattern": "^(?!on[-_]).+$"
                     }
                   ]
                 },
@@ -2517,9 +2757,8 @@
             "minLength": 1
           },
           "uiir_revision": {
-            "type": "integer",
-            "minimum": 0,
-            "maximum": 9007199254740991
+            "type": "string",
+            "pattern": "^[0-9]+$"
           },
           "selected_node_ids": {
             "minItems": 1,
@@ -2594,14 +2833,12 @@
             "minLength": 1
           },
           "revision": {
-            "type": "integer",
-            "minimum": 0,
-            "maximum": 9007199254740991
+            "type": "string",
+            "pattern": "^[0-9]+$"
           },
           "base_revision": {
-            "type": "integer",
-            "minimum": 0,
-            "maximum": 9007199254740991
+            "type": "string",
+            "pattern": "^[0-9]+$"
           },
           "created_at": {
             "type": "string",
@@ -2622,6 +2859,117 @@
         ],
         "additionalProperties": false
       },
+      "DirectEditCommand": {
+        "$schema": "https://json-schema.org/draft/2020-12/schema",
+        "type": "object",
+        "properties": {
+          "version": {
+            "type": "number",
+            "const": 1
+          },
+          "id": {
+            "type": "string",
+            "minLength": 1
+          },
+          "canvas_id": {
+            "type": "string",
+            "minLength": 1
+          },
+          "selection_id": {
+            "type": "string",
+            "minLength": 1
+          },
+          "uiir_revision": {
+            "type": "string",
+            "pattern": "^[0-9]+$"
+          },
+          "node_id": {
+            "type": "string",
+            "minLength": 1
+          },
+          "target": {
+            "type": "string",
+            "enum": [
+              "content",
+              "layout",
+              "style",
+              "tokens"
+            ]
+          },
+          "path": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "minLength": 1,
+              "allOf": [
+                {
+                  "pattern": "^[a-z][a-z0-9_-]*$"
+                },
+                {
+                  "pattern": "^(?!on(?:abort|animation(?:end|iteration|start)?|auxclick|beforeinput|blur|cancel|canplay|change|click|close|contextmenu|copy|cut|dblclick|drag(?:end|enter|leave|over|start)?|drop|ended|error|focus|input|invalid|key(?:down|press|up)|load|message|mouse(?:down|enter|leave|move|out|over|up)|paste|pause|play|pointer(?:cancel|down|enter|leave|move|out|over|up)|reset|resize|scroll|submit|touch(?:cancel|end|move|start)|transitionend|unload|wheel)$).+$"
+                },
+                {
+                  "pattern": "^(?!.*(?:api[-_]?key|access[-_]?token|auth[-_]?token|bearer[-_]?token|client[-_]?secret|private[-_]?key|provider[-_]?credentials?|refresh[-_]?token|password|passwd|secret|credential)).+$"
+                },
+                {
+                  "pattern": "^(?!(?:.*[-_])?(?:command|eval|executable|javascript|script|shell|shell[-_]?command)(?:[-_].*)?$).+$"
+                },
+                {
+                  "pattern": "^(?!on[-_]).+$"
+                }
+              ]
+            }
+          },
+          "value": {
+            "$ref": "#/components/schemas/DirectEditCommand/$defs/__schema0"
+          }
+        },
+        "required": [
+          "version",
+          "id",
+          "canvas_id",
+          "selection_id",
+          "uiir_revision",
+          "node_id",
+          "target",
+          "path",
+          "value"
+        ],
+        "additionalProperties": false,
+        "$defs": {
+          "__schema0": {
+            "anyOf": [
+              {
+                "type": "null"
+              },
+              {
+                "type": "boolean"
+              },
+              {
+                "type": "number"
+              },
+              {
+                "type": "string"
+              },
+              {
+                "type": "array",
+                "items": {
+                  "$ref": "#/components/schemas/DirectEditCommand/$defs/__schema0"
+                }
+              },
+              {
+                "type": "object",
+                "propertyNames": {
+                  "type": "string"
+                },
+                "additionalProperties": {
+                  "$ref": "#/components/schemas/DirectEditCommand/$defs/__schema0"
+                }
+              }
+            ]
+          }
+        }
+      },
       "ProjectMemoryRevision": {
         "$schema": "https://json-schema.org/draft/2020-12/schema",
         "type": "object",
@@ -2639,14 +2987,12 @@
             "minLength": 1
           },
           "revision": {
-            "type": "integer",
-            "minimum": 0,
-            "maximum": 9007199254740991
+            "type": "string",
+            "pattern": "^[0-9]+$"
           },
           "base_revision": {
-            "type": "integer",
-            "minimum": 0,
-            "maximum": 9007199254740991
+            "type": "string",
+            "pattern": "^[0-9]+$"
           },
           "entries": {
             "type": "array",
@@ -2668,6 +3014,9 @@
                     },
                     {
                       "pattern": "^(?!(?:.*[-_])?(?:command|eval|executable|javascript|script|shell|shell[-_]?command)(?:[-_].*)?$).+$"
+                    },
+                    {
+                      "pattern": "^(?!on[-_]).+$"
                     }
                   ]
                 },
@@ -2714,6 +3063,9 @@
                 "type": "string",
                 "allOf": [
                   {
+                    "pattern": "^[^\\u0000-\\u001F\\u007F]*$"
+                  },
+                  {
                     "pattern": "^(?!\\s*(?:[jJ][aA][vV][aA][sS][cC][rR][iI][pP][tT]|[vV][bB][sS][cC][rR][iI][pP][tT]):)"
                   },
                   {
@@ -2747,6 +3099,9 @@
                     },
                     {
                       "pattern": "^(?!(?:.*[-_])?(?:command|eval|executable|javascript|script|shell|shell[-_]?command)(?:[-_].*)?$).+$"
+                    },
+                    {
+                      "pattern": "^(?!on[-_]).+$"
                     }
                   ]
                 },
@@ -2809,14 +3164,12 @@
             "minLength": 1
           },
           "revision": {
-            "type": "integer",
-            "minimum": 0,
-            "maximum": 9007199254740991
+            "type": "string",
+            "pattern": "^[0-9]+$"
           },
           "base_revision": {
-            "type": "integer",
-            "minimum": 0,
-            "maximum": 9007199254740991
+            "type": "string",
+            "pattern": "^[0-9]+$"
           },
           "started_at": {
             "anyOf": [
@@ -2880,9 +3233,8 @@
             "minLength": 1
           },
           "project_revision": {
-            "type": "integer",
-            "minimum": 0,
-            "maximum": 9007199254740991
+            "type": "string",
+            "pattern": "^[0-9]+$"
           },
           "checkpoint_id": {
             "anyOf": [
@@ -2948,14 +3300,12 @@
             ]
           },
           "revision": {
-            "type": "integer",
-            "minimum": 0,
-            "maximum": 9007199254740991
+            "type": "string",
+            "pattern": "^[0-9]+$"
           },
           "base_revision": {
-            "type": "integer",
-            "minimum": 0,
-            "maximum": 9007199254740991
+            "type": "string",
+            "pattern": "^[0-9]+$"
           },
           "candidates": {
             "minItems": 1,
@@ -3180,14 +3530,12 @@
             ]
           },
           "revision": {
-            "type": "integer",
-            "minimum": 0,
-            "maximum": 9007199254740991
+            "type": "string",
+            "pattern": "^[0-9]+$"
           },
           "base_revision": {
-            "type": "integer",
-            "minimum": 0,
-            "maximum": 9007199254740991
+            "type": "string",
+            "pattern": "^[0-9]+$"
           },
           "operations": {
             "minItems": 1,
@@ -3520,14 +3868,12 @@
             ]
           },
           "revision": {
-            "type": "integer",
-            "minimum": 0,
-            "maximum": 9007199254740991
+            "type": "string",
+            "pattern": "^[0-9]+$"
           },
           "base_revision": {
-            "type": "integer",
-            "minimum": 0,
-            "maximum": 9007199254740991
+            "type": "string",
+            "pattern": "^[0-9]+$"
           },
           "stages": {
             "minItems": 1,
@@ -3767,14 +4113,12 @@
             ]
           },
           "revision": {
-            "type": "integer",
-            "minimum": 0,
-            "maximum": 9007199254740991
+            "type": "string",
+            "pattern": "^[0-9]+$"
           },
           "base_revision": {
-            "type": "integer",
-            "minimum": 0,
-            "maximum": 9007199254740991
+            "type": "string",
+            "pattern": "^[0-9]+$"
           },
           "started_at": {
             "anyOf": [
@@ -3855,14 +4199,12 @@
             ]
           },
           "revision": {
-            "type": "integer",
-            "minimum": 0,
-            "maximum": 9007199254740991
+            "type": "string",
+            "pattern": "^[0-9]+$"
           },
           "base_revision": {
-            "type": "integer",
-            "minimum": 0,
-            "maximum": 9007199254740991
+            "type": "string",
+            "pattern": "^[0-9]+$"
           },
           "created_at": {
             "type": "string",
@@ -3963,496 +4305,481 @@
       },
       "EventEnvelope": {
         "$schema": "https://json-schema.org/draft/2020-12/schema",
-        "type": "object",
-        "properties": {
-          "version": {
-            "type": "number",
-            "const": 1
-          },
-          "type": {
-            "type": "string",
-            "const": "generation_event"
-          },
-          "event": {
+        "oneOf": [
+          {
             "type": "object",
             "properties": {
               "version": {
                 "type": "number",
                 "const": 1
               },
-              "id": {
+              "type": {
                 "type": "string",
-                "minLength": 1
+                "const": "generation_event"
               },
-              "sequence": {
-                "type": "integer",
-                "minimum": 0,
-                "maximum": 9007199254740991
-              },
-              "project_id": {
-                "type": "string",
-                "minLength": 1
-              },
-              "correlation_id": {
-                "type": "string",
-                "minLength": 1
-              },
-              "causation_id": {
-                "anyOf": [
-                  {
-                    "type": "string",
-                    "minLength": 1
-                  },
-                  {
-                    "type": "null"
-                  }
-                ]
-              },
-              "actor": {
+              "event": {
                 "type": "object",
                 "properties": {
-                  "type": {
-                    "type": "string",
-                    "enum": [
-                      "user",
-                      "agent",
-                      "system"
-                    ]
+                  "version": {
+                    "type": "number",
+                    "const": 1
                   },
                   "id": {
                     "type": "string",
                     "minLength": 1
-                  }
-                },
-                "required": [
-                  "type",
-                  "id"
-                ],
-                "additionalProperties": false
-              },
-              "timestamp": {
-                "type": "string",
-                "format": "date-time",
-                "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))T(?:(?:[01]\\d|2[0-3]):[0-5]\\d:[0-5]\\d(?:\\.\\d+)?(?:Z|([+-](?:[01]\\d|2[0-3]):[0-5]\\d)))$"
-              },
-              "payload": {
-                "oneOf": [
-                  {
-                    "type": "object",
-                    "properties": {
-                      "version": {
-                        "type": "number",
-                        "const": 1
-                      },
-                      "family": {
-                        "type": "string",
-                        "const": "generation"
-                      },
-                      "run_id": {
+                  },
+                  "sequence": {
+                    "type": "integer",
+                    "minimum": 0,
+                    "maximum": 9007199254740991
+                  },
+                  "project_id": {
+                    "type": "string",
+                    "minLength": 1
+                  },
+                  "correlation_id": {
+                    "type": "string",
+                    "minLength": 1
+                  },
+                  "causation_id": {
+                    "anyOf": [
+                      {
                         "type": "string",
                         "minLength": 1
                       },
-                      "state": {
-                        "type": "string",
-                        "enum": [
-                          "planning",
-                          "running",
-                          "pausing",
-                          "paused",
-                          "stopping",
-                          "stopped",
-                          "validating",
-                          "repairing",
-                          "completed",
-                          "failed"
-                        ]
+                      {
+                        "type": "null"
                       }
-                    },
-                    "required": [
-                      "version",
-                      "family",
-                      "run_id",
-                      "state"
-                    ],
-                    "additionalProperties": false
+                    ]
                   },
-                  {
+                  "actor": {
                     "type": "object",
                     "properties": {
-                      "version": {
-                        "type": "number",
-                        "const": 1
-                      },
-                      "family": {
+                      "type": {
                         "type": "string",
-                        "const": "plan"
+                        "enum": [
+                          "user",
+                          "agent",
+                          "system"
+                        ]
                       },
-                      "plan_id": {
+                      "id": {
                         "type": "string",
                         "minLength": 1
-                      },
-                      "action": {
-                        "type": "string",
-                        "enum": [
-                          "created",
-                          "updated",
-                          "approved"
-                        ]
                       }
                     },
                     "required": [
-                      "version",
-                      "family",
-                      "plan_id",
-                      "action"
+                      "type",
+                      "id"
                     ],
                     "additionalProperties": false
                   },
-                  {
-                    "type": "object",
-                    "properties": {
-                      "version": {
-                        "type": "number",
-                        "const": 1
-                      },
-                      "family": {
-                        "type": "string",
-                        "const": "focus"
-                      },
-                      "focus_lock_id": {
-                        "type": "string",
-                        "minLength": 1
-                      },
-                      "action": {
-                        "type": "string",
-                        "enum": [
-                          "acquired",
-                          "released"
-                        ]
-                      }
-                    },
-                    "required": [
-                      "version",
-                      "family",
-                      "focus_lock_id",
-                      "action"
-                    ],
-                    "additionalProperties": false
+                  "timestamp": {
+                    "type": "string",
+                    "format": "date-time",
+                    "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))T(?:(?:[01]\\d|2[0-3]):[0-5]\\d:[0-5]\\d(?:\\.\\d+)?(?:Z|([+-](?:[01]\\d|2[0-3]):[0-5]\\d)))$"
                   },
-                  {
-                    "type": "object",
-                    "properties": {
-                      "version": {
-                        "type": "number",
-                        "const": 1
+                  "payload": {
+                    "oneOf": [
+                      {
+                        "type": "object",
+                        "properties": {
+                          "version": {
+                            "type": "number",
+                            "const": 1
+                          },
+                          "family": {
+                            "type": "string",
+                            "const": "generation"
+                          },
+                          "run_id": {
+                            "type": "string",
+                            "minLength": 1
+                          },
+                          "state": {
+                            "type": "string",
+                            "enum": [
+                              "planning",
+                              "running",
+                              "pausing",
+                              "paused",
+                              "stopping",
+                              "stopped",
+                              "validating",
+                              "repairing",
+                              "completed",
+                              "failed"
+                            ]
+                          }
+                        },
+                        "required": [
+                          "version",
+                          "family",
+                          "run_id",
+                          "state"
+                        ],
+                        "additionalProperties": false
                       },
-                      "family": {
-                        "type": "string",
-                        "const": "frame"
+                      {
+                        "type": "object",
+                        "properties": {
+                          "version": {
+                            "type": "number",
+                            "const": 1
+                          },
+                          "family": {
+                            "type": "string",
+                            "const": "plan"
+                          },
+                          "plan_id": {
+                            "type": "string",
+                            "minLength": 1
+                          },
+                          "action": {
+                            "type": "string",
+                            "enum": [
+                              "created",
+                              "updated",
+                              "approved"
+                            ]
+                          }
+                        },
+                        "required": [
+                          "version",
+                          "family",
+                          "plan_id",
+                          "action"
+                        ],
+                        "additionalProperties": false
                       },
-                      "frame_id": {
-                        "type": "string",
-                        "minLength": 1
+                      {
+                        "type": "object",
+                        "properties": {
+                          "version": {
+                            "type": "number",
+                            "const": 1
+                          },
+                          "family": {
+                            "type": "string",
+                            "const": "focus"
+                          },
+                          "focus_lock_id": {
+                            "type": "string",
+                            "minLength": 1
+                          },
+                          "action": {
+                            "type": "string",
+                            "enum": [
+                              "acquired",
+                              "released"
+                            ]
+                          }
+                        },
+                        "required": [
+                          "version",
+                          "family",
+                          "focus_lock_id",
+                          "action"
+                        ],
+                        "additionalProperties": false
                       },
-                      "action": {
-                        "type": "string",
-                        "enum": [
-                          "created",
-                          "updated",
-                          "removed"
-                        ]
-                      }
-                    },
-                    "required": [
-                      "version",
-                      "family",
-                      "frame_id",
-                      "action"
-                    ],
-                    "additionalProperties": false
-                  },
-                  {
-                    "type": "object",
-                    "properties": {
-                      "version": {
-                        "type": "number",
-                        "const": 1
+                      {
+                        "type": "object",
+                        "properties": {
+                          "version": {
+                            "type": "number",
+                            "const": 1
+                          },
+                          "family": {
+                            "type": "string",
+                            "const": "frame"
+                          },
+                          "frame_id": {
+                            "type": "string",
+                            "minLength": 1
+                          },
+                          "action": {
+                            "type": "string",
+                            "enum": [
+                              "created",
+                              "updated",
+                              "removed"
+                            ]
+                          }
+                        },
+                        "required": [
+                          "version",
+                          "family",
+                          "frame_id",
+                          "action"
+                        ],
+                        "additionalProperties": false
                       },
-                      "family": {
-                        "type": "string",
-                        "const": "section"
+                      {
+                        "type": "object",
+                        "properties": {
+                          "version": {
+                            "type": "number",
+                            "const": 1
+                          },
+                          "family": {
+                            "type": "string",
+                            "const": "section"
+                          },
+                          "section_id": {
+                            "type": "string",
+                            "minLength": 1
+                          },
+                          "action": {
+                            "type": "string",
+                            "enum": [
+                              "created",
+                              "updated",
+                              "removed"
+                            ]
+                          }
+                        },
+                        "required": [
+                          "version",
+                          "family",
+                          "section_id",
+                          "action"
+                        ],
+                        "additionalProperties": false
                       },
-                      "section_id": {
-                        "type": "string",
-                        "minLength": 1
+                      {
+                        "type": "object",
+                        "properties": {
+                          "version": {
+                            "type": "number",
+                            "const": 1
+                          },
+                          "family": {
+                            "type": "string",
+                            "const": "component"
+                          },
+                          "component_id": {
+                            "type": "string",
+                            "minLength": 1
+                          },
+                          "action": {
+                            "type": "string",
+                            "enum": [
+                              "created",
+                              "updated",
+                              "removed"
+                            ]
+                          }
+                        },
+                        "required": [
+                          "version",
+                          "family",
+                          "component_id",
+                          "action"
+                        ],
+                        "additionalProperties": false
                       },
-                      "action": {
-                        "type": "string",
-                        "enum": [
-                          "created",
-                          "updated",
-                          "removed"
-                        ]
-                      }
-                    },
-                    "required": [
-                      "version",
-                      "family",
-                      "section_id",
-                      "action"
-                    ],
-                    "additionalProperties": false
-                  },
-                  {
-                    "type": "object",
-                    "properties": {
-                      "version": {
-                        "type": "number",
-                        "const": 1
+                      {
+                        "type": "object",
+                        "properties": {
+                          "version": {
+                            "type": "number",
+                            "const": 1
+                          },
+                          "family": {
+                            "type": "string",
+                            "const": "style"
+                          },
+                          "target_id": {
+                            "type": "string",
+                            "minLength": 1
+                          },
+                          "action": {
+                            "type": "string",
+                            "const": "updated"
+                          }
+                        },
+                        "required": [
+                          "version",
+                          "family",
+                          "target_id",
+                          "action"
+                        ],
+                        "additionalProperties": false
                       },
-                      "family": {
-                        "type": "string",
-                        "const": "component"
+                      {
+                        "type": "object",
+                        "properties": {
+                          "version": {
+                            "type": "number",
+                            "const": 1
+                          },
+                          "family": {
+                            "type": "string",
+                            "const": "asset"
+                          },
+                          "asset_id": {
+                            "type": "string",
+                            "minLength": 1
+                          },
+                          "action": {
+                            "type": "string",
+                            "enum": [
+                              "created",
+                              "updated",
+                              "removed"
+                            ]
+                          }
+                        },
+                        "required": [
+                          "version",
+                          "family",
+                          "asset_id",
+                          "action"
+                        ],
+                        "additionalProperties": false
                       },
-                      "component_id": {
-                        "type": "string",
-                        "minLength": 1
+                      {
+                        "type": "object",
+                        "properties": {
+                          "version": {
+                            "type": "number",
+                            "const": 1
+                          },
+                          "family": {
+                            "type": "string",
+                            "const": "transaction"
+                          },
+                          "transaction_id": {
+                            "type": "string",
+                            "minLength": 1
+                          },
+                          "state": {
+                            "type": "string",
+                            "enum": [
+                              "open",
+                              "validating",
+                              "committed",
+                              "rejected"
+                            ]
+                          }
+                        },
+                        "required": [
+                          "version",
+                          "family",
+                          "transaction_id",
+                          "state"
+                        ],
+                        "additionalProperties": false
                       },
-                      "action": {
-                        "type": "string",
-                        "enum": [
-                          "created",
-                          "updated",
-                          "removed"
-                        ]
-                      }
-                    },
-                    "required": [
-                      "version",
-                      "family",
-                      "component_id",
-                      "action"
-                    ],
-                    "additionalProperties": false
-                  },
-                  {
-                    "type": "object",
-                    "properties": {
-                      "version": {
-                        "type": "number",
-                        "const": 1
+                      {
+                        "type": "object",
+                        "properties": {
+                          "version": {
+                            "type": "number",
+                            "const": 1
+                          },
+                          "family": {
+                            "type": "string",
+                            "const": "validation"
+                          },
+                          "validation_result_id": {
+                            "type": "string",
+                            "minLength": 1
+                          },
+                          "outcome": {
+                            "type": "string",
+                            "enum": [
+                              "pass",
+                              "fail"
+                            ]
+                          }
+                        },
+                        "required": [
+                          "version",
+                          "family",
+                          "validation_result_id",
+                          "outcome"
+                        ],
+                        "additionalProperties": false
                       },
-                      "family": {
-                        "type": "string",
-                        "const": "style"
+                      {
+                        "type": "object",
+                        "properties": {
+                          "version": {
+                            "type": "number",
+                            "const": 1
+                          },
+                          "family": {
+                            "type": "string",
+                            "const": "repair"
+                          },
+                          "repair_run_id": {
+                            "type": "string",
+                            "minLength": 1
+                          },
+                          "state": {
+                            "type": "string",
+                            "enum": [
+                              "queued",
+                              "running",
+                              "completed",
+                              "failed"
+                            ]
+                          }
+                        },
+                        "required": [
+                          "version",
+                          "family",
+                          "repair_run_id",
+                          "state"
+                        ],
+                        "additionalProperties": false
                       },
-                      "target_id": {
-                        "type": "string",
-                        "minLength": 1
+                      {
+                        "type": "object",
+                        "properties": {
+                          "version": {
+                            "type": "number",
+                            "const": 1
+                          },
+                          "family": {
+                            "type": "string",
+                            "const": "preview"
+                          },
+                          "preview_id": {
+                            "type": "string",
+                            "minLength": 1
+                          },
+                          "state": {
+                            "type": "string",
+                            "enum": [
+                              "preparing",
+                              "ready",
+                              "failed"
+                            ]
+                          }
+                        },
+                        "required": [
+                          "version",
+                          "family",
+                          "preview_id",
+                          "state"
+                        ],
+                        "additionalProperties": false
                       },
-                      "action": {
-                        "type": "string",
-                        "const": "updated"
-                      }
-                    },
-                    "required": [
-                      "version",
-                      "family",
-                      "target_id",
-                      "action"
-                    ],
-                    "additionalProperties": false
-                  },
-                  {
-                    "type": "object",
-                    "properties": {
-                      "version": {
-                        "type": "number",
-                        "const": 1
-                      },
-                      "family": {
-                        "type": "string",
-                        "const": "asset"
-                      },
-                      "asset_id": {
-                        "type": "string",
-                        "minLength": 1
-                      },
-                      "action": {
-                        "type": "string",
-                        "enum": [
-                          "created",
-                          "updated",
-                          "removed"
-                        ]
-                      }
-                    },
-                    "required": [
-                      "version",
-                      "family",
-                      "asset_id",
-                      "action"
-                    ],
-                    "additionalProperties": false
-                  },
-                  {
-                    "type": "object",
-                    "properties": {
-                      "version": {
-                        "type": "number",
-                        "const": 1
-                      },
-                      "family": {
-                        "type": "string",
-                        "const": "transaction"
-                      },
-                      "transaction_id": {
-                        "type": "string",
-                        "minLength": 1
-                      },
-                      "state": {
-                        "type": "string",
-                        "enum": [
-                          "open",
-                          "validating",
-                          "committed",
-                          "rejected"
-                        ]
-                      }
-                    },
-                    "required": [
-                      "version",
-                      "family",
-                      "transaction_id",
-                      "state"
-                    ],
-                    "additionalProperties": false
-                  },
-                  {
-                    "type": "object",
-                    "properties": {
-                      "version": {
-                        "type": "number",
-                        "const": 1
-                      },
-                      "family": {
-                        "type": "string",
-                        "const": "validation"
-                      },
-                      "validation_result_id": {
-                        "type": "string",
-                        "minLength": 1
-                      },
-                      "outcome": {
-                        "type": "string",
-                        "enum": [
-                          "pass",
-                          "fail"
-                        ]
-                      }
-                    },
-                    "required": [
-                      "version",
-                      "family",
-                      "validation_result_id",
-                      "outcome"
-                    ],
-                    "additionalProperties": false
-                  },
-                  {
-                    "type": "object",
-                    "properties": {
-                      "version": {
-                        "type": "number",
-                        "const": 1
-                      },
-                      "family": {
-                        "type": "string",
-                        "const": "repair"
-                      },
-                      "repair_run_id": {
-                        "type": "string",
-                        "minLength": 1
-                      },
-                      "state": {
-                        "type": "string",
-                        "enum": [
-                          "queued",
-                          "running",
-                          "completed",
-                          "failed"
-                        ]
-                      }
-                    },
-                    "required": [
-                      "version",
-                      "family",
-                      "repair_run_id",
-                      "state"
-                    ],
-                    "additionalProperties": false
-                  },
-                  {
-                    "type": "object",
-                    "properties": {
-                      "version": {
-                        "type": "number",
-                        "const": 1
-                      },
-                      "family": {
-                        "type": "string",
-                        "const": "preview"
-                      },
-                      "preview_id": {
-                        "type": "string",
-                        "minLength": 1
-                      },
-                      "state": {
-                        "type": "string",
-                        "enum": [
-                          "preparing",
-                          "ready",
-                          "failed"
-                        ]
-                      }
-                    },
-                    "required": [
-                      "version",
-                      "family",
-                      "preview_id",
-                      "state"
-                    ],
-                    "additionalProperties": false
-                  },
-                  {
-                    "type": "object",
-                    "properties": {
-                      "version": {
-                        "type": "number",
-                        "const": 1
-                      },
-                      "family": {
-                        "type": "string",
-                        "const": "state"
-                      },
-                      "state": {
-                        "type": "string",
-                        "enum": [
-                          "planning",
-                          "running",
-                          "pausing",
-                          "paused",
-                          "stopping",
-                          "stopped",
-                          "validating",
-                          "repairing",
-                          "completed",
-                          "failed"
-                        ]
-                      },
-                      "previous_state": {
-                        "anyOf": [
-                          {
+                      {
+                        "type": "object",
+                        "properties": {
+                          "version": {
+                            "type": "number",
+                            "const": 1
+                          },
+                          "family": {
+                            "type": "string",
+                            "const": "state"
+                          },
+                          "state": {
                             "type": "string",
                             "enum": [
                               "planning",
@@ -4467,43 +4794,314 @@
                               "failed"
                             ]
                           },
-                          {
-                            "type": "null"
+                          "previous_state": {
+                            "anyOf": [
+                              {
+                                "type": "string",
+                                "enum": [
+                                  "planning",
+                                  "running",
+                                  "pausing",
+                                  "paused",
+                                  "stopping",
+                                  "stopped",
+                                  "validating",
+                                  "repairing",
+                                  "completed",
+                                  "failed"
+                                ]
+                              },
+                              {
+                                "type": "null"
+                              }
+                            ]
                           }
-                        ]
+                        },
+                        "required": [
+                          "version",
+                          "family",
+                          "state",
+                          "previous_state"
+                        ],
+                        "additionalProperties": false
                       }
-                    },
-                    "required": [
-                      "version",
-                      "family",
-                      "state",
-                      "previous_state"
-                    ],
-                    "additionalProperties": false
+                    ]
                   }
-                ]
+                },
+                "required": [
+                  "version",
+                  "id",
+                  "sequence",
+                  "project_id",
+                  "correlation_id",
+                  "causation_id",
+                  "actor",
+                  "timestamp",
+                  "payload"
+                ],
+                "additionalProperties": false
               }
             },
             "required": [
               "version",
-              "id",
-              "sequence",
-              "project_id",
-              "correlation_id",
-              "causation_id",
-              "actor",
-              "timestamp",
-              "payload"
+              "type",
+              "event"
             ],
             "additionalProperties": false
+          },
+          {
+            "type": "object",
+            "properties": {
+              "version": {
+                "type": "number",
+                "const": 1
+              },
+              "type": {
+                "type": "string",
+                "const": "domain_event"
+              },
+              "event": {
+                "type": "object",
+                "properties": {
+                  "version": {
+                    "type": "number",
+                    "const": 1
+                  },
+                  "id": {
+                    "type": "string",
+                    "minLength": 1
+                  },
+                  "type": {
+                    "type": "string",
+                    "minLength": 1
+                  },
+                  "sequence": {
+                    "type": "string",
+                    "pattern": "^[0-9]+$"
+                  },
+                  "project_id": {
+                    "type": "string",
+                    "minLength": 1
+                  },
+                  "correlation_id": {
+                    "type": "string",
+                    "minLength": 1
+                  },
+                  "causation_id": {
+                    "anyOf": [
+                      {
+                        "type": "string",
+                        "minLength": 1
+                      },
+                      {
+                        "type": "null"
+                      }
+                    ]
+                  },
+                  "actor": {
+                    "type": "object",
+                    "properties": {
+                      "type": {
+                        "type": "string",
+                        "enum": [
+                          "user",
+                          "agent",
+                          "system"
+                        ]
+                      },
+                      "id": {
+                        "type": "string",
+                        "minLength": 1
+                      }
+                    },
+                    "required": [
+                      "type",
+                      "id"
+                    ],
+                    "additionalProperties": false
+                  },
+                  "timestamp": {
+                    "type": "string",
+                    "format": "date-time",
+                    "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))T(?:(?:[01]\\d|2[0-3]):[0-5]\\d:[0-5]\\d(?:\\.\\d+)?(?:Z|([+-](?:[01]\\d|2[0-3]):[0-5]\\d)))$"
+                  },
+                  "payload": {
+                    "$ref": "#/components/schemas/EventEnvelope/$defs/__schema0"
+                  }
+                },
+                "required": [
+                  "version",
+                  "id",
+                  "type",
+                  "sequence",
+                  "project_id",
+                  "correlation_id",
+                  "causation_id",
+                  "actor",
+                  "timestamp",
+                  "payload"
+                ],
+                "additionalProperties": false
+              }
+            },
+            "required": [
+              "version",
+              "type",
+              "event"
+            ],
+            "additionalProperties": false
+          }
+        ],
+        "$defs": {
+          "__schema0": {
+            "anyOf": [
+              {
+                "type": "null"
+              },
+              {
+                "type": "boolean"
+              },
+              {
+                "type": "number"
+              },
+              {
+                "type": "string"
+              },
+              {
+                "type": "array",
+                "items": {
+                  "$ref": "#/components/schemas/EventEnvelope/$defs/__schema0"
+                }
+              },
+              {
+                "type": "object",
+                "propertyNames": {
+                  "type": "string"
+                },
+                "additionalProperties": {
+                  "$ref": "#/components/schemas/EventEnvelope/$defs/__schema0"
+                }
+              }
+            ]
+          }
+        }
+      },
+      "DomainEvent": {
+        "$schema": "https://json-schema.org/draft/2020-12/schema",
+        "type": "object",
+        "properties": {
+          "version": {
+            "type": "number",
+            "const": 1
+          },
+          "id": {
+            "type": "string",
+            "minLength": 1
+          },
+          "type": {
+            "type": "string",
+            "minLength": 1
+          },
+          "sequence": {
+            "type": "string",
+            "pattern": "^[0-9]+$"
+          },
+          "project_id": {
+            "type": "string",
+            "minLength": 1
+          },
+          "correlation_id": {
+            "type": "string",
+            "minLength": 1
+          },
+          "causation_id": {
+            "anyOf": [
+              {
+                "type": "string",
+                "minLength": 1
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "actor": {
+            "type": "object",
+            "properties": {
+              "type": {
+                "type": "string",
+                "enum": [
+                  "user",
+                  "agent",
+                  "system"
+                ]
+              },
+              "id": {
+                "type": "string",
+                "minLength": 1
+              }
+            },
+            "required": [
+              "type",
+              "id"
+            ],
+            "additionalProperties": false
+          },
+          "timestamp": {
+            "type": "string",
+            "format": "date-time",
+            "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))T(?:(?:[01]\\d|2[0-3]):[0-5]\\d:[0-5]\\d(?:\\.\\d+)?(?:Z|([+-](?:[01]\\d|2[0-3]):[0-5]\\d)))$"
+          },
+          "payload": {
+            "$ref": "#/components/schemas/DomainEvent/$defs/__schema0"
           }
         },
         "required": [
           "version",
+          "id",
           "type",
-          "event"
+          "sequence",
+          "project_id",
+          "correlation_id",
+          "causation_id",
+          "actor",
+          "timestamp",
+          "payload"
         ],
-        "additionalProperties": false
+        "additionalProperties": false,
+        "$defs": {
+          "__schema0": {
+            "anyOf": [
+              {
+                "type": "null"
+              },
+              {
+                "type": "boolean"
+              },
+              {
+                "type": "number"
+              },
+              {
+                "type": "string"
+              },
+              {
+                "type": "array",
+                "items": {
+                  "$ref": "#/components/schemas/DomainEvent/$defs/__schema0"
+                }
+              },
+              {
+                "type": "object",
+                "propertyNames": {
+                  "type": "string"
+                },
+                "additionalProperties": {
+                  "$ref": "#/components/schemas/DomainEvent/$defs/__schema0"
+                }
+              }
+            ]
+          }
+        }
       },
       "ErrorEnvelope": {
         "$schema": "https://json-schema.org/draft/2020-12/schema",
@@ -4934,6 +5532,145 @@
             "type": "array",
             "items": {
               "$ref": "#/components/schemas/BacklogItem"
+            }
+          },
+          "meta": {
+            "$ref": "#/components/schemas/ApiMetadata"
+          }
+        }
+      },
+      "CreateCanvasRequest": {
+        "type": "object",
+        "required": [
+          "artifact_id",
+          "root_node_id",
+          "nodes"
+        ],
+        "properties": {
+          "artifact_id": {
+            "type": "string",
+            "minLength": 1
+          },
+          "root_node_id": {
+            "type": "string",
+            "minLength": 1
+          },
+          "nodes": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/UIIRNode"
+            },
+            "minItems": 1
+          }
+        },
+        "additionalProperties": false
+      },
+      "CanvasResponse": {
+        "type": "object",
+        "properties": {
+          "data": {
+            "$ref": "#/components/schemas/UIIR"
+          },
+          "meta": {
+            "$ref": "#/components/schemas/ApiMetadata"
+          }
+        }
+      },
+      "CanvasListResponse": {
+        "type": "object",
+        "properties": {
+          "data": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/UIIR"
+            }
+          },
+          "meta": {
+            "$ref": "#/components/schemas/ApiMetadata"
+          }
+        }
+      },
+      "CreateSelectionRequest": {
+        "type": "object",
+        "required": [
+          "uiir_revision",
+          "selected_node_ids"
+        ],
+        "properties": {
+          "uiir_revision": {
+            "type": "string",
+            "pattern": "^[0-9]+$"
+          },
+          "selected_node_ids": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "minItems": 1
+          },
+          "primary_node_id": {
+            "type": "string",
+            "nullable": true
+          }
+        },
+        "additionalProperties": false
+      },
+      "SelectionResponse": {
+        "type": "object",
+        "properties": {
+          "data": {
+            "$ref": "#/components/schemas/SelectionContext"
+          },
+          "meta": {
+            "$ref": "#/components/schemas/ApiMetadata"
+          }
+        }
+      },
+      "DirectEditRequest": {
+        "type": "object",
+        "required": [
+          "selection",
+          "target",
+          "value"
+        ],
+        "properties": {
+          "selection": {
+            "$ref": "#/components/schemas/CreateSelectionRequest"
+          },
+          "target": {
+            "type": "string",
+            "enum": [
+              "content",
+              "layout",
+              "style",
+              "tokens"
+            ]
+          },
+          "path": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "value": {}
+        },
+        "additionalProperties": false
+      },
+      "DirectEditResponse": {
+        "type": "object",
+        "properties": {
+          "data": {
+            "type": "object",
+            "properties": {
+              "canvas": {
+                "$ref": "#/components/schemas/UIIR"
+              },
+              "selection": {
+                "$ref": "#/components/schemas/SelectionContext"
+              },
+              "command": {
+                "$ref": "#/components/schemas/DirectEditCommand"
+              }
             }
           },
           "meta": {

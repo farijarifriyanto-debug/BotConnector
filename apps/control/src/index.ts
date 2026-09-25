@@ -16,6 +16,7 @@ import { registerOpenApiRoutes } from './openapi/index.js';
 import { registerPreviewRoutes } from './preview/routes.js';
 import { registerSandboxRoutes } from './sandbox/routes.js';
 import { registerWorkspaceRoutes } from './workspace/routes.js';
+import { registerCanvasRoutes } from './canvas/routes.js';
 import { SandboxManagerClient } from './sandbox-manager/client.js';
 import { closePool } from './db/pool.js';
 import { createTransientRedis } from './realtime/redis.js';
@@ -159,6 +160,7 @@ export async function buildApp(options: AppOptions) {
   });
   await registerSandboxRoutes(app, sandboxManagerClient, resolvePrincipal);
   await registerWorkspaceRoutes(app, sandboxManagerClient, resolvePrincipal);
+  await registerCanvasRoutes(app, resolvePrincipal);
 
   if (options.realtime) {
     const redis = createTransientRedis(options.realtime.redisUrl);

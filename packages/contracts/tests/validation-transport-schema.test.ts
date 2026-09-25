@@ -239,7 +239,7 @@ describe('schema exports', () => {
   it('exports all canonical contracts as deterministic JSON Schema', () => {
     const first = exportJsonSchemaBundle();
     const second = exportJsonSchemaBundle();
-    expect(CONTRACT_COUNT).toBe(39);
+    expect(CONTRACT_COUNT).toBe(40);
     expect(Object.keys(first.$defs)).toHaveLength(CONTRACT_COUNT);
     expect(first.$defs.Project.additionalProperties).toBe(false);
     expect(JSON.stringify(first.$defs.UIIRNode)).toContain('propertyNames');

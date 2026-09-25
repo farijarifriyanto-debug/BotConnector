@@ -11,10 +11,8 @@
   "scripts": {
     "build": "tsc",
     "build:contracts": "npm run build --workspace @botconnector/contracts",
-    "build:database": "npm run build --workspace @botconnector/database",
     "build:control": "npm run build --workspace @botconnector/control",
     "typecheck:contracts": "npm run typecheck --workspace @botconnector/contracts",
-    "typecheck:database": "npm run typecheck --workspace @botconnector/database",
     "typecheck:control": "npm run typecheck --workspace @botconnector/control",
     "test:contracts": "npm run test --workspace @botconnector/contracts",
     "test:database": "npm run test --workspace @botconnector/database",

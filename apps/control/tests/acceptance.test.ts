@@ -847,3 +847,214 @@ describe('29. If-Match handles large revision strings', () => {
     expect(body.error.code).toBe('REVISION_CONFLICT');
   });
 });
+
+describe('30. Canvas selection and direct editing', () => {
+  let projectId: string;
+  let artifactId: string;
+  let canvasId: string;
+
+  const nodes = [
+    {
+      version: 1,
+      id: 'page-1',
+      kind: 'page',
+      semantic_role: 'document',
+      content: null,
+      layout: { display: 'grid' },
+      style: {},
+      tokens: {},
+      children: ['heading-1'],
+      bindings: {},
+      metadata: {},
+    },
+    {
+      version: 1,
+      id: 'heading-1',
+      kind: 'heading',
+      semantic_role: 'heading',
+      content: 'Before edit',
+      layout: {},
+      style: { color: '#111111' },
+      tokens: {},
+      children: [],
+      bindings: {},
+      metadata: {},
+    },
+  ];
+
+  beforeAll(async () => {
+    const project = await app.inject({
+      method: 'POST',
+      url: '/api/v1/projects',
+      headers: wsHeaders('ws-a'),
+      payload: { name: 'Canvas Test Project' },
+    });
+    projectId = JSON.parse(project.payload).data.id;
+
+    const artifact = await app.inject({
+      method: 'POST',
+      url: `/api/v1/projects/${projectId}/artifacts`,
+      headers: wsHeaders('ws-a'),
+      payload: { type: 'web' },
+    });
+    artifactId = JSON.parse(artifact.payload).data.id;
+  });
+
+  it('creates and reads a UI-IR canvas', async () => {
+    const created = await app.inject({
+      method: 'POST',
+      url: `/api/v1/projects/${projectId}/canvases`,
+      headers: wsHeaders('ws-a'),
+      payload: { artifact_id: artifactId, root_node_id: 'page-1', nodes },
+    });
+    expect(created.statusCode).toBe(201);
+    const body = JSON.parse(created.payload);
+    canvasId = body.data.id;
+    expect(body.data.revision).toBe('0');
+    expect(body.data.root_node_id).toBe('page-1');
+
+    const read = await app.inject({
+      method: 'GET',
+      url: `/api/v1/canvases/${canvasId}`,
+      headers: wsHeaders('ws-a'),
+    });
+    expect(read.statusCode).toBe(200);
+    expect(JSON.parse(read.payload).data.nodes).toHaveLength(2);
+  });
+
+  it('rejects malformed UI-IR with a validation error', async () => {
+    const invalid = await app.inject({
+      method: 'POST',
+      url: `/api/v1/projects/${projectId}/canvases`,
+      headers: wsHeaders('ws-a'),
+      payload: { artifact_id: artifactId, root_node_id: 'page-1', nodes: [{ ...nodes[0], children: ['missing-node'] }, nodes[1]] },
+    });
+    expect(invalid.statusCode).toBe(422);
+    expect(JSON.parse(invalid.payload).error.code).toBe('VALIDATION_ERROR');
+  });
+
+  it('creates a revision-bound selection and rejects a stale selection', async () => {
+    const selected = await app.inject({
+      method: 'POST',
+      url: `/api/v1/canvases/${canvasId}/selections`,
+      headers: wsHeaders('ws-a'),
+      payload: {
+        uiir_revision: '0',
+        selected_node_ids: ['heading-1'],
+        primary_node_id: 'heading-1',
+      },
+    });
+    expect(selected.statusCode).toBe(201);
+    expect(JSON.parse(selected.payload).data.primary_node_id).toBe('heading-1');
+    const selectionEvents = await adminPool.query(
+      `SELECT event_type FROM event.domain_events WHERE aggregate_id = $1 AND event_type = 'canvas.selection_created'`,
+      [canvasId],
+    );
+    expect(selectionEvents.rows.length).toBeGreaterThan(0);
+
+    const stale = await app.inject({
+      method: 'POST',
+      url: `/api/v1/canvases/${canvasId}/selections`,
+      headers: wsHeaders('ws-a'),
+      payload: {
+        uiir_revision: '9',
+        selected_node_ids: ['heading-1'],
+        primary_node_id: 'heading-1',
+      },
+    });
+    expect(stale.statusCode).toBe(409);
+    expect(JSON.parse(stale.payload).error.code).toBe('REVISION_CONFLICT');
+  });
+
+  it('applies deterministic content and style edits with optimistic concurrency', async () => {
+    const content = await app.inject({
+      method: 'POST',
+      url: `/api/v1/canvases/${canvasId}/direct-edits`,
+      headers: { ...wsHeaders('ws-a'), 'if-match': '"0"' },
+      payload: {
+        selection: {
+          uiir_revision: '0',
+          selected_node_ids: ['heading-1'],
+          primary_node_id: 'heading-1',
+        },
+        target: 'content',
+        value: 'After edit',
+      },
+    });
+    expect(content.statusCode).toBe(200);
+    const contentBody = JSON.parse(content.payload);
+    expect(contentBody.data.canvas.revision).toBe('1');
+    expect(contentBody.data.canvas.nodes[1].content).toBe('After edit');
+
+    const style = await app.inject({
+      method: 'POST',
+      url: `/api/v1/canvases/${canvasId}/direct-edits`,
+      headers: { ...wsHeaders('ws-a'), 'if-match': '"1"' },
+      payload: {
+        selection: {
+          uiir_revision: '1',
+          selected_node_ids: ['heading-1'],
+          primary_node_id: 'heading-1',
+        },
+        target: 'style',
+        path: ['color'],
+        value: '#222222',
+      },
+    });
+    expect(style.statusCode).toBe(200);
+    expect(JSON.parse(style.payload).data.canvas.nodes[1].style.color).toBe('#222222');
+
+    const directEditBody = JSON.parse(style.payload);
+    const directEditEvents = await adminPool.query(
+      `SELECT payload->>'selection_id' AS selection_id
+        FROM event.domain_events
+        WHERE aggregate_id = $1 AND event_type = 'canvas.selection_created'
+        ORDER BY sequence::bigint DESC LIMIT 1`,
+      [canvasId],
+    );
+    expect(directEditEvents.rows[0].selection_id).toBe(directEditBody.data.command.selection_id);
+
+    const unsafe = await app.inject({
+      method: 'POST',
+      url: `/api/v1/canvases/${canvasId}/direct-edits`,
+      headers: { ...wsHeaders('ws-a'), 'if-match': '"2"' },
+      payload: {
+        selection: {
+          uiir_revision: '2',
+          selected_node_ids: ['heading-1'],
+          primary_node_id: 'heading-1',
+        },
+        target: 'style',
+        path: ['color'],
+        value: 'url(javascript:alert(1))',
+      },
+    });
+    expect(unsafe.statusCode).toBe(422);
+    expect(JSON.parse(unsafe.payload).error.code).toBe('VALIDATION_ERROR');
+
+    const stale = await app.inject({
+      method: 'POST',
+      url: `/api/v1/canvases/${canvasId}/direct-edits`,
+      headers: { ...wsHeaders('ws-a'), 'if-match': '"0"' },
+      payload: {
+        selection: {
+          uiir_revision: '0',
+          selected_node_ids: ['heading-1'],
+          primary_node_id: 'heading-1',
+        },
+        target: 'content',
+        value: 'Must not apply',
+      },
+    });
+    expect(stale.statusCode).toBe(409);
+  });
+
+  it('does not expose a canvas across workspaces', async () => {
+    const read = await app.inject({
+      method: 'GET',
+      url: `/api/v1/canvases/${canvasId}`,
+      headers: wsHeaders('ws-b'),
+    });
+    expect(read.statusCode).toBe(404);
+  });
+});

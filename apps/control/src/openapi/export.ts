@@ -353,6 +353,83 @@ const phase3Doc = {
         },
       },
     },
+    '/api/v1/projects/{projectId}/canvases': {
+      post: {
+        operationId: 'createCanvas',
+        summary: 'Create a declarative UI-IR canvas',
+        tags: ['Canvas'],
+        parameters: [{ name: 'projectId', in: 'path', required: true, schema: { type: 'string' } }],
+        requestBody: {
+          required: true,
+          content: { 'application/json': { schema: { $ref: '#/components/schemas/CreateCanvasRequest' } } },
+        },
+        responses: {
+          '201': { description: 'Canvas created', content: { 'application/json': { schema: { $ref: '#/components/schemas/CanvasResponse' } } } },
+          '404': { description: 'Artifact not found' },
+          '422': { description: 'Validation error' },
+        },
+      },
+      get: {
+        operationId: 'listCanvases',
+        summary: 'List canvases in a project',
+        tags: ['Canvas'],
+        parameters: [{ name: 'projectId', in: 'path', required: true, schema: { type: 'string' } }],
+        responses: {
+          '200': { description: 'Canvas list', content: { 'application/json': { schema: { $ref: '#/components/schemas/CanvasListResponse' } } } },
+        },
+      },
+    },
+    '/api/v1/canvases/{canvasId}': {
+      get: {
+        operationId: 'getCanvas',
+        summary: 'Get a canvas',
+        tags: ['Canvas'],
+        parameters: [{ name: 'canvasId', in: 'path', required: true, schema: { type: 'string' } }],
+        responses: {
+          '200': { description: 'Canvas', content: { 'application/json': { schema: { $ref: '#/components/schemas/CanvasResponse' } } } },
+          '404': { description: 'Not found' },
+        },
+      },
+    },
+    '/api/v1/canvases/{canvasId}/selections': {
+      post: {
+        operationId: 'createCanvasSelection',
+        summary: 'Create a revision-bound selection',
+        tags: ['Canvas'],
+        parameters: [{ name: 'canvasId', in: 'path', required: true, schema: { type: 'string' } }],
+        requestBody: {
+          required: true,
+          content: { 'application/json': { schema: { $ref: '#/components/schemas/CreateSelectionRequest' } } },
+        },
+        responses: {
+          '201': { description: 'Selection created', content: { 'application/json': { schema: { $ref: '#/components/schemas/SelectionResponse' } } } },
+          '404': { description: 'Not found' },
+          '409': { description: 'Revision conflict' },
+          '422': { description: 'Validation error' },
+        },
+      },
+    },
+    '/api/v1/canvases/{canvasId}/direct-edits': {
+      post: {
+        operationId: 'applyCanvasDirectEdit',
+        summary: 'Apply a deterministic direct edit',
+        tags: ['Canvas'],
+        parameters: [
+          { name: 'canvasId', in: 'path', required: true, schema: { type: 'string' } },
+          { name: 'If-Match', in: 'header', required: true, schema: { type: 'string' } },
+        ],
+        requestBody: {
+          required: true,
+          content: { 'application/json': { schema: { $ref: '#/components/schemas/DirectEditRequest' } } },
+        },
+        responses: {
+          '200': { description: 'Edit applied', content: { 'application/json': { schema: { $ref: '#/components/schemas/DirectEditResponse' } } } },
+          '404': { description: 'Not found' },
+          '409': { description: 'Revision conflict' },
+          '422': { description: 'Validation error' },
+        },
+      },
+    },
   },
   components: {
     ...baseDoc.components,
@@ -480,6 +557,72 @@ const phase3Doc = {
         type: 'object',
         properties: {
           data: { type: 'array', items: { $ref: '#/components/schemas/BacklogItem' } },
+          meta: { $ref: '#/components/schemas/ApiMetadata' },
+        },
+      },
+      CreateCanvasRequest: {
+        type: 'object',
+        required: ['artifact_id', 'root_node_id', 'nodes'],
+        properties: {
+          artifact_id: { type: 'string', minLength: 1 },
+          root_node_id: { type: 'string', minLength: 1 },
+          nodes: { type: 'array', items: { $ref: '#/components/schemas/UIIRNode' }, minItems: 1 },
+        },
+        additionalProperties: false,
+      },
+      CanvasResponse: {
+        type: 'object',
+        properties: {
+          data: { $ref: '#/components/schemas/UIIR' },
+          meta: { $ref: '#/components/schemas/ApiMetadata' },
+        },
+      },
+      CanvasListResponse: {
+        type: 'object',
+        properties: {
+          data: { type: 'array', items: { $ref: '#/components/schemas/UIIR' } },
+          meta: { $ref: '#/components/schemas/ApiMetadata' },
+        },
+      },
+      CreateSelectionRequest: {
+        type: 'object',
+        required: ['uiir_revision', 'selected_node_ids'],
+        properties: {
+          uiir_revision: { type: 'string', pattern: '^[0-9]+$' },
+          selected_node_ids: { type: 'array', items: { type: 'string' }, minItems: 1 },
+          primary_node_id: { type: 'string', nullable: true },
+        },
+        additionalProperties: false,
+      },
+      SelectionResponse: {
+        type: 'object',
+        properties: {
+          data: { $ref: '#/components/schemas/SelectionContext' },
+          meta: { $ref: '#/components/schemas/ApiMetadata' },
+        },
+      },
+      DirectEditRequest: {
+        type: 'object',
+        required: ['selection', 'target', 'value'],
+        properties: {
+          selection: { $ref: '#/components/schemas/CreateSelectionRequest' },
+          target: { type: 'string', enum: ['content', 'layout', 'style', 'tokens'] },
+          path: { type: 'array', items: { type: 'string' } },
+          value: {},
+        },
+        additionalProperties: false,
+      },
+      DirectEditResponse: {
+        type: 'object',
+        properties: {
+          data: {
+            type: 'object',
+            properties: {
+              canvas: { $ref: '#/components/schemas/UIIR' },
+              selection: { $ref: '#/components/schemas/SelectionContext' },
+              command: { $ref: '#/components/schemas/DirectEditCommand' },
+            },
+          },
           meta: { $ref: '#/components/schemas/ApiMetadata' },
         },
       },
