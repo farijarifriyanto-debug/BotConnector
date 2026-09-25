@@ -1,5 +1,5 @@
 {
-  "version": 2,
+  "version": 3,
   "goal": "reduce latency without changing the user-selected cloud model",
   "routing": {
     "selected_model_immutable": true,
@@ -66,7 +66,9 @@
       "semantic_hit_rate",
       "provider_calls_avoided",
       "input_tokens_saved",
-      "answer_quality"
+      "answer_quality",
+      "gateway_local_stage_p95",
+      "provider_first_byte_p95"
     ],
     "semantic_lookup_p99_ms_max": 75,
     "semantic_miss_added_p95_ms_max": 50,
@@ -74,5 +76,35 @@
     "require_partition_isolation": true,
     "require_provider_call_avoidance": true,
     "note": "Budgets are VPS-canary limits derived from measured CPU latency; live-provider rollout still requires authenticated session-resolved canary evidence."
+  },
+  "profiler": {
+    "enabled": true,
+    "schema": "botconnector.latency.v1",
+    "content_logging": false,
+    "interactive_sample_rate": 1,
+    "production_sample_rate_recommended": 0.1,
+    "rolling_window_samples": 1024,
+    "stages": [
+      "auth_quota",
+      "route",
+      "cache_lookup",
+      "provider_connect"
+    ],
+    "marks": [
+      "provider_request",
+      "first_byte",
+      "first_token"
+    ],
+    "aggregate_by": [
+      "model",
+      "provider"
+    ],
+    "percentiles": [
+      "p50",
+      "p95",
+      "p99"
+    ],
+    "server_timing_for_authenticated_diagnostics": true,
+    "billing_authority": false
   }
-}
+}\n
