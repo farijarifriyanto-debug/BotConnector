@@ -1,0 +1,8 @@
+{
+  "mcpServers": {
+    "fixture-calculator": {
+      "command": "C:\\Program Files\\nodejs\\node.exe",
+      "args": ["C:\\Users\\farij\\Downloads\\botconnector-ai-cloud-poc-v0.4-complete-beta\\tests\\fixtures\\mcp-calculator-server.mjs"]
+    }
+  }
+}

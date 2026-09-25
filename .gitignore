@@ -1,0 +1,35 @@
+node_modules/
+dist/
+*.log
+.DS_Store
+
+# Downloaded models (multi-GB, user data — never commit)
+*.gguf
+*.gguf.part
+*.part
+/models/
+models/
+
+# Managed runtime binaries/archives (reproducible via installer — never commit)
+runtimes/
+*.zip
+*.tar.gz
+llama-server.exe
+llama-*.exe
+
+# Secrets / user data (never commit)
+.env
+.env.*
+*secret*
+*token*
+settings.json
+cli-server.json
+userData/
+
+# Logs, caches, temp
+logs/
+.cache/
+tmp/
+temp/
+*.bak-*
+opencode.json
