@@ -25,7 +25,7 @@ jobs:
           python -m json.tool cloud-efficiency/bifrost/semantic-cache.config.example.json >/dev/null
           python -m compileall -q cloud-efficiency/llmlingua-service
           python -m pip install --disable-pip-version-check pytest
-          PYTHONPATH=cloud-efficiency pytest -q cloud-efficiency/test_contract.py cloud-efficiency/test_accounting_contract.py cloud-efficiency/test_latency_profiler.py\n          python cloud-efficiency/benchmark/latency_profiler_overhead.py\n          cat cloud-efficiency/benchmark/LATENCY_PROFILER_OVERHEAD.json
+          PYTHONPATH=cloud-efficiency pytest -q cloud-efficiency/test_contract.py cloud-efficiency/test_accounting_contract.py cloud-efficiency/test_latency_profiler.py cloud-efficiency/test_free_cloud_pool.py\n          python cloud-efficiency/benchmark/latency_profiler_overhead.py\n          cat cloud-efficiency/benchmark/LATENCY_PROFILER_OVERHEAD.json
           docker compose -f cloud-efficiency/docker-compose.yml config --quiet\n      - uses: actions/upload-artifact@v4\n        with:\n          name: latency-profiler-overhead-${{ github.sha }}\n          path: cloud-efficiency/benchmark/LATENCY_PROFILER_OVERHEAD.json\n          retention-days: 30
 
   bifrost:
