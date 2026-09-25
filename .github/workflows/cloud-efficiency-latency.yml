@@ -1,0 +1,147 @@
+name: cloud-efficiency-latency
+
+on:
+  push:
+    branches:
+      - "feat/cloud-efficiency-runner"
+    paths:
+      - ".github/workflows/cloud-efficiency-latency.yml"
+      - "cloud-efficiency/benchmark/latency_benchmark.py"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  actions: read
+
+jobs:
+  latency:
+    runs-on: ubuntu-latest
+    timeout-minutes: 50
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Download known-good context optimizer
+        uses: actions/download-artifact@v4
+        with:
+          name: context-optimizer-c7642e5a94f5cf0006a39d90f723d692034f12fe
+          path: /tmp/context-optimizer
+          github-token: ${{ github.token }}
+          repository: farijarifriyanto-debug/BotConnector
+          run-id: 36052887228
+
+      - name: Start LLMLingua-2
+        run: |
+          gunzip -c /tmp/context-optimizer/context-optimizer-image.tar.gz | docker load
+          IMAGE="$(docker images --format '{{.Repository}}:{{.Tag}}' | grep '^botconnector-context-optimizer:' | head -n1)"
+          test -n "$IMAGE"
+          docker run -d --name optimizer-latency -p 127.0.0.1:18091:8091 "$IMAGE"
+          for i in {1..90}; do
+            if curl -fsS http://127.0.0.1:18091/health >/dev/null; then exit 0; fi
+            sleep 2
+          done
+          docker logs optimizer-latency
+          exit 1
+
+      - name: Start local multilingual embeddings
+        run: |
+          docker run -d --name tei-latency \
+            -p 127.0.0.1:18092:80 \
+            -v "${RUNNER_TEMP}/tei-latency-data:/data" \
+            ghcr.io/huggingface/text-embeddings-inference:cpu-1.9 \
+            --model-id intfloat/multilingual-e5-small --port 80
+          for i in {1..180}; do
+            if curl -fsS http://127.0.0.1:18092/health >/dev/null; then exit 0; fi
+            sleep 2
+          done
+          docker logs tei-latency
+          exit 1
+
+      - name: Start official Bifrost mock provider
+        run: |
+          git clone --depth 1 https://github.com/maximhq/bifrost-benchmarking.git /tmp/bifrost-benchmarking
+          docker build -t botconnector-bifrost-mocker /tmp/bifrost-benchmarking/mocker
+          docker network create botconnector-latency-net
+          docker run -d --name bifrost-mocker \
+            --network botconnector-latency-net \
+            -p 127.0.0.1:18080:8000 \
+            botconnector-bifrost-mocker \
+            ./mocker -host 0.0.0.0 -port 8000 -latency 300 -jitter 0
+          for i in {1..60}; do
+            if curl -fsS http://127.0.0.1:18080/v1/models >/dev/null; then exit 0; fi
+            sleep 1
+          done
+          docker logs bifrost-mocker
+          exit 1
+
+      - name: Start and configure Bifrost gateway
+        run: |
+          docker pull maximhq/bifrost:latest
+          docker run -d --name bifrost-latency \
+            --network botconnector-latency-net \
+            -p 127.0.0.1:18081:8080 \
+            maximhq/bifrost:latest
+          for i in {1..90}; do
+            if curl -fsS http://127.0.0.1:18081/health >/dev/null; then break; fi
+            sleep 1
+          done
+          curl -fsS http://127.0.0.1:18081/health
+
+          curl -fsS -X POST http://127.0.0.1:18081/api/providers \
+            -H 'content-type: application/json' \
+            -d '{
+              "provider": "botconnector-mock",
+              "network_config": {
+                "base_url": "http://bifrost-mocker:8000",
+                "allow_private_network": true,
+                "default_request_timeout_in_seconds": 30
+              },
+              "custom_provider_config": {
+                "base_provider_type": "openai",
+                "allowed_requests": {
+                  "chat_completion": true,
+                  "chat_completion_stream": true
+                }
+              }
+            }'
+
+          # Bifrost v1.5+ separates provider-key management from provider creation.
+          curl -fsS -X POST http://127.0.0.1:18081/api/providers/botconnector-mock/keys \
+            -H 'content-type: application/json' \
+            -d '{
+              "name": "mocker-key",
+              "value": "dummy",
+              "models": ["*"],
+              "weight": 1.0
+            }'
+
+          curl -fsS -X POST http://127.0.0.1:18081/v1/chat/completions \
+            -H 'content-type: application/json' \
+            -d '{"model":"botconnector-mock/gpt-4o-mini","messages":[{"role":"user","content":"smoke"}],"max_tokens":8}' \
+            | python -m json.tool >/dev/null
+
+      - name: Run latency benchmark
+        run: |
+          python cloud-efficiency/benchmark/latency_benchmark.py
+          cat cloud-efficiency/benchmark/LATENCY_RESULT.md
+        env:
+          MOCKER_URL: http://127.0.0.1:18080
+          BIFROST_URL: http://127.0.0.1:18081
+          OPTIMIZER_URL: http://127.0.0.1:18091
+          EMBEDDINGS_URL: http://127.0.0.1:18092
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: cloud-efficiency-latency-${{ github.sha }}
+          path: |
+            cloud-efficiency/benchmark/LATENCY_RESULT.json
+            cloud-efficiency/benchmark/LATENCY_RESULT.md
+          retention-days: 30
+
+      - name: Diagnostics on failure
+        if: failure()
+        run: |
+          docker ps -a
+          docker logs bifrost-latency 2>&1 | tail -n 120 || true
+          docker logs bifrost-mocker 2>&1 | tail -n 120 || true
+          docker logs tei-latency 2>&1 | tail -n 120 || true
+          docker logs optimizer-latency 2>&1 | tail -n 120 || true

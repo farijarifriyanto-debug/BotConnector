@@ -1,0 +1,43 @@
+name: latency-profiler
+
+on:
+  push:
+    branches:
+      - "feat/cloud-efficiency-runner"
+      - "feat/cloud-efficiency-runner/**"
+  pull_request:
+    paths:
+      - "cloud-efficiency/latency_profiler.py"
+      - "cloud-efficiency/test_latency_profiler.py"
+      - "cloud-efficiency/benchmark/latency_profiler_overhead.py"
+      - "cloud-efficiency/latency-policy.json"
+      - ".github/workflows/latency-profiler.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: latency-profiler-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  contract:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+      - name: Validate latency profiler
+        run: |
+          python -m pip install --disable-pip-version-check pytest
+          PYTHONPATH=cloud-efficiency pytest -q cloud-efficiency/test_latency_profiler.py
+          python -m json.tool cloud-efficiency/latency-policy.json >/dev/null
+      - name: Measure bookkeeping overhead
+        run: |
+          python cloud-efficiency/benchmark/latency_profiler_overhead.py
+          cat cloud-efficiency/benchmark/LATENCY_PROFILER_OVERHEAD.json
+      - uses: actions/upload-artifact@v4
+        with:
+          name: latency-profiler-overhead-${{ github.sha }}
+          path: cloud-efficiency/benchmark/LATENCY_PROFILER_OVERHEAD.json
+          retention-days: 30

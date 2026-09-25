@@ -1,0 +1,65 @@
+services:
+  redis-stack:
+    image: redis/redis-stack:7.4.0-v6
+    command: redis-stack-server --protected-mode no
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 5s
+      timeout: 3s
+      retries: 10
+
+  embeddings:
+    image: ghcr.io/huggingface/text-embeddings-inference:cpu-1.9.4
+    command:
+      - --model-id
+      - intfloat/multilingual-e5-small
+      - --port
+      - "80"
+      - --tokenization-workers
+      - "2"
+      - --max-concurrent-requests
+      - "64"
+      - --max-batch-tokens
+      - "4096"
+      - --max-client-batch-size
+      - "8"
+    mem_limit: 3g
+    healthcheck:
+      test: ["CMD", "curl", "-fsS", "http://127.0.0.1:80/health"]
+      interval: 5s
+      timeout: 3s
+      retries: 60
+    volumes:
+      - tei_data:/data
+
+  bifrost:
+    image: maximhq/bifrost:latest
+    ports:
+      - "127.0.0.1:18081:8080"
+    environment:
+      APP_HOST: 0.0.0.0
+      APP_PORT: "8080"
+      LOG_LEVEL: info
+      LOG_STYLE: json
+      BIFROST_CONFIG: /app/data/config.json
+    volumes:
+      - ./bifrost/semantic-cache.config.example.json:/app/data/config.json:ro
+      - bifrost_data:/app/data/runtime
+    depends_on:
+      redis-stack:
+        condition: service_healthy
+      embeddings:
+        condition: service_healthy
+
+  context-optimizer:
+    profiles: ["long-context"]
+    build:
+      context: ./llmlingua-service
+    environment:
+      BOTCONNECTOR_LLMLINGUA_MODEL: microsoft/llmlingua-2-bert-base-multilingual-cased-meetingbank
+    ports:
+      - "127.0.0.1:18091:8091"
+
+volumes:
+  tei_data:
+  bifrost_data:

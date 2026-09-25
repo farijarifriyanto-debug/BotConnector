@@ -1,0 +1,55 @@
+{
+  "benchmark": "BotConnector cloud-efficiency synthetic-v1",
+  "github_actions_run": 36053271767,
+  "compression_rate": 0.65,
+  "cache": {
+    "requests": 30,
+    "provider_calls": 20,
+    "exact_hits": 6,
+    "semantic_hits": 4,
+    "cache_bypass": 8,
+    "provider_call_reduction_pct": 33.33,
+    "semantic_threshold": 0.92,
+    "cross_scope_similarity_proof": 1
+  },
+  "compression": [
+    {
+      "kind": "history",
+      "origin_tokens": 493,
+      "compressed_tokens": 331,
+      "saving_pct": 32.86
+    },
+    {
+      "kind": "rag",
+      "origin_tokens": 466,
+      "compressed_tokens": 311,
+      "saving_pct": 33.26
+    },
+    {
+      "kind": "tool_output",
+      "origin_tokens": 154,
+      "compressed_tokens": 106,
+      "saving_pct": 31.17
+    }
+  ],
+  "tools": {
+    "direct_tools": 47,
+    "lazy_meta_tools": 5,
+    "direct_schema_tokens": 4702,
+    "lazy_schema_tokens": 211,
+    "schema_token_reduction_pct": 95.51
+  },
+  "combined": {
+    "baseline_provider_input_tokens": 72986,
+    "optimized_provider_input_tokens": 18928,
+    "provider_input_token_reduction_pct": 74.07,
+    "baseline_provider_output_tokens_modelled": 12000,
+    "optimized_provider_output_tokens_modelled": 8000,
+    "output_assumption_tokens_per_call": 400,
+    "modelled_provider_cost_reduction_pct": {
+      "input_output_1_to_1": 68.31,
+      "input_output_1_to_3": 60.61,
+      "input_output_1_to_5": 55.69
+    }
+  }
+}

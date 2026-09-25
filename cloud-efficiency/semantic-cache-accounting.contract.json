@@ -1,0 +1,28 @@
+{
+  "version": 1,
+  "placement": "after_auth_and_quota_reservation",
+  "selected_model_immutable": true,
+  "trusted_bifrost_full_response_hit": {
+    "condition": {
+      "cache_hit": true,
+      "hit_type": [
+        "semantic",
+        "direct"
+      ]
+    },
+    "settlement": {
+      "logical_input_tokens": "usage.prompt_tokens",
+      "cached_input_tokens": "usage.prompt_tokens",
+      "cache_write_tokens": 0,
+      "output_tokens": "usage.completion_tokens"
+    }
+  },
+  "untrusted_provider_cache_debug_discount": false,
+  "streaming_requires_exactly_once_settlement": true,
+  "live_cutover_requires": [
+    "canonical deployed gateway source repository",
+    "trusted Bifrost-boundary normalization",
+    "cache-aware accounting tests",
+    "authenticated session-resolved canary"
+  ]
+}

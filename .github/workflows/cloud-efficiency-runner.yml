@@ -1,0 +1,195 @@
+name: cloud-efficiency-runner
+
+on:
+  push:
+    branches:
+      - "feat/cloud-efficiency-runner"
+      - "feat/cloud-efficiency-runner/**"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: cloud-efficiency-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  contract:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - name: Validate source contracts
+        run: |
+          python -m json.tool cloud-efficiency/bifrost/semantic-cache.config.example.json >/dev/null
+          python -m compileall -q cloud-efficiency/llmlingua-service
+          python -m pip install --disable-pip-version-check pytest
+          PYTHONPATH=cloud-efficiency pytest -q cloud-efficiency/test_contract.py cloud-efficiency/test_accounting_contract.py cloud-efficiency/test_latency_profiler.py cloud-efficiency/test_free_cloud_pool.py\n          python cloud-efficiency/benchmark/latency_profiler_overhead.py\n          cat cloud-efficiency/benchmark/LATENCY_PROFILER_OVERHEAD.json
+          docker compose -f cloud-efficiency/docker-compose.yml config --quiet\n      - uses: actions/upload-artifact@v4\n        with:\n          name: latency-profiler-overhead-${{ github.sha }}\n          path: cloud-efficiency/benchmark/LATENCY_PROFILER_OVERHEAD.json\n          retention-days: 30
+
+  bifrost:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - name: Smoke test official Bifrost
+        run: |
+          docker pull maximhq/bifrost:latest
+          docker run -d --name bifrost-ci -p 127.0.0.1:18081:8080 maximhq/bifrost:latest
+          ok=0
+          for i in {1..60}; do
+            if curl -fsS http://127.0.0.1:18081/health >/dev/null; then ok=1; break; fi
+            sleep 2
+          done
+          if [ "$ok" != "1" ]; then docker logs bifrost-ci; exit 1; fi
+          mkdir -p build
+          docker image inspect maximhq/bifrost:latest --format '{{index .RepoDigests 0}}' > build/bifrost-image.txt
+      - uses: actions/upload-artifact@v4
+        with:
+          name: bifrost-image-identity-${{ github.sha }}
+          path: build/bifrost-image.txt
+          retention-days: 14
+
+  llmlingua:
+    runs-on: ubuntu-latest
+    timeout-minutes: 35
+    steps:
+      - uses: actions/checkout@v4
+      - name: Build context optimizer
+        run: docker build -t botconnector-context-optimizer:${GITHUB_SHA} cloud-efficiency/llmlingua-service
+      - name: Contract smoke test without model download
+        run: |
+          docker run -d --name optimizer-ci \
+            -e BOTCONNECTOR_LLMLINGUA_DISABLED=1 \
+            -p 127.0.0.1:18091:8091 \
+            botconnector-context-optimizer:${GITHUB_SHA}
+          ok=0
+          for i in {1..30}; do
+            if curl -fsS http://127.0.0.1:18091/health >/dev/null; then ok=1; break; fi
+            sleep 2
+          done
+          test "$ok" = "1"
+          curl -fsS -X POST http://127.0.0.1:18091/v1/compress \
+            -H 'content-type: application/json' \
+            -d '{"rate":0.5,"segments":[{"kind":"history","compress":true,"text":"old context"},{"kind":"other","compress":false,"text":"LATEST USER MESSAGE MUST STAY EXACT"}]}' > /tmp/compress.json
+          python - <<'PY'
+          import json
+          data=json.load(open('/tmp/compress.json'))
+          assert data['disabled'] is True
+          assert data['segments'][1]['text'] == 'LATEST USER MESSAGE MUST STAY EXACT'
+          PY
+      - name: Export deployable image
+        run: |
+          mkdir -p build
+          docker save botconnector-context-optimizer:${GITHUB_SHA} | gzip -1 > build/context-optimizer-image.tar.gz
+          sha256sum build/context-optimizer-image.tar.gz > build/SHA256SUMS
+      - uses: actions/upload-artifact@v4
+        with:
+          name: context-optimizer-${{ github.sha }}
+          path: build/
+          retention-days: 7
+
+  lazy-tool:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-go@v5
+        with:
+          go-version: "1.25.x"
+      - name: Build upstream lazy-tool
+        run: |
+          mkdir -p build
+          git clone --depth 1 --branch v1.0.2 https://github.com/mcp-shark/lazy-tool.git /tmp/lazy-tool
+          make -C /tmp/lazy-tool build
+          cp /tmp/lazy-tool/bin/lazy-tool build/lazy-tool
+          ./build/lazy-tool --help >/dev/null
+          sha256sum build/lazy-tool > build/lazy-tool.sha256
+      - uses: actions/upload-artifact@v4
+        with:
+          name: lazy-tool-linux-amd64-${{ github.sha }}
+          path: |
+            build/lazy-tool
+            build/lazy-tool.sha256
+          retention-days: 14
+
+  benchmark:
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    needs: [contract, bifrost, llmlingua, lazy-tool]
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Download context optimizer image
+        uses: actions/download-artifact@v4
+        with:
+          name: context-optimizer-${{ github.sha }}
+          path: /tmp/context-optimizer
+
+      - name: Load and start LLMLingua optimizer
+        run: |
+          gunzip -c /tmp/context-optimizer/context-optimizer-image.tar.gz | docker load
+          docker run -d --name optimizer-bench \
+            -p 127.0.0.1:18091:8091 \
+            botconnector-context-optimizer:${GITHUB_SHA}
+          for i in {1..60}; do
+            if curl -fsS http://127.0.0.1:18091/health >/dev/null; then exit 0; fi
+            sleep 2
+          done
+          docker logs optimizer-bench
+          exit 1
+
+      - name: Start local multilingual embeddings
+        run: |
+          docker run -d --name tei-bench \
+            -p 127.0.0.1:18092:80 \
+            -v "${RUNNER_TEMP}/tei-data:/data" \
+            ghcr.io/huggingface/text-embeddings-inference:cpu-1.9.4 \
+            --model-id intfloat/multilingual-e5-small --port 80 \
+            --tokenization-workers 2 \
+            --max-concurrent-requests 64 \
+            --max-batch-tokens 4096 \
+            --max-client-batch-size 8
+          for i in {1..180}; do
+            if curl -fsS http://127.0.0.1:18092/health >/dev/null; then exit 0; fi
+            sleep 2
+          done
+          docker logs tei-bench
+          exit 1
+
+      - name: Run savings benchmark
+        run: |
+          python -m pip install --disable-pip-version-check tiktoken==0.11.0
+          mkdir -p cloud-efficiency/benchmark
+          python cloud-efficiency/benchmark/benchmark.py
+          cat cloud-efficiency/benchmark/RESULT.md
+        env:
+          OPTIMIZER_URL: http://127.0.0.1:18091
+          EMBEDDINGS_URL: http://127.0.0.1:18092
+          SEMANTIC_THRESHOLD: "0.92"
+          COMPRESSION_RATE: "0.65"
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: cloud-efficiency-benchmark-${{ github.sha }}
+          path: |
+            cloud-efficiency/benchmark/result.json
+            cloud-efficiency/benchmark/RESULT.md
+          retention-days: 30
+
+  bundle:
+    runs-on: ubuntu-latest
+    needs: [contract, bifrost, llmlingua, lazy-tool, benchmark]
+    steps:
+      - uses: actions/checkout@v4
+      - name: Package config bundle
+        run: |
+          mkdir -p build
+          tar -czf build/cloud-efficiency-config-${GITHUB_SHA}.tar.gz cloud-efficiency
+          sha256sum build/cloud-efficiency-config-${GITHUB_SHA}.tar.gz > build/SHA256SUMS
+      - uses: actions/upload-artifact@v4
+        with:
+          name: cloud-efficiency-config-${{ github.sha }}
+          path: build/
+          retention-days: 14
