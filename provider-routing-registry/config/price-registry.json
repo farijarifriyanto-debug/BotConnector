@@ -1,6 +1,6 @@
 {
   "schemaVersion": 2,
-  "snapshot": "2026-09-18.1",
+  "snapshot": "2026-09-26.1",
   "currency": "USD",
   "unit": "per_1m_tokens",
   "policy": {
@@ -6040,6 +6040,750 @@
         "regionConstraint": null
       },
       "notes": "Shared multi-user BotConnector use, server-side credential storage, routing, abuse control, concurrency, usage accounting, and Auto Free pool inclusion approved by Novita DevRel email on 2026-09-23. Free eligibility is dynamic and must fail closed on pricing/availability change."
+    },
+    {
+      "priceKey": "deepseek_direct:deepseek-v4.1-flash",
+      "modelId": "deepseek-v4.1-flash",
+      "provider": "deepseek_direct",
+      "providerModelId": "deepseek-flash",
+      "notes": "Official DeepSeek direct peak pricing. Off-peak is 50% lower; peak hours 01:00-04:00 and 06:00-10:00 UTC Mon-Fri.",
+      "canonicalModelId": "deepseek-v4.1-flash",
+      "region": "global",
+      "deploymentScope": "direct",
+      "pricing": {
+        "kind": "list",
+        "currency": "USD",
+        "verified": true,
+        "verifiedAt": "2026-09-26",
+        "sourceUrl": "https://api-docs.deepseek.com/quick_start/pricing/",
+        "effectiveAt": "2026-09-26",
+        "timeLimited": false,
+        "expiresAt": null,
+        "verificationStatus": "VERIFIED",
+        "actualProviderPrice": {
+          "uncachedInputPerMTokensUsd": 0.3,
+          "cachedInputPerMTokensUsd": 0.006,
+          "cacheWritePerMTokensUsd": null,
+          "outputPerMTokensUsd": 1.2,
+          "providerFees": null
+        },
+        "standardReferencePrice": null,
+        "capabilityEvidence": null,
+        "timePrices": [
+          {
+            "name": "off_peak",
+            "schedule": "all times except peak window",
+            "actualProviderPrice": {
+              "uncachedInputPerMTokensUsd": 0.15,
+              "cachedInputPerMTokensUsd": 0.003,
+              "cacheWritePerMTokensUsd": null,
+              "outputPerMTokensUsd": 0.6,
+              "providerFees": null
+            }
+          },
+          {
+            "name": "peak",
+            "schedule": "Mon-Fri 01:00-04:00 and 06:00-10:00 UTC",
+            "actualProviderPrice": {
+              "uncachedInputPerMTokensUsd": 0.3,
+              "cachedInputPerMTokensUsd": 0.006,
+              "cacheWritePerMTokensUsd": null,
+              "outputPerMTokensUsd": 1.2,
+              "providerFees": null
+            }
+          }
+        ]
+      },
+      "capabilities": {
+        "tools": true,
+        "structuredOutput": true,
+        "vision": true,
+        "reasoning": true,
+        "embeddings": "unknown"
+      },
+      "operational": {
+        "maxContextTokens": 1000000,
+        "maxOutputTokens": 384000,
+        "availability": "available",
+        "rateLimitKnown": false,
+        "notes": "Official DeepSeek direct peak pricing. Off-peak is 50% lower; peak hours 01:00-04:00 and 06:00-10:00 UTC Mon-Fri."
+      },
+      "privacy": {
+        "policyKnown": false,
+        "zeroDataRetention": "unknown",
+        "regionConstraint": null
+      }
+    },
+    {
+      "priceKey": "deepseek_direct:deepseek-v4-pro",
+      "modelId": "deepseek-v4-pro",
+      "provider": "deepseek_direct",
+      "providerModelId": "deepseek-v4-pro",
+      "notes": "Official DeepSeek direct peak pricing. Off-peak is 50% lower; peak hours 01:00-04:00 and 06:00-10:00 UTC Mon-Fri.",
+      "canonicalModelId": "deepseek-v4-pro",
+      "region": "global",
+      "deploymentScope": "direct",
+      "pricing": {
+        "kind": "list",
+        "currency": "USD",
+        "verified": true,
+        "verifiedAt": "2026-09-26",
+        "sourceUrl": "https://api-docs.deepseek.com/quick_start/pricing/",
+        "effectiveAt": "2026-09-26",
+        "timeLimited": false,
+        "expiresAt": null,
+        "verificationStatus": "VERIFIED",
+        "actualProviderPrice": {
+          "uncachedInputPerMTokensUsd": 1.32,
+          "cachedInputPerMTokensUsd": 0.044,
+          "cacheWritePerMTokensUsd": null,
+          "outputPerMTokensUsd": 3.96,
+          "providerFees": null
+        },
+        "standardReferencePrice": null,
+        "capabilityEvidence": null,
+        "timePrices": [
+          {
+            "name": "off_peak",
+            "schedule": "all times except peak window",
+            "actualProviderPrice": {
+              "uncachedInputPerMTokensUsd": 0.66,
+              "cachedInputPerMTokensUsd": 0.022,
+              "cacheWritePerMTokensUsd": null,
+              "outputPerMTokensUsd": 1.98,
+              "providerFees": null
+            }
+          },
+          {
+            "name": "peak",
+            "schedule": "Mon-Fri 01:00-04:00 and 06:00-10:00 UTC",
+            "actualProviderPrice": {
+              "uncachedInputPerMTokensUsd": 1.32,
+              "cachedInputPerMTokensUsd": 0.044,
+              "cacheWritePerMTokensUsd": null,
+              "outputPerMTokensUsd": 3.96,
+              "providerFees": null
+            }
+          }
+        ]
+      },
+      "capabilities": {
+        "tools": true,
+        "structuredOutput": true,
+        "vision": false,
+        "reasoning": true,
+        "embeddings": "unknown"
+      },
+      "operational": {
+        "maxContextTokens": 1000000,
+        "maxOutputTokens": 384000,
+        "availability": "available",
+        "rateLimitKnown": false,
+        "notes": "Official DeepSeek direct peak pricing. Off-peak is 50% lower; peak hours 01:00-04:00 and 06:00-10:00 UTC Mon-Fri."
+      },
+      "privacy": {
+        "policyKnown": false,
+        "zeroDataRetention": "unknown",
+        "regionConstraint": null
+      }
+    },
+    {
+      "priceKey": "kimi_direct:kimi-k3",
+      "modelId": "kimi-k3",
+      "provider": "kimi_direct",
+      "providerModelId": "kimi-k3",
+      "notes": "Official Kimi direct API pricing; K3 supports 1M context and explicit cache hit/write pricing.",
+      "canonicalModelId": "kimi-k3",
+      "region": "global",
+      "deploymentScope": "direct",
+      "pricing": {
+        "kind": "list",
+        "currency": "USD",
+        "verified": true,
+        "verifiedAt": "2026-09-26",
+        "sourceUrl": "https://platform.kimi.ai/",
+        "effectiveAt": "2026-09-26",
+        "timeLimited": false,
+        "expiresAt": null,
+        "verificationStatus": "VERIFIED",
+        "actualProviderPrice": {
+          "uncachedInputPerMTokensUsd": 3,
+          "cachedInputPerMTokensUsd": 0.3,
+          "cacheWritePerMTokensUsd": 3,
+          "outputPerMTokensUsd": 15,
+          "providerFees": null
+        },
+        "standardReferencePrice": null,
+        "capabilityEvidence": null
+      },
+      "capabilities": {
+        "tools": "unknown",
+        "structuredOutput": "unknown",
+        "vision": "unknown",
+        "reasoning": "unknown",
+        "embeddings": "unknown"
+      },
+      "operational": {
+        "maxContextTokens": 1000000,
+        "maxOutputTokens": null,
+        "availability": "available",
+        "rateLimitKnown": false,
+        "notes": "Official Kimi direct API pricing; K3 supports 1M context and explicit cache hit/write pricing."
+      },
+      "privacy": {
+        "policyKnown": false,
+        "zeroDataRetention": "unknown",
+        "regionConstraint": null
+      }
+    },
+    {
+      "priceKey": "kimi_direct:kimi-k2.7-code",
+      "modelId": "kimi-k2.7-code",
+      "provider": "kimi_direct",
+      "providerModelId": "kimi-k2.7-code",
+      "notes": "Official Kimi direct API pricing.",
+      "canonicalModelId": "kimi-k2.7-code",
+      "region": "global",
+      "deploymentScope": "direct",
+      "pricing": {
+        "kind": "list",
+        "currency": "USD",
+        "verified": true,
+        "verifiedAt": "2026-09-26",
+        "sourceUrl": "https://platform.kimi.ai/",
+        "effectiveAt": "2026-09-26",
+        "timeLimited": false,
+        "expiresAt": null,
+        "verificationStatus": "VERIFIED",
+        "actualProviderPrice": {
+          "uncachedInputPerMTokensUsd": 0.95,
+          "cachedInputPerMTokensUsd": 0.19,
+          "cacheWritePerMTokensUsd": null,
+          "outputPerMTokensUsd": 4,
+          "providerFees": null
+        },
+        "standardReferencePrice": null,
+        "capabilityEvidence": null
+      },
+      "capabilities": {
+        "tools": "unknown",
+        "structuredOutput": "unknown",
+        "vision": "unknown",
+        "reasoning": "unknown",
+        "embeddings": "unknown"
+      },
+      "operational": {
+        "maxContextTokens": 256000,
+        "maxOutputTokens": null,
+        "availability": "available",
+        "rateLimitKnown": false,
+        "notes": "Official Kimi direct API pricing."
+      },
+      "privacy": {
+        "policyKnown": false,
+        "zeroDataRetention": "unknown",
+        "regionConstraint": null
+      }
+    },
+    {
+      "priceKey": "kimi_direct:kimi-k2.6",
+      "modelId": "kimi-k2.6",
+      "provider": "kimi_direct",
+      "providerModelId": "kimi-k2.6",
+      "notes": "Official Kimi direct API pricing; multimodal general-purpose model.",
+      "canonicalModelId": "kimi-k2.6",
+      "region": "global",
+      "deploymentScope": "direct",
+      "pricing": {
+        "kind": "list",
+        "currency": "USD",
+        "verified": true,
+        "verifiedAt": "2026-09-26",
+        "sourceUrl": "https://platform.kimi.ai/",
+        "effectiveAt": "2026-09-26",
+        "timeLimited": false,
+        "expiresAt": null,
+        "verificationStatus": "VERIFIED",
+        "actualProviderPrice": {
+          "uncachedInputPerMTokensUsd": 0.95,
+          "cachedInputPerMTokensUsd": 0.16,
+          "cacheWritePerMTokensUsd": null,
+          "outputPerMTokensUsd": 4,
+          "providerFees": null
+        },
+        "standardReferencePrice": null,
+        "capabilityEvidence": null
+      },
+      "capabilities": {
+        "tools": "unknown",
+        "structuredOutput": "unknown",
+        "vision": true,
+        "reasoning": "unknown",
+        "embeddings": "unknown"
+      },
+      "operational": {
+        "maxContextTokens": 256000,
+        "maxOutputTokens": null,
+        "availability": "available",
+        "rateLimitKnown": false,
+        "notes": "Official Kimi direct API pricing; multimodal general-purpose model."
+      },
+      "privacy": {
+        "policyKnown": false,
+        "zeroDataRetention": "unknown",
+        "regionConstraint": null
+      }
+    },
+    {
+      "priceKey": "minimax_direct:minimax-m3",
+      "modelId": "minimax-m3",
+      "provider": "minimax_direct",
+      "providerModelId": "MiniMax-M3",
+      "notes": "Official MiniMax direct PAYG pricing with permanent 50% discount. Base price shown as standard reference; >512K context uses higher tier.",
+      "canonicalModelId": "minimax-m3",
+      "region": "global",
+      "deploymentScope": "direct",
+      "pricing": {
+        "kind": "tiered",
+        "currency": "USD",
+        "verified": true,
+        "verifiedAt": "2026-09-26",
+        "sourceUrl": "https://platform.minimax.io/subscribe/token-plan?tab=api-enterprise",
+        "effectiveAt": "2026-09-26",
+        "timeLimited": false,
+        "expiresAt": null,
+        "verificationStatus": "VERIFIED",
+        "actualProviderPrice": {
+          "uncachedInputPerMTokensUsd": 0.3,
+          "cachedInputPerMTokensUsd": 0.06,
+          "cacheWritePerMTokensUsd": null,
+          "outputPerMTokensUsd": 1.2,
+          "providerFees": null
+        },
+        "standardReferencePrice": {
+          "uncachedInputPerMTokensUsd": 0.6,
+          "cachedInputPerMTokensUsd": 0.12,
+          "cacheWritePerMTokensUsd": null,
+          "outputPerMTokensUsd": 2.4,
+          "providerFees": null
+        },
+        "capabilityEvidence": null,
+        "tiers": [
+          {
+            "maxInputTokens": 512000,
+            "actualProviderPrice": {
+              "uncachedInputPerMTokensUsd": 0.3,
+              "cachedInputPerMTokensUsd": 0.06,
+              "cacheWritePerMTokensUsd": null,
+              "outputPerMTokensUsd": 1.2,
+              "providerFees": null
+            },
+            "standardReferencePrice": {
+              "uncachedInputPerMTokensUsd": 0.6,
+              "cachedInputPerMTokensUsd": 0.12,
+              "cacheWritePerMTokensUsd": null,
+              "outputPerMTokensUsd": 2.4,
+              "providerFees": null
+            }
+          },
+          {
+            "maxInputTokens": 1000000,
+            "actualProviderPrice": {
+              "uncachedInputPerMTokensUsd": 0.6,
+              "cachedInputPerMTokensUsd": 0.12,
+              "cacheWritePerMTokensUsd": null,
+              "outputPerMTokensUsd": 2.4,
+              "providerFees": null
+            },
+            "standardReferencePrice": {
+              "uncachedInputPerMTokensUsd": 1.2,
+              "cachedInputPerMTokensUsd": 0.24,
+              "cacheWritePerMTokensUsd": null,
+              "outputPerMTokensUsd": 4.8,
+              "providerFees": null
+            }
+          }
+        ]
+      },
+      "capabilities": {
+        "tools": "unknown",
+        "structuredOutput": "unknown",
+        "vision": "unknown",
+        "reasoning": "unknown",
+        "embeddings": "unknown"
+      },
+      "operational": {
+        "maxContextTokens": 1000000,
+        "maxOutputTokens": null,
+        "availability": "available",
+        "rateLimitKnown": false,
+        "notes": "Official MiniMax direct PAYG pricing with permanent 50% discount. Base price shown as standard reference; >512K context uses higher tier."
+      },
+      "privacy": {
+        "policyKnown": false,
+        "zeroDataRetention": "unknown",
+        "regionConstraint": null
+      }
+    },
+    {
+      "priceKey": "minimax_direct:minimax-m2.7",
+      "modelId": "minimax-m2.7",
+      "provider": "minimax_direct",
+      "providerModelId": "MiniMax-M2.7",
+      "notes": "Official MiniMax direct PAYG pricing.",
+      "canonicalModelId": "minimax-m2.7",
+      "region": "global",
+      "deploymentScope": "direct",
+      "pricing": {
+        "kind": "list",
+        "currency": "USD",
+        "verified": true,
+        "verifiedAt": "2026-09-26",
+        "sourceUrl": "https://platform.minimax.io/subscribe/token-plan?tab=api-enterprise",
+        "effectiveAt": "2026-09-26",
+        "timeLimited": false,
+        "expiresAt": null,
+        "verificationStatus": "VERIFIED",
+        "actualProviderPrice": {
+          "uncachedInputPerMTokensUsd": 0.3,
+          "cachedInputPerMTokensUsd": 0.06,
+          "cacheWritePerMTokensUsd": 0.375,
+          "outputPerMTokensUsd": 1.2,
+          "providerFees": null
+        },
+        "standardReferencePrice": null,
+        "capabilityEvidence": null
+      },
+      "capabilities": {
+        "tools": "unknown",
+        "structuredOutput": "unknown",
+        "vision": "unknown",
+        "reasoning": "unknown",
+        "embeddings": "unknown"
+      },
+      "operational": {
+        "maxContextTokens": 1000000,
+        "maxOutputTokens": null,
+        "availability": "available",
+        "rateLimitKnown": false,
+        "notes": "Official MiniMax direct PAYG pricing."
+      },
+      "privacy": {
+        "policyKnown": false,
+        "zeroDataRetention": "unknown",
+        "regionConstraint": null
+      }
+    },
+    {
+      "priceKey": "google_direct:gemini-3.8-flash",
+      "modelId": "gemini-3.8-flash",
+      "provider": "google_direct",
+      "providerModelId": "gemini-3.8-flash",
+      "notes": "Google Gemini Developer API introductory pricing through 2026-12-31; standard pricing begins 2027-01-01.",
+      "canonicalModelId": "gemini-3.8-flash",
+      "region": "global",
+      "deploymentScope": "direct",
+      "pricing": {
+        "kind": "list",
+        "currency": "USD",
+        "verified": true,
+        "verifiedAt": "2026-09-26",
+        "sourceUrl": "https://ai.google.dev/gemini-api/docs/pricing",
+        "effectiveAt": "2026-09-26",
+        "timeLimited": true,
+        "expiresAt": "2026-12-31",
+        "verificationStatus": "VERIFIED",
+        "actualProviderPrice": {
+          "uncachedInputPerMTokensUsd": 0.75,
+          "cachedInputPerMTokensUsd": 0.075,
+          "cacheWritePerMTokensUsd": null,
+          "outputPerMTokensUsd": 3.75,
+          "providerFees": null
+        },
+        "standardReferencePrice": {
+          "uncachedInputPerMTokensUsd": 1.5,
+          "cachedInputPerMTokensUsd": 0.15,
+          "cacheWritePerMTokensUsd": null,
+          "outputPerMTokensUsd": 7.5,
+          "providerFees": null
+        },
+        "capabilityEvidence": null
+      },
+      "capabilities": {
+        "tools": true,
+        "structuredOutput": "unknown",
+        "vision": true,
+        "reasoning": true,
+        "embeddings": "unknown"
+      },
+      "operational": {
+        "maxContextTokens": 1000000,
+        "maxOutputTokens": 64000,
+        "availability": "available",
+        "rateLimitKnown": false,
+        "notes": "Google Gemini Developer API introductory pricing through 2026-12-31; standard pricing begins 2027-01-01."
+      },
+      "privacy": {
+        "policyKnown": false,
+        "zeroDataRetention": "unknown",
+        "regionConstraint": null
+      }
+    },
+    {
+      "priceKey": "google_direct:gemini-3.7-flash",
+      "modelId": "gemini-3.7-flash",
+      "provider": "google_direct",
+      "providerModelId": "gemini-3.7-flash",
+      "notes": "Google Gemini Developer API promotional pricing through 2026-12-31.",
+      "canonicalModelId": "gemini-3.7-flash",
+      "region": "global",
+      "deploymentScope": "direct",
+      "pricing": {
+        "kind": "list",
+        "currency": "USD",
+        "verified": true,
+        "verifiedAt": "2026-09-26",
+        "sourceUrl": "https://ai.google.dev/gemini-api/docs/pricing",
+        "effectiveAt": "2026-09-26",
+        "timeLimited": true,
+        "expiresAt": "2026-12-31",
+        "verificationStatus": "VERIFIED",
+        "actualProviderPrice": {
+          "uncachedInputPerMTokensUsd": 0.75,
+          "cachedInputPerMTokensUsd": 0.075,
+          "cacheWritePerMTokensUsd": null,
+          "outputPerMTokensUsd": 3.75,
+          "providerFees": null
+        },
+        "standardReferencePrice": {
+          "uncachedInputPerMTokensUsd": 1.5,
+          "cachedInputPerMTokensUsd": 0.15,
+          "cacheWritePerMTokensUsd": null,
+          "outputPerMTokensUsd": 7.5,
+          "providerFees": null
+        },
+        "capabilityEvidence": null
+      },
+      "capabilities": {
+        "tools": true,
+        "structuredOutput": "unknown",
+        "vision": true,
+        "reasoning": true,
+        "embeddings": "unknown"
+      },
+      "operational": {
+        "maxContextTokens": 1000000,
+        "maxOutputTokens": null,
+        "availability": "available",
+        "rateLimitKnown": false,
+        "notes": "Google Gemini Developer API promotional pricing through 2026-12-31."
+      },
+      "privacy": {
+        "policyKnown": false,
+        "zeroDataRetention": "unknown",
+        "regionConstraint": null
+      }
+    },
+    {
+      "priceKey": "google_direct:gemini-3.6-flash",
+      "modelId": "gemini-3.6-flash",
+      "provider": "google_direct",
+      "providerModelId": "gemini-3.6-flash",
+      "notes": "Google Gemini Developer API promotional pricing through 2026-12-31.",
+      "canonicalModelId": "gemini-3.6-flash",
+      "region": "global",
+      "deploymentScope": "direct",
+      "pricing": {
+        "kind": "list",
+        "currency": "USD",
+        "verified": true,
+        "verifiedAt": "2026-09-26",
+        "sourceUrl": "https://ai.google.dev/gemini-api/docs/pricing",
+        "effectiveAt": "2026-09-26",
+        "timeLimited": true,
+        "expiresAt": "2026-12-31",
+        "verificationStatus": "VERIFIED",
+        "actualProviderPrice": {
+          "uncachedInputPerMTokensUsd": 0.75,
+          "cachedInputPerMTokensUsd": 0.075,
+          "cacheWritePerMTokensUsd": null,
+          "outputPerMTokensUsd": 3.75,
+          "providerFees": null
+        },
+        "standardReferencePrice": {
+          "uncachedInputPerMTokensUsd": 1.5,
+          "cachedInputPerMTokensUsd": 0.15,
+          "cacheWritePerMTokensUsd": null,
+          "outputPerMTokensUsd": 7.5,
+          "providerFees": null
+        },
+        "capabilityEvidence": null
+      },
+      "capabilities": {
+        "tools": true,
+        "structuredOutput": "unknown",
+        "vision": true,
+        "reasoning": true,
+        "embeddings": "unknown"
+      },
+      "operational": {
+        "maxContextTokens": 1000000,
+        "maxOutputTokens": null,
+        "availability": "available",
+        "rateLimitKnown": false,
+        "notes": "Google Gemini Developer API promotional pricing through 2026-12-31."
+      },
+      "privacy": {
+        "policyKnown": false,
+        "zeroDataRetention": "unknown",
+        "regionConstraint": null
+      }
+    },
+    {
+      "priceKey": "xai_direct:grok-4.5",
+      "modelId": "grok-4.5",
+      "provider": "xai_direct",
+      "providerModelId": "grok-4.5",
+      "notes": "Official xAI direct pricing; requests at or above 200K context use long-context pricing.",
+      "canonicalModelId": "grok-4.5",
+      "region": "global",
+      "deploymentScope": "direct",
+      "pricing": {
+        "kind": "tiered",
+        "currency": "USD",
+        "verified": true,
+        "verifiedAt": "2026-09-26",
+        "sourceUrl": "https://docs.x.ai/developers/models/grok-4.5",
+        "effectiveAt": "2026-09-26",
+        "timeLimited": false,
+        "expiresAt": null,
+        "verificationStatus": "VERIFIED",
+        "actualProviderPrice": {
+          "uncachedInputPerMTokensUsd": 2,
+          "cachedInputPerMTokensUsd": 0.3,
+          "cacheWritePerMTokensUsd": null,
+          "outputPerMTokensUsd": 6,
+          "providerFees": null
+        },
+        "standardReferencePrice": null,
+        "capabilityEvidence": null,
+        "tiers": [
+          {
+            "maxInputTokens": 199999,
+            "actualProviderPrice": {
+              "uncachedInputPerMTokensUsd": 2,
+              "cachedInputPerMTokensUsd": 0.3,
+              "cacheWritePerMTokensUsd": null,
+              "outputPerMTokensUsd": 6,
+              "providerFees": null
+            },
+            "standardReferencePrice": null
+          },
+          {
+            "maxInputTokens": 500000,
+            "actualProviderPrice": {
+              "uncachedInputPerMTokensUsd": 4,
+              "cachedInputPerMTokensUsd": 0.6,
+              "cacheWritePerMTokensUsd": null,
+              "outputPerMTokensUsd": 12,
+              "providerFees": null
+            },
+            "standardReferencePrice": null
+          }
+        ]
+      },
+      "capabilities": {
+        "tools": true,
+        "structuredOutput": true,
+        "vision": true,
+        "reasoning": true,
+        "embeddings": "unknown"
+      },
+      "operational": {
+        "maxContextTokens": 500000,
+        "maxOutputTokens": null,
+        "availability": "available",
+        "rateLimitKnown": false,
+        "notes": "Official xAI direct pricing; requests at or above 200K context use long-context pricing."
+      },
+      "privacy": {
+        "policyKnown": false,
+        "zeroDataRetention": "unknown",
+        "regionConstraint": null
+      }
+    },
+    {
+      "priceKey": "xai_direct:grok-4.20",
+      "modelId": "grok-4.20",
+      "provider": "xai_direct",
+      "providerModelId": "grok-4.20-0309-reasoning",
+      "notes": "Official xAI direct pricing; requests at or above 200K context use long-context pricing.",
+      "canonicalModelId": "grok-4.20",
+      "region": "global",
+      "deploymentScope": "direct",
+      "pricing": {
+        "kind": "tiered",
+        "currency": "USD",
+        "verified": true,
+        "verifiedAt": "2026-09-26",
+        "sourceUrl": "https://docs.x.ai/developers/models/grok-4.20",
+        "effectiveAt": "2026-09-26",
+        "timeLimited": false,
+        "expiresAt": null,
+        "verificationStatus": "VERIFIED",
+        "actualProviderPrice": {
+          "uncachedInputPerMTokensUsd": 1.25,
+          "cachedInputPerMTokensUsd": 0.2,
+          "cacheWritePerMTokensUsd": null,
+          "outputPerMTokensUsd": 2.5,
+          "providerFees": null
+        },
+        "standardReferencePrice": null,
+        "capabilityEvidence": null,
+        "tiers": [
+          {
+            "maxInputTokens": 199999,
+            "actualProviderPrice": {
+              "uncachedInputPerMTokensUsd": 1.25,
+              "cachedInputPerMTokensUsd": 0.2,
+              "cacheWritePerMTokensUsd": null,
+              "outputPerMTokensUsd": 2.5,
+              "providerFees": null
+            },
+            "standardReferencePrice": null
+          },
+          {
+            "maxInputTokens": 1000000,
+            "actualProviderPrice": {
+              "uncachedInputPerMTokensUsd": 2.5,
+              "cachedInputPerMTokensUsd": 0.4,
+              "cacheWritePerMTokensUsd": null,
+              "outputPerMTokensUsd": 5,
+              "providerFees": null
+            },
+            "standardReferencePrice": null
+          }
+        ]
+      },
+      "capabilities": {
+        "tools": true,
+        "structuredOutput": true,
+        "vision": true,
+        "reasoning": true,
+        "embeddings": "unknown"
+      },
+      "operational": {
+        "maxContextTokens": 1000000,
+        "maxOutputTokens": null,
+        "availability": "available",
+        "rateLimitKnown": false,
+        "notes": "Official xAI direct pricing; requests at or above 200K context use long-context pricing."
+      },
+      "privacy": {
+        "policyKnown": false,
+        "zeroDataRetention": "unknown",
+        "regionConstraint": null
+      }
     }
   ]
 }
