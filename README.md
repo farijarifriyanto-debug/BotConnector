@@ -1,10 +1,19 @@
 # BotConnector AI
 
+[![npm](https://img.shields.io/npm/v/botconnector-ai?label=botconnector-ai)](https://www.npmjs.com/package/botconnector-ai)
+[![Node.js](https://img.shields.io/node/v/botconnector-ai)](https://nodejs.org/)
+[![License: MIT](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
+[![Website](https://img.shields.io/badge/website-botconnector.id-06305A)](https://botconnector.id/)
+
 BotConnector is an open-source local-first AI workspace and CLI for chatting with local models, optional cloud AI, and coding-tool integrations.
 
 Project: [GitHub source repository](https://github.com/farijarifriyanto-debug/BotConnector) · [botconnector.id](https://botconnector.id/) · [issue tracker](https://github.com/farijarifriyanto-debug/BotConnector/issues)
 
 BotConnector is a local-first AI workspace and command-line client. It discovers GGUF models, downloads the files you choose, manages a verified llama.cpp runtime, and lets you chat from the terminal, desktop app, browser workspace, or a localhost OpenAI-compatible API. Cloud models are an explicit optional preview route; local prompts are not silently sent to the cloud.
+
+| Chat workspace | Deep Research | Image Studio |
+|---|---|---|
+| ![BotConnector chat workspace](docs/chat-workspace.webp) | ![BotConnector deep research](docs/research-workspace.webp) | ![BotConnector image studio](docs/studio.webp) |
 
 This is the `0.5.0-beta1` public npm beta. The npm package contains the CLI and Web Agent Workspace. Model weights and the managed runtime are downloaded separately after installation.
 
