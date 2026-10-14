@@ -8,6 +8,7 @@
 const fs = require('fs');
 const { gate } = require('./permissions.cjs');
 const context = require('./context.cjs');
+const projectInstructions = require('./project-instructions.cjs');
 const { createWorkspace } = require('./tools.cjs');
 const mutate = require('./mutate.cjs');
 const shell = require('./shell.cjs');
@@ -311,9 +312,12 @@ async function runTurn({ prompt, mode, approval, model, tools, cwd, workspace = 
   // Final model call. Workspace routes stay strictly grounded in tool JSON;
   // the direct route uses a tool-free prompt and MUST NOT demand tool JSON.
   const evidence = step && step.toolResult ? `\n\nTool ${primary.tool} result (JSON):\n${JSON.stringify(step.toolResult).slice(0, 6000)}` : '';
-  const system = evidence
+  // AGENTS.md rules (global to project) reach the model on the direct route; they never override the permission gate.
+  const agentsMd = projectInstructions.promptBlock((typeof workspace === 'string' && workspace) || cwd || process.cwd(), { nCtx: localCtx && localCtx.nCtx });
+  const baseSystem = evidence
     ? 'You are BotConnector, a helpful local AI assistant. Answer ONLY from the tool result JSON below. Quote paths, line numbers, exit codes faithfully. If the result is an error, report it plainly.'
     : 'You are BotConnector, a helpful local AI assistant running on the user\u2019s own machine. Answer the user directly and concisely. No tools or workspace access exist in this conversation \u2014 do not ask for tool output, file contents, or JSON; just answer from your own knowledge.';
+  const system = !evidence && agentsMd ? [baseSystem, agentsMd].join('\n\n') : baseSystem;
   const historyMsgs = (history || []).slice(-12).map((m) => ({ role: m.role, content: m.content }));
   const r = await streamModel(localCtx, [
     { role: 'system', content: system },
