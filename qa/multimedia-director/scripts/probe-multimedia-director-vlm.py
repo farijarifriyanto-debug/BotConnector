@@ -111,6 +111,64 @@ def load_samples(staged, assets_root, split, limit):
     return rows
 
 
+
+def verify_full_gated_staging(staged, assets_root, summary):
+    """Recount all three approved-stage split files and confirm no ID/image/group leakage.
+
+    A staged summary is a *claim*, not independent legal proof of rights.
+    This check catches altered/incomplete stages; independent human/rights
+    audit remains a separate release requirement.
+    """
+    minimums = {"train": 50, "val": 10, "test": 200}
+    if summary.get("gate") != "human_rights_review_assertions_required_but_not_independently_verified":
+        raise ValueError("missing original rights-gate attestation in staging summary")
+    counts = summary.get("counts")
+    if not isinstance(counts, dict):
+        raise ValueError("staging summary missing counts")
+    ids, groups, hashes = set(), {}, {}
+    verified = {}
+    for split, minimum in minimums.items():
+        path = staged / (split + ".jsonl")
+        if not path.is_file():
+            raise ValueError("full gated stage missing " + split + ".jsonl")
+        n = 0
+        for line in path.read_text(encoding="utf-8").splitlines():
+            if not line.strip():
+                continue
+            row = json.loads(line)
+            if row.get("schema") != STAGING_SCHEMA or row.get("split") != split:
+                raise ValueError("staged split schema mismatch")
+            sample_id = row.get("id")
+            group = row.get("group_id")
+            digest = row.get("image_sha256")
+            if (not isinstance(sample_id, str) or not sample_id or sample_id in ids
+                or not isinstance(group, str) or not group
+                or not isinstance(digest, str) or len(digest) != 64):
+                raise ValueError("duplicate id or missing group/hash in staged dataset")
+            ids.add(sample_id)
+            if group in groups and groups[group] != split:
+                raise ValueError("train/evaluation product group leakage")
+            if digest in hashes and hashes[digest] != split:
+                raise ValueError("train/evaluation exact-image leakage")
+            groups[group], hashes[digest] = split, digest
+            image = inside(assets_root, str(row.get("image_path", "")))
+            if hashlib.sha256(image.read_bytes()).hexdigest() != digest.lower():
+                raise ValueError("staged full-split image SHA256 mismatch")
+            if (row.get("license") not in ("CC-BY-4.0", "CC0-1.0")
+                or row.get("license") == "CC-BY-4.0" and
+                not isinstance(row.get("attribution"), str)):
+                raise ValueError("staged source license/attribution metadata missing")
+            if not isinstance(row.get("target"), dict):
+                raise ValueError("staged human-reviewed reference target missing")
+            n += 1
+            if n > 10000:
+                raise ValueError("per-split limit exceeded")
+        if n < minimum or n != counts.get(split):
+            raise ValueError("gated stage count mismatch or insufficient split: " + split)
+        verified[split] = n
+    return verified
+
+
 def make_prompt(row):
     schema = "botconnector.multimedia-director.v1"
     task = row["task"]
@@ -169,8 +227,10 @@ def probe(argv=None):
             counts = summary.get("counts", {})
             if (summary.get("schema") != STAGING_SCHEMA or
                 summary.get("mode") != "gated_dataset" or
+                not isinstance(counts, dict) or
                 counts.get("train", 0) < 50 or counts.get("val", 0) < 10 or counts.get("test", 0) < 200):
                 raise ValueError("GPU baseline requires reviewed train/val/heldout counts; --smoke is not eligible")
+            verify_full_gated_staging(staged, assets_root, summary)
         if args.run and args.split == "train":
             raise ValueError("baseline must use reviewed validation/test samples, never train")
         if args.run and args.out.exists():
