@@ -72,7 +72,17 @@ class FakeProcessor:
 
 
 def prepared_row(id, split, group, name, sha):
-    output = {"schema": "botconnector.multimedia-director.v1", "task": "product_photo"}
+    output = {
+        "schema": "botconnector.multimedia-director.v1",
+        "task": "product_photo",
+        "visual": {"observed_facts": ["warna sintetis"], "unknowns": ["label tidak diketahui"]},
+        "preservation_rules": ["Jangan ubah produk"],
+        "concepts": [
+            {"title": "Premium", "scene": "Studio putih", "mood": "Lembut", "tagline": "Elegan"},
+            {"title": "Lifestyle", "scene": "Meja kayu", "mood": "Hangat", "tagline": "Setiap hari"},
+            {"title": "Bold", "scene": "Galeri warna", "mood": "Kontras", "tagline": "Berani"},
+        ],
+    }
     return {
         "id": id,
         "task": "product_photo",
@@ -247,6 +257,28 @@ class DatasetGateTest(unittest.TestCase):
         self.rows["val"][0]["image_path"] = "../secret.png"
         self.save()
         with self.assertRaisesRegex(ValueError, "path traversal"):
+            lora.load_prepared(self.prepared, self.assets)
+
+    def test_rejects_target_with_repeated_ad_concepts(self):
+        target = json.loads(self.rows["train"][0]["messages"][1]["content"][0]["text"])
+        target["concepts"][1]["scene"] = target["concepts"][0]["scene"]
+        self.rows["train"][0]["messages"][1]["content"][0]["text"] = json.dumps(target)
+        self.save()
+        with self.assertRaisesRegex(ValueError, "scenes are duplicated"):
+            lora.load_prepared(self.prepared, self.assets)
+
+    def test_rejects_target_without_verified_visual_facts(self):
+        target = json.loads(self.rows["train"][0]["messages"][1]["content"][0]["text"])
+        target["visual"]["observed_facts"] = []
+        self.rows["train"][0]["messages"][1]["content"][0]["text"] = json.dumps(target)
+        self.save()
+        with self.assertRaisesRegex(ValueError, "observed facts"):
+            lora.load_prepared(self.prepared, self.assets)
+
+    def test_rejects_license_without_provenance(self):
+        self.rows["train"][0]["license"] = "CC-BY-NC-4.0"
+        self.save()
+        with self.assertRaisesRegex(ValueError, "unsupported license"):
             lora.load_prepared(self.prepared, self.assets)
 
     def test_dry_run_does_not_load_torch_or_write_artifacts(self):
