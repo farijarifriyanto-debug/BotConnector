@@ -8,6 +8,7 @@ locally cached trusted model checkpoint on a pre-authorized GPU.
 import argparse
 import hashlib
 import json
+import numbers
 import os
 import pathlib
 import sys
@@ -52,29 +53,32 @@ def verify_local_checkpoint(path, model_id):
     return root
 
 
-def require_real_pixel_values(batch):
-    """Ensure the vision processor actually produced image tensors, not just text."""
-    if not isinstance(batch, dict) and not hasattr(batch, "keys"):
-        raise ValueError("vision processor returned no model batch")
-    if "input_ids" not in batch:
-        raise ValueError("processor omitted input_ids")
-    if "pixel_values" not in batch or batch["pixel_values"] is None:
-        raise ValueError("processor omitted pixel_values: text-only fallback forbidden")
-    pixels = batch["pixel_values"]
-    if isinstance(pixels, (list, tuple)):
-        if len(pixels) == 0:
-            raise ValueError("processor returned empty pixel_values")
-        return True
-    if hasattr(pixels, "numel"):
-        if pixels.numel() <= 0:
-            raise ValueError("processor returned zero-sized pixel_values")
-        return True
-    if hasattr(pixels, "size"):
-        if pixels.size == 0:
-            raise ValueError("processor returned zero-sized pixel_values")
-        return True
-    raise ValueError("processor pixel_values has unsupported type")
+def nonempty_vision_payload(value):
+    """Accept a nonempty tensor/array or nested list of nonempty tensors.
 
+    A list containing None, an empty tensor, a string or an image placeholder
+    must never count as vision input. This is a *shape/presence* gate, not proof
+    that the tensors correspond to the approved image's actual pixels.
+    """
+    if isinstance(value, (list, tuple)):
+        return bool(value) and all(nonempty_vision_payload(part) for part in value)
+    if value is None or isinstance(value, (str, bytes, bytearray, dict)):
+        return False
+    numel = getattr(value, "numel", None)
+    if callable(numel):
+        size = numel()
+        return isinstance(size, numbers.Integral) and size > 0
+    size = getattr(value, "size", None)
+    return isinstance(size, numbers.Integral) and size > 0
+
+
+def require_real_pixel_values(batch):
+    """Refuse empty/malformed image tensors or text-only processor outputs."""
+    if not hasattr(batch, "keys") or "input_ids" not in batch:
+        raise ValueError("vision processor omitted input_ids")
+    if "pixel_values" not in batch or not nonempty_vision_payload(batch["pixel_values"]):
+        raise ValueError("processor omitted nonempty pixel_values: text-only fallback forbidden")
+    return True
 
 
 def inside(root, name):
