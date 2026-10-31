@@ -52,3 +52,35 @@ Source-inspection discoveries: SKU **B07K71H6GP** was incorrectly categorized as
 The actual Windows CPU-only audit confirmed **260/260 source SHA256** and **6/6 train-only suggestions**. This is an assistant-written **draft**, not human review and NOT a result from SmolVLM2. SmolVLM2-2.2B is not installed locally; larger 8B/12B vision models were deliberately not used. No inference server, paid GPU or production integration was started.
 
 Only generic code/tests/docs are in the public BotConnector repository. The real photos, assistant source-backed draft files and eventual reviewer state stay privately on the owner's machine. Public GitHub Actions run synthetic tests only.
+
+## No-GO review readiness audit (offline, original image SHA256)
+
+The same existing reviewer now supports `--readiness-report`: it opens the private 260-row review manifest,
+the optional six train-only AI drafts and existing human review state (if any), verifies original
+**image SHA256 for every source**, and writes a new JSON report containing progress counts, proposed
+split counts, missing field names and a prioritized queue of SKUs requiring independent review.
+
+```powershell
+$dir = "$HOME\Desktop\BICO-Internet-Curation-20261031"
+python "$dir\BICO_Review_Produk_Offline.py" `
+  --data "$dir\abo-proposed-review-260.jsonl" `
+  --drafts "$dir\assistant-visual-drafts-six-NOT-FOR-TRAINING.jsonl" `
+  --readiness-report "$dir\review-readiness-my-new-run.json"
+```
+
+**Actual first run on 1 Nov 2026:** 260/260 actual image SHA256 verified;
+260 unreviewed (`pending`), 0 candidate, 0 rejected, 6 source-bound
+AI drafts waiting for independent human inspection, **0 training-approved**.
+The underlying `bico-manual-visual-review-state.json` has not been created
+by a reviewer yet. The report is deliberately `NO_GO_UNAPPROVED_DATA`.
+
+The report file **refuses overwrite** to preserve an audit trail. It never
+contains source photo bytes, reviewer annotations or model weights. A
+syntactically complete review form is still not a quality, rights or training
+approval. The script refuses saved review states attempting to flip
+`annotation_finalized`, `license_approval`, `privacy_approval`,
+`training_approved` or `third_party_gpu_allowed` and detects source URL or
+split tampering. AI-produced drafts never count as independent human labels.
+
+The extra report checks are tested with synthetic photos via **public
+GitHub Actions**; no GitHub workflows are created in private Studio.
