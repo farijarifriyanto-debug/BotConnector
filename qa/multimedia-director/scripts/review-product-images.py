@@ -179,6 +179,19 @@ def write_state(path, decisions):
             temp.unlink()
 
 
+def persist_decision(path, decisions, item):
+    """Persist the full review state before mutating GUI memory.
+
+    If disk I/O fails, the in-memory record must remain unchanged so that
+    unsaved annotations are not treated as persisted decisions.
+    """
+    updated = dict(decisions)
+    updated[item["sku"]] = item
+    write_state(path, updated)
+    decisions.clear()
+    decisions.update(updated)
+
+
 def export_review(path, decisions):
     if path.exists():
         raise ValueError("refusing to overwrite existing export")
@@ -432,9 +445,14 @@ def review_gui(rows, state_path, ai_drafts=None):
                 "license_approval": "pending", "privacy_approval": "pending"}
         for field in FIELDS:
             item[field] = read_control(field)
-        decisions[row["sku"]] = item
-        write_state(state_path, decisions)
+        persist_decision(state_path, decisions, item)
         display(current[0])
+
+    def save_current():
+        try:
+            save()
+        except Exception as exc:
+            messagebox.showerror("Gagal menyimpan", str(exc))
 
     def confirm_leave():
         """Yes=save, No=discard local edits, Cancel=stay on current item."""
@@ -525,7 +543,7 @@ def review_gui(rows, state_path, ai_drafts=None):
     footer = ttk.Frame(root)
     footer.pack(fill="x", pady=9)
     ttk.Button(footer, text="◀ Sebelumnya", command=lambda: navigate(-1)).pack(side="left")
-    ttk.Button(footer, text="Simpan", command=lambda: navigate(0)).pack(side="left", padx=8)
+    ttk.Button(footer, text="Simpan", command=save_current).pack(side="left", padx=8)
     ttk.Button(footer, text="Berikutnya ▶", command=lambda: navigate(1)).pack(side="left")
     ttk.Button(footer, text="Cari", command=search).pack(side="right")
     ttk.Button(footer, text="Review prioritas",
