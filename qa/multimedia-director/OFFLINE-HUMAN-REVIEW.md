@@ -105,3 +105,13 @@ Python syntax and real 260 source SHA256 + six draft schema audit pass
 on the owner's authorized Windows computer. Public synthetic regression
 tests cover the priority algorithm; automated tests do NOT claim real
 end-user interactive click-through or visual truth approval.
+
+## Save button repair (1 November 2026)
+
+The **Simpan** button now invokes an actual write instead of the previous
+no-op `navigate(0)`. A failed disk write displays **Gagal menyimpan** and
+does **not** mutate the in-memory review decision. Search, navigation and
+close continue to prompt for unsaved changes; no AI draft is auto-approved.
+Public synthetic CI checks the button binding and both successful and
+simulated-failure persistence. This is a source/test fix, **not** evidence
+of end-user visual review or permission to train.
