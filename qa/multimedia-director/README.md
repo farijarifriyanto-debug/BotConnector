@@ -45,3 +45,10 @@ python3 scripts/audit-product-intake.py --root /path/to/private/BICO-Multimedia-
 It validates SHA256, source attribution, image paths, draft annotation IDs, duplicate files and locked training-rights flags. Its success means **QA intake only**: training-approved count must remain zero. Stock photo commercial-use permissions should not be interpreted as automatic permission to train a commercial multimodal model or transfer photos to third-party GPUs. If rights are confirmed, move approved assets to a separate, human-reviewed dataset through the existing rights gate rather than editing this quarantine manifest.
 
 The public GitHub Actions job tests this validator against **synthetic local images**. Real Pexels/ABO photos and user-specific filenames/paths are never included in this public repository or its workflow.
+
+
+## Human visual review of already-downloaded product images
+
+A generic local-only [Tkinter + Pillow review application](scripts/review-product-images.py) now permits reviewers to inspect actual original image pixels, correct false metadata categories, enter factual observations/unknowns, and document identity-preserving instructions/three concepts. It stores decisions locally with SHA256 binding and never sets training or third-party GPU approval.
+
+See [OFFLINE-HUMAN-REVIEW.md](OFFLINE-HUMAN-REVIEW.md) for the workstation launcher, CLI audit, export and rights gates. Real ABO source images and human-review state are not included in public GitHub or Actions. Synthetic contract tests run through test_offline_product_review.py.
