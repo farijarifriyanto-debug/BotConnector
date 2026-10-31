@@ -8,6 +8,7 @@ locally cached trusted model checkpoint on a pre-authorized GPU.
 import argparse
 import hashlib
 import json
+import os
 import pathlib
 import sys
 import time
@@ -16,6 +17,64 @@ PRIMARY = "HuggingFaceTB/SmolVLM2-2.2B-Instruct"
 FALLBACK = "Qwen/Qwen3-VL-4B-Instruct"
 ALLOWED_MODELS = {PRIMARY, FALLBACK}
 STAGING_SCHEMA = "botconnector.multimedia-dataset.v1"
+
+
+def verify_local_checkpoint(path, model_id):
+    """Fail closed before importing torch: only an explicit LOCAL safetensors tree."""
+    if path is None:
+        raise ValueError("--run requires --model-dir with an already-installed local checkpoint")
+    if path.is_symlink():
+        raise ValueError("checkpoint path must not be a symlink")
+    root = path.resolve(strict=True)
+    if not root.is_dir():
+        raise ValueError("model-dir is not a directory")
+    config_path = root / "config.json"
+    if not config_path.is_file() or config_path.is_symlink():
+        raise ValueError("local checkpoint missing plain config.json")
+    config = json.loads(config_path.read_text(encoding="utf-8"))
+    if not isinstance(config, dict):
+        raise ValueError("model config must be JSON object")
+    # The two allowed model families must not silently load another architecture.
+    expected_architectures = {
+        PRIMARY: {"idefics3", "smolvlm"},
+        FALLBACK: {"qwen3_vl"},
+    }
+    model_type = config.get("model_type")
+    if model_type not in expected_architectures[model_id]:
+        raise ValueError("local checkpoint model_type incompatible with selected model (check version)")
+    weights = list(root.glob("*.safetensors"))
+    if not weights:
+        raise ValueError("no local safetensors weights found; remote model downloads are forbidden")
+    if any(p.is_symlink() for p in weights):
+        raise ValueError("symlinked weight files not accepted in this offline baseline")
+    if any(root.glob("*.bin")) or any(root.glob("*.pt")) or any(root.glob("*.pth")):
+        raise ValueError("pickle-format model weights forbidden")
+    return root
+
+
+def require_real_pixel_values(batch):
+    """Ensure the vision processor actually produced image tensors, not just text."""
+    if not isinstance(batch, dict) and not hasattr(batch, "keys"):
+        raise ValueError("vision processor returned no model batch")
+    if "input_ids" not in batch:
+        raise ValueError("processor omitted input_ids")
+    if "pixel_values" not in batch or batch["pixel_values"] is None:
+        raise ValueError("processor omitted pixel_values: text-only fallback forbidden")
+    pixels = batch["pixel_values"]
+    if isinstance(pixels, (list, tuple)):
+        if len(pixels) == 0:
+            raise ValueError("processor returned empty pixel_values")
+        return True
+    if hasattr(pixels, "numel"):
+        if pixels.numel() <= 0:
+            raise ValueError("processor returned zero-sized pixel_values")
+        return True
+    if hasattr(pixels, "size"):
+        if pixels.size == 0:
+            raise ValueError("processor returned zero-sized pixel_values")
+        return True
+    raise ValueError("processor pixel_values has unsupported type")
+
 
 
 def inside(root, name):
@@ -89,6 +148,8 @@ def probe(argv=None):
     p.add_argument("--run", action="store_true")
     p.add_argument("--acknowledge-runtime-cost", action="store_true")
     p.add_argument("--out", type=pathlib.Path)
+    p.add_argument("--model-dir", type=pathlib.Path,
+                   help="explicit downloaded local safetensors directory; required for --run")
     args = p.parse_args(argv)
     if not 1 <= args.limit <= 50:
         p.error("limit must be 1..50")
@@ -110,6 +171,11 @@ def probe(argv=None):
                 summary.get("mode") != "gated_dataset" or
                 counts.get("train", 0) < 50 or counts.get("val", 0) < 10 or counts.get("test", 0) < 200):
                 raise ValueError("GPU baseline requires reviewed train/val/heldout counts; --smoke is not eligible")
+        if args.run and args.split == "train":
+            raise ValueError("baseline must use reviewed validation/test samples, never train")
+        if args.run and args.out.exists():
+            raise FileExistsError("refusing to overwrite predictions before loading checkpoint")
+        model_dir = verify_local_checkpoint(args.model_dir, args.model) if args.run else None
         if not args.run:
             print(json.dumps({"mode": "dry_run_only", "model": args.model,
                 "sample_count": len(samples), "split": args.split,
@@ -119,6 +185,10 @@ def probe(argv=None):
                 "note": "Model compatibility, visual quality and GPU memory remain unverified."}, indent=2))
             return 0
         # Imports and model access happen only after explicit --run and local checks.
+        # No HTTP, Hub API, third-party telemetry or automatic checkpoint downloads.
+        os.environ["HF_HUB_OFFLINE"] = "1"
+        os.environ["TRANSFORMERS_OFFLINE"] = "1"
+        os.environ["WANDB_DISABLED"] = "true"
         import torch
         from PIL import Image
         from transformers import AutoModelForImageTextToText, AutoProcessor
@@ -126,9 +196,10 @@ def probe(argv=None):
             raise RuntimeError("No CUDA GPU; refuse CPU model loading")
         dtype = torch.bfloat16 if torch.cuda.is_bf16_supported() else torch.float16
         model = AutoModelForImageTextToText.from_pretrained(
-            args.model, local_files_only=True, torch_dtype=dtype, trust_remote_code=False
+            str(model_dir), local_files_only=True, torch_dtype=dtype,
+            use_safetensors=True, trust_remote_code=False
         ).to("cuda")
-        processor = AutoProcessor.from_pretrained(args.model, local_files_only=True, trust_remote_code=False)
+        processor = AutoProcessor.from_pretrained(str(model_dir), local_files_only=True, trust_remote_code=False)
         results = []
         for row, path in samples:
             image = Image.open(path).convert("RGB")
@@ -137,10 +208,12 @@ def probe(argv=None):
                 {"type": "text", "text": make_prompt(row)},
             ]}]
             try:
-                inputs = processor.apply_chat_template(
+                encoded = processor.apply_chat_template(
                     messages, add_generation_prompt=True, tokenize=True,
                     return_dict=True, return_tensors="pt"
-                ).to("cuda")
+                )
+                require_real_pixel_values(encoded)
+                inputs = encoded.to("cuda")
             except Exception as exc:
                 raise RuntimeError("Model-specific vision processor/chat template incompatible; pin/test transformers recipe") from exc
             started = time.perf_counter()
@@ -155,11 +228,14 @@ def probe(argv=None):
                 response = text  # Never synthesize a fake valid response.
             results.append({"id": row["id"], "model_id": args.model,
                 "response": response, "latency_ms": elapsed_ms,
-                "cost_usd": None, "visual_quality_review": "required"})
-        if args.out.exists():
-            raise FileExistsError("refusing to overwrite predictions")
+                "cost_usd": None,
+                "image_sha256": row["image_sha256"],
+                "image_pixels_encoded": True,
+                "visual_quality_review": "required"})
         args.out.parent.mkdir(parents=True, exist_ok=True)
-        args.out.write_text("\n".join(json.dumps(r, ensure_ascii=False) for r in results) + "\n", encoding="utf-8")
+        # Exclusive create prevents overwriting another reviewer run.
+        with args.out.open("x", encoding="utf-8") as handle:
+            handle.write("\n".join(json.dumps(r, ensure_ascii=False) for r in results) + "\n")
         print(json.dumps({"mode": "inference_only", "outputs": str(args.out),
                           "samples": len(results), "training_started": False}, indent=2))
         return 0
