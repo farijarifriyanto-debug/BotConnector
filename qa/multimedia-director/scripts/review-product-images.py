@@ -288,6 +288,36 @@ def write_readiness_report(path, report):
 
 
 
+
+def review_priority_order(rows, decisions, ai_drafts):
+    """Returns indices requiring independent human triage, train-draft first.
+
+    Existing validation/holdout samples have no assistant draft prefill.
+    No record is approved here: ordering does not change rights or splits.
+    """
+    def rank(index):
+        row = rows[index]
+        split = row.get("proposed_split")
+        sku = row["sku"]
+        if split == "train" and sku in ai_drafts:
+            priority = 0
+        elif split == "train":
+            priority = 1
+        elif split == "val":
+            priority = 2
+        elif split == "test":
+            priority = 3
+        else:
+            priority = 4
+        return (priority, sku)
+    outstanding = [
+        i for i, row in enumerate(rows)
+        if decisions.get(row["sku"], {}).get("status", "pending")
+        in ("pending", "needs_check")
+    ]
+    return sorted(outstanding, key=rank)
+
+
 def review_gui(rows, state_path, ai_drafts=None):
     import tkinter as tk
     from tkinter import messagebox, ttk
@@ -301,6 +331,7 @@ def review_gui(rows, state_path, ai_drafts=None):
     window.minsize(880, 680)
     current = [0]
     photo_ref = [None]
+    loaded_form = [None]
     controls = {}
     root = ttk.Frame(window, padding=12)
     root.pack(fill="both", expand=True)
@@ -359,6 +390,9 @@ def review_gui(rows, state_path, ai_drafts=None):
             widget.delete("1.0", "end")
             widget.insert("1.0", value)
 
+    def form_snapshot():
+        return {"status": status.get(), **{field: read_control(field) for field in FIELDS}}
+
     def display(index):
         current[0] = max(0, min(len(rows)-1, index))
         row = rows[current[0]]
@@ -386,6 +420,7 @@ def review_gui(rows, state_path, ai_drafts=None):
                           "\nJudul metadata BUKAN fakta visual:\n" +
                           row.get("title_metadata_not_visual_fact", "")[:180] +
                           "\nSumber: " + row.get("source_url", ""))
+        loaded_form[0] = form_snapshot()
 
     def save():
         row = rows[current[0]]
@@ -401,10 +436,40 @@ def review_gui(rows, state_path, ai_drafts=None):
         write_state(state_path, decisions)
         display(current[0])
 
-    def navigate(delta):
-        try:
+    def confirm_leave():
+        """Yes=save, No=discard local edits, Cancel=stay on current item."""
+        if form_snapshot() == loaded_form[0]:
+            return True
+        answer = messagebox.askyesnocancel(
+            "Ada perubahan belum disimpan",
+            "Simpan perubahan sebelum berpindah atau menutup foto? "
+            "Ya = simpan; Tidak = batalkan perubahan; Batal = tetap di foto ini.",
+        )
+        if answer is None:
+            return False
+        if answer:
             save()
-            display(current[0] + delta)
+        return True
+
+    def navigate(delta):
+        target = max(0, min(len(rows) - 1, current[0] + delta))
+        if target == current[0]:
+            return
+        try:
+            if confirm_leave():
+                display(target)
+        except Exception as exc:
+            messagebox.showerror("Gagal menyimpan", str(exc))
+
+    def next_priority():
+        ordered = review_priority_order(rows, decisions, ai_drafts)
+        choices = [idx for idx in ordered if idx != current[0]]
+        if not choices:
+            messagebox.showinfo("Antrean review", "Tidak ada kandidat lain yang menunggu triase.")
+            return
+        try:
+            if confirm_leave():
+                display(choices[0])
         except Exception as exc:
             messagebox.showerror("Gagal menyimpan", str(exc))
 
@@ -413,7 +478,11 @@ def review_gui(rows, state_path, ai_drafts=None):
         for i, row in enumerate(rows):
             if query in (row["sku"] + " " + row.get("category", "") +
                          " " + row.get("title_metadata_not_visual_fact", "")).lower():
-                display(i)
+                try:
+                    if confirm_leave():
+                        display(i)
+                except Exception as exc:
+                    messagebox.showerror("Gagal menyimpan", str(exc))
                 return
         messagebox.showinfo("Tidak ditemukan", "Tidak ada SKU/kategori yang cocok")
 
@@ -459,19 +528,20 @@ def review_gui(rows, state_path, ai_drafts=None):
     ttk.Button(footer, text="Simpan", command=lambda: navigate(0)).pack(side="left", padx=8)
     ttk.Button(footer, text="Berikutnya ▶", command=lambda: navigate(1)).pack(side="left")
     ttk.Button(footer, text="Cari", command=search).pack(side="right")
+    ttk.Button(footer, text="Review prioritas",
+               command=next_priority).pack(side="right", padx=8)
     ttk.Button(footer, text="Muat draft AI (train saja)",
                command=insert_ai_draft).pack(side="right", padx=8)
     find_input.bind("<Return>", lambda _: search())
     def closing():
-        if messagebox.askyesno("Tutup", "Simpan item saat ini dan tutup?"):
-            try:
-                save()
-            except Exception as exc:
-                messagebox.showerror("Penyimpanan gagal", str(exc))
-                return
-        window.destroy()
+        try:
+            if confirm_leave():
+                window.destroy()
+        except Exception as exc:
+            messagebox.showerror("Gagal menyimpan", str(exc))
     window.protocol("WM_DELETE_WINDOW", closing)
-    display(0)
+    order = review_priority_order(rows, decisions, ai_drafts)
+    display(order[0] if order else 0)
     window.mainloop()
 
 
