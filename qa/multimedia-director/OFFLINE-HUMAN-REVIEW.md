@@ -36,3 +36,19 @@ The source license according to the current AWS Open Data Registry is ABO CC BY 
 **Test evidence:** live Windows CLI hash audit matched all 260 source images; Tkinter/Pillow UI initialization smoke passed. Public Actions runs 12 synthetic unit tests covering hashes, tampering, state schema/permissions, JSONL export and no overwrite. No human click-through or actual model quality is claimed.
 
 Target remains lightweight **SmolVLM2-2.2B**. Real image baseline, then LoRA only after verified rights and explicit rental budget approval.
+
+## Optional AI draft suggestions — TRAIN ONLY, not human approved
+
+Six preliminary AI assistant drafts were created by actually inspecting six original ABO product images. These source-grounded suggestions are stored only in the private local curation folder as **assistant-visual-drafts-six-NOT-FOR-TRAINING.jsonl** (image SHA256, original official source URL, train split, explicit false training/GPU flags).
+
+The owner's Windows Desktop launcher **BICO-Review-260-Produk-Internet.cmd** now opens the same local GUI with the private --drafts file. Manual command:
+
+    python BICO_Review_Produk_Offline.py --data abo-proposed-review-260.jsonl --drafts assistant-visual-drafts-six-NOT-FOR-TRAINING.jsonl
+
+Use **Muat draft AI (train saja)** to opt in for one SKU. A confirmation appears before any prefill; the draft enters the GUI fields **in memory only** and status becomes needs_check. The reviewer must correct visible facts, brand/trademark, privacy, preservation rules and 3 proposed scenes, then explicitly Save. Nothing is auto-approved or auto-exported. The GUI refuses validation/heldout sources, duplicate drafts, wrong image hashes or URLs, missing concepts, and any training/GPU permission flag switched on.
+
+Source-inspection discoveries: SKU **B07K71H6GP** was incorrectly categorized as clothing but shows a bandage package; SKU **B07RCN49NW** shows branding/artwork on a phone case differing from the product catalog title. Metadata must not be blindly promoted to image facts or brand truth.
+
+The actual Windows CPU-only audit confirmed **260/260 source SHA256** and **6/6 train-only suggestions**. This is an assistant-written **draft**, not human review and NOT a result from SmolVLM2. SmolVLM2-2.2B is not installed locally; larger 8B/12B vision models were deliberately not used. No inference server, paid GPU or production integration was started.
+
+Only generic code/tests/docs are in the public BotConnector repository. The real photos, assistant source-backed draft files and eventual reviewer state stay privately on the owner's machine. Public GitHub Actions run synthetic tests only.

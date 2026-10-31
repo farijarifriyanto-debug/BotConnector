@@ -162,5 +162,96 @@ class HumanReviewOfflineTest(unittest.TestCase):
             review.read_state(self.state, self.rows)
 
 
+    def draft(self, row_index=0):
+        row = self.rows[row_index]
+        return {
+            "schema": review.DRAFT_SCHEMA,
+            "item_id": row["sku"],
+            "image_sha256": row["image_sha256"],
+            "image_source_url": row["source_url"],
+            "proposed_split": "train",
+            "category_corrected_proposal": "synthetic",
+            "annotation_status": "AI_DRAFT_NEEDS_INDEPENDENT_HUMAN_REVIEW",
+            "training_approved": False,
+            "third_party_gpu_allowed": False,
+            "annotation_finalized": False,
+            "license_review": "pending",
+            "brand_privacy_claims_review": "pending",
+            "target": {
+                "schema": review.TARGET_SCHEMA, "task": "product_photo",
+                "visual": {
+                    "observed_facts": ["synthetic RGB source pixels"],
+                    "unknowns": ["not a real product"],
+                },
+                "preservation_rules": ["do not change"],
+                "concepts": [
+                    {"title": "A", "scene": "studio A", "mood": "soft", "tagline": "a"},
+                    {"title": "B", "scene": "studio B", "mood": "warm", "tagline": "b"},
+                    {"title": "C", "scene": "studio C", "mood": "contrast", "tagline": "c"},
+                ],
+            },
+        }
+
+    def draft_file(self, items):
+        path = self.root / "assistant-drafts.jsonl"
+        path.write_text("\n".join(json.dumps(i) for i in items) + "\n",
+                        encoding="utf-8")
+        return path
+
+    def test_valid_train_only_draft_is_review_hint_not_approval(self):
+        draft = self.draft()
+        items = review.load_ai_drafts(self.draft_file([draft]), self.rows)
+        self.assertIn(self.rows[0]["sku"], items)
+        self.assertFalse(items[self.rows[0]["sku"]]["training_approved"])
+        self.assertFalse(self.state.exists())
+
+    def test_draft_for_holdout_is_rejected(self):
+        draft = self.draft(row_index=1)
+        with self.assertRaisesRegex(ValueError, "validation/test holdout"):
+            review.load_ai_drafts(self.draft_file([draft]), self.rows)
+
+    def test_draft_with_wrong_image_checksum_is_rejected(self):
+        draft = self.draft()
+        draft["image_sha256"] = "0" * 64
+        with self.assertRaisesRegex(ValueError, "hash mismatch"):
+            review.load_ai_drafts(self.draft_file([draft]), self.rows)
+
+    def test_draft_with_wrong_source_url_is_rejected(self):
+        draft = self.draft()
+        draft["image_source_url"] = "https://example.org/wrong"
+        with self.assertRaisesRegex(ValueError, "provenance"):
+            review.load_ai_drafts(self.draft_file([draft]), self.rows)
+
+    def test_draft_with_license_approval_is_rejected(self):
+        draft = self.draft()
+        draft["training_approved"] = True
+        with self.assertRaisesRegex(ValueError, "cannot authorize training"):
+            review.load_ai_drafts(self.draft_file([draft]), self.rows)
+
+    def test_draft_with_duplicate_scenes_is_rejected(self):
+        draft = self.draft()
+        draft["target"]["concepts"][2]["scene"] = draft["target"]["concepts"][1]["scene"]
+        with self.assertRaisesRegex(ValueError, "duplicated scenes"):
+            review.load_ai_drafts(self.draft_file([draft]), self.rows)
+
+    def test_duplicate_draft_sku_is_rejected(self):
+        draft = self.draft()
+        with self.assertRaisesRegex(ValueError, "duplicate assistant draft"):
+            review.load_ai_drafts(self.draft_file([draft, draft]), self.rows)
+
+    def test_draft_cli_audit_never_writes_review_decisions(self):
+        draft_path = self.draft_file([self.draft()])
+        result = subprocess.run(
+            [sys.executable, str(SCRIPT), "--data", str(self.dataset),
+             "--drafts", str(draft_path), "--audit"],
+            capture_output=True, text=True
+        )
+        self.assertEqual(result.returncode, 0, result.stderr)
+        data = json.loads(result.stdout)
+        self.assertEqual(data["ai_drafts_checked"], 1)
+        self.assertEqual(data["training_approved"], 0)
+        self.assertFalse(self.state.exists())
+
+
 if __name__ == "__main__":
     unittest.main()
