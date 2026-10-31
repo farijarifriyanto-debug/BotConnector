@@ -155,8 +155,9 @@ def verify_full_gated_staging(staged, assets_root, summary):
             if hashlib.sha256(image.read_bytes()).hexdigest() != digest.lower():
                 raise ValueError("staged full-split image SHA256 mismatch")
             if (row.get("license") not in ("CC-BY-4.0", "CC0-1.0")
-                or row.get("license") == "CC-BY-4.0" and
-                not isinstance(row.get("attribution"), str)):
+                or (row.get("license") == "CC-BY-4.0" and
+                    (not isinstance(row.get("attribution"), str)
+                     or not row["attribution"].strip()))):
                 raise ValueError("staged source license/attribution metadata missing")
             if not isinstance(row.get("target"), dict):
                 raise ValueError("staged human-reviewed reference target missing")
