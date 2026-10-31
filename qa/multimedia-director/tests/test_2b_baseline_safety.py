@@ -99,6 +99,17 @@ class BaselineSafetyTest(unittest.TestCase):
             {"input_ids": [[1, 2]], "pixel_values": [Pixels(12)]}
         ))
 
+    def test_nested_real_pixel_payloads_and_numpy_style_size(self):
+        class Array:
+            def __init__(self, size):
+                self.size = size
+        self.assertTrue(probe.require_real_pixel_values({
+            "input_ids": [[1]], "pixel_values": [[Pixels(12)], [Array(6)]]
+        }))
+        self.assertTrue(probe.require_real_pixel_values({
+            "input_ids": [[1]], "pixel_values": Array(3)
+        }))
+
     def test_reject_text_only_or_empty_pixel_tensors(self):
         bad = [
             {}, {"pixel_values": Pixels(1)},
@@ -107,6 +118,12 @@ class BaselineSafetyTest(unittest.TestCase):
             {"input_ids": [[1]], "pixel_values": Pixels(0)},
             {"input_ids": [[1]], "pixel_values": []},
             {"input_ids": [[1]], "pixel_values": "not-a-tensor"},
+            {"input_ids": [[1]], "pixel_values": [None]},
+            {"input_ids": [[1]], "pixel_values": [Pixels(12), Pixels(0)]},
+            {"input_ids": [[1]], "pixel_values": [[Pixels(12)], []]},
+            {"input_ids": [[1]], "pixel_values": ["/tmp/source.jpg"]},
+            {"input_ids": [[1]], "pixel_values": [1, 2, 3]},
+            {"input_ids": [[1]], "pixel_values": {"pixels": [1,2,3]}},
         ]
         for row in bad:
             with self.subTest(row=str(row)):

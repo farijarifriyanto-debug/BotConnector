@@ -76,3 +76,12 @@ The Studio project remains private:
 https://github.com/farijarifriyanto-debug/bico-studio/pull/80
 
 The public CI never contacts the private repo and does not validate production integration. Keep PR #80 in Draft until real model and production gates pass.
+
+## 1 Nov 2026 — offline fail-closed compatibility preflight
+
+Public synthetic tests additionally guard the existing LoRA runner against two previously possible false PASS states:
+
+- A local checkpoint with `config.json` and any `.safetensors` file could pass the pre-import check even when its `model_type` was unrelated to SmolVLM2. The runner now requires `idefics3` or `smolvlm` before importing Torch/CUDA. This does **not** establish model identity, weight integrity, licensing or actual ~2B size; a real checkpoint must still be independently pinned/verified.
+- A processor result could contain `pixel_values: []`, `[None]`, an empty tensor or malformed nested structure and pass presence-only validation. The runner now requires **nonempty tensor-like payloads** for BOTH prompt and complete user/assistant messages. Synthetic fake-processor regressions cover missing, nested-empty and text-only cases.
+
+These tests only prove that empty/invalid input representations are rejected. They do **not** prove compatibility with the real SmolVLM2 AutoProcessor, real image correctness, a successful forward/backward pass, GPU VRAM requirement, LoRA quality or training permissions. Do not add private GitHub Actions or release a model. Prior 260-source photo audit and six AI drafts remain **unapproved**, and no GPU rental/training is authorized.

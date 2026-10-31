@@ -11,6 +11,7 @@ Real SmolVLM2 processor/model/PEFT compatibility must still pass a GPU smoke.
 import argparse
 import hashlib
 import json
+import numbers
 import os
 from pathlib import Path
 import sys
@@ -182,6 +183,47 @@ def assistant_only_labels(full_tokens, prefix_tokens, pad_id=None):
     return labels
 
 
+def nonempty_vision_payload(value):
+    """Require real nonempty tensor/array elements, even inside nested lists.
+
+    This checks processor structure and cannot establish image-source identity.
+    """
+    if isinstance(value, (list, tuple)):
+        return bool(value) and all(nonempty_vision_payload(part) for part in value)
+    if value is None or isinstance(value, (str, bytes, bytearray, dict)):
+        return False
+    numel = getattr(value, "numel", None)
+    if callable(numel):
+        size = numel()
+        return isinstance(size, numbers.Integral) and size > 0
+    size = getattr(value, "size", None)
+    return isinstance(size, numbers.Integral) and size > 0
+
+
+def verify_smolvlm2_checkpoint(path):
+    """Guard local checkpoint format and architecture before ML/CUDA import.
+
+    A model_type check is NOT cryptographic model identity or license proof.
+    """
+    if path is None or path.is_symlink():
+        raise ValueError("explicit non-symlink SmolVLM2 model-dir required")
+    root = path.resolve(strict=True)
+    if not root.is_dir():
+        raise ValueError("SmolVLM2 model-dir must be a directory")
+    config_path = root / "config.json"
+    if not config_path.is_file() or config_path.is_symlink():
+        raise ValueError("SmolVLM2 checkpoint config.json missing or symlinked")
+    config = json.loads(config_path.read_text(encoding="utf-8"))
+    if not isinstance(config, dict) or config.get("model_type") not in {"idefics3", "smolvlm"}:
+        raise ValueError("SmolVLM2 checkpoint architecture incompatible")
+    weights = list(root.rglob("*.safetensors"))
+    if not weights or any(not weight.is_file() or weight.is_symlink() for weight in weights):
+        raise ValueError("local SmolVLM2 safetensors weights missing or unsafe")
+    if any(root.rglob("*.bin")) or any(root.rglob("*.pt")) or any(root.rglob("*.pth")):
+        raise ValueError("unsafe pickle-format weights: require audited local safetensors")
+    return root
+
+
 def build_supervised_batch(row, assets_root, processor, torch_module, max_seq_len=4096):
     """One RGB image + user prompt + assistant JSON, no image-only/text-only shortcut.
 
@@ -225,8 +267,11 @@ def encode_multimodal_messages(messages, processor, torch_module, max_seq_len=40
         messages, add_generation_prompt=False, tokenize=True,
         return_dict=True, return_tensors="pt"
     )
-    if "pixel_values" not in full_batch:
-        raise ValueError("vision processor did not return pixel_values")
+    if ("pixel_values" not in prompt
+        or not nonempty_vision_payload(prompt["pixel_values"])
+        or "pixel_values" not in full_batch
+        or not nonempty_vision_payload(full_batch["pixel_values"])):
+        raise ValueError("vision processor did not return nonempty pixel_values for prompt and completion")
     full_tokens = full_batch["input_ids"][0].tolist()
     prefix_tokens = prompt["input_ids"][0].tolist()
     if len(full_tokens) > max_seq_len:
@@ -256,13 +301,7 @@ def train(args, prepared, assets_root, data):
     # Do not load ML dependencies or CUDA until every safety gate passes.
     if not args.acknowledge_paid_gpu or args.output_dir is None or args.model_dir is None:
         raise ValueError("--run requires --acknowledge-paid-gpu, --model-dir, --output-dir")
-    model_dir = args.model_dir.resolve(strict=True)
-    if not model_dir.is_dir() or not (model_dir / "config.json").is_file():
-        raise ValueError("offline local model directory missing config.json")
-    if any(model_dir.rglob("*.bin")) or any(model_dir.rglob("*.pt")) or any(model_dir.rglob("*.pth")):
-        raise ValueError("unsafe pickle-format weights: require audited local safetensors")
-    if not any(model_dir.rglob("*.safetensors")):
-        raise ValueError("local safetensors model weights missing")
+    model_dir = verify_smolvlm2_checkpoint(args.model_dir)
     if args.output_dir.exists():
         raise ValueError("refuse to overwrite prior training output")
     if not 1 <= args.max_steps <= 20:
