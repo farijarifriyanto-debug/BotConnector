@@ -52,3 +52,6 @@ jobs:
       - name: Audit quarantined real-product intake schema with synthetic files only
         working-directory: qa/multimedia-director
         run: python3 -m unittest discover -s tests -p 'test_product_intake_audit.py' -v
+      - name: Test human visual review UI state and no-training permission gates
+        working-directory: qa/multimedia-director
+        run: python3 -m unittest discover -s tests -p 'test_offline_product_review.py' -v
