@@ -145,8 +145,16 @@ def read_state(path, rows):
             raise ValueError("review item missing or SHA256 mismatch")
         if raw.get("status") not in STATUSES:
             raise ValueError("invalid review status")
-        if raw.get("training_approved") is not False or raw.get("third_party_gpu_allowed") is not False:
-            raise ValueError("review must never authorize model training or GPU transfer")
+        if (raw.get("training_approved") is not False
+            or raw.get("third_party_gpu_allowed") is not False
+            or raw.get("annotation_finalized", False) is not False
+            or raw.get("license_approval", "pending") != "pending"
+            or raw.get("privacy_approval", "pending") != "pending"):
+            raise ValueError("review must never authorize model training, final annotation or GPU transfer")
+        ref = next(row for row in rows if row["sku"] == sid)
+        if (raw.get("source_url", ref.get("source_url")) != ref.get("source_url")
+            or raw.get("proposed_split", ref.get("proposed_split")) != ref.get("proposed_split")):
+            raise ValueError("review source URL or proposed split mismatch")
         decisions[sid] = raw
     return decisions
 
@@ -178,6 +186,106 @@ def export_review(path, decisions):
     with path.open("x", encoding="utf-8") as handle:
         for item in decisions.values():
             handle.write(json.dumps(item, ensure_ascii=False) + "\n")
+
+
+
+def review_readiness_report(rows, decisions, drafts, *, verify_images=True):
+    """Data-local human-triage status; NEVER a training authorization or license decision.
+
+    Checks original photos if requested. Full form fields alone cannot establish
+    factual correctness, independent review, commercial rights, or model quality.
+    Drafts may change scheduling priority but are NOT completed labels.
+    """
+    from collections import Counter, defaultdict
+    counts = Counter(row.get("proposed_split", "unspecified") for row in rows)
+    statuses = Counter()
+    split_status = defaultdict(Counter)
+    outstanding = []
+    form_complete = 0
+    source_sha_checked = 0
+    unreviewed_drafts = 0
+    mandatory = (
+        "reviewer", "category_corrected", "observed_facts", "unknowns",
+        "preservation_rules", "concept_1", "concept_2", "concept_3",
+        "brand_privacy_notes",
+    )
+    for row in rows:
+        sku = row["sku"]
+        if verify_images:
+            source_image(row)
+            source_sha_checked += 1
+        decision = decisions.get(sku, {})
+        status = decision.get("status", "pending")
+        if status not in STATUSES:
+            raise ValueError("review report has unsupported status")
+        split = row.get("proposed_split", "unspecified")
+        statuses[status] += 1
+        split_status[split][status] += 1
+        missing = [name for name in mandatory
+                   if not isinstance(decision.get(name), str)
+                   or not decision[name].strip()]
+        if status == "candidate" and not missing:
+            form_complete += 1
+        draft_available = sku in drafts
+        if draft_available and (status == "pending" or status == "needs_check"):
+            unreviewed_drafts += 1
+        if status == "pending" or (status == "candidate" and missing) or status == "needs_check":
+            reasons = (
+                ["no_manual_review"] if status == "pending" else
+                ["draft_or_product_requires_independent_review"] if status == "needs_check" else
+                ["review_form_missing_fields"]
+            )
+            outstanding.append({
+                "sku": sku, "split": split,
+                "status": status, "ai_draft_available": draft_available,
+                "reason_codes": reasons,
+                "missing_review_fields": missing if status == "candidate" else [],
+            })
+    outstanding.sort(key=lambda item: (
+        0 if item["split"] == "train" and item["ai_draft_available"] else
+        1 if item["split"] == "train" else
+        2 if item["split"] == "val" else 3,
+        item["sku"],
+    ))
+    return {
+        "schema": "botconnector.offline-visual-review-readiness.v1",
+        "purpose": "local_human_triage_progress_NOT_train_authorization",
+        "total_source_photos": len(rows),
+        "source_original_sha256_verified": source_sha_checked,
+        "proposed_split_counts": dict(sorted(counts.items())),
+        "review_status_counts": {status: statuses.get(status, 0) for status in STATUSES},
+        "per_split_status_counts": {
+            split: {status: split_status[split].get(status, 0) for status in STATUSES}
+            for split in sorted(counts)
+        },
+        "candidate_visual_review_forms_with_all_fields": form_complete,
+        "assistant_drafts_pending_independent_review": unreviewed_drafts,
+        "assistant_draft_total": len(drafts),
+        "outstanding_count": len(outstanding),
+        "outstanding_review_queue": outstanding,
+        "human_ground_truth_independently_validated": 0,
+        "training_approved": 0,
+        "third_party_gpu_allowed": False,
+        "baseline_eligible": False,
+        "status": "NO_GO_UNAPPROVED_DATA",
+        "limitations": [
+            "Fields are syntactic completeness only, not factual visual correctness",
+            "Candidate is NOT a license, trademark, PII or commercial model-training approval",
+            "No actual 2.2B image-model result is measured in this report",
+            "Validation/holdout gold labels require separate blinded independent review",
+        ],
+    }
+
+
+def write_readiness_report(path, report):
+    """Write a private read-only report; avoid destructive overwrite/symlink."""
+    if path.exists() or path.is_symlink():
+        raise ValueError("refusing to overwrite existing review readiness report")
+    path.parent.mkdir(parents=True, exist_ok=True)
+    with path.open("x", encoding="utf-8") as handle:
+        json.dump(report, handle, indent=2, ensure_ascii=False)
+        handle.write("\n")
+
 
 
 def review_gui(rows, state_path, ai_drafts=None):
@@ -374,6 +482,8 @@ def main(argv=None):
     parser.add_argument("--export", type=Path, help="read state and export JSONL (no image assets)")
     parser.add_argument("--audit", action="store_true", help="headless input/hash check, no GUI")
     parser.add_argument("--drafts", type=Path, help="unapproved visual drafts for TRAIN only")
+    parser.add_argument("--readiness-report", type=Path,
+                        help="write local JSON report on review status, never authorize training")
     args = parser.parse_args(argv)
     rows = load_rows(args.data)
     state = args.state or args.data.parent / "bico-manual-visual-review-state.json"
@@ -384,6 +494,19 @@ def main(argv=None):
         print(json.dumps({"source_images_valid": len(rows),
                           "ai_drafts_checked": len(ai_drafts), "training_approved": 0,
                           "mode": "offline_read_only_audit"}))
+        return 0
+    if args.readiness_report:
+        decisions = read_state(state, rows)
+        report = review_readiness_report(rows, decisions, ai_drafts, verify_images=True)
+        write_readiness_report(args.readiness_report, report)
+        print(json.dumps({
+            "source_images_verified": report["source_original_sha256_verified"],
+            "review_status_counts": report["review_status_counts"],
+            "assistant_drafts": report["assistant_draft_total"],
+            "training_approved": report["training_approved"],
+            "status": report["status"],
+            "report": str(args.readiness_report),
+        }, ensure_ascii=False))
         return 0
     if args.export:
         decisions = read_state(state, rows)

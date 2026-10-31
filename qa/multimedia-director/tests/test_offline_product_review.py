@@ -253,5 +253,108 @@ class HumanReviewOfflineTest(unittest.TestCase):
         self.assertFalse(self.state.exists())
 
 
+    def test_readiness_reports_zero_human_reviews_and_training_no_go(self):
+        report = review.review_readiness_report(self.rows, {}, {}, verify_images=True)
+        self.assertEqual(report["source_original_sha256_verified"], 2)
+        self.assertEqual(report["review_status_counts"]["pending"], 2)
+        self.assertEqual(report["training_approved"], 0)
+        self.assertFalse(report["baseline_eligible"])
+        self.assertEqual(report["status"], "NO_GO_UNAPPROVED_DATA")
+
+    def test_readiness_prioritizes_train_draft_but_does_not_mark_approved(self):
+        item = self.draft()
+        report = review.review_readiness_report(
+            self.rows, {}, {item["item_id"]: item}, verify_images=False
+        )
+        self.assertEqual(report["assistant_draft_total"], 1)
+        self.assertEqual(report["assistant_drafts_pending_independent_review"], 1)
+        self.assertEqual(report["outstanding_review_queue"][0]["sku"], self.rows[0]["sku"])
+        self.assertEqual(report["source_original_sha256_verified"], 0)
+        self.assertEqual(report["candidate_visual_review_forms_with_all_fields"], 0)
+
+    def test_readiness_candidate_with_missing_fields_stays_pending(self):
+        decision = self.decision()
+        report = review.review_readiness_report(
+            self.rows, {decision["sku"]: decision}, {}, verify_images=False
+        )
+        self.assertEqual(report["review_status_counts"]["candidate"], 1)
+        self.assertEqual(report["candidate_visual_review_forms_with_all_fields"], 0)
+        self.assertEqual(report["outstanding_review_queue"][0]["reason_codes"],
+                         ["review_form_missing_fields"])
+
+    def test_complete_candidate_form_is_not_training_rights_approval(self):
+        decision = self.decision()
+        decision.update({
+            "reviewer": "synthetic-reviewer",
+            "category_corrected": "synthetic",
+            "observed_facts": "synthetic pixel",
+            "unknowns": "not a product",
+            "preservation_rules": "keep image",
+            "concept_1": "studio A", "concept_2": "studio B", "concept_3": "studio C",
+            "brand_privacy_notes": "synthetic only",
+        })
+        report = review.review_readiness_report(
+            self.rows, {decision["sku"]: decision}, {}, verify_images=False
+        )
+        self.assertEqual(report["candidate_visual_review_forms_with_all_fields"], 1)
+        self.assertEqual(report["training_approved"], 0)
+        self.assertFalse(report["third_party_gpu_allowed"])
+
+    def test_readiness_source_photo_tampering_fails(self):
+        source = Path(self.rows[1]["local_image_path"])
+        source.write_bytes(source.read_bytes() + b"tamper")
+        with self.assertRaisesRegex(ValueError, "SHA256 mismatch"):
+            review.review_readiness_report(self.rows, {}, {}, verify_images=True)
+
+    def test_report_refuses_overwrite(self):
+        target = self.root / "report.json"
+        result = review.review_readiness_report(self.rows, {}, {}, verify_images=False)
+        review.write_readiness_report(target, result)
+        self.assertTrue(target.exists())
+        with self.assertRaisesRegex(ValueError, "refusing to overwrite"):
+            review.write_readiness_report(target, result)
+
+    def test_saved_review_cannot_set_annotation_finalized(self):
+        d = self.decision()
+        d["annotation_finalized"] = True
+        review.write_state(self.state, {d["sku"]: d})
+        with self.assertRaisesRegex(ValueError, "never authorize"):
+            review.read_state(self.state, self.rows)
+
+    def test_saved_review_cannot_set_license_or_privacy_approved(self):
+        for key in ("license_approval", "privacy_approval"):
+            d = self.decision()
+            d[key] = "approved"
+            review.write_state(self.state, {d["sku"]: d})
+            with self.subTest(key=key):
+                with self.assertRaisesRegex(ValueError, "never authorize"):
+                    review.read_state(self.state, self.rows)
+
+    def test_saved_review_source_url_and_split_must_match(self):
+        for key, bad in (("source_url", "https://not-the-source.org"),
+                         ("proposed_split", "train" if self.rows[0]["proposed_split"] == "test" else "test")):
+            d = self.decision()
+            d[key] = bad
+            review.write_state(self.state, {d["sku"]: d})
+            with self.subTest(key=key):
+                with self.assertRaisesRegex(ValueError, "source URL or proposed split"):
+                    review.read_state(self.state, self.rows)
+
+    def test_cli_readiness_reports_without_ai_labels_or_overwriting(self):
+        target = self.root / "readiness-report.json"
+        argv = [sys.executable, str(SCRIPT), "--data", str(self.dataset),
+                "--readiness-report", str(target)]
+        result = subprocess.run(argv, capture_output=True, text=True)
+        self.assertEqual(result.returncode, 0, result.stderr)
+        report = json.loads(target.read_text(encoding="utf-8"))
+        self.assertEqual(report["review_status_counts"]["pending"], 2)
+        self.assertEqual(report["training_approved"], 0)
+        self.assertFalse(report["baseline_eligible"])
+        result2 = subprocess.run(argv, capture_output=True, text=True)
+        self.assertEqual(result2.returncode, 2)
+        self.assertIn("refusing to overwrite", result2.stderr)
+
+
+
 if __name__ == "__main__":
     unittest.main()
