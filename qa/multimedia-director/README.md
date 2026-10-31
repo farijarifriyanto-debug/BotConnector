@@ -23,3 +23,12 @@ python3 -m unittest discover -s tests -p test_multimedia_vlm_probe.py -v
 ```
 
 Security: repository Actions are read-only and do not use secrets, repository dispatch, fork write tokens, or third-party data access.
+
+
+## 2B LoRA smoke preparation (no training in CI)
+
+- [SmolVLM2-2.2B LoRA smoke runner](scripts/train-smolvlm2-lora.py): CPU-only preflight by default; only uses the actual image-aware processor and assistant-label masking with explicit paid-GPU flags and a locally verified model checkpoint.
+- [LoRA smoke runbook](LORA-SMOKE-HANDOFF.md): data permissions, GPU preflight, exact CLI, checkpoint/export, rollback and release gates.
+- [End-to-end synthetic pipeline test](tests/test_pipeline_e2e.py): builds 260 synthetic image cases and verifies Node rights gate -> Python SFT staging -> 2B runner preflight with holdout sealed.
+
+No real ABO images, model weights, production customer data or credentials are public. A public green CI run is not actual model training evidence.
