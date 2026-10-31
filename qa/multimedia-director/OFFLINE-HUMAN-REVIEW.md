@@ -84,3 +84,24 @@ split tampering. AI-produced drafts never count as independent human labels.
 
 The extra report checks are tested with synthetic photos via **public
 GitHub Actions**; no GitHub workflows are created in private Studio.
+
+## Review queue UX and unsaved changes protection (1 Nov 2026)
+
+When opened, the existing Tkinter reviewer now starts with the highest-priority
+**train image with an available AI draft** (if it still needs independent review).
+The **Review prioritas** control advances to the next unreviewed / needs-check
+candidate, with other train candidates before val/test. It does not change
+split assignments, image files, legal flags or source manifests.
+
+**Critical protection:** Previously, searching for another SKU could discard
+unsaved edits and Next/Previous could automatically save a pending item.
+Now every navigation/search/close action checks whether review fields have
+changed and prompts **Yes = save, No = discard local unsaved edits, Cancel = stay**.
+Unchanged fields never get silently saved as a review decision.
+The existing **Muat draft AI (train saja)** button still requires consent
+before replacing unsaved inputs, and pending review remains unapproved.
+
+Python syntax and real 260 source SHA256 + six draft schema audit pass
+on the owner's authorized Windows computer. Public synthetic regression
+tests cover the priority algorithm; automated tests do NOT claim real
+end-user interactive click-through or visual truth approval.
