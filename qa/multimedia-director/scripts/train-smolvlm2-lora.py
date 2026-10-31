@@ -146,28 +146,44 @@ def build_supervised_batch(row, assets_root, processor, torch_module, max_seq_le
     from PIL import Image, ImageOps
     image = asset_path(assets_root, row["image_path"])
     verify_sha(image, row["image_sha256"])
+    Image.MAX_IMAGE_PIXELS = 20_000_000
     with Image.open(image) as img:
-        Image.MAX_IMAGE_PIXELS = 20_000_000
         rgb = ImageOps.exif_transpose(img).convert("RGB")
     if max(rgb.size) > 768:
         rgb.thumbnail((768, 768), Image.Resampling.LANCZOS)
     messages = json.loads(json.dumps(row["messages"]))
     messages[0]["content"][0]["image"] = rgb
     try:
-        prefix_batch = processor.apply_chat_template(
-            messages[:1], add_generation_prompt=True, tokenize=True,
-            return_dict=True, return_tensors="pt"
-        )
-        full_batch = processor.apply_chat_template(
-            messages, add_generation_prompt=False, tokenize=True,
-            return_dict=True, return_tensors="pt"
-        )
+        return encode_multimodal_messages(messages, processor, torch_module, max_seq_len)
     finally:
         rgb.close()
+
+
+def encode_multimodal_messages(messages, processor, torch_module, max_seq_len=4096):
+    """Pure processor adapter; testable with a fake VLM processor, no GPU.
+
+    The caller must place a real PIL RGB image inside user content. This adapter
+    refuses text-only processor output or a misaligned assistant loss mask.
+    """
+    if not isinstance(messages, list) or len(messages) != 2:
+        raise ValueError("one user-image message + one assistant JSON required")
+    user_parts = messages[0].get("content", [])
+    if (not isinstance(user_parts, list) or len(user_parts) != 2
+        or user_parts[0].get("type") != "image"
+        or "image" not in user_parts[0]):
+        raise ValueError("real image pixels must be attached, not a text-only placeholder")
+    prompt = processor.apply_chat_template(
+        messages[:1], add_generation_prompt=True, tokenize=True,
+        return_dict=True, return_tensors="pt"
+    )
+    full_batch = processor.apply_chat_template(
+        messages, add_generation_prompt=False, tokenize=True,
+        return_dict=True, return_tensors="pt"
+    )
     if "pixel_values" not in full_batch:
         raise ValueError("vision processor did not return pixel_values")
     full_tokens = full_batch["input_ids"][0].tolist()
-    prefix_tokens = prefix_batch["input_ids"][0].tolist()
+    prefix_tokens = prompt["input_ids"][0].tolist()
     if len(full_tokens) > max_seq_len:
         raise ValueError("multimodal sequence exceeds budget; never truncate image tokens")
     tokenizer = getattr(processor, "tokenizer", None)
