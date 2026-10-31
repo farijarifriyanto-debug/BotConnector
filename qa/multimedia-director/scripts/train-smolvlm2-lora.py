@@ -46,6 +46,47 @@ def verify_sha(image, expected):
         raise ValueError("raw image SHA256 mismatch")
 
 
+def validate_director_target(target, task):
+    """Additional integrity check; still NOT a human visual-grounding review."""
+    def nonempty(value):
+        return isinstance(value, str) and bool(value.strip())
+
+    def words(values):
+        return isinstance(values, list) and all(nonempty(v) for v in values)
+
+    if not isinstance(target, dict) or target.get("schema") != DIRECTOR_SCHEMA or target.get("task") != task:
+        raise ValueError("assistant Director target schema mismatch")
+    visual = target.get("visual")
+    if (not isinstance(visual, dict)
+        or not words(visual.get("observed_facts")) or not visual["observed_facts"]
+        or not words(visual.get("unknowns"))):
+        raise ValueError("assistant observed facts or unknowns invalid")
+    if not words(target.get("preservation_rules")) or not target["preservation_rules"]:
+        raise ValueError("assistant preservation rules invalid")
+    if task in {"product_photo", "ad_creative"}:
+        concepts = target.get("concepts")
+        if not isinstance(concepts, list) or len(concepts) != 3:
+            raise ValueError("assistant must supply exactly three concepts")
+        scenes = []
+        for concept in concepts:
+            if not isinstance(concept, dict) or not all(nonempty(concept.get(k)) for k in ("title", "scene", "mood", "tagline")):
+                raise ValueError("assistant concept fields invalid")
+            scenes.append(" ".join(concept["scene"].casefold().split()))
+        if len(set(scenes)) != 3:
+            raise ValueError("assistant scenes are duplicated")
+    else:
+        shots = target.get("shots")
+        if not isinstance(shots, list) or not 2 <= len(shots) <= 24:
+            raise ValueError("assistant shot count invalid")
+        for shot in shots:
+            if (not isinstance(shot, dict)
+                or not all(nonempty(shot.get(k)) for k in ("camera", "action", "subject_lock"))
+                or isinstance(shot.get("duration_seconds"), bool)
+                or not isinstance(shot.get("duration_seconds"), (float, int))
+                or not 0 < shot["duration_seconds"] <= 10):
+                raise ValueError("assistant shot contract invalid")
+
+
 def load_prepared(prepared, assets_root):
     manifest_path = prepared / "manifest.json"
     if not manifest_path.is_file():
@@ -107,10 +148,14 @@ def load_prepared(prepared, assets_root):
                 target = json.loads(assistant_parts[0]["text"])
             except (ValueError, TypeError) as exc:
                 raise ValueError("assistant target is not JSON") from exc
-            if target.get("schema") != DIRECTOR_SCHEMA or target.get("task") != row["task"]:
-                raise ValueError("assistant Director target schema mismatch")
-            # Structural quality was previously gated by the JS dataset validator;
-            # full-image semantic truth and source license still require human review.
+            validate_director_target(target, row["task"])
+            license_name = row.get("license")
+            if license_name not in {"CC-BY-4.0", "CC0-1.0"}:
+                raise ValueError("unsupported license in prepared dataset")
+            if license_name == "CC-BY-4.0" and not isinstance(row.get("attribution"), str):
+                raise ValueError("attribution required for CC BY media")
+            # Legal status cannot be independently proved by machine validation.
+            # Full-image semantic truth and per-asset license require human review.
             rows.append(row)
         if len(rows) != counts.get(split):
             raise ValueError("manifest count disagrees with actual split " + split)
@@ -214,6 +259,10 @@ def train(args, prepared, assets_root, data):
     model_dir = args.model_dir.resolve(strict=True)
     if not model_dir.is_dir() or not (model_dir / "config.json").is_file():
         raise ValueError("offline local model directory missing config.json")
+    if any(model_dir.rglob("*.bin")) or any(model_dir.rglob("*.pt")) or any(model_dir.rglob("*.pth")):
+        raise ValueError("unsafe pickle-format weights: require audited local safetensors")
+    if not any(model_dir.rglob("*.safetensors")):
+        raise ValueError("local safetensors model weights missing")
     if args.output_dir.exists():
         raise ValueError("refuse to overwrite prior training output")
     if not 1 <= args.max_steps <= 20:
@@ -241,7 +290,7 @@ def train(args, prepared, assets_root, data):
     )
     model = AutoModelForImageTextToText.from_pretrained(
         str(model_dir), local_files_only=True, trust_remote_code=False,
-        torch_dtype=dtype
+        torch_dtype=dtype, use_safetensors=True
     ).to("cuda")
     if hasattr(model.config, "use_cache"):
         model.config.use_cache = False
