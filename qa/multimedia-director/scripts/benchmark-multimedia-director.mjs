@@ -20,7 +20,9 @@ export function inspectDirectorOutput(reference, submitted) {
   }
   if (response.schema !== SCHEMA) issues.push('schema_mismatch');
   if (response.task !== reference.task || !TASKS.has(response.task)) issues.push('task_mismatch');
-  if (!response.visual || !Array.isArray(response.visual.observed_facts) || !Array.isArray(response.visual.unknowns)) issues.push('visual_contract');
+  if (!response.visual || !populated(response.visual.observed_facts) ||
+      !Array.isArray(response.visual.unknowns) ||
+      response.visual.unknowns.some(value => !text(value))) issues.push('visual_contract');
   if (!populated(response.preservation_rules)) issues.push('preservation_rules');
   if (['product_photo', 'ad_creative'].includes(reference.task)) {
     const concepts = response.concepts;
@@ -34,12 +36,34 @@ export function inspectDirectorOutput(reference, submitted) {
           !Number.isFinite(s?.duration_seconds) || s.duration_seconds <= 0 || s.duration_seconds > 10))
       issues.push('shots_contract');
   }
-  const corpus = JSON.stringify(response).toLocaleLowerCase('id');
+  // Do not credit an observed fact simply because it occurs in "unknowns",
+  // preservation warnings, JSON keys, or a creative concept. This remains
+  // a lexical proxy, NOT a measurement of image grounding.
+  const facts = Array.isArray(response.visual?.observed_facts)
+    ? response.visual.observed_facts.filter(value => text(value)) : [];
   const required = Array.isArray(reference.required_terms) ? reference.required_terms : [];
   const forbidden = Array.isArray(reference.forbidden_terms) ? reference.forbidden_terms : [];
-  // Keyword proxies; these do NOT certify what is actually in an image.
-  const factsRecall = ratio(required.filter(term => corpus.includes(normalized(term))).length, required.length);
-  const forbiddenHit = forbidden.some(term => term && corpus.includes(normalized(term)));
+  const asserted = [...facts];
+  if (['product_photo', 'ad_creative'].includes(reference.task) && Array.isArray(response.concepts)) {
+    for (const concept of response.concepts) {
+      asserted.push(concept?.title, concept?.scene, concept?.mood, concept?.tagline);
+    }
+  }
+  if (['storyboard', 'video_direction'].includes(reference.task) && Array.isArray(response.shots)) {
+    for (const shot of response.shots) {
+      asserted.push(shot?.action, shot?.subject_lock, shot?.camera);
+    }
+  }
+  const requiredNormalized = required.map(normalized).filter(Boolean);
+  const forbiddenNormalized = forbidden.map(normalized).filter(Boolean);
+  const factsRecall = ratio(
+    requiredNormalized.filter(term => facts.some(fact => normalized(fact).includes(term))).length,
+    requiredNormalized.length
+  );
+  // Unknowns and explicit preservation prohibitions are not assertions.
+  // Negation inside assertions is still a known limitation of lexical checks.
+  const forbiddenHit = forbiddenNormalized.some(term =>
+    asserted.some(phrase => normalized(phrase).includes(term)));
   if (forbiddenHit) issues.push('forbidden_term');
   return { valid: issues.length === 0, issues, factsRecall, forbiddenHit };
 }
@@ -49,6 +73,10 @@ export function scorePredictions(referenceCases, predictions) {
   const predictionMap = new Map();
   for (const p of predictions) {
     if (!text(p?.id) || predictionMap.has(p.id)) throw new Error('Prediction id missing or duplicated.');
+    for (const field of ['latency_ms', 'cost_usd']) {
+      if (p[field] != null && (!Number.isFinite(p[field]) || p[field] < 0))
+        throw new Error('Invalid prediction telemetry: ' + field);
+    }
     predictionMap.set(p.id, p);
   }
   const rows = [];
@@ -58,6 +86,14 @@ export function scorePredictions(referenceCases, predictions) {
     const p = predictionMap.get(r.id);
     const checked = p ? inspectDirectorOutput(r, p.response) :
       { valid:false, issues:['missing_prediction'], factsRecall:null, forbiddenHit:null };
+    // A real-image reference must be compared only to a prediction bound
+    // to that SAME original image. A SHA match alone does not grant rights.
+    if (p && r.image_sha256 &&
+        (!/^[a-f0-9]{64}$/i.test(r.image_sha256) ||
+         p.image_sha256?.toLowerCase() !== r.image_sha256.toLowerCase())) {
+      checked.issues.push('image_sha256_mismatch');
+      checked.valid = false;
+    }
     rows.push({
       id:r.id, task:r.task, model_id:p?.model_id || null, valid:checked.valid,
       issues:checked.issues, facts_recall_keyword_proxy:checked.factsRecall,
@@ -67,18 +103,24 @@ export function scorePredictions(referenceCases, predictions) {
       human_visual_review:'required'
     });
   }
+  for (const id of predictionMap.keys()) {
+    if (!ids.has(id)) throw new Error('Unexpected prediction id: ' + id);
+  }
   const latencies = rows.map(x => x.latency_ms).filter(x => x !== null).sort((a,b) => a-b);
   const costs = rows.map(x => x.cost_usd).filter(x => x !== null);
   const recalls = rows.map(x => x.facts_recall_keyword_proxy).filter(x => x !== null);
   const summary = {
     sample_count:rows.length,
+    image_sha256_mismatch_count:rows.filter(x=>x.issues.includes('image_sha256_mismatch')).length,
+    latency_samples:latencies.length,
+    cost_samples:costs.length,
     contract_pass_rate:ratio(rows.filter(x=>x.valid).length,rows.length),
     forbidden_keyword_hit_rate:ratio(rows.filter(x=>x.forbidden_keyword_hit).length,rows.length),
     keyword_recall_mean:recalls.length ? Number((recalls.reduce((a,b)=>a+b,0)/recalls.length).toFixed(4)) : null,
     latency_p95_ms:latencies.length ? latencies[Math.ceil(latencies.length*.95)-1] : null,
     measured_cost_usd:costs.length ? Number(costs.reduce((a,b)=>a+b,0).toFixed(6)) : null,
     human_visual_review:'not_performed',
-    note:'Synthetic/keyword checks cannot establish real visual grounding, aesthetics, identity consistency, latency or cost without measured samples.'
+    note:'Facts recall checks observed_facts only; lexical assertion checks are not truth or negation judges. Timings/costs are unverified prediction metadata. Independent human image review and measured runtime are required.'
   };
   return {schema:'botconnector.multimedia-director-benchmark.v1',summary,rows};
 }
@@ -99,7 +141,7 @@ if (process.argv[1] && import.meta.url === pathToFileURL(process.argv[1]).href) 
     try {
       const report = scorePredictions(readJsonl(referencesPath), readJsonl(predictionsPath));
       const output = JSON.stringify(report,null,2)+'\n';
-      if (reportPath) writeFileSync(reportPath,output);
+      if (reportPath) writeFileSync(reportPath,output,{flag:'wx'});
       else process.stdout.write(output);
       if (report.summary.contract_pass_rate !== 1) process.exitCode = 1;
     } catch (error) { console.error(error.message); process.exitCode = 2; }
