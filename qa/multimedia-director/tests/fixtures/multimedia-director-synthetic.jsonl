@@ -1,0 +1,2 @@
+{"id":"synthetic-product-01","task":"product_photo","asset_id":"synthetic-only-do-not-train","required_terms":["botol biru","label asli"],"forbidden_terms":["diskon 90%"]}
+{"id":"synthetic-video-01","task":"video_direction","asset_id":"synthetic-only-do-not-train","required_terms":["jaket merah"],"forbidden_terms":["wajah berubah"]}
