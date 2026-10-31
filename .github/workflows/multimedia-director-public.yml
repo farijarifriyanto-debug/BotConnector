@@ -40,3 +40,6 @@ jobs:
       - name: Lightweight VLM offline dry-run and spend-gate tests
         working-directory: qa/multimedia-director
         run: python3 -m unittest discover -s tests -p 'test_multimedia_vlm_probe.py' -v
+      - name: ABO offline review queue and SmolVLM2 SFT staging tests
+        working-directory: qa/multimedia-director
+        run: python3 -m unittest discover -s tests -p 'test_abo_sft_preparation.py' -v
