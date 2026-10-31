@@ -1,0 +1,42 @@
+name: BICO Multimedia Director — Public Offline Tests
+
+on:
+  pull_request:
+    paths:
+      - 'qa/multimedia-director/**'
+      - '.github/workflows/multimedia-director-public.yml'
+  push:
+    branches: [native-agent-integration]
+    paths:
+      - 'qa/multimedia-director/**'
+      - '.github/workflows/multimedia-director-public.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  node-data-and-contract:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - name: Display Node version
+        run: node --version
+      - name: Offline dataset security and Director contract tests
+        working-directory: qa/multimedia-director
+        run: node --test tests/multimediaDatasetPipeline.test.mjs tests/multimediaDirectorBenchmark.test.mjs
+      - name: Synthetic contract fixture
+        working-directory: qa/multimedia-director
+        run: node scripts/benchmark-multimedia-director.mjs tests/fixtures/multimedia-director-synthetic.jsonl tests/fixtures/multimedia-director-synthetic-predictions.jsonl
+
+  python-2b-probe:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - name: Display Python version
+        run: python3 --version
+      - name: Lightweight VLM offline dry-run and spend-gate tests
+        working-directory: qa/multimedia-director
+        run: python3 -m unittest discover -s tests -p 'test_multimedia_vlm_probe.py' -v
