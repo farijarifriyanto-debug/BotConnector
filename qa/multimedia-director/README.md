@@ -32,3 +32,16 @@ Security: repository Actions are read-only and do not use secrets, repository di
 - [End-to-end synthetic pipeline test](tests/test_pipeline_e2e.py): builds 260 synthetic image cases and verifies Node rights gate -> Python SFT staging -> 2B runner preflight with holdout sealed.
 
 No real ABO images, model weights, production customer data or credentials are public. A public green CI run is not actual model training evidence.
+
+
+## Real product photo collection: private local quarantine
+
+Use [audit-product-intake.py](scripts/audit-product-intake.py) to verify a **private** BICO QA collection of genuine sourced product images without uploading anything:
+
+```sh
+python3 scripts/audit-product-intake.py --root /path/to/private/BICO-Multimedia-Product-Dataset-20261031 --expected-count 3
+```
+
+It validates SHA256, source attribution, image paths, draft annotation IDs, duplicate files and locked training-rights flags. Its success means **QA intake only**: training-approved count must remain zero. Stock photo commercial-use permissions should not be interpreted as automatic permission to train a commercial multimodal model or transfer photos to third-party GPUs. If rights are confirmed, move approved assets to a separate, human-reviewed dataset through the existing rights gate rather than editing this quarantine manifest.
+
+The public GitHub Actions job tests this validator against **synthetic local images**. Real Pexels/ABO photos and user-specific filenames/paths are never included in this public repository or its workflow.

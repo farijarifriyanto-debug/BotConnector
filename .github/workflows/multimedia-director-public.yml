@@ -49,3 +49,6 @@ jobs:
       - name: End-to-end synthetic dataset gate to 2B LoRA preflight
         working-directory: qa/multimedia-director
         run: python3 -m unittest discover -s tests -p 'test_pipeline_e2e.py' -v
+      - name: Audit quarantined real-product intake schema with synthetic files only
+        working-directory: qa/multimedia-director
+        run: python3 -m unittest discover -s tests -p 'test_product_intake_audit.py' -v
