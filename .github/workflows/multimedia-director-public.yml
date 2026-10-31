@@ -43,3 +43,9 @@ jobs:
       - name: ABO offline review queue and SmolVLM2 SFT staging tests
         working-directory: qa/multimedia-director
         run: python3 -m unittest discover -s tests -p 'test_abo_sft_preparation.py' -v
+      - name: Validate image-token loss masking and 2B LoRA smoke safeguards
+        working-directory: qa/multimedia-director
+        run: python3 -m unittest discover -s tests -p 'test_lora_smoke.py' -v
+      - name: End-to-end synthetic dataset gate to 2B LoRA preflight
+        working-directory: qa/multimedia-director
+        run: python3 -m unittest discover -s tests -p 'test_pipeline_e2e.py' -v
