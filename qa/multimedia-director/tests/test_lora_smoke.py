@@ -37,6 +37,11 @@ class FakeTensor:
     def tolist(self):
         return self.items
 
+    def numel(self):
+        def count(item):
+            return sum(count(x) for x in item) if isinstance(item, list) else 1
+        return count(self.items)
+
 
 class FakeTorch:
     long = "int64"
@@ -51,9 +56,11 @@ class FakeTorch:
 class FakeProcessor:
     tokenizer = type("T", (), {"pad_token_id": 0})()
 
-    def __init__(self, bad_prefix=False, no_pixels=False):
+    def __init__(self, bad_prefix=False, no_pixels=False, pixels=None, missing_prompt_pixels=False):
         self.bad_prefix = bad_prefix
         self.no_pixels = no_pixels
+        self.pixels = pixels
+        self.missing_prompt_pixels = missing_prompt_pixels
         self.calls = []
 
     def apply_chat_template(self, messages, *, add_generation_prompt,
@@ -66,8 +73,9 @@ class FakeProcessor:
         else:
             ids = [11, 12, 22 if self.bad_prefix else 13, 14, 201, 0, 202]
         batch = {"input_ids": FakeTensor([ids])}
-        if not self.no_pixels:
-            batch["pixel_values"] = FakeTensor([[1, 2, 3]])
+        if not self.no_pixels and not (self.missing_prompt_pixels and add_generation_prompt):
+            batch["pixel_values"] = (self.pixels if self.pixels is not None
+                                     else FakeTensor([[1, 2, 3]]))
         return batch
 
 
@@ -136,6 +144,30 @@ class MaskingAndArchitectureTest(unittest.TestCase):
         messages[0]["content"][0]["image"] = object()
         with self.assertRaisesRegex(ValueError, "pixel_values"):
             lora.encode_multimodal_messages(messages, FakeProcessor(no_pixels=True), FakeTorch())
+
+    def test_empty_or_malformed_nested_vision_payload_is_refused(self):
+        messages = prepared_row("r1", "train", "g1", "unused.png", "a" * 64)["messages"]
+        messages[0]["content"][0]["image"] = object()
+        for pixels in ([], [FakeTensor([])], [None], [FakeTensor([1]), []],
+                       ["image-path-only.jpg"], [1], {}):
+            with self.subTest(pixels=str(pixels)[:80]):
+                with self.assertRaisesRegex(ValueError, "pixel_values"):
+                    lora.encode_multimodal_messages(
+                        messages, FakeProcessor(pixels=pixels), FakeTorch())
+
+    def test_missing_prompt_vision_payload_is_refused(self):
+        messages = prepared_row("r1", "train", "g1", "unused.png", "a" * 64)["messages"]
+        messages[0]["content"][0]["image"] = object()
+        with self.assertRaisesRegex(ValueError, "pixel_values"):
+            lora.encode_multimodal_messages(
+                messages, FakeProcessor(missing_prompt_pixels=True), FakeTorch())
+
+    def test_nested_nonempty_vision_payload_passes(self):
+        messages = prepared_row("r1", "train", "g1", "unused.png", "a" * 64)["messages"]
+        messages[0]["content"][0]["image"] = object()
+        result = lora.encode_multimodal_messages(
+            messages, FakeProcessor(pixels=[[FakeTensor([1, 2])]]), FakeTorch())
+        self.assertIn("labels", result)
 
     def test_missing_image_pixels_is_refused(self):
         messages = prepared_row("r1", "train", "g1", "unused.png", "a" * 64)["messages"]
@@ -292,6 +324,32 @@ class DatasetGateTest(unittest.TestCase):
         self.assertEqual(output["verified_train_val_samples"], 60)
         self.assertEqual(output["test_samples_loaded"], 0)
         self.assertEqual(output["cost_usd"], 0)
+
+    def test_checkpoint_preflight_accepts_only_smolvlm_family(self):
+        model = self.root / "synthetic-model"
+        model.mkdir()
+        config = model / "config.json"
+        (model / "model.safetensors").write_bytes(b"synthetic placeholder not a model")
+        for model_type in ("idefics3", "smolvlm"):
+            config.write_text(json.dumps({"model_type": model_type}), encoding="utf-8")
+            self.assertEqual(lora.verify_smolvlm2_checkpoint(model), model)
+        for forbidden in ("qwen3_vl", "qwen2_vl", "llama", "gemma3"):
+            config.write_text(json.dumps({"model_type": forbidden}), encoding="utf-8")
+            with self.subTest(architecture=forbidden):
+                with self.assertRaisesRegex(ValueError, "architecture incompatible"):
+                    lora.verify_smolvlm2_checkpoint(model)
+
+    def test_checkpoint_preflight_rejects_pickle_and_missing_weights(self):
+        model = self.root / "synthetic-model"
+        model.mkdir()
+        (model / "config.json").write_text(
+            json.dumps({"model_type":"idefics3"}), encoding="utf-8")
+        with self.assertRaisesRegex(ValueError, "safetensors"):
+            lora.verify_smolvlm2_checkpoint(model)
+        (model / "model.safetensors").write_bytes(b"synthetic")
+        (model / "pytorch_model.bin").write_bytes(b"pickle")
+        with self.assertRaisesRegex(ValueError, "pickle-format"):
+            lora.verify_smolvlm2_checkpoint(model)
 
     def test_paid_run_requires_explicit_acknowledgment(self):
         args = type("Args", (), {"acknowledge_paid_gpu": False, "output_dir": None, "model_dir": None})()
