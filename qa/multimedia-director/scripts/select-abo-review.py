@@ -16,7 +16,7 @@ import tarfile
 
 SOURCE = "abo"
 SOURCE_URL = "https://registry.opendata.aws/amazon-berkeley-objects/"
-MAX_MEMBER_BYTES = 80 * 1024 * 1024
+MAX_MEMBER_BYTES = 192 * 1024 * 1024
 MAX_ARCHIVE_BYTES = 512 * 1024 * 1024
 ALLOWED_EXT = (".json", ".jsonl", ".ndjson", ".json.gz", ".jsonl.gz", ".ndjson.gz")
 
@@ -95,7 +95,7 @@ def image_ids(row):
         value = clean(row.get(key), 96)
         if value:
             found.append(value)
-    for key in ("images", "image_ids", "other_image_ids"):
+    for key in ("images", "image_ids", "other_image_ids", "other_image_id"):
         values = row.get(key)
         if not isinstance(values, list):
             continue
