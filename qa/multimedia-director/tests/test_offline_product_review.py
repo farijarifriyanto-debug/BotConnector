@@ -356,5 +356,45 @@ class HumanReviewOfflineTest(unittest.TestCase):
 
 
 
+    def test_priority_order_shows_train_draft_first_even_if_input_is_reversed(self):
+        reversed_rows = list(reversed(self.rows))
+        suggestion = {self.rows[0]["sku"]: self.draft()}
+        ordered = review.review_priority_order(reversed_rows, {}, suggestion)
+        self.assertEqual(reversed_rows[ordered[0]]["sku"], self.rows[0]["sku"])
+        self.assertEqual(len(ordered), 2)
+
+    def test_priority_order_excludes_rejected_and_candidate_rows(self):
+        decisions = {
+            self.rows[0]["sku"]: {"status": "candidate"},
+            self.rows[1]["sku"]: {"status": "reject"},
+        }
+        self.assertEqual(review.review_priority_order(self.rows, decisions, {}), [])
+
+    def test_priority_order_includes_pending_and_needs_check(self):
+        decisions = {self.rows[0]["sku"]: {"status": "needs_check"}}
+        order = review.review_priority_order(
+            self.rows, decisions, {self.rows[0]["sku"]: self.draft()}
+        )
+        self.assertEqual([self.rows[i]["sku"] for i in order],
+                         [self.rows[0]["sku"], self.rows[1]["sku"]])
+
+    def test_priority_order_cannot_make_test_draft_take_priority(self):
+        # Train must be prioritized; even malformed caller-provided draft dict
+        # cannot schedule an unseen holdout as a train sample.
+        reversed_rows = list(reversed(self.rows))
+        order = review.review_priority_order(
+            reversed_rows, {}, {self.rows[1]["sku"]: {"bogus": "draft"}}
+        )
+        self.assertEqual(reversed_rows[order[0]]["proposed_split"], "train")
+
+    def test_priority_order_does_not_change_review_decisions(self):
+        decisions = {self.rows[0]["sku"]: {"status": "needs_check"}}
+        before = json.dumps(decisions, sort_keys=True)
+        review.review_priority_order(self.rows, decisions, {})
+        self.assertEqual(json.dumps(decisions, sort_keys=True), before)
+        self.assertEqual(decisions[self.rows[0]["sku"]]["status"], "needs_check")
+
+
+
 if __name__ == "__main__":
     unittest.main()
