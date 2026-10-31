@@ -84,6 +84,33 @@ class HumanReviewOfflineTest(unittest.TestCase):
         self.assertEqual(data["source_images_valid"], 2)
         self.assertEqual(data["training_approved"], 0)
 
+    def test_save_button_is_bound_to_real_save_action(self):
+        # Tkinter need not initialize on the public CI runner; ensure the UI
+        # action is not the previous no-op navigation(0).
+        source = SCRIPT.read_text(encoding="utf-8")
+        self.assertIn('text="Simpan", command=save_current', source)
+        self.assertNotIn('text="Simpan", command=lambda: navigate(0)', source)
+
+    def test_persist_decision_commits_only_after_successful_write(self):
+        d = self.decision()
+        decisions = {}
+        review.persist_decision(self.state, decisions, d)
+        self.assertEqual(decisions[d["sku"]], d)
+        self.assertEqual(review.read_state(self.state, self.rows)[d["sku"]], d)
+
+    def test_persist_decision_disk_failure_keeps_memory_and_disk_unchanged(self):
+        from unittest.mock import patch
+        d = self.decision()
+        existing = {d["sku"]: d.copy()}
+        review.write_state(self.state, existing)
+        before = self.state.read_bytes()
+        altered = {**d, "status": "needs_check"}
+        with patch.object(review, "write_state", side_effect=OSError("simulated disk failure")):
+            with self.assertRaisesRegex(OSError, "simulated disk failure"):
+                review.persist_decision(self.state, existing, altered)
+        self.assertEqual(existing[d["sku"]]["status"], "candidate")
+        self.assertEqual(self.state.read_bytes(), before)
+
     def test_state_atomic_round_trip(self):
         d = self.decision()
         review.write_state(self.state, {d["sku"]: d})
