@@ -16,6 +16,8 @@ from pathlib import Path
 import sys
 
 SCHEMA = "botconnector.offline-visual-review.v1"
+DRAFT_SCHEMA = "botconnector.assistant-image-observation-draft.v1"
+TARGET_SCHEMA = "botconnector.multimedia-director.v1"
 STATUSES = ("pending", "candidate", "needs_check", "reject")
 FIELDS = ("category_corrected", "observed_facts", "unknowns",
           "preservation_rules", "concept_1", "concept_2", "concept_3",
@@ -53,6 +55,68 @@ def load_rows(path):
     if not records:
         raise ValueError("empty source manifest")
     return records
+
+
+def load_ai_drafts(path, rows):
+    """Validate unapproved, train-only image-grounded suggestions without writing state.
+
+    Drafts are NOT human labels. No validation or held-out test image may be
+    imported for assistant-generated SFT suggestions through this feature.
+    """
+    if not path.is_file():
+        raise ValueError("draft file missing")
+    reference = {r["sku"]: r for r in rows}
+    drafts = {}
+    for line_number, line in enumerate(path.read_text(encoding="utf-8-sig").splitlines(), 1):
+        if not line.strip():
+            continue
+        obj = json.loads(line)
+        sku = obj.get("item_id")
+        if (obj.get("schema") != DRAFT_SCHEMA or not isinstance(sku, str)
+            or sku not in reference or sku in drafts):
+            raise ValueError("invalid or duplicate assistant draft item at line " + str(line_number))
+        source = reference[sku]
+        if source.get("proposed_split") != "train" or obj.get("proposed_split") != "train":
+            raise ValueError("AI draft refused for validation/test holdout: " + sku)
+        if (obj.get("image_sha256") != source.get("image_sha256")
+            or obj.get("image_source_url") != source.get("source_url")):
+            raise ValueError("draft provenance or original image hash mismatch: " + sku)
+        if (obj.get("annotation_status") != "AI_DRAFT_NEEDS_INDEPENDENT_HUMAN_REVIEW"
+            or obj.get("training_approved") is not False
+            or obj.get("third_party_gpu_allowed") is not False
+            or obj.get("annotation_finalized") is not False
+            or obj.get("license_review") != "pending"
+            or obj.get("brand_privacy_claims_review") != "pending"):
+            raise ValueError("AI draft cannot authorize training or bypass human review: " + sku)
+        target = obj.get("target")
+        if (not isinstance(target, dict)
+            or target.get("schema") != TARGET_SCHEMA or target.get("task") != "product_photo"):
+            raise ValueError("invalid Director draft target: " + sku)
+        visual = target.get("visual")
+        if not isinstance(visual, dict):
+            raise ValueError("draft missing observed facts and unknowns: " + sku)
+        facts, unknowns = visual.get("observed_facts"), visual.get("unknowns")
+        rules, concepts = target.get("preservation_rules"), target.get("concepts")
+        def words(items):
+            return isinstance(items, list) and all(isinstance(x, str) and x.strip() for x in items)
+        if (not words(facts) or not facts or not words(unknowns)
+            or not words(rules) or not rules or not isinstance(concepts, list)
+            or len(concepts) != 3):
+            raise ValueError("Director draft required visual fields incomplete: " + sku)
+        if any(not isinstance(x, dict) or
+               any(not isinstance(x.get(k), str) or not x[k].strip()
+                   for k in ("title", "scene", "mood", "tagline"))
+               for x in concepts):
+            raise ValueError("Director draft concepts malformed: " + sku)
+        if len({x["scene"].strip().casefold() for x in concepts}) != 3:
+            raise ValueError("Director draft has duplicated scenes: " + sku)
+        category = obj.get("category_corrected_proposal")
+        if not isinstance(category, str) or not category.strip():
+            raise ValueError("draft has no category correction: " + sku)
+        drafts[sku] = obj
+    if not drafts:
+        raise ValueError("no valid source-grounded drafts")
+    return drafts
 
 
 def source_image(row):
@@ -116,12 +180,13 @@ def export_review(path, decisions):
             handle.write(json.dumps(item, ensure_ascii=False) + "\n")
 
 
-def review_gui(rows, state_path):
+def review_gui(rows, state_path, ai_drafts=None):
     import tkinter as tk
     from tkinter import messagebox, ttk
     from PIL import Image, ImageOps, ImageTk
 
     decisions = read_state(state_path, rows)
+    ai_drafts = ai_drafts or {}
     window = tk.Tk()
     window.title("BICO — Review Foto Produk Internet (OFFLINE)")
     window.geometry("1180x850")
@@ -244,12 +309,50 @@ def review_gui(rows, state_path):
                 return
         messagebox.showinfo("Tidak ditemukan", "Tidak ada SKU/kategori yang cocok")
 
+    def insert_ai_draft():
+        row = rows[current[0]]
+        draft = ai_drafts.get(row["sku"])
+        if draft is None:
+            messagebox.showinfo("Belum ada draft", "Belum tersedia draft AI untuk SKU ini.")
+            return
+        if row.get("proposed_split") != "train":
+            messagebox.showerror("Holdout dilindungi", "AI draft hanya diizinkan untuk calon train.")
+            return
+        if not messagebox.askyesno(
+            "Masukkan draft AI?",
+            "Isi form dengan saran berbasis foto yang BELUM diverifikasi manusia? "
+            "Tulisan di form yang belum disimpan akan tertimpa. "
+            "Ini TIDAK memberikan izin training atau cloud GPU."
+        ):
+            return
+        target = draft["target"]
+        values = {
+            "category_corrected": draft["category_corrected_proposal"],
+            "observed_facts": "\n".join(target["visual"]["observed_facts"]),
+            "unknowns": "\n".join(target["visual"]["unknowns"]),
+            "preservation_rules": "\n".join(target["preservation_rules"]),
+            "brand_privacy_notes": "AI draft / perlu verifikasi: " + draft.get("risk_notes", ""),
+        }
+        for i, idea in enumerate(target["concepts"], 1):
+            values["concept_" + str(i)] = (
+                idea["title"] + " | " + idea["scene"] +
+                " | " + idea["mood"] + " | " + idea["tagline"]
+            )
+        for field, value in values.items():
+            fill_control(field, value)
+        fill_control("reviewer", "")
+        status.set("needs_check")
+        messagebox.showinfo("Draft dimuat", "Periksa fakta satu per satu. "
+                            "Tombol Simpan masih wajib; status training tetap belum disetujui.")
+
     footer = ttk.Frame(root)
     footer.pack(fill="x", pady=9)
     ttk.Button(footer, text="◀ Sebelumnya", command=lambda: navigate(-1)).pack(side="left")
     ttk.Button(footer, text="Simpan", command=lambda: navigate(0)).pack(side="left", padx=8)
     ttk.Button(footer, text="Berikutnya ▶", command=lambda: navigate(1)).pack(side="left")
     ttk.Button(footer, text="Cari", command=search).pack(side="right")
+    ttk.Button(footer, text="Muat draft AI (train saja)",
+               command=insert_ai_draft).pack(side="right", padx=8)
     find_input.bind("<Return>", lambda _: search())
     def closing():
         if messagebox.askyesno("Tutup", "Simpan item saat ini dan tutup?"):
@@ -270,13 +373,16 @@ def main(argv=None):
     parser.add_argument("--state", type=Path, help="local writable review state .json")
     parser.add_argument("--export", type=Path, help="read state and export JSONL (no image assets)")
     parser.add_argument("--audit", action="store_true", help="headless input/hash check, no GUI")
+    parser.add_argument("--drafts", type=Path, help="unapproved visual drafts for TRAIN only")
     args = parser.parse_args(argv)
     rows = load_rows(args.data)
     state = args.state or args.data.parent / "bico-manual-visual-review-state.json"
+    ai_drafts = load_ai_drafts(args.drafts, rows) if args.drafts else {}
     if args.audit:
         for row in rows:
             source_image(row)
-        print(json.dumps({"source_images_valid": len(rows), "training_approved": 0,
+        print(json.dumps({"source_images_valid": len(rows),
+                          "ai_drafts_checked": len(ai_drafts), "training_approved": 0,
                           "mode": "offline_read_only_audit"}))
         return 0
     if args.export:
@@ -285,7 +391,7 @@ def main(argv=None):
         print(json.dumps({"exported_decisions": len(decisions),
                           "training_approved": 0, "file": str(args.export)}))
         return 0
-    review_gui(rows, state)
+    review_gui(rows, state, ai_drafts)
     return 0
 
 
