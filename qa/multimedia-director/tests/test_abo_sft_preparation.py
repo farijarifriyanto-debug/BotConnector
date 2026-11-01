@@ -162,7 +162,7 @@ class SFTTests(unittest.TestCase):
     def write_staging(self, *, mode="gated_dataset"):
         counts = {split: len(rows) for split, rows in self.rows.items()}
         (self.staged / "summary.json").write_text(
-            json.dumps({"schema": sft.SCHEMA, "mode": mode, "counts": counts}), encoding="utf-8")
+            json.dumps({"schema": sft.SCHEMA, "mode": mode, "gate": sft.GATE, "counts": counts}), encoding="utf-8")
         for split, rows in self.rows.items():
             (self.staged / (split + ".jsonl")).write_text(
                 "\n".join(json.dumps(x) for x in rows) + "\n", encoding="utf-8")
@@ -183,6 +183,20 @@ class SFTTests(unittest.TestCase):
     def test_rejects_smoke_only(self):
         self.write_staging(mode="smoke_only")
         with self.assertRaisesRegex(ValueError, "rights-gated"):
+            sft.records(self.staged, self.imgroot)
+
+    def test_rejects_missing_source_review_gate(self):
+        summary_path = self.staged / "summary.json"
+        summary = json.loads(summary_path.read_text(encoding="utf-8"))
+        summary.pop("gate")
+        summary_path.write_text(json.dumps(summary), encoding="utf-8")
+        with self.assertRaisesRegex(ValueError, "rights-gated dataset"):
+            sft.records(self.staged, self.imgroot)
+
+    def test_rejects_duplicate_sample_id_across_train_test(self):
+        self.rows["test"][0]["id"] = self.rows["train"][0]["id"]
+        self.write_staging()
+        with self.assertRaisesRegex(ValueError, "duplicate or missing staged sample ID"):
             sft.records(self.staged, self.imgroot)
 
     def test_rejects_incorrect_summary_count(self):
@@ -228,6 +242,13 @@ class SFTTests(unittest.TestCase):
         self.assertTrue((out / "train.jsonl").is_file())
         self.assertTrue((out / "val.jsonl").is_file())
         self.assertFalse((out / "test.jsonl").exists())
+        packet = json.loads((out / "manifest.json").read_text(encoding="utf-8"))
+        self.assertEqual(packet["source_gate"], sft.GATE)
+        self.assertEqual(packet["sealed_holdout_stage_sha256"],
+                         hashlib.sha256((self.staged / "test.jsonl").read_bytes()).hexdigest())
+        for split in ("train", "val"):
+            self.assertEqual(packet["train_val_file_sha256"][split],
+                             hashlib.sha256((out / (split + ".jsonl")).read_bytes()).hexdigest())
         self.assertEqual(subprocess.run(cmd + ["--write"], capture_output=True).returncode, 2)
 
 
