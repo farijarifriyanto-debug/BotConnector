@@ -74,7 +74,7 @@ def records(staged, root, *, enforce_counts=True):
                               (("train", 50), ("val", 10), ("test", 200))):
         raise ValueError("insufficient independently held-out data")
     result = {}
-    group_splits, hash_splits = {}, {}
+    group_splits, hash_splits, seen_ids = {}, {}, set()
     for split in SPLITS:
         path = staged / (split + ".jsonl")
         if not path.is_file():
@@ -86,6 +86,10 @@ def records(staged, root, *, enforce_counts=True):
         for row in rows:
             if row.get("schema") != SCHEMA or row.get("split") != split:
                 raise ValueError("invalid stage record schema/split")
+            sample_id = row.get("id")
+            if not isinstance(sample_id, str) or not sample_id or sample_id in seen_ids:
+                raise ValueError("duplicate or missing staged sample ID")
+            seen_ids.add(sample_id)
             group = row.get("group_id")
             digest = row.get("image_sha256")
             if not isinstance(group, str) or not group or not isinstance(digest, str):
