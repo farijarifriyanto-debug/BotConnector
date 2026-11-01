@@ -513,6 +513,18 @@ class HumanReviewOfflineTest(unittest.TestCase):
         self.assertIn("if draft_prefill_allowed(", source)
         self.assertIn("draft_field_values(", source)
 
+    def test_three_button_handlers_are_defined_before_their_buttons(self):
+        # A GUI smoke on real data once died at launch: buttons referenced
+        # handlers that were not defined yet. Tk windows never open in CI,
+        # so guard the definition order statically instead.
+        source = SCRIPT.read_text(encoding="utf-8")
+        self.assertLess(source.index("def approve_current"),
+                        source.index('text="Setujui Visual"'))
+        self.assertLess(source.index("def open_editor"),
+                        source.index('text="Koreksi"'))
+        self.assertLess(source.index("def reject_current"),
+                        source.index('text="Tolak"'))
+
 
 
 if __name__ == "__main__":

@@ -475,9 +475,6 @@ def review_gui(rows, state_path, ai_drafts=None):
     status_select.pack(fill="x", pady=(0, 8))
     actions = ttk.Frame(panel)
     actions.pack(fill="x", pady=(0, 8))
-    ttk.Button(actions, text="Setujui Visual", command=approve_current).pack(side="left")
-    ttk.Button(actions, text="Koreksi", command=open_editor).pack(side="left", padx=6)
-    ttk.Button(actions, text="Tolak", command=reject_current).pack(side="left")
     for field in FIELDS:
         ttk.Label(panel, text=LABELS[field]).pack(anchor="w", pady=(4, 0))
         if field in ("category_corrected", "reviewer"):
@@ -594,6 +591,10 @@ def review_gui(rows, state_path, ai_drafts=None):
             messagebox.showerror("Tolak foto belum tersimpan", str(exc))
             return
         advance_after_triage(row["sku"])
+
+    ttk.Button(actions, text="Setujui Visual", command=approve_current).pack(side="left")
+    ttk.Button(actions, text="Koreksi", command=open_editor).pack(side="left", padx=6)
+    ttk.Button(actions, text="Tolak", command=reject_current).pack(side="left")
 
     def confirm_leave():
         """Yes=save, No=discard local edits, Cancel=stay on current item."""
