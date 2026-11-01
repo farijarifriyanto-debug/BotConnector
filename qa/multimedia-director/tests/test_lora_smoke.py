@@ -233,17 +233,54 @@ class DatasetGateTest(unittest.TestCase):
         self.tmp.cleanup()
 
     def save(self, counts=None, model=None):
+        seals = {}
+        for split, rows in self.rows.items():
+            path = self.prepared / (split + ".jsonl")
+            path.write_text(
+                "\n".join(json.dumps(row) for row in rows) + "\n", encoding="utf-8"
+            )
+            seals[split] = hashlib.sha256(path.read_bytes()).hexdigest()
         manifest = {
             "schema": lora.SCHEMA,
             "base_model": model or lora.MODEL,
             "counts": counts or {"train": 50, "val": 10, "test": 200},
             "gpu_started": False,
+            "source_gate": lora.GATE,
+            "train_val_file_sha256": seals,
+            # Synthetic holdout placeholder in unit tests; never training data.
+            "sealed_holdout_stage_sha256":
+                hashlib.sha256(b"synthetic sealed holdout not exported").hexdigest(),
         }
         (self.prepared / "manifest.json").write_text(json.dumps(manifest), encoding="utf-8")
-        for split, rows in self.rows.items():
-            (self.prepared / (split + ".jsonl")).write_text(
-                "\n".join(json.dumps(row) for row in rows) + "\n", encoding="utf-8"
-            )
+
+    def test_rejects_tampered_packed_train_file_even_if_valid_json(self):
+        path = self.prepared / "train.jsonl"
+        rows = [json.loads(line) for line in path.read_text().splitlines() if line.strip()]
+        rows[0]["messages"][0]["content"][1]["text"] = "attacker supplied prompt"
+        path.write_text("\n".join(json.dumps(row) for row in rows) + "\n", encoding="utf-8")
+        with self.assertRaisesRegex(ValueError, "prepared split SHA256 mismatch"):
+            lora.load_prepared(self.prepared, self.assets)
+
+    def test_rejects_unsealed_or_forged_holdout_digest(self):
+        manifest_path = self.prepared / "manifest.json"
+        for value in (None, "not-sha256", "x" * 64):
+            manifest = json.loads(manifest_path.read_text(encoding="utf-8"))
+            if value is None:
+                manifest.pop("sealed_holdout_stage_sha256")
+            else:
+                manifest["sealed_holdout_stage_sha256"] = value
+            manifest_path.write_text(json.dumps(manifest), encoding="utf-8")
+            with self.subTest(value=value):
+                with self.assertRaisesRegex(ValueError, "manifest SHA256 provenance|holdout SHA256 invalid"):
+                    lora.load_prepared(self.prepared, self.assets)
+
+    def test_rejects_missing_source_review_attestation(self):
+        manifest_path = self.prepared / "manifest.json"
+        manifest = json.loads(manifest_path.read_text(encoding="utf-8"))
+        manifest.pop("source_gate")
+        manifest_path.write_text(json.dumps(manifest), encoding="utf-8")
+        with self.assertRaisesRegex(ValueError, "source review attestation"):
+            lora.load_prepared(self.prepared, self.assets)
 
     def test_approved_stage_preflight_without_model_or_gpu(self):
         manifest, result = lora.load_prepared(self.prepared, self.assets)
