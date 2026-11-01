@@ -495,6 +495,24 @@ class HumanReviewOfflineTest(unittest.TestCase):
         self.assertIsNone(review.next_outstanding(
             self.rows, decisions, {}, self.rows[0]["sku"]))
 
+    def test_counter_text_reports_reviewed_and_pending_counts(self):
+        text = review.counter_text(0, 2, 1)
+        self.assertIn("diperiksa: 1", text)
+        self.assertIn("pending: 1", text)
+        self.assertIn("siap training: 0", text)
+
+    def test_gui_binds_three_triage_buttons(self):
+        source = SCRIPT.read_text(encoding="utf-8")
+        self.assertIn('text="Setujui Visual", command=approve_current', source)
+        self.assertIn('text="Koreksi", command=open_editor', source)
+        self.assertIn('text="Tolak", command=reject_current', source)
+
+    def test_gui_uses_counter_helper_and_draft_prefill_on_display(self):
+        source = SCRIPT.read_text(encoding="utf-8")
+        self.assertIn('counter.configure(text=counter_text(', source)
+        self.assertIn("if draft_prefill_allowed(", source)
+        self.assertIn("draft_field_values(", source)
+
 
 
 if __name__ == "__main__":

@@ -284,6 +284,15 @@ def next_outstanding(rows, decisions, ai_drafts, current_sku):
     return None
 
 
+def counter_text(position, total, reviewed):
+    """Status line: how many photos a human triaged, how many still pending."""
+    reviewed = max(0, min(total, reviewed))
+    return (str(position + 1) + "/" + str(total) +
+            " • diperiksa: " + str(reviewed) +
+            " • pending: " + str(total - reviewed) +
+            " • siap training: 0")
+
+
 
 
 def review_readiness_report(rows, decisions, drafts, *, verify_images=True):
@@ -417,7 +426,7 @@ def review_priority_order(rows, decisions, ai_drafts):
 
 def review_gui(rows, state_path, ai_drafts=None):
     import tkinter as tk
-    from tkinter import messagebox, ttk
+    from tkinter import messagebox, simpledialog, ttk
     from PIL import Image, ImageOps, ImageTk
 
     decisions = read_state(state_path, rows)
@@ -464,6 +473,11 @@ def review_gui(rows, state_path, ai_drafts=None):
     ttk.Label(panel, text="Status visual — tidak mengubah izin training").pack(anchor="w")
     status_select = ttk.Combobox(panel, textvariable=status, state="readonly", values=STATUSES)
     status_select.pack(fill="x", pady=(0, 8))
+    actions = ttk.Frame(panel)
+    actions.pack(fill="x", pady=(0, 8))
+    ttk.Button(actions, text="Setujui Visual", command=approve_current).pack(side="left")
+    ttk.Button(actions, text="Koreksi", command=open_editor).pack(side="left", padx=6)
+    ttk.Button(actions, text="Tolak", command=reject_current).pack(side="left")
     for field in FIELDS:
         ttk.Label(panel, text=LABELS[field]).pack(anchor="w", pady=(4, 0))
         if field in ("category_corrected", "reviewer"):
@@ -508,9 +522,13 @@ def review_gui(rows, state_path, ai_drafts=None):
         for field in FIELDS:
             initial = row.get("category", "") if field == "category_corrected" else ""
             fill_control(field, existing.get(field, initial))
-        done = sum(d.get("status") != "pending" for d in decisions.values())
-        counter.configure(text=f"{current[0]+1}/{len(rows)} • sudah ditriase: {done} • "
-                          f"siap training: 0")
+        draft = ai_drafts.get(row["sku"])
+        if draft_prefill_allowed(row, decisions.get(row["sku"])) and draft is not None:
+            for field, value in draft_field_values(draft).items():
+                fill_control(field, value)
+            status.set("needs_check")
+        reviewed = sum(1 for d in decisions.values() if d.get("status") != "pending")
+        counter.configure(text=counter_text(current[0], len(rows), reviewed))
         caption.configure(text="SKU: " + row["sku"] +
                           "\nKategori awal (metadata): " + row.get("category", "") +
                           "\nUsulan split: " + row.get("proposed_split", "") +
@@ -537,6 +555,45 @@ def review_gui(rows, state_path, ai_drafts=None):
             save()
         except Exception as exc:
             messagebox.showerror("Gagal menyimpan", str(exc))
+
+    def advance_after_triage(current_sku):
+        """Move to the next item that still needs human triage, if any."""
+        target = next_outstanding(rows, decisions, ai_drafts, current_sku)
+        display(target if target is not None else current[0])
+
+    def approve_current():
+        """Setujui Visual: accept ONLY the human visual check, never any rights."""
+        row = rows[current[0]]
+        try:
+            item = build_candidate_decision(
+                row, {field: read_control(field) for field in FIELDS})
+            persist_decision(state_path, decisions, item)
+        except Exception as exc:
+            messagebox.showerror(
+                "Setujui Visual belum bisa",
+                str(exc) + "\n\nIsi kode reviewer dan fakta visual dulu, atau pilih Koreksi.")
+            return
+        advance_after_triage(row["sku"])
+
+    def open_editor():
+        """Koreksi: focus the existing editor; the reviewer edits and saves."""
+        status.set("needs_check")
+        controls["category_corrected"].focus_set()
+
+    def reject_current():
+        """Tolak: save a rejection WITH a mandatory reason, then move on."""
+        row = rows[current[0]]
+        reason = simpledialog.askstring(
+            "Tolak foto", "Alasan penolakan (wajib):", parent=window)
+        if reason is None:
+            return
+        try:
+            item = build_reject_decision(row, reason, read_control("reviewer"))
+            persist_decision(state_path, decisions, item)
+        except Exception as exc:
+            messagebox.showerror("Tolak foto belum tersimpan", str(exc))
+            return
+        advance_after_triage(row["sku"])
 
     def confirm_leave():
         """Yes=save, No=discard local edits, Cancel=stay on current item."""
@@ -604,22 +661,8 @@ def review_gui(rows, state_path, ai_drafts=None):
             "Ini TIDAK memberikan izin training atau cloud GPU."
         ):
             return
-        target = draft["target"]
-        values = {
-            "category_corrected": draft["category_corrected_proposal"],
-            "observed_facts": "\n".join(target["visual"]["observed_facts"]),
-            "unknowns": "\n".join(target["visual"]["unknowns"]),
-            "preservation_rules": "\n".join(target["preservation_rules"]),
-            "brand_privacy_notes": "AI draft / perlu verifikasi: " + draft.get("risk_notes", ""),
-        }
-        for i, idea in enumerate(target["concepts"], 1):
-            values["concept_" + str(i)] = (
-                idea["title"] + " | " + idea["scene"] +
-                " | " + idea["mood"] + " | " + idea["tagline"]
-            )
-        for field, value in values.items():
+        for field, value in draft_field_values(draft).items():
             fill_control(field, value)
-        fill_control("reviewer", "")
         status.set("needs_check")
         messagebox.showinfo("Draft dimuat", "Periksa fakta satu per satu. "
                             "Tombol Simpan masih wajib; status training tetap belum disetujui.")
