@@ -461,7 +461,7 @@ class HumanReviewOfflineTest(unittest.TestCase):
 
     def test_saved_reject_without_reason_is_refused_on_load(self):
         row = self.rows[0]
-        item = review.build_reject_decision(row, "reason kept")
+        item = review.build_reject_decision(row, "reason kept", reviewer="SYN-1")
         item.pop("reject_reason")
         review.write_state(self.state, {row["sku"]: item})
         with self.assertRaisesRegex(ValueError, "rejection reason"):
@@ -524,6 +524,38 @@ class HumanReviewOfflineTest(unittest.TestCase):
                         source.index('text="Koreksi"'))
         self.assertLess(source.index("def reject_current"),
                         source.index('text="Tolak"'))
+
+    def test_combobox_save_cannot_create_reason_less_reject(self):
+        with self.assertRaisesRegex(ValueError, "Tolak"):
+            review.build_triage_decision(self.rows[0], "reject", {})
+
+    def test_combobox_save_round_trips_every_allowed_non_reject_status(self):
+        for status in ("pending", "candidate", "needs_check"):
+            with self.subTest(status=status):
+                values = {field: "synthetic " + field for field in review.FIELDS}
+                item = review.build_triage_decision(self.rows[0], status, values)
+                review.write_state(self.state, {item["sku"]: item})
+                saved = review.read_state(self.state, self.rows)[item["sku"]]
+                self.assertEqual(saved["status"], status)
+                self.assertFalse(saved["training_approved"])
+                self.assertFalse(saved["third_party_gpu_allowed"])
+
+    def test_reject_decision_requires_reviewer_identity(self):
+        with self.assertRaisesRegex(ValueError, "reviewer"):
+            review.build_reject_decision(self.rows[0], "alasan jelas", reviewer="  ")
+
+    def test_recorded_decisions_reverify_original_photo_sha256(self):
+        photo = Path(self.rows[0]["local_image_path"])
+        with open(photo, "r+b") as handle:
+            handle.seek(60)
+            handle.write(b"tampered-bytes")
+        with self.assertRaisesRegex(ValueError, "SHA256 mismatch"):
+            review.build_candidate_decision(self.rows[0],
+                                            {f: "x " + f for f in review.FIELDS})
+        with self.assertRaisesRegex(ValueError, "SHA256 mismatch"):
+            review.build_triage_decision(self.rows[0], "needs_check", {})
+        with self.assertRaisesRegex(ValueError, "SHA256 mismatch"):
+            review.build_reject_decision(self.rows[0], "alasan", reviewer="SYN-1")
 
 
 

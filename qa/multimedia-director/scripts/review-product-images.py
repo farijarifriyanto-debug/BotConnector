@@ -215,7 +215,9 @@ def build_candidate_decision(row, values):
     """Record that a human accepted the VISUAL CHECK ONLY (status candidate).
 
     Never sets training, GPU, license, privacy or annotation-finalized rights.
+    The original photo is re-verified (SHA-256) before anything is recorded.
     """
+    source_image(row)
     missing = approval_missing_fields(values)
     if missing:
         raise ValueError("visual approval still missing: " + ", ".join(missing))
@@ -232,9 +234,15 @@ def build_candidate_decision(row, values):
 
 
 def build_reject_decision(row, reason, reviewer=""):
-    """Record a rejection WITH a mandatory reason; never authorizes anything."""
+    """Record a rejection WITH a mandatory reason and reviewer identity.
+
+    Never authorizes anything. The original photo is re-verified (SHA-256).
+    """
+    source_image(row)
     if not isinstance(reason, str) or not reason.strip():
         raise ValueError("rejected review must record a rejection reason")
+    if not isinstance(reviewer, str) or not reviewer.strip():
+        raise ValueError("rejected review must record the reviewer identity code")
     return {"sku": row["sku"], "image_sha256": row["image_sha256"],
             "source_url": row["source_url"],
             "proposed_split": row.get("proposed_split", ""),
@@ -243,6 +251,30 @@ def build_reject_decision(row, reason, reviewer=""):
             "training_approved": False, "third_party_gpu_allowed": False,
             "annotation_finalized": False,
             "license_approval": "pending", "privacy_approval": "pending"}
+
+
+def build_triage_decision(row, chosen_status, values):
+    """Build a combobox-save decision; NEVER a bare reject.
+
+    A rejection without a recorded reason would make the whole saved state
+    unreadable on the next load, so combobox saves cannot write "reject":
+    rejections must go through the Tolak action (build_reject_decision).
+    """
+    if chosen_status not in STATUSES:
+        raise ValueError("invalid review status")
+    if chosen_status == "reject":
+        raise ValueError("a reject must be recorded through the Tolak action with a reason")
+    source_image(row)
+    item = {"sku": row["sku"], "image_sha256": row["image_sha256"],
+            "source_url": row["source_url"],
+            "proposed_split": row.get("proposed_split", ""),
+            "status": chosen_status,
+            "training_approved": False, "third_party_gpu_allowed": False,
+            "annotation_finalized": False,
+            "license_approval": "pending", "privacy_approval": "pending"}
+    for field in FIELDS:
+        item[field] = values.get(field, "")
+    return item
 
 
 def draft_prefill_allowed(row, decision):
@@ -536,14 +568,8 @@ def review_gui(rows, state_path, ai_drafts=None):
 
     def save():
         row = rows[current[0]]
-        item = {"sku": row["sku"], "image_sha256": row["image_sha256"],
-                "source_url": row["source_url"],
-                "proposed_split": row.get("proposed_split", ""),
-                "status": status.get(), "training_approved": False,
-                "third_party_gpu_allowed": False, "annotation_finalized": False,
-                "license_approval": "pending", "privacy_approval": "pending"}
-        for field in FIELDS:
-            item[field] = read_control(field)
+        item = build_triage_decision(
+            row, status.get(), {field: read_control(field) for field in FIELDS})
         persist_decision(state_path, decisions, item)
         display(current[0])
 
