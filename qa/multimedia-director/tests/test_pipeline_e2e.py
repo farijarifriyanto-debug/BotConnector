@@ -132,6 +132,12 @@ class PipelineE2ETest(unittest.TestCase):
         self.assertTrue((self.sft / "train.jsonl").exists())
         self.assertTrue((self.sft / "val.jsonl").exists())
         self.assertFalse((self.sft / "test.jsonl").exists())
+        prepared_manifest = json.loads((self.sft / "manifest.json").read_text(encoding="utf-8"))
+        self.assertEqual(prepared_manifest["sealed_holdout_stage_sha256"],
+                         hashlib.sha256((self.staged / "test.jsonl").read_bytes()).hexdigest())
+        for split in ("train", "val"):
+            self.assertEqual(prepared_manifest["train_val_file_sha256"][split],
+                             hashlib.sha256((self.sft / (split + ".jsonl")).read_bytes()).hexdigest())
         preflight = subprocess.run([
             sys.executable, str(LORA),
             "--prepared", str(self.sft),
