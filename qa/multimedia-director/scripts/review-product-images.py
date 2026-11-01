@@ -113,6 +113,8 @@ def load_ai_drafts(path, rows):
         category = obj.get("category_corrected_proposal")
         if not isinstance(category, str) or not category.strip():
             raise ValueError("draft has no category correction: " + sku)
+        if not isinstance(obj.get("risk_notes", ""), str):
+            raise ValueError("draft risk_notes must be a string: " + sku)
         drafts[sku] = obj
     if not drafts:
         raise ValueError("no valid source-grounded drafts")
@@ -145,6 +147,10 @@ def read_state(path, rows):
             raise ValueError("review item missing or SHA256 mismatch")
         if raw.get("status") not in STATUSES:
             raise ValueError("invalid review status")
+        if raw.get("status") == "reject" and (
+                not isinstance(raw.get("reject_reason"), str)
+                or not raw["reject_reason"].strip()):
+            raise ValueError("rejected review must record a rejection reason")
         if (raw.get("training_approved") is not False
             or raw.get("third_party_gpu_allowed") is not False
             or raw.get("annotation_finalized", False) is not False
@@ -199,6 +205,138 @@ def export_review(path, decisions):
     with path.open("x", encoding="utf-8") as handle:
         for item in decisions.values():
             handle.write(json.dumps(item, ensure_ascii=False) + "\n")
+
+
+def approval_missing_fields(values):
+    """Form fields that must be non-empty before a visual approval is recorded."""
+    return [field for field in FIELDS
+            if not isinstance(values.get(field), str) or not values[field].strip()]
+
+
+def build_candidate_decision(row, values):
+    """Record that a human accepted the VISUAL CHECK ONLY (status candidate).
+
+    Never sets training, GPU, license, privacy or annotation-finalized rights.
+    The original photo is re-verified (SHA-256) before anything is recorded.
+    """
+    source_image(row)
+    missing = approval_missing_fields(values)
+    if missing:
+        raise ValueError("visual approval still missing: " + ", ".join(missing))
+    item = {"sku": row["sku"], "image_sha256": row["image_sha256"],
+            "source_url": row["source_url"],
+            "proposed_split": row.get("proposed_split", ""),
+            "status": "candidate",
+            "training_approved": False, "third_party_gpu_allowed": False,
+            "annotation_finalized": False,
+            "license_approval": "pending", "privacy_approval": "pending"}
+    for field in FIELDS:
+        item[field] = values.get(field, "")
+    return item
+
+
+def build_reject_decision(row, reason, reviewer=""):
+    """Record a rejection WITH a mandatory reason and reviewer identity.
+
+    Never authorizes anything. The original photo is re-verified (SHA-256).
+    """
+    source_image(row)
+    if not isinstance(reason, str) or not reason.strip():
+        raise ValueError("rejected review must record a rejection reason")
+    if not isinstance(reviewer, str) or not reviewer.strip():
+        raise ValueError("rejected review must record the reviewer identity code")
+    return {"sku": row["sku"], "image_sha256": row["image_sha256"],
+            "source_url": row["source_url"],
+            "proposed_split": row.get("proposed_split", ""),
+            "status": "reject", "reject_reason": reason.strip(),
+            "reviewer": (reviewer or "").strip(),
+            "training_approved": False, "third_party_gpu_allowed": False,
+            "annotation_finalized": False,
+            "license_approval": "pending", "privacy_approval": "pending"}
+
+
+def build_triage_decision(row, chosen_status, values):
+    """Build a combobox-save decision; NEVER a bare reject.
+
+    A rejection without a recorded reason would make the whole saved state
+    unreadable on the next load, so combobox saves cannot write "reject":
+    rejections must go through the Tolak action (build_reject_decision).
+    """
+    if chosen_status not in STATUSES:
+        raise ValueError("invalid review status")
+    if chosen_status == "reject":
+        raise ValueError("a reject must be recorded through the Tolak action with a reason")
+    source_image(row)
+    item = {"sku": row["sku"], "image_sha256": row["image_sha256"],
+            "source_url": row["source_url"],
+            "proposed_split": row.get("proposed_split", ""),
+            "status": chosen_status,
+            "training_approved": False, "third_party_gpu_allowed": False,
+            "annotation_finalized": False,
+            "license_approval": "pending", "privacy_approval": "pending"}
+    for field in FIELDS:
+        item[field] = values.get(field, "")
+    return item
+
+
+def draft_prefill_allowed(row, decision):
+    """Show AI suggestions only for UNREVIEWED train items; never a saved label."""
+    if row.get("proposed_split") != "train":
+        return False
+    return decision is None
+
+
+def draft_field_values(draft):
+    """Map a validated assistant draft into displayable form field values.
+
+    The reviewer code stays empty so the human reviewer must authenticate
+    every approval with their own identifier.
+    """
+    target = draft["target"]
+    values = {
+        "category_corrected": draft["category_corrected_proposal"],
+        "observed_facts": "\n".join(target["visual"]["observed_facts"]),
+        "unknowns": "\n".join(target["visual"]["unknowns"]),
+        "preservation_rules": "\n".join(target["preservation_rules"]),
+        "brand_privacy_notes": "AI draft / perlu verifikasi: " + draft.get("risk_notes", ""),
+    }
+    for i, idea in enumerate(target["concepts"], 1):
+        values["concept_" + str(i)] = (
+            idea["title"] + " | " + idea["scene"] +
+            " | " + idea["mood"] + " | " + idea["tagline"]
+        )
+    values["reviewer"] = ""
+    return values
+
+
+def next_outstanding(rows, decisions, ai_drafts, current_sku):
+    """Index of the next item needing triage after the current one, or None."""
+    ordered = review_priority_order(rows, decisions, ai_drafts)
+    for index in ordered:
+        if rows[index]["sku"] != current_sku:
+            return index
+    return None
+
+
+def counter_text(position, total, reviewed):
+    """Status line: how many photos a human triaged, how many still pending."""
+    reviewed = max(0, min(total, reviewed))
+    return (str(position + 1) + "/" + str(total) +
+            " • diperiksa: " + str(reviewed) +
+            " • pending: " + str(total - reviewed) +
+            " • siap training: 0")
+
+
+def reviewed_count(decisions):
+    """Reviewed = every saved status except pending/needs_check.
+
+    needs_check stays outstanding in review_priority_order, so the counter
+    must not count it as reviewed either, or it can show pending: 0 while
+    corrections still await triage.
+    """
+    return sum(1 for d in decisions.values()
+               if d.get("status", "pending") not in ("pending", "needs_check"))
+
 
 
 
@@ -333,7 +471,7 @@ def review_priority_order(rows, decisions, ai_drafts):
 
 def review_gui(rows, state_path, ai_drafts=None):
     import tkinter as tk
-    from tkinter import messagebox, ttk
+    from tkinter import messagebox, simpledialog, ttk
     from PIL import Image, ImageOps, ImageTk
 
     decisions = read_state(state_path, rows)
@@ -380,6 +518,8 @@ def review_gui(rows, state_path, ai_drafts=None):
     ttk.Label(panel, text="Status visual — tidak mengubah izin training").pack(anchor="w")
     status_select = ttk.Combobox(panel, textvariable=status, state="readonly", values=STATUSES)
     status_select.pack(fill="x", pady=(0, 8))
+    actions = ttk.Frame(panel)
+    actions.pack(fill="x", pady=(0, 8))
     for field in FIELDS:
         ttk.Label(panel, text=LABELS[field]).pack(anchor="w", pady=(4, 0))
         if field in ("category_corrected", "reviewer"):
@@ -424,9 +564,13 @@ def review_gui(rows, state_path, ai_drafts=None):
         for field in FIELDS:
             initial = row.get("category", "") if field == "category_corrected" else ""
             fill_control(field, existing.get(field, initial))
-        done = sum(d.get("status") != "pending" for d in decisions.values())
-        counter.configure(text=f"{current[0]+1}/{len(rows)} • sudah ditriase: {done} • "
-                          f"siap training: 0")
+        draft = ai_drafts.get(row["sku"])
+        if draft_prefill_allowed(row, decisions.get(row["sku"])) and draft is not None:
+            for field, value in draft_field_values(draft).items():
+                fill_control(field, value)
+            status.set("needs_check")
+        reviewed = reviewed_count(decisions)
+        counter.configure(text=counter_text(current[0], len(rows), reviewed))
         caption.configure(text="SKU: " + row["sku"] +
                           "\nKategori awal (metadata): " + row.get("category", "") +
                           "\nUsulan split: " + row.get("proposed_split", "") +
@@ -437,14 +581,8 @@ def review_gui(rows, state_path, ai_drafts=None):
 
     def save():
         row = rows[current[0]]
-        item = {"sku": row["sku"], "image_sha256": row["image_sha256"],
-                "source_url": row["source_url"],
-                "proposed_split": row.get("proposed_split", ""),
-                "status": status.get(), "training_approved": False,
-                "third_party_gpu_allowed": False, "annotation_finalized": False,
-                "license_approval": "pending", "privacy_approval": "pending"}
-        for field in FIELDS:
-            item[field] = read_control(field)
+        item = build_triage_decision(
+            row, status.get(), {field: read_control(field) for field in FIELDS})
         persist_decision(state_path, decisions, item)
         display(current[0])
 
@@ -453,6 +591,49 @@ def review_gui(rows, state_path, ai_drafts=None):
             save()
         except Exception as exc:
             messagebox.showerror("Gagal menyimpan", str(exc))
+
+    def advance_after_triage(current_sku):
+        """Move to the next item that still needs human triage, if any."""
+        target = next_outstanding(rows, decisions, ai_drafts, current_sku)
+        display(target if target is not None else current[0])
+
+    def approve_current():
+        """Setujui Visual: accept ONLY the human visual check, never any rights."""
+        row = rows[current[0]]
+        try:
+            item = build_candidate_decision(
+                row, {field: read_control(field) for field in FIELDS})
+            persist_decision(state_path, decisions, item)
+        except Exception as exc:
+            messagebox.showerror(
+                "Setujui Visual belum bisa",
+                str(exc) + "\n\nIsi kode reviewer dan fakta visual dulu, atau pilih Koreksi.")
+            return
+        advance_after_triage(row["sku"])
+
+    def open_editor():
+        """Koreksi: focus the existing editor; the reviewer edits and saves."""
+        status.set("needs_check")
+        controls["category_corrected"].focus_set()
+
+    def reject_current():
+        """Tolak: save a rejection WITH a mandatory reason, then move on."""
+        row = rows[current[0]]
+        reason = simpledialog.askstring(
+            "Tolak foto", "Alasan penolakan (wajib):", parent=window)
+        if reason is None:
+            return
+        try:
+            item = build_reject_decision(row, reason, read_control("reviewer"))
+            persist_decision(state_path, decisions, item)
+        except Exception as exc:
+            messagebox.showerror("Tolak foto belum tersimpan", str(exc))
+            return
+        advance_after_triage(row["sku"])
+
+    ttk.Button(actions, text="Setujui Visual", command=approve_current).pack(side="left")
+    ttk.Button(actions, text="Koreksi", command=open_editor).pack(side="left", padx=6)
+    ttk.Button(actions, text="Tolak", command=reject_current).pack(side="left")
 
     def confirm_leave():
         """Yes=save, No=discard local edits, Cancel=stay on current item."""
@@ -520,22 +701,8 @@ def review_gui(rows, state_path, ai_drafts=None):
             "Ini TIDAK memberikan izin training atau cloud GPU."
         ):
             return
-        target = draft["target"]
-        values = {
-            "category_corrected": draft["category_corrected_proposal"],
-            "observed_facts": "\n".join(target["visual"]["observed_facts"]),
-            "unknowns": "\n".join(target["visual"]["unknowns"]),
-            "preservation_rules": "\n".join(target["preservation_rules"]),
-            "brand_privacy_notes": "AI draft / perlu verifikasi: " + draft.get("risk_notes", ""),
-        }
-        for i, idea in enumerate(target["concepts"], 1):
-            values["concept_" + str(i)] = (
-                idea["title"] + " | " + idea["scene"] +
-                " | " + idea["mood"] + " | " + idea["tagline"]
-            )
-        for field, value in values.items():
+        for field, value in draft_field_values(draft).items():
             fill_control(field, value)
-        fill_control("reviewer", "")
         status.set("needs_check")
         messagebox.showinfo("Draft dimuat", "Periksa fakta satu per satu. "
                             "Tombol Simpan masih wajib; status training tetap belum disetujui.")

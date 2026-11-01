@@ -255,6 +255,20 @@ class HumanReviewOfflineTest(unittest.TestCase):
         with self.assertRaisesRegex(ValueError, "cannot authorize training"):
             review.load_ai_drafts(self.draft_file([draft]), self.rows)
 
+    def test_draft_with_nonstring_risk_notes_is_rejected(self):
+        # A numeric risk_notes would raise TypeError in the GUI when the draft
+        # is displayed ("AI draft / perlu verifikasi: " + risk_notes) and an
+        # affected first item would prevent the GUI from opening at all.
+        draft = self.draft()
+        draft["risk_notes"] = 123
+        with self.assertRaisesRegex(ValueError, "risk_notes"):
+            review.load_ai_drafts(self.draft_file([draft]), self.rows)
+
+    def test_draft_without_risk_notes_still_loads(self):
+        draft = self.draft()
+        items = review.load_ai_drafts(self.draft_file([draft]), self.rows)
+        self.assertIn(draft["item_id"], items)
+
     def test_draft_with_duplicate_scenes_is_rejected(self):
         draft = self.draft()
         draft["target"]["concepts"][2]["scene"] = draft["target"]["concepts"][1]["scene"]
@@ -420,6 +434,158 @@ class HumanReviewOfflineTest(unittest.TestCase):
         review.review_priority_order(self.rows, decisions, {})
         self.assertEqual(json.dumps(decisions, sort_keys=True), before)
         self.assertEqual(decisions[self.rows[0]["sku"]]["status"], "needs_check")
+
+    # --- P0-A three-button approval contract (synthetic, no GUI) ----------
+
+    def test_visual_approval_requires_reviewer_and_all_visual_fields(self):
+        row = self.rows[0]
+        with self.assertRaisesRegex(ValueError, "visual approval still missing"):
+            review.build_candidate_decision(row, {})
+        values = {field: "synthetic " + field for field in review.FIELDS}
+        values["reviewer"] = "  "
+        with self.assertRaisesRegex(ValueError, "reviewer"):
+            review.build_candidate_decision(row, values)
+
+    def test_visual_approval_persists_candidate_without_training_rights(self):
+        row = self.rows[0]
+        values = {field: "synthetic " + field for field in review.FIELDS}
+        item = review.build_candidate_decision(row, values)
+        review.write_state(self.state, {row["sku"]: item})
+        saved = review.read_state(self.state, self.rows)[row["sku"]]
+        self.assertEqual(saved["status"], "candidate")
+        self.assertFalse(saved["training_approved"])
+        self.assertFalse(saved["third_party_gpu_allowed"])
+        self.assertFalse(saved["annotation_finalized"])
+        self.assertEqual(saved["license_approval"], "pending")
+        self.assertEqual(saved["privacy_approval"], "pending")
+
+    def test_reject_decision_requires_a_reason(self):
+        row = self.rows[0]
+        with self.assertRaisesRegex(ValueError, "rejection reason"):
+            review.build_reject_decision(row, "   ")
+        item = review.build_reject_decision(row, "wrong visual facts",
+                                            reviewer="SYN-1")
+        review.write_state(self.state, {row["sku"]: item})
+        saved = review.read_state(self.state, self.rows)[row["sku"]]
+        self.assertEqual(saved["status"], "reject")
+        self.assertEqual(saved["reject_reason"], "wrong visual facts")
+        self.assertEqual(saved["reviewer"], "SYN-1")
+        self.assertFalse(saved["training_approved"])
+        self.assertFalse(saved["third_party_gpu_allowed"])
+
+    def test_saved_reject_without_reason_is_refused_on_load(self):
+        row = self.rows[0]
+        item = review.build_reject_decision(row, "reason kept", reviewer="SYN-1")
+        item.pop("reject_reason")
+        review.write_state(self.state, {row["sku"]: item})
+        with self.assertRaisesRegex(ValueError, "rejection reason"):
+            review.read_state(self.state, self.rows)
+
+    def test_draft_prefill_allowed_only_for_unreviewed_train_items(self):
+        self.assertTrue(review.draft_prefill_allowed(self.rows[0], None))
+        self.assertFalse(review.draft_prefill_allowed(self.rows[1], None))
+        self.assertFalse(review.draft_prefill_allowed(
+            self.rows[0], {"status": "candidate"}))
+
+    def test_draft_field_values_expose_annotation_for_display(self):
+        values = review.draft_field_values(self.draft())
+        self.assertEqual(values["category_corrected"], "synthetic")
+        self.assertIn("synthetic RGB source pixels", values["observed_facts"])
+        self.assertTrue(values["concept_1"])
+        self.assertTrue(values["concept_2"])
+        self.assertTrue(values["concept_3"])
+        self.assertIn("perlu verifikasi", values["brand_privacy_notes"])
+        self.assertFalse(values["reviewer"])
+
+    def test_next_outstanding_skips_current_and_keeps_priority_order(self):
+        suggestion = {self.rows[0]["sku"]: self.draft()}
+        self.assertEqual(review.next_outstanding(
+            self.rows, {}, suggestion, self.rows[0]["sku"]), 1)
+        self.assertEqual(review.next_outstanding(
+            self.rows, {}, suggestion, self.rows[1]["sku"]), 0)
+
+    def test_next_outstanding_returns_none_when_nothing_else_waits(self):
+        decisions = {self.rows[1]["sku"]: {"status": "candidate"}}
+        self.assertIsNone(review.next_outstanding(
+            self.rows, decisions, {}, self.rows[0]["sku"]))
+
+    def test_counter_text_reports_reviewed_and_pending_counts(self):
+        text = review.counter_text(0, 2, 1)
+        self.assertIn("diperiksa: 1", text)
+        self.assertIn("pending: 1", text)
+        self.assertIn("siap training: 0", text)
+
+    def test_reviewed_count_excludes_needs_check_from_reviewed(self):
+        # CodeRabbit: needs_check stays outstanding in review_priority_order,
+        # so the counter must not count it as reviewed either, or the status
+        # line can show pending: 0 while corrections still await triage.
+        decisions = {
+            "A": {"status": "candidate"},
+            "B": {"status": "reject", "reject_reason": "duplicate"},
+            "C": {"status": "needs_check"},
+            "D": {"status": "pending"},
+        }
+        self.assertEqual(review.reviewed_count(decisions), 2)
+
+    def test_gui_counter_uses_reviewed_count_helper(self):
+        source = SCRIPT.read_text(encoding="utf-8")
+        self.assertIn("reviewed = reviewed_count(decisions)", source)
+
+    def test_gui_binds_three_triage_buttons(self):
+        source = SCRIPT.read_text(encoding="utf-8")
+        self.assertIn('text="Setujui Visual", command=approve_current', source)
+        self.assertIn('text="Koreksi", command=open_editor', source)
+        self.assertIn('text="Tolak", command=reject_current', source)
+
+    def test_gui_uses_counter_helper_and_draft_prefill_on_display(self):
+        source = SCRIPT.read_text(encoding="utf-8")
+        self.assertIn('counter.configure(text=counter_text(', source)
+        self.assertIn("if draft_prefill_allowed(", source)
+        self.assertIn("draft_field_values(", source)
+
+    def test_three_button_handlers_are_defined_before_their_buttons(self):
+        # A GUI smoke on real data once died at launch: buttons referenced
+        # handlers that were not defined yet. Tk windows never open in CI,
+        # so guard the definition order statically instead.
+        source = SCRIPT.read_text(encoding="utf-8")
+        self.assertLess(source.index("def approve_current"),
+                        source.index('text="Setujui Visual"'))
+        self.assertLess(source.index("def open_editor"),
+                        source.index('text="Koreksi"'))
+        self.assertLess(source.index("def reject_current"),
+                        source.index('text="Tolak"'))
+
+    def test_combobox_save_cannot_create_reason_less_reject(self):
+        with self.assertRaisesRegex(ValueError, "Tolak"):
+            review.build_triage_decision(self.rows[0], "reject", {})
+
+    def test_combobox_save_round_trips_every_allowed_non_reject_status(self):
+        for status in ("pending", "candidate", "needs_check"):
+            with self.subTest(status=status):
+                values = {field: "synthetic " + field for field in review.FIELDS}
+                item = review.build_triage_decision(self.rows[0], status, values)
+                review.write_state(self.state, {item["sku"]: item})
+                saved = review.read_state(self.state, self.rows)[item["sku"]]
+                self.assertEqual(saved["status"], status)
+                self.assertFalse(saved["training_approved"])
+                self.assertFalse(saved["third_party_gpu_allowed"])
+
+    def test_reject_decision_requires_reviewer_identity(self):
+        with self.assertRaisesRegex(ValueError, "reviewer"):
+            review.build_reject_decision(self.rows[0], "alasan jelas", reviewer="  ")
+
+    def test_recorded_decisions_reverify_original_photo_sha256(self):
+        photo = Path(self.rows[0]["local_image_path"])
+        with open(photo, "r+b") as handle:
+            handle.seek(60)
+            handle.write(b"tampered-bytes")
+        with self.assertRaisesRegex(ValueError, "SHA256 mismatch"):
+            review.build_candidate_decision(self.rows[0],
+                                            {f: "x " + f for f in review.FIELDS})
+        with self.assertRaisesRegex(ValueError, "SHA256 mismatch"):
+            review.build_triage_decision(self.rows[0], "needs_check", {})
+        with self.assertRaisesRegex(ValueError, "SHA256 mismatch"):
+            review.build_reject_decision(self.rows[0], "alasan", reviewer="SYN-1")
 
 
 
