@@ -63,3 +63,16 @@ node --test tests/multimediaDatasetPipeline.test.mjs tests/multimediaDirectorBen
 ~~~
 
 All automated test images and listings are generated from synthetic fixtures. Public CI runs offline, read-only and without cloud secrets or weights. A green check validates preparation tools and synthetic cases, **not** model accuracy, image understanding, customer privacy automatically or rights clearance.
+
+## 1 November 2026 — staged data provenance seal (offline, synthetic CI only)
+
+The staged-to-SFT packager now **requires** the exact source gate marker `human_rights_review_assertions_required_but_not_independently_verified` in the Node-staged `summary.json`. It rejects duplicate sample IDs even across splits. Before packaging, it verifies the **actual** 50/10/200 train/val/test source records and original image checksums; the actual counts remain stage requirements, not proof of genuine human review.
+
+The generated private `manifest.json` now includes:
+- `source_gate`: upstream rights/human-review *assertion*, not an independent legal determination.
+- `train_val_file_sha256.train` and `.val`: SHA256 of the **exact** training package JSONL bytes.
+- `sealed_holdout_stage_sha256`: SHA256 of the previously verified staged `test.jsonl`, but **no test samples** are exported into the LoRA training directory.
+
+The LoRA runner recomputes train/val file hashes and fails closed if the manifest is incomplete or a packaged file changed. It only format-checks the test hash: it cannot re-verify withheld test bytes without accessing the heldout set, and a malicious issuer could fabricate a digest. This is a *reproducibility and tamper-detection improvement*, **not** a signature, proof of actual rights, cryptographic reviewer identity or model quality.
+
+**All older unsealed packages must be re-staged from the original rights-gated files; do not hand-edit the manifest or bypass these checks.** No previously gathered ABO photos are re-downloaded. No production deployment, paid GPU, model weights, user media, or private reviewer annotations are used in public GitHub Actions.
