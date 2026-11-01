@@ -20,6 +20,7 @@ import time
 SCHEMA = "botconnector.smolvlm2-sft-prep.v1"
 DIRECTOR_SCHEMA = "botconnector.multimedia-director.v1"
 MODEL = "HuggingFaceTB/SmolVLM2-2.2B-Instruct"
+GATE = "human_rights_review_assertions_required_but_not_independently_verified"
 MIN_COUNTS = {"train": 50, "val": 10, "test": 200}
 ALLOWED_TASKS = {"product_photo", "ad_creative", "storyboard", "video_direction"}
 MAX_SAMPLES = 10000
@@ -103,12 +104,23 @@ def load_prepared(prepared, assets_root):
         raise ValueError("insufficient licensed train, val or sealed test cases")
     if (prepared / "test.jsonl").exists():
         raise ValueError("sealed holdout test data must never be exported to training")
+    if manifest.get("source_gate") != GATE:
+        raise ValueError("missing dataset source review attestation")
+    digests = manifest.get("train_val_file_sha256")
+    if not isinstance(digests, dict) or not isinstance(manifest.get("sealed_holdout_stage_sha256"), str):
+        raise ValueError("missing train/val and sealed holdout manifest SHA256 provenance")
+    if (len(manifest["sealed_holdout_stage_sha256"]) != 64 or
+        any(ch not in "0123456789abcdef" for ch in manifest["sealed_holdout_stage_sha256"].lower())):
+        raise ValueError("sealed holdout SHA256 invalid")
     seen_ids = set()
     groups, hashes, result = {}, {}, {}
     for split in ("train", "val"):
         source = prepared / (split + ".jsonl")
         if not source.is_file():
             raise ValueError("missing training split " + split)
+        actual_digest = hashlib.sha256(source.read_bytes()).hexdigest()
+        if not isinstance(digests.get(split), str) or actual_digest != digests[split].lower():
+            raise ValueError("prepared split SHA256 mismatch: " + split)
         rows = []
         for line in source.read_text(encoding="utf-8").splitlines():
             if not line.strip():

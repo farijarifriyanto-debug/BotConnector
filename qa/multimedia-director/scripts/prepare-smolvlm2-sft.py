@@ -15,6 +15,7 @@ TARGET_SCHEMA = "botconnector.multimedia-director.v1"
 SPLITS = ("train", "val", "test")
 SAFE_TASKS = {"product_photo", "ad_creative", "storyboard", "video_direction"}
 MODEL = "HuggingFaceTB/SmolVLM2-2.2B-Instruct"
+GATE = "human_rights_review_assertions_required_but_not_independently_verified"
 
 
 def safe_image_path(root, name):
@@ -66,13 +67,14 @@ def records(staged, root, *, enforce_counts=True):
         raise ValueError("staging summary missing")
     summary = json.loads(summary_path.read_text(encoding="utf-8"))
     counts = summary.get("counts")
-    if summary.get("schema") != SCHEMA or summary.get("mode") != "gated_dataset" or not isinstance(counts, dict):
-        raise ValueError("must use rights-gated dataset, not --smoke or ad-hoc input")
+    if (summary.get("schema") != SCHEMA or summary.get("mode") != "gated_dataset"
+        or summary.get("gate") != GATE or not isinstance(counts, dict)):
+        raise ValueError("must use rights-gated dataset with source review attestation, not --smoke or ad-hoc input")
     if enforce_counts and any(counts.get(split, 0) < minimum for split, minimum in
                               (("train", 50), ("val", 10), ("test", 200))):
         raise ValueError("insufficient independently held-out data")
     result = {}
-    group_splits, hash_splits = {}, {}
+    group_splits, hash_splits, seen_ids = {}, {}, set()
     for split in SPLITS:
         path = staged / (split + ".jsonl")
         if not path.is_file():
@@ -84,6 +86,10 @@ def records(staged, root, *, enforce_counts=True):
         for row in rows:
             if row.get("schema") != SCHEMA or row.get("split") != split:
                 raise ValueError("invalid stage record schema/split")
+            sample_id = row.get("id")
+            if not isinstance(sample_id, str) or not sample_id or sample_id in seen_ids:
+                raise ValueError("duplicate or missing staged sample ID")
+            seen_ids.add(sample_id)
             group = row.get("group_id")
             digest = row.get("image_sha256")
             if not isinstance(group, str) or not group or not isinstance(digest, str):
@@ -147,15 +153,24 @@ def main(argv=None):
         return
     args.out_dir.mkdir(parents=True, exist_ok=False, mode=0o700)
     try:
+        sealed = {}
         for split in ("train", "val"):
             path = args.out_dir / (split + ".jsonl")
             with path.open("x", encoding="utf-8") as file:
                 for row in result[split]:
                     file.write(json.dumps(row, ensure_ascii=False) + "\n")
+            sealed[split] = hashlib.sha256(path.read_bytes()).hexdigest()
+        # The raw held-out dataset is NEVER copied to the training directory.
+        # Its SHA256 binds this manifest to the previously staged split without
+        # revealing its records. This is provenance, NOT human/rights proof.
+        test_seal = hashlib.sha256((args.staged / "test.jsonl").read_bytes()).hexdigest()
         with (args.out_dir / "manifest.json").open("x", encoding="utf-8") as file:
             json.dump({"schema": "botconnector.smolvlm2-sft-prep.v1", "base_model": MODEL,
                        "counts": counts, "gpu_started": False,
-                       "note": "Output is NOT directly TRL-ready: convert images to PIL with to_runtime_messages; never train on test split."},
+                       "source_gate": GATE,
+                       "train_val_file_sha256": sealed,
+                       "sealed_holdout_stage_sha256": test_seal,
+                       "note": "Hash seals detect staged-file drift, not genuine ownership, visual truth or review. Never train on test split."},
                       file, ensure_ascii=False, indent=2)
     except BaseException:
         import shutil
