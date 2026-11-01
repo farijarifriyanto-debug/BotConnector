@@ -113,6 +113,8 @@ def load_ai_drafts(path, rows):
         category = obj.get("category_corrected_proposal")
         if not isinstance(category, str) or not category.strip():
             raise ValueError("draft has no category correction: " + sku)
+        if not isinstance(obj.get("risk_notes", ""), str):
+            raise ValueError("draft risk_notes must be a string: " + sku)
         drafts[sku] = obj
     if not drafts:
         raise ValueError("no valid source-grounded drafts")
@@ -323,6 +325,17 @@ def counter_text(position, total, reviewed):
             " • diperiksa: " + str(reviewed) +
             " • pending: " + str(total - reviewed) +
             " • siap training: 0")
+
+
+def reviewed_count(decisions):
+    """Reviewed = every saved status except pending/needs_check.
+
+    needs_check stays outstanding in review_priority_order, so the counter
+    must not count it as reviewed either, or it can show pending: 0 while
+    corrections still await triage.
+    """
+    return sum(1 for d in decisions.values()
+               if d.get("status", "pending") not in ("pending", "needs_check"))
 
 
 
@@ -556,7 +569,7 @@ def review_gui(rows, state_path, ai_drafts=None):
             for field, value in draft_field_values(draft).items():
                 fill_control(field, value)
             status.set("needs_check")
-        reviewed = sum(1 for d in decisions.values() if d.get("status") != "pending")
+        reviewed = reviewed_count(decisions)
         counter.configure(text=counter_text(current[0], len(rows), reviewed))
         caption.configure(text="SKU: " + row["sku"] +
                           "\nKategori awal (metadata): " + row.get("category", "") +

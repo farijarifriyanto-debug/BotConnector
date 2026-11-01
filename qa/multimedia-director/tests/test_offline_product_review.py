@@ -255,6 +255,20 @@ class HumanReviewOfflineTest(unittest.TestCase):
         with self.assertRaisesRegex(ValueError, "cannot authorize training"):
             review.load_ai_drafts(self.draft_file([draft]), self.rows)
 
+    def test_draft_with_nonstring_risk_notes_is_rejected(self):
+        # A numeric risk_notes would raise TypeError in the GUI when the draft
+        # is displayed ("AI draft / perlu verifikasi: " + risk_notes) and an
+        # affected first item would prevent the GUI from opening at all.
+        draft = self.draft()
+        draft["risk_notes"] = 123
+        with self.assertRaisesRegex(ValueError, "risk_notes"):
+            review.load_ai_drafts(self.draft_file([draft]), self.rows)
+
+    def test_draft_without_risk_notes_still_loads(self):
+        draft = self.draft()
+        items = review.load_ai_drafts(self.draft_file([draft]), self.rows)
+        self.assertIn(draft["item_id"], items)
+
     def test_draft_with_duplicate_scenes_is_rejected(self):
         draft = self.draft()
         draft["target"]["concepts"][2]["scene"] = draft["target"]["concepts"][1]["scene"]
@@ -500,6 +514,22 @@ class HumanReviewOfflineTest(unittest.TestCase):
         self.assertIn("diperiksa: 1", text)
         self.assertIn("pending: 1", text)
         self.assertIn("siap training: 0", text)
+
+    def test_reviewed_count_excludes_needs_check_from_reviewed(self):
+        # CodeRabbit: needs_check stays outstanding in review_priority_order,
+        # so the counter must not count it as reviewed either, or the status
+        # line can show pending: 0 while corrections still await triage.
+        decisions = {
+            "A": {"status": "candidate"},
+            "B": {"status": "reject", "reject_reason": "duplicate"},
+            "C": {"status": "needs_check"},
+            "D": {"status": "pending"},
+        }
+        self.assertEqual(review.reviewed_count(decisions), 2)
+
+    def test_gui_counter_uses_reviewed_count_helper(self):
+        source = SCRIPT.read_text(encoding="utf-8")
+        self.assertIn("reviewed = reviewed_count(decisions)", source)
 
     def test_gui_binds_three_triage_buttons(self):
         source = SCRIPT.read_text(encoding="utf-8")
