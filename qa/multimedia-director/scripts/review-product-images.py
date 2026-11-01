@@ -145,6 +145,10 @@ def read_state(path, rows):
             raise ValueError("review item missing or SHA256 mismatch")
         if raw.get("status") not in STATUSES:
             raise ValueError("invalid review status")
+        if raw.get("status") == "reject" and (
+                not isinstance(raw.get("reject_reason"), str)
+                or not raw["reject_reason"].strip()):
+            raise ValueError("rejected review must record a rejection reason")
         if (raw.get("training_approved") is not False
             or raw.get("third_party_gpu_allowed") is not False
             or raw.get("annotation_finalized", False) is not False
@@ -199,6 +203,86 @@ def export_review(path, decisions):
     with path.open("x", encoding="utf-8") as handle:
         for item in decisions.values():
             handle.write(json.dumps(item, ensure_ascii=False) + "\n")
+
+
+def approval_missing_fields(values):
+    """Form fields that must be non-empty before a visual approval is recorded."""
+    return [field for field in FIELDS
+            if not isinstance(values.get(field), str) or not values[field].strip()]
+
+
+def build_candidate_decision(row, values):
+    """Record that a human accepted the VISUAL CHECK ONLY (status candidate).
+
+    Never sets training, GPU, license, privacy or annotation-finalized rights.
+    """
+    missing = approval_missing_fields(values)
+    if missing:
+        raise ValueError("visual approval still missing: " + ", ".join(missing))
+    item = {"sku": row["sku"], "image_sha256": row["image_sha256"],
+            "source_url": row["source_url"],
+            "proposed_split": row.get("proposed_split", ""),
+            "status": "candidate",
+            "training_approved": False, "third_party_gpu_allowed": False,
+            "annotation_finalized": False,
+            "license_approval": "pending", "privacy_approval": "pending"}
+    for field in FIELDS:
+        item[field] = values.get(field, "")
+    return item
+
+
+def build_reject_decision(row, reason, reviewer=""):
+    """Record a rejection WITH a mandatory reason; never authorizes anything."""
+    if not isinstance(reason, str) or not reason.strip():
+        raise ValueError("rejected review must record a rejection reason")
+    return {"sku": row["sku"], "image_sha256": row["image_sha256"],
+            "source_url": row["source_url"],
+            "proposed_split": row.get("proposed_split", ""),
+            "status": "reject", "reject_reason": reason.strip(),
+            "reviewer": (reviewer or "").strip(),
+            "training_approved": False, "third_party_gpu_allowed": False,
+            "annotation_finalized": False,
+            "license_approval": "pending", "privacy_approval": "pending"}
+
+
+def draft_prefill_allowed(row, decision):
+    """Show AI suggestions only for UNREVIEWED train items; never a saved label."""
+    if row.get("proposed_split") != "train":
+        return False
+    return decision is None
+
+
+def draft_field_values(draft):
+    """Map a validated assistant draft into displayable form field values.
+
+    The reviewer code stays empty so the human reviewer must authenticate
+    every approval with their own identifier.
+    """
+    target = draft["target"]
+    values = {
+        "category_corrected": draft["category_corrected_proposal"],
+        "observed_facts": "\n".join(target["visual"]["observed_facts"]),
+        "unknowns": "\n".join(target["visual"]["unknowns"]),
+        "preservation_rules": "\n".join(target["preservation_rules"]),
+        "brand_privacy_notes": "AI draft / perlu verifikasi: " + draft.get("risk_notes", ""),
+    }
+    for i, idea in enumerate(target["concepts"], 1):
+        values["concept_" + str(i)] = (
+            idea["title"] + " | " + idea["scene"] +
+            " | " + idea["mood"] + " | " + idea["tagline"]
+        )
+    values["reviewer"] = ""
+    return values
+
+
+def next_outstanding(rows, decisions, ai_drafts, current_sku):
+    """Index of the next item needing triage after the current one, or None."""
+    ordered = review_priority_order(rows, decisions, ai_drafts)
+    for index in ordered:
+        if rows[index]["sku"] != current_sku:
+            return index
+    return None
+
 
 
 

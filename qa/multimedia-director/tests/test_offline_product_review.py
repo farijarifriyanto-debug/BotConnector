@@ -421,6 +421,80 @@ class HumanReviewOfflineTest(unittest.TestCase):
         self.assertEqual(json.dumps(decisions, sort_keys=True), before)
         self.assertEqual(decisions[self.rows[0]["sku"]]["status"], "needs_check")
 
+    # --- P0-A three-button approval contract (synthetic, no GUI) ----------
+
+    def test_visual_approval_requires_reviewer_and_all_visual_fields(self):
+        row = self.rows[0]
+        with self.assertRaisesRegex(ValueError, "visual approval still missing"):
+            review.build_candidate_decision(row, {})
+        values = {field: "synthetic " + field for field in review.FIELDS}
+        values["reviewer"] = "  "
+        with self.assertRaisesRegex(ValueError, "reviewer"):
+            review.build_candidate_decision(row, values)
+
+    def test_visual_approval_persists_candidate_without_training_rights(self):
+        row = self.rows[0]
+        values = {field: "synthetic " + field for field in review.FIELDS}
+        item = review.build_candidate_decision(row, values)
+        review.write_state(self.state, {row["sku"]: item})
+        saved = review.read_state(self.state, self.rows)[row["sku"]]
+        self.assertEqual(saved["status"], "candidate")
+        self.assertFalse(saved["training_approved"])
+        self.assertFalse(saved["third_party_gpu_allowed"])
+        self.assertFalse(saved["annotation_finalized"])
+        self.assertEqual(saved["license_approval"], "pending")
+        self.assertEqual(saved["privacy_approval"], "pending")
+
+    def test_reject_decision_requires_a_reason(self):
+        row = self.rows[0]
+        with self.assertRaisesRegex(ValueError, "rejection reason"):
+            review.build_reject_decision(row, "   ")
+        item = review.build_reject_decision(row, "wrong visual facts",
+                                            reviewer="SYN-1")
+        review.write_state(self.state, {row["sku"]: item})
+        saved = review.read_state(self.state, self.rows)[row["sku"]]
+        self.assertEqual(saved["status"], "reject")
+        self.assertEqual(saved["reject_reason"], "wrong visual facts")
+        self.assertEqual(saved["reviewer"], "SYN-1")
+        self.assertFalse(saved["training_approved"])
+        self.assertFalse(saved["third_party_gpu_allowed"])
+
+    def test_saved_reject_without_reason_is_refused_on_load(self):
+        row = self.rows[0]
+        item = review.build_reject_decision(row, "reason kept")
+        item.pop("reject_reason")
+        review.write_state(self.state, {row["sku"]: item})
+        with self.assertRaisesRegex(ValueError, "rejection reason"):
+            review.read_state(self.state, self.rows)
+
+    def test_draft_prefill_allowed_only_for_unreviewed_train_items(self):
+        self.assertTrue(review.draft_prefill_allowed(self.rows[0], None))
+        self.assertFalse(review.draft_prefill_allowed(self.rows[1], None))
+        self.assertFalse(review.draft_prefill_allowed(
+            self.rows[0], {"status": "candidate"}))
+
+    def test_draft_field_values_expose_annotation_for_display(self):
+        values = review.draft_field_values(self.draft())
+        self.assertEqual(values["category_corrected"], "synthetic")
+        self.assertIn("synthetic RGB source pixels", values["observed_facts"])
+        self.assertTrue(values["concept_1"])
+        self.assertTrue(values["concept_2"])
+        self.assertTrue(values["concept_3"])
+        self.assertIn("perlu verifikasi", values["brand_privacy_notes"])
+        self.assertFalse(values["reviewer"])
+
+    def test_next_outstanding_skips_current_and_keeps_priority_order(self):
+        suggestion = {self.rows[0]["sku"]: self.draft()}
+        self.assertEqual(review.next_outstanding(
+            self.rows, {}, suggestion, self.rows[0]["sku"]), 1)
+        self.assertEqual(review.next_outstanding(
+            self.rows, {}, suggestion, self.rows[1]["sku"]), 0)
+
+    def test_next_outstanding_returns_none_when_nothing_else_waits(self):
+        decisions = {self.rows[1]["sku"]: {"status": "candidate"}}
+        self.assertIsNone(review.next_outstanding(
+            self.rows, decisions, {}, self.rows[0]["sku"]))
+
 
 
 if __name__ == "__main__":
