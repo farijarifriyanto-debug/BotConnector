@@ -35,7 +35,7 @@ The source license according to the current AWS Open Data Registry is ABO CC BY 
 
 **Test evidence:** live Windows CLI hash audit matched all 260 source images; Tkinter/Pillow UI initialization smoke passed. Public Actions runs 12 synthetic unit tests covering hashes, tampering, state schema/permissions, JSONL export and no overwrite. No human click-through or actual model quality is claimed.
 
-Target remains lightweight **SmolVLM2-2.2B**. Real image baseline, then LoRA only after verified rights and explicit rental budget approval.
+Target is now **Qwen3-VL-4B-Instruct**, the measured Director primary (2 Nov 2026); SmolVLM2-2.2B survives only as a `--allow-2b-legacy` reproduction baseline. Real image baseline, then LoRA only after verified rights and explicit rental budget approval.
 
 ## Optional AI draft suggestions — TRAIN ONLY, not human approved
 

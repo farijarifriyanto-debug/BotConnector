@@ -5,7 +5,8 @@ This directory contains **only standalone, assistant-created offline test tools 
 Scope:
 - Image dataset manifest validation (declared commercial/third-party rights, reviewed metadata, SHA256 and train/val/test split isolation).
 - Synthetic JSON/Director output contract checks.
-- Python dry-run preflight for a research-grade ~2B visual-language model (never downloads weights by default).
+- One runtime Director contract module ([scripts/multimedia-director-contract.py](scripts/multimedia-director-contract.py)): the prompt text, the JSON contract and the model registry shared by the serving probe, the SFT packet builder and the LoRA runner, so a trained prompt and a served prompt cannot drift apart.
+- Python dry-run preflight for the Director base models — Qwen3-VL-4B-Instruct (measured primary) and the gated SmolVLM2-2.2B legacy baseline (never downloads weights by default).
 
 **No** private BICO Studio production implementation, customer photo, licensed raw dataset, account token, environment variable, model weight, or private GitHub pull request content is fetched by this workflow. The private repository is **not** public, and the public workflow cannot validate code changes it does not contain.
 
@@ -19,17 +20,18 @@ Run locally:
 cd qa/multimedia-director
 node --test tests/multimediaDatasetPipeline.test.mjs tests/multimediaDirectorBenchmark.test.mjs
 node scripts/benchmark-multimedia-director.mjs tests/fixtures/multimedia-director-synthetic.jsonl tests/fixtures/multimedia-director-synthetic-predictions.jsonl
+python3 -m unittest discover -s tests -p test_director_contract.py -v
 python3 -m unittest discover -s tests -p test_multimedia_vlm_probe.py -v
 ```
 
 Security: repository Actions are read-only and do not use secrets, repository dispatch, fork write tokens, or third-party data access.
 
 
-## 2B LoRA smoke preparation (no training in CI)
+## LoRA smoke preparation (no training in CI)
 
-- [SmolVLM2-2.2B LoRA smoke runner](scripts/train-smolvlm2-lora.py): CPU-only preflight by default; only uses the actual image-aware processor and assistant-label masking with explicit paid-GPU flags and a locally verified model checkpoint.
+- [Model-aware LoRA smoke runner](scripts/train-smolvlm2-lora.py): CPU-only preflight by default; `--model` selects the base (Qwen3-VL-4B-Instruct by default, SmolVLM2-2.2B only behind `--allow-2b-legacy`), and it only uses the actual image-aware processor and assistant-label masking with explicit paid-GPU flags and a locally verified checkpoint sealed for that same model. The filename keeps `smolvlm2` only because this directory mirrors the private Draft PR byte-for-byte.
 - [LoRA smoke runbook](LORA-SMOKE-HANDOFF.md): data permissions, GPU preflight, exact CLI, checkpoint/export, rollback and release gates.
-- [End-to-end synthetic pipeline test](tests/test_pipeline_e2e.py): builds 260 synthetic image cases and verifies Node rights gate -> Python SFT staging -> 2B runner preflight with holdout sealed.
+- [End-to-end synthetic pipeline test](tests/test_pipeline_e2e.py): builds 260 synthetic image cases and verifies Node rights gate -> Python SFT staging -> LoRA runner preflight with holdout sealed.
 
 No real ABO images, model weights, production customer data or credentials are public. A public green CI run is not actual model training evidence.
 
