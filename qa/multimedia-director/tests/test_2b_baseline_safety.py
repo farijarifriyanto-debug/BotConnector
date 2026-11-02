@@ -60,36 +60,36 @@ class BaselineSafetyTest(unittest.TestCase):
 
     def test_missing_explicit_checkpoint_is_denied(self):
         with self.assertRaisesRegex(ValueError, "model-dir"):
-            probe.verify_local_checkpoint(None, probe.PRIMARY)
+            probe.verify_local_checkpoint(None, probe.LEGACY_2B)
 
     def test_expected_architecture_and_safetensors_presence(self):
         model = self.checkpoint()
-        self.assertEqual(probe.verify_local_checkpoint(model, probe.PRIMARY), model)
+        self.assertEqual(probe.verify_local_checkpoint(model, probe.LEGACY_2B), model)
 
     def test_reject_mismatched_8b_architecture(self):
         model = self.checkpoint(kind="qwen3_vl")
         with self.assertRaisesRegex(ValueError, "incompatible"):
-            probe.verify_local_checkpoint(model, probe.PRIMARY)
+            probe.verify_local_checkpoint(model, probe.LEGACY_2B)
 
     def test_reject_pickle_weight_even_with_safetensors(self):
         model = self.checkpoint()
         (model / "pytorch_model.bin").write_bytes(b"pickle")
         with self.assertRaisesRegex(ValueError, "pickle-format"):
-            probe.verify_local_checkpoint(model, probe.PRIMARY)
+            probe.verify_local_checkpoint(model, probe.LEGACY_2B)
 
     def test_no_weights_is_denied(self):
         model = self.model
         (model / "config.json").write_text('{"model_type":"idefics3"}', encoding="utf-8")
         with self.assertRaisesRegex(ValueError, "safetensors"):
-            probe.verify_local_checkpoint(model, probe.PRIMARY)
+            probe.verify_local_checkpoint(model, probe.LEGACY_2B)
 
     def test_wrong_or_missing_config_is_denied(self):
         (self.model / "file.safetensors").write_bytes(b"fake")
         with self.assertRaisesRegex(ValueError, "config.json"):
-            probe.verify_local_checkpoint(self.model, probe.PRIMARY)
+            probe.verify_local_checkpoint(self.model, probe.LEGACY_2B)
         (self.model / "config.json").write_text("[]", encoding="utf-8")
         with self.assertRaisesRegex(ValueError, "JSON object"):
-            probe.verify_local_checkpoint(self.model, probe.PRIMARY)
+            probe.verify_local_checkpoint(self.model, probe.LEGACY_2B)
 
     def test_valid_pixel_tensors_and_list(self):
         self.assertTrue(probe.require_real_pixel_values(

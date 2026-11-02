@@ -77,11 +77,23 @@ class ProbeDryRunTest(unittest.TestCase):
         self.assertFalse(output['gpu_started'])
         self.assertFalse(output['model_downloaded'])
 
-    def test_4b_model_requires_explicit_fallback(self):
+    def test_primary_model_is_qwen3_vl_4b(self):
+        # Model decision 2 Nov 2026: 90% vs 50% contract pass, factsRecall 0.422 vs 0.
+        self.assertEqual(probe.PRIMARY, 'Qwen/Qwen3-VL-4B-Instruct')
+        self.assertIn(probe.PRIMARY, probe.ALLOWED_MODELS)
+
+    def test_legacy_2b_model_requires_explicit_flag(self):
         with contextlib.redirect_stderr(io.StringIO()):
             with self.assertRaises(SystemExit) as raised:
-                probe.probe(self.args() + ['--model', probe.FALLBACK])
+                probe.probe(self.args() + ['--model', probe.LEGACY_2B])
         self.assertEqual(raised.exception.code, 2)
+
+    def test_legacy_2b_dry_run_allowed_with_flag(self):
+        out = io.StringIO()
+        with contextlib.redirect_stdout(out):
+            self.assertEqual(
+                probe.probe(self.args() + ['--model', probe.LEGACY_2B, '--allow-2b-legacy']), 0)
+        self.assertEqual(json.loads(out.getvalue())['model'], probe.LEGACY_2B)
 
     def test_run_requires_cost_acknowledgement_and_output(self):
         with contextlib.redirect_stderr(io.StringIO()):
