@@ -180,6 +180,28 @@ class SFTTests(unittest.TestCase):
         assistant = json.loads(prompt[1]["content"][0]["text"])
         self.assertEqual(assistant["schema"], sft.TARGET_SCHEMA)
 
+    def test_instruction_states_exact_contract_keys(self):
+        prompt = sft.build_messages(self.rows["train"][0])
+        text = prompt[0]["content"][1]["text"]
+        for key in ('"schema"', '"task"', '"visual"', '"observed_facts"', '"unknowns"',
+                    '"preservation_rules"', '"concepts"', '"title"', '"scene"', '"mood"', '"tagline"'):
+            self.assertIn(key, text)
+        self.assertIn(sft.TARGET_SCHEMA, text)
+
+    def test_contract_skeleton_matches_benchmark_contract(self):
+        parsed = json.loads(sft.contract_skeleton("product_photo"))
+        self.assertEqual(parsed["schema"], sft.TARGET_SCHEMA)
+        self.assertEqual(parsed["task"], "product_photo")
+        self.assertEqual(sorted(parsed), ["concepts", "preservation_rules", "schema", "task", "visual"])
+        self.assertEqual(sorted(parsed["visual"]), ["observed_facts", "unknowns"])
+        self.assertEqual(len(parsed["concepts"]), 3)
+        self.assertEqual(sorted(parsed["concepts"][0]), ["mood", "scene", "tagline", "title"])
+        shots = json.loads(sft.contract_skeleton("storyboard"))
+        self.assertEqual(sorted(shots), ["preservation_rules", "schema", "shots", "task", "visual"])
+        self.assertEqual(len(shots["shots"]), 2)
+        self.assertEqual(
+            sorted(shots["shots"][0]), ["action", "camera", "duration_seconds", "subject_lock"])
+
     def test_rejects_smoke_only(self):
         self.write_staging(mode="smoke_only")
         with self.assertRaisesRegex(ValueError, "rights-gated"):

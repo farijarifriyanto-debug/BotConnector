@@ -41,6 +41,32 @@ class ProbeDryRunTest(unittest.TestCase):
     def args(self):
         return ['--staged', str(self.staged), '--assets-root', str(self.asset_root), '--split', 'val']
 
+    def test_make_prompt_states_exact_contract_keys(self):
+        prompt = probe.make_prompt(self.row)
+        for key in ('"schema"', '"task"', '"visual"', '"observed_facts"', '"unknowns"',
+                    '"preservation_rules"', '"concepts"', '"title"', '"scene"', '"mood"', '"tagline"'):
+            self.assertIn(key, prompt)
+        self.assertIn(probe.TARGET_SCHEMA, prompt)
+        # The 1-2 Nov 2026 benchmark showed this ambiguous phrasing made the schema
+        # string a JSON KEY (envelope). It must never come back.
+        self.assertNotIn('Use schema "', prompt)
+
+    def test_contract_skeleton_matches_benchmark_contract(self):
+        parsed = json.loads(probe.contract_skeleton('product_photo'))
+        self.assertEqual(parsed['schema'], probe.TARGET_SCHEMA)
+        self.assertEqual(parsed['task'], 'product_photo')
+        self.assertEqual(sorted(parsed),
+                         ['concepts', 'preservation_rules', 'schema', 'task', 'visual'])
+        self.assertEqual(sorted(parsed['visual']), ['observed_facts', 'unknowns'])
+        self.assertEqual(len(parsed['concepts']), 3)
+        self.assertEqual(sorted(parsed['concepts'][0]), ['mood', 'scene', 'tagline', 'title'])
+        shots = json.loads(probe.contract_skeleton('storyboard'))
+        self.assertEqual(sorted(shots),
+                         ['preservation_rules', 'schema', 'shots', 'task', 'visual'])
+        self.assertEqual(len(shots['shots']), 2)
+        self.assertEqual(sorted(shots['shots'][0]),
+                         ['action', 'camera', 'duration_seconds', 'subject_lock'])
+
     def test_valid_dry_run_without_model_download(self):
         out = io.StringIO()
         with contextlib.redirect_stdout(out):
