@@ -67,6 +67,74 @@ class ProbeDryRunTest(unittest.TestCase):
         self.assertEqual(sorted(shots['shots'][0]),
                          ['action', 'camera', 'duration_seconds', 'subject_lock'])
 
+    def test_contract_json_schema_matches_scorer_contract(self):
+        schema = probe.contract_json_schema('product_photo')
+        self.assertEqual(sorted(schema['required']),
+                         ['concepts', 'preservation_rules', 'schema', 'task', 'visual'])
+        self.assertEqual(schema['properties']['schema']['enum'], [probe.TARGET_SCHEMA])
+        self.assertEqual(schema['properties']['task']['enum'], ['product_photo'])
+        self.assertEqual(schema['properties']['concepts']['minItems'], 3)
+        self.assertEqual(schema['properties']['concepts']['maxItems'], 3)
+        self.assertEqual(schema['properties']['visual']['properties']['observed_facts']['minItems'], 1)
+        self.assertFalse(schema['additionalProperties'])
+        # Schema keys must mirror the prompt skeleton keys exactly (anti-drift).
+        parsed = json.loads(probe.contract_skeleton('product_photo'))
+        self.assertEqual(sorted(schema['properties']), sorted(parsed))
+        self.assertEqual(sorted(schema['properties']['concepts']['items']['properties']),
+                         sorted(parsed['concepts'][0]))
+        self.assertEqual(sorted(schema['properties']['visual']['properties']),
+                         sorted(parsed['visual']))
+
+    def test_contract_json_schema_shot_contract(self):
+        schema = probe.contract_json_schema('storyboard')
+        self.assertEqual(sorted(schema['required']),
+                         ['preservation_rules', 'schema', 'shots', 'task', 'visual'])
+        self.assertEqual(schema['properties']['shots']['minItems'], 2)
+        self.assertEqual(schema['properties']['shots']['maxItems'], 6)
+        duration = schema['properties']['shots']['items']['properties']['duration_seconds']
+        self.assertEqual((duration['minimum'], duration['maximum']), (1, 10))
+
+    def test_contract_schema_rejects_unknown_task(self):
+        for builder in (probe.contract_skeleton, probe.contract_json_schema):
+            with self.assertRaises(ValueError):
+                builder('text_only_chat')
+
+    def test_contract_schema_accepts_valid_and_rejects_round6_failures(self):
+        # The grammar schema must enforce exactly what the scorer checks: the
+        # envelope form and the dot-flat key form from rounds 1-4 both fail.
+        try:
+            import jsonschema
+        except ImportError:
+            self.skipTest('jsonschema is not installed in this environment')
+        schema = probe.contract_json_schema('product_photo')
+        jsonschema.validate(json.loads(probe.contract_skeleton('product_photo')), schema)
+        jsonschema.validate(json.loads(probe.contract_skeleton('storyboard')),
+                            probe.contract_json_schema('storyboard'))
+        envelope = {'botconnector.multimedia-director.v1': {'anything': 1}}
+        dot_flat = {'schema': probe.TARGET_SCHEMA, 'task': 'product_photo',
+                    'visual.observed_facts': ['botol'], 'visual.unknowns': [],
+                    'preservation_rules': ['jaga bentuk'],
+                    'concepts': [{'title': 'premium', 'scene': 'meja', 'mood': 'bersih',
+                                  'tagline': 'rapi'}]}
+        for bad in (envelope, dot_flat):
+            with self.assertRaises(jsonschema.ValidationError):
+                jsonschema.validate(bad, schema)
+
+    def test_constrained_decoding_flag_reported_in_dry_run(self):
+        out = io.StringIO()
+        with contextlib.redirect_stdout(out):
+            self.assertEqual(probe.probe(self.args() + ['--constrained-decoding']), 0)
+        payload = json.loads(out.getvalue())
+        self.assertTrue(payload['constrained_decoding'])
+        self.assertFalse(payload['gpu_started'])
+
+    @unittest.skipIf(importlib.util.find_spec('xgrammar') is not None,
+                     'xgrammar is installed here, so the fail-closed path cannot be tested')
+    def test_constraint_fails_closed_without_xgrammar(self):
+        # Never silently decode unconstrained: a missing xgrammar must stop the run.
+        with self.assertRaisesRegex(RuntimeError, 'xgrammar'):
+            probe.contract_constraint(object(), 'product_photo')
+
     def test_valid_dry_run_without_model_download(self):
         out = io.StringIO()
         with contextlib.redirect_stdout(out):
