@@ -37,6 +37,9 @@ jobs:
       - uses: actions/checkout@v4
       - name: Display Python version
         run: python3 --version
+      - name: Single runtime Director contract and model registry tests
+        working-directory: qa/multimedia-director
+        run: python3 -m unittest discover -s tests -p 'test_director_contract.py' -v
       - name: Lightweight VLM offline dry-run and spend-gate tests
         working-directory: qa/multimedia-director
         run: python3 -m unittest discover -s tests -p 'test_multimedia_vlm_probe.py' -v
