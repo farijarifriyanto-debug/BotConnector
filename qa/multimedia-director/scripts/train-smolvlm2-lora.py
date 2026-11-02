@@ -1,15 +1,28 @@
 #!/usr/bin/env python3
-"""BICO Multimedia Director 2.2B LoRA smoke runner.
+"""BICO Multimedia Director LoRA smoke runner (model-aware).
 
 Offline and validation-only by default. Actual training requires --run,
---acknowledge-paid-gpu, a LOCAL SmolVLM2 checkpoint, a licensed/reviewed staged
-dataset, and a CUDA GPU. This script never creates a cloud VM, downloads model
-weights, fetches private datasets, or exposes an inference endpoint.
+--acknowledge-paid-gpu, a LOCAL checkpoint of the selected model, a
+licensed/reviewed staged dataset, and a CUDA GPU. This script never creates a
+cloud VM, downloads model weights, fetches private datasets, or exposes an
+inference endpoint.
 
-Real SmolVLM2 processor/model/PEFT compatibility must still pass a GPU smoke.
+--model selects the base. Qwen/Qwen3-VL-4B-Instruct is the measured Director
+primary (2 Nov 2026, 20 held-out ABO photos, exact-contract prompt, no LoRA:
+contract pass 18/20, factsRecall 0.422). HuggingFaceTB/SmolVLM2-2.2B-Instruct
+is measured insufficient (10/20, factsRecall 0.000) and requires
+--allow-2b-legacy so that baseline stays reproducible. Architecture gates, LoRA
+module names, required vision tensors and gradient checkpointing are per-model
+tables, and the prepared packet manifest must be sealed for the same model.
+
+Real processor/model/PEFT compatibility of the selected base must still pass a
+GPU smoke. The filename keeps "smolvlm2" only because this directory mirrors a
+private Draft PR byte-for-byte and a rename would add path drift that costs
+more to sync than content drift.
 """
 import argparse
 import hashlib
+import importlib.util
 import json
 import numbers
 import os
@@ -17,13 +30,53 @@ from pathlib import Path
 import sys
 import time
 
-SCHEMA = "botconnector.smolvlm2-sft-prep.v1"
-DIRECTOR_SCHEMA = "botconnector.multimedia-director.v1"
-MODEL = "HuggingFaceTB/SmolVLM2-2.2B-Instruct"
+
+def _load_contract():
+    """Load the one runtime Director contract module (stdlib only).
+
+    Cached in sys.modules so every consumer in this process shares ONE contract
+    instance instead of private copies that can drift apart again.
+    """
+    name = "bico_multimedia_director_contract"
+    cached = sys.modules.get(name)
+    if cached is not None:
+        return cached
+    path = Path(__file__).resolve().parent / "multimedia-director-contract.py"
+    spec = importlib.util.spec_from_file_location(name, path)
+    module = importlib.util.module_from_spec(spec)
+    sys.modules[name] = module
+    try:
+        spec.loader.exec_module(module)
+    except BaseException:
+        sys.modules.pop(name, None)
+        raise
+    return module
+
+
+contract = _load_contract()
+
+SCHEMA = "botconnector.multimedia-director-sft-prep.v1"
+PRIMARY = contract.PRIMARY
+LEGACY_2B = contract.LEGACY_2B
+ALLOWED_MODELS = contract.ALLOWED_MODELS
+EXPECTED_ARCHITECTURES = contract.EXPECTED_ARCHITECTURES
+DIRECTOR_SCHEMA = contract.TARGET_SCHEMA
 GATE = "human_rights_review_assertions_required_but_not_independently_verified"
 MIN_COUNTS = {"train": 50, "val": 10, "test": 200}
 ALLOWED_TASKS = {"product_photo", "ad_creative", "storyboard", "video_direction"}
 MAX_SAMPLES = 10000
+# Qwen3-VL names its text decoder model.language_model.layers.* on current
+# transformers and model.layers.* on others; the GPU recipe that actually ran on
+# 2 Nov 2026 accepted both. VISION_MARKERS excludes the image tower either way,
+# so accepting both namings cannot select a vision module.
+TEXT_DECODER_MARKERS = {PRIMARY: (".language_model.", "model.layers."), LEGACY_2B: (".text_model.",)}
+VISION_MARKERS = ("visual", "vision", "vision_model", "vision_tower", "connector")
+# Qwen3-VL image tokens carry no position information without image_grid_thw, so
+# a processor that omits it would silently train on a text-only layout.
+REQUIRED_VISION_KEYS = {PRIMARY: ("pixel_values", "image_grid_thw"), LEGACY_2B: ("pixel_values",)}
+# 4B activations do not fit a ~20 GiB card without recomputation; the 2.2B path
+# keeps its original no-checkpoint behavior so that baseline stays comparable.
+GRADIENT_CHECKPOINTING = {PRIMARY: True, LEGACY_2B: False}
 
 
 def asset_path(root, name):
@@ -89,14 +142,14 @@ def validate_director_target(target, task):
                 raise ValueError("assistant shot contract invalid")
 
 
-def load_prepared(prepared, assets_root):
+def load_prepared(prepared, assets_root, model_id):
     manifest_path = prepared / "manifest.json"
     if not manifest_path.is_file():
         raise ValueError("missing reviewed SFT manifest")
     manifest = json.loads(manifest_path.read_text(encoding="utf-8"))
     counts = manifest.get("counts")
-    if manifest.get("schema") != SCHEMA or manifest.get("base_model") != MODEL:
-        raise ValueError("SmolVLM2 preparation schema/model mismatch")
+    if manifest.get("schema") != SCHEMA or manifest.get("base_model") != model_id:
+        raise ValueError("prepared packet schema/base model mismatch for " + model_id)
     if not isinstance(counts, dict) or any(
         not isinstance(counts.get(k), int) or counts[k] < limit
         for k, limit in MIN_COUNTS.items()
@@ -212,35 +265,49 @@ def nonempty_vision_payload(value):
     return isinstance(size, numbers.Integral) and size > 0
 
 
-def verify_smolvlm2_checkpoint(path):
+def verify_local_checkpoint(path, model_id):
     """Guard local checkpoint format and architecture before ML/CUDA import.
 
     A model_type check is NOT cryptographic model identity or license proof.
+    This is deliberately stricter than the probe's checkpoint gate: weights are
+    searched recursively and pickle files are rejected anywhere in the tree,
+    because this script goes on to train and export an adapter.
     """
+    if model_id not in EXPECTED_ARCHITECTURES:
+        raise ValueError("unknown Director model")
     if path is None or path.is_symlink():
-        raise ValueError("explicit non-symlink SmolVLM2 model-dir required")
+        raise ValueError("explicit non-symlink local model-dir required")
     root = path.resolve(strict=True)
     if not root.is_dir():
-        raise ValueError("SmolVLM2 model-dir must be a directory")
+        raise ValueError("model-dir must be a directory")
     config_path = root / "config.json"
     if not config_path.is_file() or config_path.is_symlink():
-        raise ValueError("SmolVLM2 checkpoint config.json missing or symlinked")
+        raise ValueError("checkpoint config.json missing or symlinked")
     config = json.loads(config_path.read_text(encoding="utf-8"))
-    if not isinstance(config, dict) or config.get("model_type") not in {"idefics3", "smolvlm"}:
-        raise ValueError("SmolVLM2 checkpoint architecture incompatible")
+    if (not isinstance(config, dict)
+        or config.get("model_type") not in EXPECTED_ARCHITECTURES[model_id]):
+        raise ValueError("checkpoint architecture incompatible with the selected model")
     weights = list(root.rglob("*.safetensors"))
     if not weights or any(not weight.is_file() or weight.is_symlink() for weight in weights):
-        raise ValueError("local SmolVLM2 safetensors weights missing or unsafe")
+        raise ValueError("local safetensors weights missing or unsafe")
     if any(root.rglob("*.bin")) or any(root.rglob("*.pt")) or any(root.rglob("*.pth")):
         raise ValueError("unsafe pickle-format weights: require audited local safetensors")
     return root
 
 
-def build_supervised_batch(row, assets_root, processor, torch_module, max_seq_len=4096):
+def vision_keys_for(model_id):
+    """Processor tensors that must be present and nonempty for this architecture."""
+    if model_id not in REQUIRED_VISION_KEYS:
+        raise ValueError("unknown Director model")
+    return REQUIRED_VISION_KEYS[model_id]
+
+
+def build_supervised_batch(row, assets_root, processor, torch_module, max_seq_len=4096,
+                           vision_keys=("pixel_values",)):
     """One RGB image + user prompt + assistant JSON, no image-only/text-only shortcut.
 
-    Microbatch is one. Validate exact prefix before loss masking. Any
-    SmolVLM2 processor incompatibility fails instead of corrupting targets.
+    Microbatch is one. Validate exact prefix before loss masking. Any processor
+    incompatibility with the selected model fails instead of corrupting targets.
     """
     from PIL import Image, ImageOps
     image = asset_path(assets_root, row["image_path"])
@@ -253,16 +320,19 @@ def build_supervised_batch(row, assets_root, processor, torch_module, max_seq_le
     messages = json.loads(json.dumps(row["messages"]))
     messages[0]["content"][0]["image"] = rgb
     try:
-        return encode_multimodal_messages(messages, processor, torch_module, max_seq_len)
+        return encode_multimodal_messages(messages, processor, torch_module, max_seq_len,
+                                          vision_keys)
     finally:
         rgb.close()
 
 
-def encode_multimodal_messages(messages, processor, torch_module, max_seq_len=4096):
+def encode_multimodal_messages(messages, processor, torch_module, max_seq_len=4096,
+                               vision_keys=("pixel_values",)):
     """Pure processor adapter; testable with a fake VLM processor, no GPU.
 
     The caller must place a real PIL RGB image inside user content. This adapter
-    refuses text-only processor output or a misaligned assistant loss mask.
+    refuses text-only processor output, an architecture's missing vision tensor,
+    or a misaligned assistant loss mask.
     """
     if not isinstance(messages, list) or len(messages) != 2:
         raise ValueError("one user-image message + one assistant JSON required")
@@ -279,11 +349,12 @@ def encode_multimodal_messages(messages, processor, torch_module, max_seq_len=40
         messages, add_generation_prompt=False, tokenize=True,
         return_dict=True, return_tensors="pt"
     )
-    if ("pixel_values" not in prompt
-        or not nonempty_vision_payload(prompt["pixel_values"])
-        or "pixel_values" not in full_batch
-        or not nonempty_vision_payload(full_batch["pixel_values"])):
-        raise ValueError("vision processor did not return nonempty pixel_values for prompt and completion")
+    missing = [key for key in vision_keys
+               if key not in prompt or not nonempty_vision_payload(prompt[key])
+               or key not in full_batch or not nonempty_vision_payload(full_batch[key])]
+    if missing:
+        raise ValueError("vision processor did not return nonempty " + ", ".join(missing)
+                         + " for prompt and completion")
     full_tokens = full_batch["input_ids"][0].tolist()
     prefix_tokens = prompt["input_ids"][0].tolist()
     if len(full_tokens) > max_seq_len:
@@ -295,17 +366,20 @@ def encode_multimodal_messages(messages, processor, torch_module, max_seq_len=40
     return full_batch
 
 
-def choose_language_lora_modules(named_modules):
+def choose_language_lora_modules(named_modules, model_id):
     """Only q/v projections of the TEXT decoder; never vision tower modules."""
+    if model_id not in TEXT_DECODER_MARKERS:
+        raise ValueError("unknown Director model")
+    markers = TEXT_DECODER_MARKERS[model_id]
     names = [name for name, _ in named_modules]
     selected = [
         name for name in names
-        if ".text_model." in "." + name + "."
-        and name.endswith((".q_proj", ".v_proj"))
-        and not any(forbidden in name for forbidden in ("vision_model", "vision_tower", "connector"))
+        if name.endswith((".q_proj", ".v_proj"))
+        and not any(forbidden in name for forbidden in VISION_MARKERS)
+        and any(marker in "." + name + "." for marker in markers)
     ]
     if len(selected) < 4 or not any(s.endswith(".q_proj") for s in selected) or not any(s.endswith(".v_proj") for s in selected):
-        raise ValueError("expected SmolVLM2 text_model projections not found; inspect architecture")
+        raise ValueError("expected text-decoder projections not found for the selected model; inspect architecture")
     return selected
 
 
@@ -313,7 +387,7 @@ def train(args, prepared, assets_root, data):
     # Do not load ML dependencies or CUDA until every safety gate passes.
     if not args.acknowledge_paid_gpu or args.output_dir is None or args.model_dir is None:
         raise ValueError("--run requires --acknowledge-paid-gpu, --model-dir, --output-dir")
-    model_dir = verify_smolvlm2_checkpoint(args.model_dir)
+    model_dir = verify_local_checkpoint(args.model_dir, args.model)
     if args.output_dir.exists():
         raise ValueError("refuse to overwrite prior training output")
     if not 1 <= args.max_steps <= 20:
@@ -345,15 +419,23 @@ def train(args, prepared, assets_root, data):
     ).to("cuda")
     if hasattr(model.config, "use_cache"):
         model.config.use_cache = False
-    modules = choose_language_lora_modules(model.named_modules())
+    modules = choose_language_lora_modules(model.named_modules(), args.model)
     model = get_peft_model(model, LoraConfig(
         r=8, lora_alpha=16, lora_dropout=0.05,
         target_modules=modules, bias="none",
     ))
     unsafe = [name for name, param in model.named_parameters()
-              if param.requires_grad and any(k in name for k in ("vision_model", "vision_tower", "connector"))]
+              if param.requires_grad and any(k in name for k in VISION_MARKERS)]
     if unsafe:
         raise RuntimeError("vision tower unexpectedly trainable: " + unsafe[0])
+    checkpointing = GRADIENT_CHECKPOINTING[args.model]
+    vision_keys = vision_keys_for(args.model)
+    if checkpointing:
+        # Memory necessity, not a recipe change: recomputation is numerically
+        # equivalent to the no-checkpoint path and is what let the 4B smoke run
+        # on a ~20 GiB card. Inputs must require grad or the LoRA adapters of a
+        # checkpointed model receive no gradient at all.
+        model.enable_input_require_grads()
     class Rows:
         def __init__(self, rows):
             self.items = rows
@@ -364,7 +446,8 @@ def train(args, prepared, assets_root, data):
     def collate(batch):
         if len(batch) != 1:
             raise RuntimeError("only single-example multimodal microbatch supported")
-        return build_supervised_batch(batch[0], assets_root, processor, torch, args.max_seq_len)
+        return build_supervised_batch(batch[0], assets_root, processor, torch,
+                                      args.max_seq_len, vision_keys)
     # Run one REAL image through the tokenizer, vision tower inputs and mask
     # BEFORE creating an output directory or starting Trainer.
     first_batch = collate([data["train"][0]])
@@ -388,6 +471,7 @@ def train(args, prepared, assets_root, data):
             save_strategy="no",
             report_to="none",
             bf16=bf16, fp16=not bf16,
+            gradient_checkpointing=checkpointing,
             remove_unused_columns=False,
             dataloader_num_workers=0,
             seed=1337,
@@ -405,7 +489,8 @@ def train(args, prepared, assets_root, data):
         processor.save_pretrained(str(args.output_dir))
         summary = {
             "schema": "botconnector.multimedia-director-lora-smoke.v1",
-            "base_model": MODEL,
+            "base_model": args.model,
+            "gradient_checkpointing": checkpointing,
             "steps": args.max_steps,
             "runtime_seconds": round(time.monotonic() - started, 2),
             "gpu_name": cuda.name,
@@ -429,9 +514,13 @@ def train(args, prepared, assets_root, data):
 
 
 def main(argv=None):
-    p = argparse.ArgumentParser(description="SmolVLM2-2.2B LoRA: offline validation by default")
+    p = argparse.ArgumentParser(
+        description="Director LoRA smoke (Qwen3-VL-4B primary): offline validation by default")
     p.add_argument("--prepared", type=Path, required=True)
     p.add_argument("--assets-root", type=Path, required=True)
+    p.add_argument("--model", choices=sorted(ALLOWED_MODELS), default=PRIMARY,
+                   help="base model the packet was sealed for and the adapter is trained on")
+    p.add_argument("--allow-2b-legacy", action="store_true")
     p.add_argument("--model-dir", type=Path)
     p.add_argument("--output-dir", type=Path)
     p.add_argument("--max-steps", type=int, default=5)
@@ -439,6 +528,9 @@ def main(argv=None):
     p.add_argument("--run", action="store_true")
     p.add_argument("--acknowledge-paid-gpu", action="store_true")
     args = p.parse_args(argv)
+    if args.model == LEGACY_2B and not args.allow_2b_legacy:
+        p.error("2B legacy is measured insufficient (10/20 contract, factsRecall 0): "
+                "pass --allow-2b-legacy only to reproduce the 1-2 Nov 2026 baseline")
     if args.output_dir and args.output_dir.exists():
         p.error("output directory already exists")
     if args.max_steps < 1 or args.max_steps > 20:
@@ -446,17 +538,18 @@ def main(argv=None):
     try:
         root = args.assets_root.resolve(strict=True)
         staged = args.prepared.resolve(strict=True)
-        manifest, rows = load_prepared(staged, root)
+        manifest, rows = load_prepared(staged, root, args.model)
         if not args.run:
             print(json.dumps({
                 "status": "OFFLINE PREFLIGHT PASS; no model loaded or train started",
-                "model": MODEL,
+                "model": args.model,
                 "counts": manifest["counts"],
                 "verified_train_val_samples": len(rows["train"]) + len(rows["val"]),
                 "test_samples_loaded": 0,
                 "gpu_started": False,
                 "cost_usd": 0,
-                "next_step": "authorize GPU spend and verify SmolVLM2 processor on the actual GPU",
+                "next_step": ("authorize GPU spend and verify the selected base model's "
+                              "processor and PEFT compatibility on the actual GPU"),
             }, indent=2))
             return 0
         summary = train(args, staged, root, rows)
