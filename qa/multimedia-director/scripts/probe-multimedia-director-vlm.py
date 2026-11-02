@@ -1,9 +1,12 @@
 #!/usr/bin/env python3
-"""Explicit, local-only 2B VLM baseline probe; dry-run by default.
+"""Explicit, local-only VLM Director probe; dry-run by default.
 
-This does NOT fine-tune weights, download models, access customer media, or
-reserve a Community GPU. Run mode requires a reviewed staged dataset and a
-locally cached trusted model checkpoint on a pre-authorized GPU.
+Primary model is Qwen3-VL-4B-Instruct (model decision 2 Nov 2026). The
+SmolVLM2-2.2B pilot baseline is kept as a gated legacy option so the measured
+2B failure stays reproducible. This does NOT fine-tune weights, download
+models, access customer media, or reserve a Community GPU. Run mode requires a
+reviewed staged dataset and a locally cached trusted model checkpoint on a
+pre-authorized GPU.
 """
 import argparse
 import hashlib
@@ -14,9 +17,13 @@ import pathlib
 import sys
 import time
 
-PRIMARY = "HuggingFaceTB/SmolVLM2-2.2B-Instruct"
-FALLBACK = "Qwen/Qwen3-VL-4B-Instruct"
-ALLOWED_MODELS = {PRIMARY, FALLBACK}
+# Model decision 2 Nov 2026 (20 held-out ABO photos, exact-contract prompt, no
+# LoRA): Qwen3-VL-4B contract pass 18/20 (90%), factsRecall 0.422; SmolVLM2-2.2B
+# 10/20 (50%), factsRecall 0.000, preservation_rules empty on 10/20. The 4B is
+# the Director primary; the 2B stays only to reproduce the measured 2B failure.
+PRIMARY = "Qwen/Qwen3-VL-4B-Instruct"
+LEGACY_2B = "HuggingFaceTB/SmolVLM2-2.2B-Instruct"
+ALLOWED_MODELS = {PRIMARY, LEGACY_2B}
 STAGING_SCHEMA = "botconnector.multimedia-dataset.v1"
 TARGET_SCHEMA = "botconnector.multimedia-director.v1"
 
@@ -38,8 +45,8 @@ def verify_local_checkpoint(path, model_id):
         raise ValueError("model config must be JSON object")
     # The two allowed model families must not silently load another architecture.
     expected_architectures = {
-        PRIMARY: {"idefics3", "smolvlm"},
-        FALLBACK: {"qwen3_vl"},
+        PRIMARY: {"qwen3_vl"},
+        LEGACY_2B: {"idefics3", "smolvlm"},
     }
     model_type = config.get("model_type")
     if model_type not in expected_architectures[model_id]:
@@ -233,7 +240,7 @@ def probe(argv=None):
     p.add_argument("--split", choices=("train", "val", "test"), default="val")
     p.add_argument("--limit", type=int, default=3)
     p.add_argument("--model", choices=sorted(ALLOWED_MODELS), default=PRIMARY)
-    p.add_argument("--allow-4b-fallback", action="store_true")
+    p.add_argument("--allow-2b-legacy", action="store_true")
     p.add_argument("--run", action="store_true")
     p.add_argument("--acknowledge-runtime-cost", action="store_true")
     p.add_argument("--out", type=pathlib.Path)
@@ -242,8 +249,9 @@ def probe(argv=None):
     args = p.parse_args(argv)
     if not 1 <= args.limit <= 50:
         p.error("limit must be 1..50")
-    if args.model == FALLBACK and not args.allow_4b_fallback:
-        p.error("4B is conditional: pass --allow-4b-fallback after a measured 2B failure")
+    if args.model == LEGACY_2B and not args.allow_2b_legacy:
+        p.error("2B legacy is measured insufficient (10/20 contract, factsRecall 0): "
+                "pass --allow-2b-legacy only to reproduce the 1-2 Nov 2026 baseline")
     if args.run and (not args.acknowledge_runtime_cost or not args.out):
         p.error("actual GPU inference requires --acknowledge-runtime-cost and --out")
     try:

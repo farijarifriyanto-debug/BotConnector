@@ -7,6 +7,7 @@
 
 - Multimodal Director reads the product or shot reference **pixels** and generates fact-grounded JSON for the existing Studio Creative Director and Film Project. It does not replace the production image/video generator.
 - **Primary:** HuggingFaceTB/SmolVLM2-2.2B-Instruct. 4B is conditional **only after a measured 2B failure**, 7B/8B/9B are excluded from this pilot.
+  - **Update 2 Nov 2026 — the 2B failure is now measured, so Qwen3-VL-4B-Instruct is the Director primary.** 20 held-out ABO photos, exact-contract prompt, no LoRA: 4B contract pass 18/20 (90%), factsRecall 0.422; 2B 10/20 (50%), factsRecall 0.000, empty `preservation_rules` on 10/20. `probe-multimedia-director-vlm.py` now defaults to the 4B and gates the 2B behind `--allow-2b-legacy`. The training/retraining scripts in this repo remain SmolVLM2-only (follow-up).
 - Public repo holds only test scripts, synthetic cases and tooling. Real reviewed commercial-training datasets, customer media, credentials, model checkpoints and private Studio implementation must **never** be pushed here.
 - The planned rented hardware is a single **RunPod Community Cloud GPU 48GB** for temporary training, not serving. A cheaper 16/24GB Community GPU may be considered only after demonstrated fit/price comparison. Nothing in this repo starts a pod.
 
