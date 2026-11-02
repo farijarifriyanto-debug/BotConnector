@@ -1,4 +1,4 @@
-# BICO Multimedia Director — ABO samples -> 2B multimodal SFT (31 Oct 2026)
+# BICO Multimedia Director — ABO samples -> multimodal SFT (31 Oct 2026)
 
 **Status:** Tools implemented, offline tests required. No actual ABO files, model weights or customer data were downloaded; no GPU rented or model trained. This lives in the **public BotConnector QA repository**, never in private GitHub Actions.
 
@@ -37,7 +37,7 @@ node scripts/prepare-multimedia-director-data.mjs \
 
 This requires >=50 train, >=10 validation and >=200 truly unseen test examples; the 50-item raw shortlist alone does NOT meet this gate. The official source registry used privately contains ABO and explicit non-commercial blocks, so never replace it with an automatically permissive registry.
 
-## B. Prepare lightweight SmolVLM2 SFT examples
+## B. Prepare Director SFT examples (Qwen3-VL-4B primary)
 
 Once stage summary reports mode=gated_dataset and all three split sizes are complete:
 
@@ -45,14 +45,14 @@ Once stage summary reports mode=gated_dataset and all three split sizes are comp
 python3 scripts/prepare-smolvlm2-sft.py \
   --staged /private-data/reviewed-stage-001 \
   --assets-root /private-data/abo-images \
-  --out-dir /private-data/smolvlm2-prep-001
+  --out-dir /private-data/director-prep-qwen-001
 ~~~
 
-By default the command only validates local image SHA256 and checks for split leakage, then reports counts. It **does not write data** without explicit --write and **never loads model/GPU**.
+By default the command only validates local image SHA256 and checks for split leakage, then reports counts and the base model the packet would be sealed for. It **does not write data** without explicit --write and **never loads model/GPU**. `--model` defaults to `Qwen/Qwen3-VL-4B-Instruct`; `HuggingFaceTB/SmolVLM2-2.2B-Instruct` is refused unless `--allow-2b-legacy` is also passed.
 
-To export train.jsonl, val.jsonl and a manifest (intentionally NOT the held-out test set), repeat with --write. The output contains a multimodal chat structure: user image placeholder plus Indonesian Director brief, assistant JSON target, source/license/attribution, original image path. The records are NOT directly consumable by SFTTrainer until a model-specific adapter loads PIL images via to_runtime_messages() and applies SmolVLM2's vision processor, chat template, label mask and data collator.
+To export train.jsonl, val.jsonl and a manifest (intentionally NOT the held-out test set), repeat with --write. The output contains a multimodal chat structure: user image placeholder plus the **serving Director prompt** (English, produced by `make_prompt` in scripts/multimedia-director-contract.py), assistant JSON target, source/license/attribution, original image path. The manifest carries `schema: botconnector.multimedia-director-sft-prep.v1` and `base_model` = the selected model, and `train-smolvlm2-lora.py` refuses a packet whose schema or base model does not match its own `--model`. Packets sealed before 2 Nov 2026 used the pre-fix Indonesian prompt and the previous schema, so the runner rejects them: regenerate instead of migrating. The records are NOT directly consumable by SFTTrainer until a model-specific adapter loads PIL images via to_runtime_messages() and applies the selected model's vision processor, chat template, label mask and data collator.
 
-**One 48 GB RunPod Community GPU is the temporary *training* choice only**, and no paid resource is created by any workflow. The base candidate is HuggingFaceTB/SmolVLM2-2.2B-Instruct; 4B is a conditional fallback only after documented quality failure of ~2B. Before renting, verify live GPU rates, complete model license review, run a licensed image-grounded baseline, establish storage/export and cost stop, then get explicit spending approval. No customer media/PII/credentials may be sent to community GPU.
+**One 48 GB RunPod Community GPU is the temporary *training* choice only**, and no paid resource is created by any workflow. The base is Qwen/Qwen3-VL-4B-Instruct (`model_type qwen3_vl`), chosen on 2 Nov 2026 from a measured 20-photo held-out comparison: 4B contract pass 18/20 (90%) with factsRecall 0.422 versus SmolVLM2-2.2B 10/20 (50%) with factsRecall 0.000. The 2B is no longer a training target, only a `--allow-2b-legacy` reproduction baseline. Before renting, verify live GPU rates, complete model license review, run a licensed image-grounded baseline, establish storage/export and cost stop, then get explicit spending approval. No customer media/PII/credentials may be sent to community GPU.
 
 ## C. Test locally or in public GitHub Actions
 
@@ -76,3 +76,34 @@ The generated private `manifest.json` now includes:
 The LoRA runner recomputes train/val file hashes and fails closed if the manifest is incomplete or a packaged file changed. It only format-checks the test hash: it cannot re-verify withheld test bytes without accessing the heldout set, and a malicious issuer could fabricate a digest. This is a *reproducibility and tamper-detection improvement*, **not** a signature, proof of actual rights, cryptographic reviewer identity or model quality.
 
 **All older unsealed packages must be re-staged from the original rights-gated files; do not hand-edit the manifest or bypass these checks.** No previously gathered ABO photos are re-downloaded. No production deployment, paid GPU, model weights, user media, or private reviewer annotations are used in public GitHub Actions.
+
+## 2 November 2026 — packet re-sealed for the Qwen3-VL-4B primary (offline CPU, no spend)
+
+The 260-photo rights-gated staging was repackaged with the corrected code path on the operator's own machine: no GPU, no model download, no network dataset access, no cost.
+
+~~~sh
+python3 scripts/prepare-smolvlm2-sft.py \
+  --staged /private-data/reviewed-stage-001 \
+  --assets-root /private-data/abo-images \
+  --out-dir /private-data/director-prep-qwen-001 \
+  --write
+~~~
+
+The regenerated packet holds `train.jsonl`, `val.jsonl` and `manifest.json`, and **no** `test.jsonl`. Its manifest records:
+
+- `schema`: `botconnector.multimedia-director-sft-prep.v1`
+- `base_model`: `Qwen/Qwen3-VL-4B-Instruct`
+- `train_val_file_sha256.train`: `65a60b7a463269db4e98b1a3f82bcd6c5831106d7ef86a7fadb603878808bb78`
+- `train_val_file_sha256.val`: `cc86092806671c6ecaad5a4e829cc1e4fda71247c03f6c38f96b2dbf06c3dce0`
+- `sealed_holdout_stage_sha256`: `85d2c3796baf3e6f9000afd82a5635dedc4b992e0d92c2db4af618dfbafbf89b` — **identical to the 1 November packet**, because the staged `test.jsonl` was not touched. The holdout is still the same 200 unseen cases.
+
+Checked after writing, against the real staged rows rather than synthetic fixtures:
+
+- **60/60** packet rows carry a user prompt byte-identical to `make_prompt()` in `scripts/multimedia-director-contract.py`, the same object the serving probe uses, so a packet written by this builder cannot differ from what serving sends **at the moment it is written**.
+- **60/60** prompts differ from the superseded packet's Indonesian prompt, and **60/60** assistant targets are unchanged, so only the prompt was corrected.
+- `train-smolvlm2-lora.py` offline preflight on the new packet prints `OFFLINE PREFLIGHT PASS` with `verified_train_val_samples: 60`, `test_samples_loaded: 0`, `gpu_started: false`, `cost_usd: 0`.
+- The same preflight against the superseded packet exits 2 with `prepared packet schema/base model mismatch for Qwen/Qwen3-VL-4B-Instruct`: pre-fix packets are refused, not migrated.
+
+**Regenerate the packet whenever the prompt builder changes.** Those seals detect drift of the packet files and of the staged split files, not prompt-builder drift: a packet row does not carry the dataset brief, so `train-smolvlm2-lora.py` cannot recompute the prompt at load time and cannot notice that `make_prompt()` moved on after the packet was written. If `scripts/multimedia-director-contract.py` changes, every packet written before that change is stale and must be regenerated with `--write` before any GPU is rented, because training on it would silently reintroduce exactly the train/serve prompt divergence this packet format exists to prevent. Stamping a prompt-version fingerprint into the manifest would let the runner refuse such a packet by itself; that is an open follow-up needing its own decision (it changes the sealed manifest this section records), not a guarantee that exists today.
+
+What this does **not** prove: no training was run and no adapter exists from this packet; `human_visual_eval` remains `not_performed`; the Qwen3-VL processor and PEFT path are still unverified on a real GPU through this runner; the seals detect drift rather than establishing rights, reviewer identity or visual truth; and the 260 source photos remain without independent human review. Renting GPU time still requires the explicit spend approval described above.
