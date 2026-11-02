@@ -3,10 +3,12 @@
 
 Primary model is Qwen3-VL-4B-Instruct (model decision 2 Nov 2026). The
 SmolVLM2-2.2B pilot baseline is kept as a gated legacy option so the measured
-2B failure stays reproducible. This does NOT fine-tune weights, download
-models, access customer media, or reserve a Community GPU. Run mode requires a
-reviewed staged dataset and a locally cached trusted model checkpoint on a
-pre-authorized GPU.
+2B failure stays reproducible. --constrained-decoding arms an xgrammar mask
+built from the same contract as the prompt, so a constrained run cannot emit
+invalid JSON; the unconstrained baseline stays measurable without it. This does
+NOT fine-tune weights, download models, access customer media, or reserve a
+Community GPU. Run mode requires a reviewed staged dataset and a locally cached
+trusted model checkpoint on a pre-authorized GPU.
 """
 import argparse
 import hashlib
@@ -26,6 +28,7 @@ LEGACY_2B = "HuggingFaceTB/SmolVLM2-2.2B-Instruct"
 ALLOWED_MODELS = {PRIMARY, LEGACY_2B}
 STAGING_SCHEMA = "botconnector.multimedia-dataset.v1"
 TARGET_SCHEMA = "botconnector.multimedia-director.v1"
+DIRECTOR_TASKS = ("product_photo", "ad_creative", "storyboard", "video_direction")
 
 
 def verify_local_checkpoint(path, model_id):
@@ -190,6 +193,8 @@ def contract_skeleton(task):
     the schema string a JSON KEY (envelope), and dot-written
     'visual.observed_facts' produced a flat key. Do not reintroduce ambiguity.
     """
+    if task not in DIRECTOR_TASKS:
+        raise ValueError("unrecognized Director task")
     if task in ("product_photo", "ad_creative"):
         body = (
             '"concepts":['
@@ -208,6 +213,105 @@ def contract_skeleton(task):
         '"visual":{"observed_facts":["<visible fact>"],"unknowns":["<uncertain>"]},'
         '"preservation_rules":["<preservation rule>"],' + body + "}"
     )
+
+
+def contract_json_schema(task):
+    """JSON Schema for the Director contract, derived from the same keys as the prompt.
+
+    Constraints are never looser than benchmark-multimedia-director.mjs and never
+    stricter than contract_skeleton(): concepts are exactly 3 (scorer and prompt
+    agree), shots are 2..6 (scorer allows 2..24, the prompt asks for 2..6),
+    every string is nonempty, unknowns may be empty, duration_seconds is an
+    integer 1..10, and no extra keys are allowed anywhere. Scene distinctness
+    and grounding cannot be expressed in a grammar; they stay with the prompt
+    and with human review.
+    """
+    if task not in DIRECTOR_TASKS:
+        raise ValueError("unrecognized Director task")
+    if task in ("product_photo", "ad_creative"):
+        key = "concepts"
+        items = {
+            "type": "array", "minItems": 3, "maxItems": 3,
+            "items": {
+                "type": "object",
+                "properties": {
+                    "title": {"type": "string", "minLength": 1},
+                    "scene": {"type": "string", "minLength": 1},
+                    "mood": {"type": "string", "minLength": 1},
+                    "tagline": {"type": "string", "minLength": 1},
+                },
+                "required": ["title", "scene", "mood", "tagline"],
+                "additionalProperties": False,
+            },
+        }
+    else:
+        key = "shots"
+        items = {
+            "type": "array", "minItems": 2, "maxItems": 6,
+            "items": {
+                "type": "object",
+                "properties": {
+                    "camera": {"type": "string", "minLength": 1},
+                    "action": {"type": "string", "minLength": 1},
+                    "subject_lock": {"type": "string", "minLength": 1},
+                    "duration_seconds": {"type": "integer", "minimum": 1, "maximum": 10},
+                },
+                "required": ["camera", "action", "subject_lock", "duration_seconds"],
+                "additionalProperties": False,
+            },
+        }
+    return {
+        "type": "object",
+        "properties": {
+            "schema": {"type": "string", "enum": [TARGET_SCHEMA]},
+            "task": {"type": "string", "enum": [task]},
+            "visual": {
+                "type": "object",
+                "properties": {
+                    "observed_facts": {
+                        "type": "array", "minItems": 1,
+                        "items": {"type": "string", "minLength": 1},
+                    },
+                    "unknowns": {"type": "array", "items": {"type": "string", "minLength": 1}},
+                },
+                "required": ["observed_facts", "unknowns"],
+                "additionalProperties": False,
+            },
+            "preservation_rules": {
+                "type": "array", "minItems": 1,
+                "items": {"type": "string", "minLength": 1},
+            },
+            key: items,
+        },
+        "required": ["schema", "task", "visual", "preservation_rules", key],
+        "additionalProperties": False,
+    }
+
+
+def contract_constraint(processor, task):
+    """Compile the contract into (compiled_grammar, processor_factory).
+
+    Fail closed: a missing xgrammar must stop the run instead of silently
+    decoding unconstrained, which would produce results the flag did not promise.
+    The compiled grammar is cacheable across rows; processor_factory() builds a
+    fresh logits processor per generation because it holds per-sequence state.
+    """
+    try:
+        import xgrammar as xgr
+    except ImportError as exc:
+        raise RuntimeError(
+            "constrained decoding requested but xgrammar is not installed; "
+            "install xgrammar in the GPU image or drop --constrained-decoding") from exc
+    try:
+        from xgrammar.contrib.logits_processor import XGrammarLogitsProcessor
+    except ImportError as exc:
+        raise RuntimeError(
+            "xgrammar is installed but its logits processor is unavailable") from exc
+    tokenizer = getattr(processor, "tokenizer", processor)
+    tokenizer_info = xgr.TokenizerInfo.from_hf_tokenizer(tokenizer)
+    compiled = xgr.GrammarCompiler(tokenizer_info, max_threads=1).compile(
+        xgr.Grammar.from_json_schema(json.dumps(contract_json_schema(task))))
+    return compiled, XGrammarLogitsProcessor
 
 
 def make_prompt(row):
@@ -241,6 +345,8 @@ def probe(argv=None):
     p.add_argument("--limit", type=int, default=3)
     p.add_argument("--model", choices=sorted(ALLOWED_MODELS), default=PRIMARY)
     p.add_argument("--allow-2b-legacy", action="store_true")
+    p.add_argument("--constrained-decoding", action="store_true",
+                   help="mask generation with an xgrammar grammar built from the contract schema")
     p.add_argument("--run", action="store_true")
     p.add_argument("--acknowledge-runtime-cost", action="store_true")
     p.add_argument("--out", type=pathlib.Path)
@@ -278,6 +384,7 @@ def probe(argv=None):
         if not args.run:
             print(json.dumps({"mode": "dry_run_only", "model": args.model,
                 "sample_count": len(samples), "split": args.split,
+                "constrained_decoding": bool(args.constrained_decoding),
                 "image_files_checked": True,
                 "gpu_started": False, "model_downloaded": False,
                 "training_started": False,
@@ -299,8 +406,12 @@ def probe(argv=None):
             use_safetensors=True, trust_remote_code=False
         ).to("cuda")
         processor = AutoProcessor.from_pretrained(str(model_dir), local_files_only=True, trust_remote_code=False)
+        # Grammar is compiled once per task; a fresh logits processor per row
+        # because it carries per-sequence state.
+        constraint_cache = {}
         results = []
         for row, path in samples:
+            task = row["task"]
             image = Image.open(path).convert("RGB")
             messages = [{"role": "user", "content": [
                 {"type": "image", "image": image},
@@ -316,8 +427,17 @@ def probe(argv=None):
             except Exception as exc:
                 raise RuntimeError("Model-specific vision processor/chat template incompatible; pin/test transformers recipe") from exc
             started = time.perf_counter()
+            constraint = None
+            if args.constrained_decoding:
+                if task not in constraint_cache:
+                    constraint_cache[task] = contract_constraint(processor, task)
+                compiled, make_processor = constraint_cache[task]
+                constraint = make_processor(compiled)
+            generate_kwargs = {"max_new_tokens": 768, "do_sample": False}
+            if constraint is not None:
+                generate_kwargs["logits_processor"] = [constraint]
             with torch.inference_mode():
-                ids = model.generate(**inputs, max_new_tokens=768, do_sample=False)
+                ids = model.generate(**inputs, **generate_kwargs)
             torch.cuda.synchronize()
             elapsed_ms = int((time.perf_counter() - started) * 1000)
             text = processor.batch_decode(ids[:, inputs["input_ids"].shape[1]:], skip_special_tokens=True)[0]
@@ -328,6 +448,7 @@ def probe(argv=None):
             results.append({"id": row["id"], "model_id": args.model,
                 "response": response, "latency_ms": elapsed_ms,
                 "cost_usd": None,
+                "constrained_decoding": bool(args.constrained_decoding),
                 "image_sha256": row["image_sha256"],
                 "image_pixels_encoded": True,
                 "visual_quality_review": "required"})
