@@ -99,9 +99,11 @@ The regenerated packet holds `train.jsonl`, `val.jsonl` and `manifest.json`, and
 
 Checked after writing, against the real staged rows rather than synthetic fixtures:
 
-- **60/60** packet rows carry a user prompt byte-identical to `make_prompt()` in `scripts/multimedia-director-contract.py`, the same object the serving probe uses. Training and serving can no longer diverge.
+- **60/60** packet rows carry a user prompt byte-identical to `make_prompt()` in `scripts/multimedia-director-contract.py`, the same object the serving probe uses, so a packet written by this builder cannot differ from what serving sends **at the moment it is written**.
 - **60/60** prompts differ from the superseded packet's Indonesian prompt, and **60/60** assistant targets are unchanged, so only the prompt was corrected.
 - `train-smolvlm2-lora.py` offline preflight on the new packet prints `OFFLINE PREFLIGHT PASS` with `verified_train_val_samples: 60`, `test_samples_loaded: 0`, `gpu_started: false`, `cost_usd: 0`.
 - The same preflight against the superseded packet exits 2 with `prepared packet schema/base model mismatch for Qwen/Qwen3-VL-4B-Instruct`: pre-fix packets are refused, not migrated.
+
+**Regenerate the packet whenever the prompt builder changes.** Those seals detect drift of the packet files and of the staged split files, not prompt-builder drift: a packet row does not carry the dataset brief, so `train-smolvlm2-lora.py` cannot recompute the prompt at load time and cannot notice that `make_prompt()` moved on after the packet was written. If `scripts/multimedia-director-contract.py` changes, every packet written before that change is stale and must be regenerated with `--write` before any GPU is rented, because training on it would silently reintroduce exactly the train/serve prompt divergence this packet format exists to prevent. Stamping a prompt-version fingerprint into the manifest would let the runner refuse such a packet by itself; that is an open follow-up needing its own decision (it changes the sealed manifest this section records), not a guarantee that exists today.
 
 What this does **not** prove: no training was run and no adapter exists from this packet; `human_visual_eval` remains `not_performed`; the Qwen3-VL processor and PEFT path are still unverified on a real GPU through this runner; the seals detect drift rather than establishing rights, reviewer identity or visual truth; and the 260 source photos remain without independent human review. Renting GPU time still requires the explicit spend approval described above.

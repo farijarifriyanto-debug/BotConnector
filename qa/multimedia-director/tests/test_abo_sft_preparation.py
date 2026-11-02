@@ -246,6 +246,24 @@ class SFTTests(unittest.TestCase):
         self.assertIn("untrusted data", text)
         self.assertEqual(text, probe.make_prompt(row))
 
+    def test_handoff_documents_prompt_builder_drift_rule(self):
+        """The seals detect packet and staging drift, never prompt-builder drift.
+
+        A packet row does not carry the dataset brief, so the runner cannot
+        recompute the prompt at load time and cannot catch a packet written
+        before `make_prompt` changed. The only thing between an operator and
+        silently re-creating the exact train/serve divergence this packet format
+        exists to prevent is a written rule to regenerate. Pin it, so a future
+        docs edit cannot drop the warning while the guarantee still looks stated.
+        """
+        handoff = (ROOT / "ABO-SFT-HANDOFF.md").read_text(encoding="utf-8")
+        runbook = (ROOT / "LORA-SMOKE-HANDOFF.md").read_text(encoding="utf-8")
+        for text in (handoff, runbook):
+            self.assertIn("not prompt-builder drift", text)
+        self.assertIn("must be regenerated", handoff)
+        self.assertIn("does not carry the dataset brief", handoff)
+        self.assertNotIn("Training and serving can no longer diverge.", handoff)
+
     def test_legacy_2b_packet_requires_explicit_flag(self):
         out = self.root / "legacy-export"
         cmd = [sys.executable, str(ROOT / "scripts/prepare-smolvlm2-sft.py"),
