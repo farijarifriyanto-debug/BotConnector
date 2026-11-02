@@ -76,3 +76,32 @@ The generated private `manifest.json` now includes:
 The LoRA runner recomputes train/val file hashes and fails closed if the manifest is incomplete or a packaged file changed. It only format-checks the test hash: it cannot re-verify withheld test bytes without accessing the heldout set, and a malicious issuer could fabricate a digest. This is a *reproducibility and tamper-detection improvement*, **not** a signature, proof of actual rights, cryptographic reviewer identity or model quality.
 
 **All older unsealed packages must be re-staged from the original rights-gated files; do not hand-edit the manifest or bypass these checks.** No previously gathered ABO photos are re-downloaded. No production deployment, paid GPU, model weights, user media, or private reviewer annotations are used in public GitHub Actions.
+
+## 2 November 2026 — packet re-sealed for the Qwen3-VL-4B primary (offline CPU, no spend)
+
+The 260-photo rights-gated staging was repackaged with the corrected code path on the operator's own machine: no GPU, no model download, no network dataset access, no cost.
+
+~~~sh
+python3 scripts/prepare-smolvlm2-sft.py \
+  --staged /private-data/reviewed-stage-001 \
+  --assets-root /private-data/abo-images \
+  --out-dir /private-data/director-prep-qwen-001 \
+  --write
+~~~
+
+The regenerated packet holds `train.jsonl`, `val.jsonl` and `manifest.json`, and **no** `test.jsonl`. Its manifest records:
+
+- `schema`: `botconnector.multimedia-director-sft-prep.v1`
+- `base_model`: `Qwen/Qwen3-VL-4B-Instruct`
+- `train_val_file_sha256.train`: `65a60b7a463269db4e98b1a3f82bcd6c5831106d7ef86a7fadb603878808bb78`
+- `train_val_file_sha256.val`: `cc86092806671c6ecaad5a4e829cc1e4fda71247c03f6c38f96b2dbf06c3dce0`
+- `sealed_holdout_stage_sha256`: `85d2c3796baf3e6f9000afd82a5635dedc4b992e0d92c2db4af618dfbafbf89b` — **identical to the 1 November packet**, because the staged `test.jsonl` was not touched. The holdout is still the same 200 unseen cases.
+
+Checked after writing, against the real staged rows rather than synthetic fixtures:
+
+- **60/60** packet rows carry a user prompt byte-identical to `make_prompt()` in `scripts/multimedia-director-contract.py`, the same object the serving probe uses. Training and serving can no longer diverge.
+- **60/60** prompts differ from the superseded packet's Indonesian prompt, and **60/60** assistant targets are unchanged, so only the prompt was corrected.
+- `train-smolvlm2-lora.py` offline preflight on the new packet prints `OFFLINE PREFLIGHT PASS` with `verified_train_val_samples: 60`, `test_samples_loaded: 0`, `gpu_started: false`, `cost_usd: 0`.
+- The same preflight against the superseded packet exits 2 with `prepared packet schema/base model mismatch for Qwen/Qwen3-VL-4B-Instruct`: pre-fix packets are refused, not migrated.
+
+What this does **not** prove: no training was run and no adapter exists from this packet; `human_visual_eval` remains `not_performed`; the Qwen3-VL processor and PEFT path are still unverified on a real GPU through this runner; the seals detect drift rather than establishing rights, reviewer identity or visual truth; and the 260 source photos remain without independent human review. Renting GPU time still requires the explicit spend approval described above.
